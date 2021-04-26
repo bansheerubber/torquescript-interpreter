@@ -36,7 +36,7 @@ Tokenizer::Tokenizer(string fileName) {
 			// we found modulus assign
 			else if(nextCharacter == '=') {
 				this->tokens.push_back(Token {
-					lexeme: "",
+					lexeme: "%=",
 					type: MODULUS_ASSIGN,
 					lineNumber: this->getLineNumber(2),
 					characterNumber: this->getCharacterNumber(2),
@@ -46,7 +46,7 @@ Tokenizer::Tokenizer(string fileName) {
 			else {
 				this->prevChar(); // give back first character of variable name
 				this->tokens.push_back(Token {
-					lexeme: "",
+					lexeme: "%",
 					type: MODULUS,
 					lineNumber: this->getLineNumber(1),
 					characterNumber: this->getCharacterNumber(1),
@@ -68,7 +68,7 @@ Tokenizer::Tokenizer(string fileName) {
 			}
 			else if(character == '/' && nextCharacter == '/') { // handle comment
 				this->prevChar();
-				this->tokens.push_back(this->readComment());
+				this->readComment();
 			}
 			else { // handle keyword
 				this->prevChar();
@@ -97,9 +97,46 @@ Tokenizer::Tokenizer(string fileName) {
 	}
 
 	// print the tokens
-	for(Token token: this->tokens) {
+	/*for(Token token: this->tokens) {
 		this->printToken(token);
-	}
+	}*/
+
+	/*for(auto info: this->info) {
+		printf("%c", info.character);
+	}*/
 
 	this->file.close();
+}
+
+Token Tokenizer::getToken() {
+	if(this->tokenIndex >= (int)this->tokens.size()) {
+		return {};
+	}
+	return this->tokens[this->tokenIndex++];
+}
+
+Token Tokenizer::unGetToken() {
+	if(this->tokenIndex <= 0) {
+		return {};
+	}
+	return this->tokens[--this->tokenIndex];
+}
+
+Token Tokenizer::peekToken(int offset) {
+	if(this->tokenIndex + offset >= (int)this->tokens.size()) {
+		return {};
+	}
+
+	if(this->tokenIndex + offset < 0) {
+		printError("token index is somehow below 0");
+	}
+
+	return this->tokens[this->tokenIndex + offset];
+}
+
+bool Tokenizer::eof() {
+	if(this->tokenIndex >= (int)this->tokens.size()) {
+		return true;
+	}
+	return false;
 }

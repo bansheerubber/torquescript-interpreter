@@ -2,7 +2,7 @@
 #include "../io.h"
 
 void Tokenizer::error(const char* format, ...) {
-	printError("%s:%d:%d: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
+	printError("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
@@ -46,7 +46,7 @@ static const char* TokenTypeDebug[] = {
 	"SHIFT_LEFT_ASSIGN",
 	"SHIFT_RIGHT_ASSIGN",
 	"ASSIGN",
-	"NOT",
+	"LOGICAL_NOT",
 	"BITWISE_AND",
 	"BITWISE_OR",
 	"BITWISE_XOR",
@@ -96,6 +96,10 @@ static const char* TokenTypeDebug[] = {
 	"SYMBOL",
 	"COMMENT",
 };
+
+const char* Tokenizer::typeToName(TokenType type) {
+	return TokenTypeDebug[type];
+}
 
 void Tokenizer::printToken(Token token) {
 	printf("Token {\n");

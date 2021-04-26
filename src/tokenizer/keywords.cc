@@ -25,8 +25,8 @@ void Tokenizer::initializeKeywords() {
 	this->validKeywords.insert(pair<string, TokenType>("^=", XOR_ASSIGN));
 	this->validKeywords.insert(pair<string, TokenType>("<<=", SHIFT_LEFT_ASSIGN));
 	this->validKeywords.insert(pair<string, TokenType>(">>=", SHIFT_RIGHT_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("=", EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("!", NOT));
+	this->validKeywords.insert(pair<string, TokenType>("=", ASSIGN));
+	this->validKeywords.insert(pair<string, TokenType>("!", LOGICAL_NOT));
 	this->validKeywords.insert(pair<string, TokenType>("%", MODULUS));
 	this->validKeywords.insert(pair<string, TokenType>("&", BITWISE_AND));
 	this->validKeywords.insert(pair<string, TokenType>("|", BITWISE_OR));
@@ -68,9 +68,13 @@ void Tokenizer::initializeKeywords() {
 	this->validKeywords.insert(pair<string, TokenType>("datablock", DATABLOCK));
 	this->validKeywords.insert(pair<string, TokenType>("true", TRUE));
 	this->validKeywords.insert(pair<string, TokenType>("false", FALSE));
-	this->validKeywords.insert(pair<string, TokenType>("SPC", SPC));
-	this->validKeywords.insert(pair<string, TokenType>("TAB", TAB));
-	this->validKeywords.insert(pair<string, TokenType>("NL", NL));
+	this->validKeywords.insert(pair<string, TokenType>("spc", SPC));
+	this->validKeywords.insert(pair<string, TokenType>("tab", TAB));
+	this->validKeywords.insert(pair<string, TokenType>("nl", NL));
+
+	this->customLexeme.insert(pair<TokenType, string>(SPC, "SPC"));
+	this->customLexeme.insert(pair<TokenType, string>(TAB, "TAB"));
+	this->customLexeme.insert(pair<TokenType, string>(NL, "NL"));
 	
 	for(auto const &[argument, value]: this->validKeywords) {
 		string output;
@@ -79,7 +83,7 @@ void Tokenizer::initializeKeywords() {
 				this->partialKeywords[i + 1] = new map<string, string>();
 			}
 
-			output += argument[i];
+			output += tolower(argument[i]);
 			this->partialKeywords[i + 1]->insert(pair<string, string>(output, argument));
 		}
 	}
@@ -110,8 +114,20 @@ bool Tokenizer::isArgument(string argument) {
 	return type >= PLUS && type <= COMMA;
 }
 
+bool Tokenizer::isAlphabeticalKeyword(string keyword) {
+	TokenType type = this->isValidKeyword(keyword);
+	return type >= RETURN && type <= NL;
+}
+
 TokenType Tokenizer::isValidKeyword(string argument) {
 	return this->validKeywords[argument];
+}
+
+string Tokenizer::getKeywordLexeme(TokenType type) {
+	if(this->customLexeme[type] == "") {
+		return "";
+	}
+	return this->customLexeme[type];
 }
 
 Token Tokenizer::readKeyword() {
@@ -135,18 +151,40 @@ Token Tokenizer::readKeyword() {
 	}
 
 	// if we remove one character from the argument buffer, are we a valid argument?
+	char nextChar;
 	if(finished) {
+		nextChar = argumentBuffer[(int)argumentBuffer.length() - 1];
 		argumentBuffer.erase(argumentBuffer.length() - 1, 1);
 		this->prevChar(); // give back last character we read
 	}
 
 	TokenType argumentType = this->isValidKeyword(argumentBuffer);
-	if(argumentType) {
+	bool isAlphabetical = this->isAlphabeticalKeyword(argumentBuffer);
+	if(
+		argumentType
+		&& (
+			!isAlphabetical
+			|| (
+				isAlphabetical
+				&& !this->isValidVariableChar(nextChar)
+			)
+		)
+	) {
+		string customLexeme = this->getKeywordLexeme(argumentType);
+		argument.lexeme = customLexeme != "" ? customLexeme : argumentBuffer;
 		argument.type = argumentType;
 		return argument;
 	}
 	// return invalid argument after rolling back characters
 	else {
+		// TODO generalize this special case
+		if(argumentBuffer == "!$") {
+			this->prevChar();
+			argument.lexeme = "!";
+			argument.type = LOGICAL_NOT;
+			return argument;
+		}
+		
 		// get argument from partial
 		string keyword = this->getKeywordFromPartial(argumentBuffer);
 		if(this->isArgument(keyword)) { // if we're a partial argument, then display error

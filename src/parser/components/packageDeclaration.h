@@ -1,0 +1,33 @@
+#pragma once
+
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "component.h"
+#include "body.h"
+#include "../parser.h"
+#include "../../tokenizer/token.h"
+#include "../../tokenizer/tokenizer.h"
+#include "symbol.h"
+
+using namespace std;
+
+class PackageDeclaration : public Body {
+	public:
+		ComponentType getType() {
+			return PACKAGE_DECLARATION;
+		}
+
+		bool requiresSemicolon(Component* child) {
+			return false;
+		}
+
+		string print();
+		
+		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
+		static PackageDeclaration* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+	
+	private:
+		Symbol* packageName;
+};

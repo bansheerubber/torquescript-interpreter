@@ -1,7 +1,7 @@
 target = dist/eggscript
 cclibs = 
 cc = g++
-ccflags = -g -Wall -std=c++17 # -Wno-switch
+ccflags = -g -Wall -std=c++17 -Wunused-variable
 
 cpp_source = $(shell find src -name "*.cc")
 cpp_headers = $(shell find src -name "*.h")

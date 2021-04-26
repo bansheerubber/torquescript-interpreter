@@ -15,7 +15,6 @@ int Tokenizer::getCharacterNumber(int offset) {
 char Tokenizer::getChar() {
 	char output;
 	this->file.get(output);
-	this->characterNumber++;
 
 	// if we overrun the file, just imagine that we're still reading but just blank bytes
 	if(this->file.eof()) {
@@ -25,6 +24,7 @@ char Tokenizer::getChar() {
 
 	if(this->info.size() == 0) {
 		this->info.push_back({
+			character: output,
 			lineNumber: 1,
 			characterNumber: 1,
 		});
@@ -36,16 +36,15 @@ char Tokenizer::getChar() {
 		int characterNumber = output != '\n'
 			? this->info[(int)this->file.tellg() - 2].characterNumber + 1
 			: 0;
+
+		this->lastValidLineNumber = lineNumber;
+		this->lastValidCharacterNumber = characterNumber;
 		
 		this->info.push_back({
+			character: output,
 			lineNumber: lineNumber,
 			characterNumber: characterNumber,
 		});
-	}
-
-	if(output == '\n') {
-		this->lineNumber++;
-		this->characterNumber = 0;
 	}
 
 	return output;

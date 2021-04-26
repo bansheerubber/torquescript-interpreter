@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <stdio.h>
@@ -204,9 +205,26 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	string fileName = parsed.files.front();
-	Tokenizer* tokenizer = new Tokenizer(fileName);
-	Parser parser(tokenizer);
+	for(string fileName: parsed.files) {
+		filesystem::path path(fileName);
+		error_code error;
+
+		if(filesystem::is_directory(path, error)) {
+			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
+				string candidateFile = entry.path().string();
+				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
+					printf("parsing file %s\n", candidateFile.c_str());
+					Tokenizer* tokenizer = new Tokenizer(candidateFile);
+					Parser* parser = new Parser(tokenizer);
+				}
+			}
+		}
+		else if(filesystem::is_regular_file(path, error)) {
+			printf("parsing file %s\n", fileName.c_str());
+			Tokenizer* tokenizer = new Tokenizer(fileName);
+			Parser* parser = new Parser(tokenizer);
+		}
+	}
 	
 	return 0;
 }
