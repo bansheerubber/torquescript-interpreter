@@ -1,3 +1,4 @@
+#include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <map>
@@ -211,6 +212,8 @@ int main(int argc, char* argv[]) {
 
 		if(filesystem::is_directory(path, error)) {
 			int total = 0;
+			auto start = chrono::high_resolution_clock::now();
+
 			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
 				string candidateFile = entry.path().string();
 				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
@@ -219,11 +222,18 @@ int main(int argc, char* argv[]) {
 					total += tokenizer->getLineCount();
 				}
 			}
-			printf("completed parsing %d lines from %s\n", total, path.string().c_str());
+
+			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
+			printf("completed parsing %d lines from %s in %.2fs\n", total, path.string().c_str(), time);
 		}
 		else if(filesystem::is_regular_file(path, error)) {
+			auto start = chrono::high_resolution_clock::now();
+			
 			Tokenizer* tokenizer = new Tokenizer(fileName);
 			Parser* parser = new Parser(tokenizer);
+
+			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
+			printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);
 		}
 	}
 	
