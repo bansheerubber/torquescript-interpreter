@@ -88,7 +88,8 @@ Token Tokenizer::readGlobalVariable() {
 				}
 			}
 			else {
-				this->error("incomplete namespace of global variable (namespace must be '::')", token.lexeme.c_str());
+				token.lexeme += ":";
+				this->warning("incomplete namespace of global variable (namespace must be '::')", token.lexeme.c_str());
 			}
 		}
 		else {
