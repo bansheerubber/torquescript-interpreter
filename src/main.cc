@@ -46,11 +46,6 @@ vector<Argument> createArguments() {
 	});
 
 	output.push_back((Argument){
-		name: "no-comments",
-		help: "Do not output comments"
-	});
-
-	output.push_back((Argument){
 		name: "no-warnings",
 		help: "Do not print warnings"
 	});
