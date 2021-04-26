@@ -22,6 +22,18 @@ Token Tokenizer::readNumber() {
 		if(this->isNumber(character)) {
 			number.lexeme += character;
 		}
+		// handle exponents
+		else if(character == 'e' || character == 'E') {
+			number.lexeme += character;
+
+			character = this->getChar();
+			if(this->isNumber(character) || character == '-') {
+				number.lexeme += character;
+			}
+			else {
+				this->error("invalid character '%c' after exponent point (number or negative sign must follow exponent symbol)", character);
+			}
+		}
 		// if this character is a decimal, we need the next character to be a number
 		else if(character == '.') {
 			number.lexeme += character;
