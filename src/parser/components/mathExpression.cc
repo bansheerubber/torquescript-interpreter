@@ -35,6 +35,7 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 				(
 					NumberLiteral::ShouldParse(tokenizer, parser)
 					|| StringLiteral::ShouldParse(tokenizer, parser)
+					|| BooleanLiteral::ShouldParse(tokenizer, parser)
 				)
 				&& MathExpression::IsOperator(tokenizer->peekToken(1).type)
 			)

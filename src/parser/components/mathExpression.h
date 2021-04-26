@@ -6,6 +6,7 @@
 #include "accessStatement.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
+#include "booleanLiteral.h"
 #include "../parser.h"
 #include "../../tokenizer/token.h"
 #include "../../tokenizer/tokenizer.h"
