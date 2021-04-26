@@ -100,3 +100,26 @@ Token Tokenizer::readGlobalVariable() {
 
 	return token;
 }
+
+Token Tokenizer::readMemberChain() {
+	Token token = {
+		lexeme: ".",
+		type: MEMBER_CHAIN,
+		lineNumber: this->getLineNumber(),
+		characterNumber: this->getCharacterNumber(),
+	};
+
+	// read a symbol
+	char character;
+	while((character = this->getChar())) {
+		if(this->isValidVariableChar(character)) {
+			token.lexeme += character;
+		}
+		else {
+			this->prevChar();
+			break; // we're done reading the variable name
+		}
+	}
+
+	return token;
+}

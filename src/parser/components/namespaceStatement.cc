@@ -43,8 +43,14 @@ NamespaceStatement* NamespaceStatement::Parse(Component* parent, Tokenizer* toke
 }
 
 string NamespaceStatement::print() {
-	if(this->name == nullptr) {
-		return "Parent::" + this->operation->print() + this->call->print() + ";";
+	string output = "Parent::" + this->operation->print() + this->call->print();
+	if(this->name != nullptr) {
+		output = this->name->print() + "::" + this->operation->print() + this->call->print();
 	}
-	return this->name->print() + "::" + this->operation->print() + this->call->print() + ";";
+
+	if(this->parent->requiresSemicolon(this)) {
+		output += ";";
+	}
+
+	return output;
 }

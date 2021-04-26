@@ -1,10 +1,11 @@
 #include "parser.h"
 
 Parser::Parser(Tokenizer* tokenizer) {
+	// printf("parsed %d lines of code from %s\n", tokenizer->getLineCount(), tokenizer->fileName.c_str());
 	this->tokenizer = tokenizer;
 	this->sourceFile = new SourceFile();
 	Component::ParseBody(this->sourceFile, this->tokenizer, this);
-	// printf("parsed %d lines of code from %s\n", tokenizer->getLineCount(), tokenizer->fileName.c_str());
+	// printf("%s\n", this->sourceFile->print().c_str());
 }
 
 Token Parser::expectToken(TokenType type1, TokenType type2, TokenType type3, TokenType type4, TokenType type5) {

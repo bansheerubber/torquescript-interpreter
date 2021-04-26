@@ -14,7 +14,6 @@ using namespace std;
 
 struct AccessElement {
 	Token token; // a token if we have one
-	bool isDot;
 	bool isArray;
 	bool isCall;
 	Component* component; // array access if there is any
@@ -35,8 +34,14 @@ class AccessStatement : public Component {
 		}
 
 		string print();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static AccessStatement* Parse(Component* firstValue, Component* parent, Tokenizer* tokenizer, Parser* parser, bool oneSymbol = false);
+		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword = false);
+		static AccessStatement* Parse(
+			Component* firstValue,
+			Component* parent,
+			Tokenizer* tokenizer,
+			Parser* parser,
+			bool useKeyword = false
+		);
 
 		bool isLocalVariable();
 		bool isGlobalVariable();

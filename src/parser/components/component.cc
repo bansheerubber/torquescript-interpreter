@@ -43,6 +43,10 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 
 	if(NamespaceStatement::ShouldParse(tokenizer, parser)) {
 		output = NamespaceStatement::Parse(parent, tokenizer, parser);
+
+		if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(output, tokenizer, parser)) {
+			output = MathExpression::Parse(output, parent, tokenizer, parser); // let math expression take over parsing
+		}
 	}
 	else if(AccessStatement::ShouldParse(tokenizer, parser)) {
 		Component* lvalue = AccessStatement::Parse(nullptr, parent, tokenizer, parser);
@@ -94,7 +98,7 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 	if(InlineConditional::ShouldParse(tokenizer, parser) && output != nullptr) {
 		output = InlineConditional::Parse(output, parent, tokenizer, parser);
 	}
-	else if(tokenizer->peekToken().type == DOT) { // parse access statement
+	else if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
 		Component* lvalue = AccessStatement::Parse(output, parent, tokenizer, parser);
 		
 		bool isPostfix = false;
@@ -121,11 +125,6 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool oneLine) {
 	int count = 0;
 	while(!tokenizer->eof()) {
-		if(count >= 10000) {
-			printf("infinite loop\n");
-			break;
-		}
-
 		if(oneLine && count > 0) {
 			break;
 		}

@@ -48,7 +48,6 @@ void Tokenizer::initializeKeywords() {
 	this->validKeywords.insert(pair<string, TokenType>("}", RIGHT_BRACKET));
 	this->validKeywords.insert(pair<string, TokenType>(";", SEMICOLON));
 	this->validKeywords.insert(pair<string, TokenType>(",", COMMA));
-	this->validKeywords.insert(pair<string, TokenType>(".", DOT));
 	this->validKeywords.insert(pair<string, TokenType>("return", RETURN));
 	this->validKeywords.insert(pair<string, TokenType>("package", PACKAGE));
 	this->validKeywords.insert(pair<string, TokenType>("new", NEW));
@@ -80,7 +79,7 @@ void Tokenizer::initializeKeywords() {
 		string output;
 		for(int i = 0; i < (int)argument.length(); i++) {
 			if(!this->partialKeywords[i + 1]) {
-				this->partialKeywords[i + 1] = new map<string, string>();
+				this->partialKeywords[i + 1] = new unordered_map<string, string>();
 			}
 
 			output += tolower(argument[i]);
@@ -92,14 +91,15 @@ void Tokenizer::initializeKeywords() {
 bool Tokenizer::isPartialKeyword(char partial) {
 	string partialString;
 	partialString += tolower(partial);
-	return (*this->partialKeywords[1])[partialString] != "";
+	return (*this->partialKeywords[1]).find(partialString) != (*this->partialKeywords[1]).end();
 }
 
 bool Tokenizer::isPartialKeyword(string partial) {
-	if(this->partialKeywords[(int)partial.length()]) {
-		return (*this->partialKeywords[(int)partial.length()])[partial] != "";
+	int length = (int)partial.length();
+	if(this->partialKeywords.find(length) == this->partialKeywords.end()) {
+		return false;
 	}
-	return false;
+	return (*this->partialKeywords[length]).find(partial) != (*this->partialKeywords[length]).end();
 }
 
 string Tokenizer::getKeywordFromPartial(string partial) {
@@ -116,6 +116,10 @@ bool Tokenizer::isArgument(string argument) {
 
 bool Tokenizer::isAlphabeticalKeyword(string keyword) {
 	TokenType type = this->isValidKeyword(keyword);
+	return type >= RETURN && type <= NL;
+}
+
+bool Tokenizer::isAlphabeticalKeyword(TokenType type) {
 	return type >= RETURN && type <= NL;
 }
 
@@ -151,7 +155,7 @@ Token Tokenizer::readKeyword() {
 	}
 
 	// if we remove one character from the argument buffer, are we a valid argument?
-	char nextChar;
+	char nextChar = '\0';
 	if(finished) {
 		nextChar = argumentBuffer[(int)argumentBuffer.length() - 1];
 		argumentBuffer.erase(argumentBuffer.length() - 1, 1);

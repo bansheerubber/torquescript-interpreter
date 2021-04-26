@@ -1,69 +1,56 @@
 #include "accessStatement.h"
+#include "mathExpression.h"
 
 bool AccessStatement::DatablockAsSymbol = false;
 
-bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
+bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword) {
 	Token token = tokenizer->peekToken();
 	return (
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
 		|| token.type == SYMBOL
-		|| (AccessStatement::DatablockAsSymbol && token.type == DATABLOCK)
+		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	);
 }
 
-AccessStatement* AccessStatement::Parse(Component* firstValue, Component* parent, Tokenizer* tokenizer, Parser* parser, bool oneSymbol) {
+AccessStatement* AccessStatement::Parse(
+	Component* firstValue,
+	Component* parent,
+	Tokenizer* tokenizer,
+	Parser* parser,
+	bool useKeyword
+) {
 	AccessStatement* output = new AccessStatement();
 	output->parent = parent;
 
-	bool expectingDot = false;
-	bool expectingArrayOrCall = false;
-	bool expectingVariable = true;
+	bool expectingArrayOrCall = true;
 	if(firstValue != nullptr) {
 		output->elements.push_back({
 			component: firstValue,
 		});
 		firstValue->setParent(output);
-		
-		expectingDot = true;
-		expectingArrayOrCall = true;
-		expectingVariable = false;
+	}
+	else if(
+		tokenizer->peekToken().type == LOCAL_VARIABLE
+		|| tokenizer->peekToken().type == GLOBAL_VARIABLE
+		|| tokenizer->peekToken().type == SYMBOL
+		|| (useKeyword && tokenizer->isAlphabeticalKeyword(tokenizer->peekToken().type))
+	) { // we read in a single variable at the start of the chain
+		output->elements.push_back({
+			token: tokenizer->getToken(),
+		});
 	}
 	
 	Token token;
 	while((token = tokenizer->getToken()).type) {
-		if(
-			token.type == LOCAL_VARIABLE
-			|| token.type == GLOBAL_VARIABLE
-			|| token.type == SYMBOL
-			|| (AccessStatement::DatablockAsSymbol && token.type == DATABLOCK)
-		) {
-			if(expectingVariable) {
-				output->elements.push_back({
-					token: token,
-				});
-				expectingDot = true;
-				expectingArrayOrCall = true;
-				expectingVariable = false;
-
-				if(oneSymbol) {
-					break; // break after reading one symbol
-				}
-			}
-			else {
-				parser->error("two variables next to each other");
-			}
-		}
-		else if(token.type == LEFT_BRACE) {
+		if(token.type == LEFT_BRACE) {
 			tokenizer->unGetToken();
 			if(expectingArrayOrCall) {
 				output->elements.push_back({
 					isArray: true,
 					component: ArrayStatement::Parse(output, tokenizer, parser),
 				});
-				expectingDot = true;
 				expectingArrayOrCall = false;
-				expectingVariable = false;
 			}
 			else {
 				parser->error("was not expecting array access");
@@ -76,33 +63,19 @@ AccessStatement* AccessStatement::Parse(Component* firstValue, Component* parent
 					isCall: true,
 					component: CallStatement::Parse(output, tokenizer, parser),
 				});
-				expectingDot = true;
 				expectingArrayOrCall = false;
-				expectingVariable = false;
 			}
 			else {
 				parser->error("was not expecting call");
 			}
 		}
-		else if(token.type == DOT) {
-			if(expectingDot) {
-				output->elements.push_back({
-					isDot: true,
-				});
-				expectingDot = false;
-				expectingArrayOrCall = false;
-				expectingVariable = true;
-			}
-			else {
-				parser->error("was not expecting member chain");
-			}
+		else if(token.type == MEMBER_CHAIN) {
+			output->elements.push_back({
+				token: token,
+			});
+			expectingArrayOrCall = true;
 		}
 		else {
-			if(expectingVariable) {
-				parser->error("incomplete member chain");
-			}
-			
-			// TODO could make this stricter??
 			tokenizer->unGetToken();
 			break;
 		}
@@ -119,14 +92,11 @@ string AccessStatement::print() {
 		else if(element.token.type == GLOBAL_VARIABLE) {
 			output += "$" + element.token.lexeme;
 		}
-		else if(element.token.type == SYMBOL) {
-			output += element.token.lexeme;
-		}
-		else if(element.isDot) {
-			output += ".";
-		}
 		else if(element.component != nullptr) {
 			output += element.component->print();
+		}
+		else if(element.token.type) {
+			output += element.token.lexeme;
 		}
 	}
 	
@@ -147,7 +117,7 @@ bool AccessStatement::isGlobalVariable() {
 
 bool AccessStatement::hasChain() {
 	for(AccessElement element: this->elements) {
-		if(element.isDot) {
+		if(element.token.type == MEMBER_CHAIN) {
 			return true;
 		}
 	}

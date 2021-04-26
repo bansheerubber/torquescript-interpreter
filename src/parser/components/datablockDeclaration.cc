@@ -26,29 +26,32 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 	parser->expectToken(LEFT_BRACKET);
 	// read assignment statements
 	while(!tokenizer->eof()) {
-		if(Component::ShouldParse(output, tokenizer, parser)) {
-			Component* child = Component::Parse(output, tokenizer, parser);
-			output->children.push_back(child);
-
-			if(child->getType() != ASSIGN_STATEMENT) {
-				parser->error("only expect assignments in datablock, not '%s'", child->print().c_str());
-			}
-
-			AccessStatement* lvalue = ((AssignStatement*)child)->getLvalue();
+		if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
+			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
 			if(
-				lvalue->hasChain()
-				|| lvalue->hasCall()
-				|| lvalue->chainSize() > 2
-				|| lvalue->isLocalVariable()
-				|| lvalue->isGlobalVariable()
+				access->hasChain()
+				|| access->hasCall()
+				|| access->chainSize() > 2
+				|| access->isLocalVariable()
+				|| access->isGlobalVariable()
 			) {
-				parser->error("did not expect complex assignment '%s' in datablock", child->print().c_str());
+				parser->error("did not expect complex property assignment '%s' in datablock", access->print().c_str());
 			}
+
+			// now parse the assign statement
+			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
+				parser->error("expected property assignment in datablock");
+			}
+
+			output->children.push_back(AssignStatement::Parse(access, output, tokenizer, parser));
 
 			parser->expectToken(SEMICOLON);
 		}
-		else {
+		else if(tokenizer->peekToken().type == RIGHT_BRACKET) {
 			break;
+		}
+		else {
+			parser->error("expected property assignment in datablock");
 		}
 	}
 

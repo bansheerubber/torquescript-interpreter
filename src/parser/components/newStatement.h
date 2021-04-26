@@ -10,6 +10,8 @@
 #include "accessStatement.h"
 #include "assignStatement.h"
 #include "callStatement.h"
+#include "inheritanceStatement.h"
+#include "mathExpression.h"
 #include "symbol.h"
 
 class NewStatement : public Body {
@@ -31,6 +33,6 @@ class NewStatement : public Body {
 		static NewStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* className;
-		CallStatement* arguments;
+		Component* className;
+		Component* arguments;
 };

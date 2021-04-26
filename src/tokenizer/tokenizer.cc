@@ -82,6 +82,10 @@ Tokenizer::Tokenizer(string fileName) {
 				}	
 			}
 		}
+		// member chain parsing
+		else if(character == '.') {
+			this->tokens.push_back(this->readMemberChain());
+		}
 		// read a symbol
 		else if(this->isValidVariableFirstChar(character)) {
 			this->prevChar();

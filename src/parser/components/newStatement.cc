@@ -1,7 +1,13 @@
 #include "newStatement.h"
 
 bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == NEW;
+	return (
+		tokenizer->peekToken().type == NEW
+		&& (
+			tokenizer->peekToken(1).type == SYMBOL
+			|| tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+		)
+	);
 }
 
 NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
@@ -11,56 +17,69 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 	parser->expectToken(NEW);
 
 	// parse a symbol
-	if(!Symbol::ShouldParse(tokenizer, parser)) {
+	if(Symbol::ShouldParse(tokenizer, parser)) {
+		output->className = Symbol::Parse(output, tokenizer, parser);
+	}
+	else if(MathExpression::ShouldParse(nullptr, tokenizer, parser)) {
+		output->className = MathExpression::Parse(nullptr, output, tokenizer, parser);
+	}
+	else {
 		parser->error("invalid new object name");
 	}
-	output->className = Symbol::Parse(output, tokenizer, parser);
 
 	// parse call list
-	if(!CallStatement::ShouldParse(tokenizer, parser)) {
+	if(InheritanceStatement::ShouldParse(tokenizer, parser)) {
+		output->arguments = InheritanceStatement::Parse(parent, tokenizer, parser);
+	}
+	else if(CallStatement::ShouldParse(tokenizer, parser)) {
+		output->arguments = CallStatement::Parse(parent, tokenizer, parser);
+	}
+	else {
 		parser->error("invalid new object argument list");
 	}
-	output->arguments = CallStatement::Parse(parent, tokenizer, parser);
 
-	// expect semicolon if we got no arguments in the body of the new object statement
-	if(tokenizer->peekToken().type == SEMICOLON) {
-		return output; // don't absorb semicolon, a different part of code will do that
-	}
-	else if(tokenizer->peekToken().type != LEFT_BRACKET) {
-		parser->error("expected bracket for property list for new object");
+	// expect something not a left bracket if we got no arguments in the body of the new object statement
+	if(tokenizer->peekToken().type != LEFT_BRACKET) {
+		return output;
 	}
 
 	parser->expectToken(LEFT_BRACKET);
 
 	// parse property declaration
-	AccessStatement::DatablockAsSymbol = true;
 	while(!tokenizer->eof()) {
-		if(Component::ShouldParse(output, tokenizer, parser)) {
-			Component* child = Component::Parse(output, tokenizer, parser);
-			output->children.push_back(child);
-
-			if(child->getType() != ASSIGN_STATEMENT) {
-				parser->error("only expect property assignments in new object, not '%s'", child->print().c_str());
-			}
-
-			AccessStatement* lvalue = ((AssignStatement*)child)->getLvalue();
+		// new statements can be nested, apparently
+		if(NewStatement::ShouldParse(tokenizer, parser)) {
+			output->children.push_back(NewStatement::Parse(output, tokenizer, parser));
+			parser->expectToken(SEMICOLON);
+		}
+		if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
+			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
 			if(
-				lvalue->hasChain()
-				|| lvalue->hasCall()
-				|| lvalue->chainSize() > 2
-				|| lvalue->isLocalVariable()
-				|| lvalue->isGlobalVariable()
+				access->hasChain()
+				|| access->hasCall()
+				|| access->chainSize() > 2
+				|| access->isLocalVariable()
+				|| access->isGlobalVariable()
 			) {
-				parser->error("did not expect complex property assignment '%s' in new object", child->print().c_str());
+				parser->error("did not expect complex property assignment '%s' in new object", access->print().c_str());
 			}
+
+			// now parse the assign statement
+			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
+				parser->error("expected property assignment in new object");
+			}
+
+			output->children.push_back(AssignStatement::Parse(access, output, tokenizer, parser));
 
 			parser->expectToken(SEMICOLON);
 		}
-		else {
+		else if(tokenizer->peekToken().type == RIGHT_BRACKET) {
 			break;
 		}
+		else {
+			parser->error("expected property assignment in new object");
+		}
 	}
-	AccessStatement::DatablockAsSymbol = false;
 
 	parser->expectToken(RIGHT_BRACKET);
 

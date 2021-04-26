@@ -85,6 +85,7 @@ enum TokenType {
 	GLOBAL_VARIABLE,
 	SYMBOL,
 	COMMENT,
+	MEMBER_CHAIN,
 };
 
 struct Token {

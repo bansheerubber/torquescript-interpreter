@@ -28,6 +28,7 @@ class Tokenizer {
 		const char* typeToName(TokenType type);
 		int getLineCount();
 		int getCharacterCount();
+		bool isAlphabeticalKeyword(TokenType keyword);
 
 		string fileName;
 	
@@ -72,6 +73,7 @@ class Tokenizer {
 		bool isValidVariableChar(char character);
 		Token readLocalVariable();
 		Token readGlobalVariable();
+		Token readMemberChain();
 
 		Token readStringLiteral(bool isTaggedString);
 
