@@ -20,12 +20,14 @@ struct CharacterInformation {
 class Tokenizer {
 	public:
 		Tokenizer(string fileName);
-		Token getToken();
-		Token unGetToken();
-		Token peekToken(int offset = 0);
+		Token& getToken();
+		Token& unGetToken();
+		Token& peekToken(int offset = 0);
 		bool eof();
 		void printToken(Token token);
 		const char* typeToName(TokenType type);
+		int getLineCount();
+		int getCharacterCount();
 
 		string fileName;
 	
@@ -73,4 +75,6 @@ class Tokenizer {
 		Token readSymbol();
 
 		Token readComment();
+
+		Token emptyToken = {};
 };

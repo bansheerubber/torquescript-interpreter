@@ -8,12 +8,6 @@ ElseIfBody* ElseIfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) 
 	ElseIfBody* output = new ElseIfBody();
 	output->parent = body;
 
-	// check if last statement is valid for else
-	Component* lastChild = body->getLastChild();
-	if(lastChild == nullptr || (lastChild->getType() != IF_STATEMENT && lastChild->getType() != ELSE_IF_STATEMENT)) {
-		parser->error("'else if' statements must follow 'if' or 'else if' statements");
-	}
-	
 	parser->expectToken(ELSE);
 	parser->expectToken(IF);
 	parser->expectToken(LEFT_PARENTHESIS);

@@ -47,7 +47,7 @@ class Component {
 		virtual bool requiresSemicolon(Component* child) = 0; // whether or not a child of this component needs a semicolon
 
 		static bool ShouldParse(Component* parent, Tokenizer* tokenizer, class Parser* parser);
-		static Component* Parse(Component* parent, Tokenizer* tokenizer, class Parser* parser);
+		static Component* Parse(Component* parent, Tokenizer* tokenizer, class Parser* parser, bool nestedMathExpression = false);
 		static void ParseBody(class Body* body, Tokenizer* tokenizer, class Parser* parser, bool oneLine = false);
 
 		void setParent(Component* parent) {

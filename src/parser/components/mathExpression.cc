@@ -94,7 +94,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 		else {
 			if(tokenizer->peekToken().type == LEFT_PARENTHESIS) { // nested math expression
 				output->elements.push_back({
-					component: MathExpression::Parse(nullptr, output, tokenizer, parser),
+					component: Component::Parse(output, tokenizer, parser, true),
 				});
 				expectingOperator = true;
 			}

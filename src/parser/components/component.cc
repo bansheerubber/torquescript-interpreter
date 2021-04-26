@@ -29,7 +29,7 @@
 
 bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	return AccessStatement::ShouldParse(tokenizer, parser)
-		|| (parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(nullptr, tokenizer, parser))
+		|| MathExpression::ShouldParse(nullptr, tokenizer, parser)
 		|| NumberLiteral::ShouldParse(tokenizer, parser)
 		|| StringLiteral::ShouldParse(tokenizer, parser)
 		|| BooleanLiteral::ShouldParse(tokenizer, parser)
@@ -38,7 +38,7 @@ bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* par
 		|| NamespaceStatement::ShouldParse(tokenizer, parser);
 }
 
-Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
+Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser, bool nestedMathExpression) {
 	Component* output = nullptr;
 
 	if(NamespaceStatement::ShouldParse(tokenizer, parser)) {
@@ -63,7 +63,18 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 			output = lvalue;
 		}
 	}
-	else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(nullptr, tokenizer, parser)) {
+	// sometimes we want to force nested math expression parsing, so we can get
+	// the additional component support at the bottom of this function
+	else if(
+		(
+			nestedMathExpression
+			|| (
+				!nestedMathExpression
+				&& parent->getType() != MATH_EXPRESSION
+			)
+		)
+		&& MathExpression::ShouldParse(nullptr, tokenizer, parser)
+	) {
 		output = MathExpression::Parse(nullptr, parent, tokenizer, parser);
 	}
 	else if(NumberLiteral::ShouldParse(tokenizer, parser)) {
@@ -79,6 +90,7 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 		output = NewStatement::Parse(parent, tokenizer, parser);
 	}
 	
+	// additional support for edge cases
 	if(InlineConditional::ShouldParse(tokenizer, parser) && output != nullptr) {
 		output = InlineConditional::Parse(output, parent, tokenizer, parser);
 	}
@@ -114,23 +126,8 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 			break;
 		}
 
-		// handle one line statements (if statement chains)
 		if(oneLine && count > 0) {
-			/*Component* lastChild = body->getLastChild();
-			if(lastChild->getType() != ELSE_IF_STATEMENT || lastChild->getType() != IF_STATEMENT) {
-				break; // break the chain before we get parsing errors
-			}*/
-			
-			if(ElseIfBody::ShouldParse(tokenizer, parser)) {
-				body->addChild(ElseIfBody::Parse(body, tokenizer, parser));
-			}
-			else if(ElseBody::ShouldParse(tokenizer, parser)) {
-				body->addChild(ElseBody::Parse(body, tokenizer, parser));
-				break; // else denotes end of if chain
-			}
-			else {
-				break;
-			}
+			break;
 		}
 
 		if(Component::ShouldParse(body, tokenizer, parser)) {
@@ -165,12 +162,6 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 		}
 		else if(IfBody::ShouldParse(tokenizer, parser)) {
 			body->addChild(IfBody::Parse(body, tokenizer, parser));
-		}
-		else if(ElseIfBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(ElseIfBody::Parse(body, tokenizer, parser));
-		}
-		else if(ElseBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(ElseBody::Parse(body, tokenizer, parser));
 		}
 		else if(ForBody::ShouldParse(tokenizer, parser)) {
 			body->addChild(ForBody::Parse(body, tokenizer, parser));

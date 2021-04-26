@@ -31,6 +31,8 @@ class ElseIfBody : public Body {
 		static ElseIfBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 
 		string print();
+
+		Body* next;
 	
 	private:
 		Component* conditional;

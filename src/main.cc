@@ -210,17 +210,18 @@ int main(int argc, char* argv[]) {
 		error_code error;
 
 		if(filesystem::is_directory(path, error)) {
+			int total = 0;
 			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
 				string candidateFile = entry.path().string();
 				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-					printf("parsing file %s\n", candidateFile.c_str());
 					Tokenizer* tokenizer = new Tokenizer(candidateFile);
 					Parser* parser = new Parser(tokenizer);
+					total += tokenizer->getLineCount();
 				}
 			}
+			printf("completed parsing %d lines from %s\n", total, path.string().c_str());
 		}
 		else if(filesystem::is_regular_file(path, error)) {
-			printf("parsing file %s\n", fileName.c_str());
 			Tokenizer* tokenizer = new Tokenizer(fileName);
 			Parser* parser = new Parser(tokenizer);
 		}

@@ -61,3 +61,11 @@ void Tokenizer::prevChar() {
 		this->file.unget();
 	}
 }
+
+int Tokenizer::getLineCount() {
+	return this->lastValidLineNumber;
+}
+
+int Tokenizer::getCharacterCount() {
+	return this->info.size();
+}

@@ -1,4 +1,6 @@
 #include "ifBody.h"
+#include "elseIfBody.h"
+#include "elseBody.h"
 
 bool IfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == IF;
@@ -29,6 +31,40 @@ IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 		Component::ParseBody(output, tokenizer, parser); // parse the body of the if statement
 		parser->expectToken(RIGHT_BRACKET);
 	}
+
+	// see if we have else/else if stuff
+	Body* next = output;
+	while(!tokenizer->eof()) {
+		if(ElseIfBody::ShouldParse(tokenizer, parser)) {
+			Body* component = ElseIfBody::Parse(body, tokenizer, parser);
+
+			// set next
+			if(next->getType() == ELSE_IF_STATEMENT) {
+				((ElseIfBody*)next)->next = component;
+			}
+			else if(next->getType() == IF_STATEMENT) {
+				((IfBody*)next)->next = component;
+			}
+
+			next = component;
+		}
+		else if(ElseBody::ShouldParse(tokenizer, parser)) {
+			Body* component = ElseBody::Parse(body, tokenizer, parser);
+
+			// set next
+			if(next->getType() == ELSE_IF_STATEMENT) {
+				((ElseIfBody*)next)->next = component;
+			}
+			else if(next->getType() == IF_STATEMENT) {
+				((IfBody*)next)->next = component;
+			}
+
+			break;
+		}
+		else {
+			break;
+		}
+	}
 	
 	return output;
 }
@@ -37,5 +73,17 @@ string IfBody::print() {
 	string output = "if(" + this->conditional->print() + ") {\n";
 	output += this->printBody();
 	output += "}\n";
+
+	Body* next = this->next;
+	while(next != nullptr) {
+		output += next->print();
+		if(next->getType() == ELSE_IF_STATEMENT) {
+			next = ((ElseIfBody*)next)->next;
+		}
+		else {
+			next = nullptr;
+		}
+	}
+
 	return output;
 }

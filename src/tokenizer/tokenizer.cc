@@ -108,23 +108,23 @@ Tokenizer::Tokenizer(string fileName) {
 	this->file.close();
 }
 
-Token Tokenizer::getToken() {
+Token& Tokenizer::getToken() {
 	if(this->tokenIndex >= (int)this->tokens.size()) {
-		return {};
+		return this->emptyToken;
 	}
 	return this->tokens[this->tokenIndex++];
 }
 
-Token Tokenizer::unGetToken() {
+Token& Tokenizer::unGetToken() {
 	if(this->tokenIndex <= 0) {
-		return {};
+		return this->emptyToken;
 	}
 	return this->tokens[--this->tokenIndex];
 }
 
-Token Tokenizer::peekToken(int offset) {
+Token& Tokenizer::peekToken(int offset) {
 	if(this->tokenIndex + offset >= (int)this->tokens.size()) {
-		return {};
+		return this->emptyToken;
 	}
 
 	if(this->tokenIndex + offset < 0) {
