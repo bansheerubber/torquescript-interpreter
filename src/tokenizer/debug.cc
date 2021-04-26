@@ -14,6 +14,17 @@ void Tokenizer::error(const char* format, ...) {
 	exit(1);
 }
 
+void Tokenizer::warning(const char* format, ...) {
+	printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
+	
+	va_list argptr;
+	va_start(argptr, format);
+	printWarning(format, argptr);
+	va_end(argptr);
+
+	printWarning("\n");
+}
+
 static const char* TokenTypeDebug[] = {
 	"INVALID",
 	"END_OF_FILE",
@@ -95,6 +106,7 @@ static const char* TokenTypeDebug[] = {
 	"GLOBAL_VARIABLE",
 	"SYMBOL",
 	"COMMENT",
+	"MEMBER_CHAIN",
 };
 
 const char* Tokenizer::typeToName(TokenType type) {

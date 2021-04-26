@@ -35,6 +35,7 @@ class Tokenizer {
 		char getChar();
 		void prevChar();
 		void error(const char* format, ...);
+		void warning(const char* format, ...);
 		bool isWhitespace(char character);
 		int getLineNumber(int offset = 0);
 		int getCharacterNumber(int offset = 0);
