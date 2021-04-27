@@ -1,35 +1,55 @@
 #include "io.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 void printError(const char* format, ...) {
-	fprintf(stderr, "\e[31;1m");
+	#ifdef _WIN32
+	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
 	
+	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
-	vfprintf(stderr, format, argptr);
+	vsnprintf(output, 1024, format, argptr);
 	va_end(argptr);
 
-	fprintf(stderr, "\e[0m");
+	cout << "\e[91m" << output << "\e[0m";
 }
 
 void printError(const char* format, va_list &argptr) {
-	fprintf(stderr, "\e[31;1m");
-	vfprintf(stderr, format, argptr);
-	fprintf(stderr, "\e[0m");
+	#ifdef _WIN32
+	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
+	
+	char output[1024];
+	vsnprintf(output, 1024, format, argptr);
+
+	cout << "\e[91m" << output << "\e[0m";
 }
 
 void printWarning(const char* format, ...) {
-	fprintf(stderr, "\e[33;1m");
+	#ifdef _WIN32
+	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
 	
+	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
-	vfprintf(stderr, format, argptr);
+	vsnprintf(output, 1024, format, argptr);
 	va_end(argptr);
 
-	fprintf(stderr, "\e[0m");
+	cout << "\e[93m" << output << "\e[0m";
 }
 
 void printWarning(const char* format, va_list &argptr) {
-	fprintf(stderr, "\e[33;1m");
-	vfprintf(stderr, format, argptr);
-	fprintf(stderr, "\e[0m");
+	#ifdef _WIN32
+	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
+	
+	char output[1024];
+	vsnprintf(output, 1024, format, argptr);
+
+	cout << "\e[93m" << output << "\e[0m";
 }
