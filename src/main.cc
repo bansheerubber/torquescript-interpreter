@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
 	if(parsed.arguments["threads"] != "") {
 		try {
 			maxThreadCount = stoi(parsed.arguments["threads"]);
-			if(maxThreadCount <= 0) {
+			if(maxThreadCount == 0) {
 				maxThreadCount = 1;
 			}
 		}
