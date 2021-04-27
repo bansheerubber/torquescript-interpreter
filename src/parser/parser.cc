@@ -24,11 +24,16 @@ Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
 	Component::ParseBody(this->sourceFile, this->tokenizer, this);
 
 	// don't overwrite original file
-	if(outputPath != tokenizer->fileName) {
-		filesystem::create_directories(filesystem::path(outputPath).remove_filename());
-		ofstream file(outputPath);
-		file << this->sourceFile->print();
-		file.close();
+	if(args.arguments["piped"] != "") {
+		printf("%s\n", this->sourceFile->print().c_str());
+	}
+	else {
+		if(outputPath != tokenizer->fileName) {
+			filesystem::create_directories(filesystem::path(outputPath).remove_filename());
+			ofstream file(outputPath);
+			file << this->sourceFile->print();
+			file.close();
+		}
 	}
 }
 

@@ -12,7 +12,7 @@ Token Tokenizer::readStringLiteral(bool isTaggedString) {
 
 	char character;
 	bool finished = false;
-	while(!this->file.eof() && (character = this->getChar())) {
+	while(!this->isFileEOF() && (character = this->getChar())) {
 		if(character == '\\') { // skip testing of next character
 			output.lexeme += character;
 			output.lexeme += this->getChar();

@@ -145,7 +145,7 @@ Token Tokenizer::readKeyword() {
 	string argumentBuffer;
 	char character;
 	bool finished = false;
-	while(this->file.good() && (character = this->getChar())) {
+	while(!this->isFileEOF() && (character = this->getChar())) {
 		argumentBuffer += tolower(character);
 
 		if(!this->isPartialKeyword(argumentBuffer)) {

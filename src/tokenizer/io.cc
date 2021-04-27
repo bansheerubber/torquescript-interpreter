@@ -14,13 +14,24 @@ int Tokenizer::getCharacterNumber(int offset) {
 
 char Tokenizer::getChar() {
 	char output;
-	this->file.get(output);
-	this->fileIndex++;
+	if(this->isPiped) {
+		if(this->fileIndex >= this->pipedFile.length()) {
+			this->overrun++;
+			return '\0';
+		}
+		
+		output = this->pipedFile[this->fileIndex];
+		this->fileIndex++;
+	}
+	else {
+		this->file.get(output);
+		this->fileIndex++;
 
-	// if we overrun the file, just imagine that we're still reading but just blank bytes
-	if(this->file.eof()) {
-		this->overrun++;
-		return '\0';
+		// if we overrun the file, just imagine that we're still reading but just blank bytes
+		if(this->file.eof()) {
+			this->overrun++;
+			return '\0';
+		}
 	}
 
 	if(this->infoSize == 0) {
@@ -56,9 +67,14 @@ void Tokenizer::prevChar() {
 		this->overrun--;
 	}
 	else {
-		this->file.clear();
-		this->file.unget();
-		this->fileIndex--;
+		if(this->isPiped) {
+			this->fileIndex--;
+		}
+		else {
+			this->file.clear();
+			this->file.unget();
+			this->fileIndex--;
+		}
 	}
 }
 
@@ -68,4 +84,13 @@ int Tokenizer::getLineCount() {
 
 int Tokenizer::getCharacterCount() {
 	return this->info.size();
+}
+
+bool Tokenizer::isFileEOF() {
+	if(this->isPiped) {
+		return this->fileIndex >= this->pipedFile.size();
+	}
+	else {
+		return !this->file.good();
+	}
 }

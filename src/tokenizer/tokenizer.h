@@ -20,6 +20,7 @@ struct CharacterInformation {
 class Tokenizer {
 	public:
 		Tokenizer(string fileName);
+		Tokenizer(string piped, bool isPiped);
 		Token& getToken();
 		Token& unGetToken();
 		Token& peekToken(int offset = 0);
@@ -33,6 +34,7 @@ class Tokenizer {
 		string fileName;
 	
 	private:
+		void tokenize();
 		char getChar();
 		void prevChar();
 		void error(const char* format, ...);
@@ -40,12 +42,15 @@ class Tokenizer {
 		bool isWhitespace(char character);
 		int getLineNumber(int offset = 0);
 		int getCharacterNumber(int offset = 0);
+		bool isFileEOF();
 		int lastValidLineNumber = 1;
 		int lastValidCharacterNumber = 0;
 		bool freezeKeywordTest = false;
 		int overrun = 0;
 		unsigned int fileIndex = 0;
 		int tokenIndex = 0;
+		bool isPiped = false;
+		string pipedFile;
 
 		bool isNumber(char input);
 		Token readNumber();

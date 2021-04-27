@@ -48,9 +48,6 @@ int main(int argc, char* argv[]) {
 	vector<Argument> arguments = createArguments();
 
 	bool isPiped = isPipe();
-	if(isPiped) {
-		// TODO grab code from pipe
-	}
 
 	// parse arguments
 	ParsedArguments parsed = parseArguments(arguments, argc, argv);
@@ -80,60 +77,74 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-
-	for(string fileName: parsed.files) {
-		filesystem::path path(fileName);
-		error_code error;
-
-		if(filesystem::is_directory(path, error)) {
-			auto start = chrono::high_resolution_clock::now();
-
-			vector<string> paths;
-			vector<thread> threads;
-			vector<future<int>> futures;
-
-			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
-				string candidateFile = entry.path().string();
-				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-					paths.push_back(candidateFile);
-				}
-			}
-
-			int increment = (int)paths.size() / maxThreadCount + (int)paths.size() % maxThreadCount;
-			for(int i = 0; i < (int)paths.size(); i += increment) {
-				vector<string> pathsForThread;
-				for(int j = 0; j < increment && j + i < (int)paths.size(); j++) {
-					pathsForThread.push_back(paths[i + j]);
-				}
-
-				promise<int> p;
-				futures.push_back(move(p.get_future()));
-				threads.push_back(thread(parseThread, pathsForThread, parsed, move(p)));
-			}
-
-			int totalLines = 0;
-			for(int i = 0; i < (int)threads.size(); i++) {
-				thread &t = threads[i];
-				t.join();
-
-				future<int> &f = futures[i];
-				totalLines += f.get();
-			}
-
-			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-			printf("completed parsing %d lines from %s in %.2fs\n", totalLines, path.string().c_str(), time);
+	
+	if(isPiped) {
+		string file;
+		string line;
+		while(getline(cin, line)) {
+			file += line + "\n";
 		}
-		else if(filesystem::is_regular_file(path, error)) {
-			auto start = chrono::high_resolution_clock::now();
-			
-			Tokenizer* tokenizer = new Tokenizer(fileName);
-			Parser* parser = new Parser(tokenizer, parsed);
 
-			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-			printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);
-		}
-		else {
-			printError("error opening file or directory %s\n", fileName.c_str());
+		parsed.arguments["piped"] = "true"; // tell parser that input was piped
+
+		Tokenizer* tokenizer = new Tokenizer(file, true);
+		Parser* parser = new Parser(tokenizer, parsed);
+	}
+	else {
+		for(string fileName: parsed.files) {
+			filesystem::path path(fileName);
+			error_code error;
+
+			if(filesystem::is_directory(path, error)) {
+				auto start = chrono::high_resolution_clock::now();
+
+				vector<string> paths;
+				vector<thread> threads;
+				vector<future<int>> futures;
+
+				for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
+					string candidateFile = entry.path().string();
+					if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
+						paths.push_back(candidateFile);
+					}
+				}
+
+				int increment = (int)paths.size() / maxThreadCount + (int)paths.size() % maxThreadCount;
+				for(int i = 0; i < (int)paths.size(); i += increment) {
+					vector<string> pathsForThread;
+					for(int j = 0; j < increment && j + i < (int)paths.size(); j++) {
+						pathsForThread.push_back(paths[i + j]);
+					}
+
+					promise<int> p;
+					futures.push_back(move(p.get_future()));
+					threads.push_back(thread(parseThread, pathsForThread, parsed, move(p)));
+				}
+
+				int totalLines = 0;
+				for(int i = 0; i < (int)threads.size(); i++) {
+					thread &t = threads[i];
+					t.join();
+
+					future<int> &f = futures[i];
+					totalLines += f.get();
+				}
+
+				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
+				printf("completed parsing %d lines from %s in %.2fs\n", totalLines, path.string().c_str(), time);
+			}
+			else if(filesystem::is_regular_file(path, error)) {
+				auto start = chrono::high_resolution_clock::now();
+				
+				Tokenizer* tokenizer = new Tokenizer(fileName);
+				Parser* parser = new Parser(tokenizer, parsed);
+
+				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
+				printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);
+			}
+			else {
+				printError("error opening file or directory %s\n", fileName.c_str());
+			}
 		}
 	}
 	

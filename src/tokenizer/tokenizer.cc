@@ -1,10 +1,14 @@
 #include "tokenizer.h"
 #include "../io.h"
 
+Tokenizer::Tokenizer(string piped, bool isPiped) {
+	this->isPiped = true;
+	this->pipedFile = piped;
+
+	this->tokenize();
+}
+
 Tokenizer::Tokenizer(string fileName) {
-	// initialize keyword tables
-	this->initializeKeywords();
-	
 	// read the file
 	this->file = ifstream(fileName);
 	this->fileName = fileName;
@@ -13,8 +17,17 @@ Tokenizer::Tokenizer(string fileName) {
 		printError("failed to read file %s\n", fileName.c_str());
 	}
 
+	this->tokenize();
+
+	this->file.close();
+}
+
+void Tokenizer::tokenize() {
+	// initialize keyword tables
+	this->initializeKeywords();
+
 	char character;
-	while((character = this->getChar()) && this->file.good()) {
+	while((character = this->getChar()) && !this->isFileEOF()) {
 		bool failedKeyword = false;
 		
 		// read a number
@@ -108,8 +121,6 @@ Tokenizer::Tokenizer(string fileName) {
 	/*for(auto info: this->info) {
 		printf("%c", info.character);
 	}*/
-
-	this->file.close();
 }
 
 Token& Tokenizer::getToken() {
