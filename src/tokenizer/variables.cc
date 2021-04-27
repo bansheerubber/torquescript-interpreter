@@ -34,9 +34,27 @@ Token Tokenizer::readLocalVariable() {
 	this->getChar(); // absorb modulus
 
 	char character;
+	bool colonWarning = false;
 	while((character = this->getChar())) {
 		if(this->isValidVariableChar(character)) {
 			token.lexeme += character;
+		}
+		else if(character == ':') {
+			// peek ahead and see if we're allowed to use this token here
+			char nextCharacter = this->getChar();
+			this->prevChar();
+			if(nextCharacter == ':' || this->isValidVariableFirstChar(nextCharacter)) {
+				token.lexeme += ':';
+
+				if(!colonWarning) {
+					this->warning(": used in local variable, was it supposed to be a global variable?", token.lexeme.c_str());
+					colonWarning = true;
+				}
+			}
+			else { // if we only find one : and there's no more variables, we're probably hit the colon on a case statement
+				this->prevChar();
+				break;
+			}
 		}
 		else {
 			this->prevChar();
@@ -58,9 +76,21 @@ Token Tokenizer::readGlobalVariable() {
 	this->getChar(); // absorb $
 
 	bool checkFirstChar = true;
+	int colonCount = 0;
 	char character;
+	char lastCharacter = '\0';
 	while((character = this->getChar())) {
-		if(checkFirstChar) {
+		if(lastCharacter == ':' && character != ':') {
+			if(colonCount == 1) {
+				this->warning("only one : as global variable seperator", token.lexeme.c_str());
+			}
+			else if(colonCount > 2) {
+				this->warning("more than two :'s as global variable separator", token.lexeme.c_str());
+			}
+			colonCount = 0;
+		}
+		
+		if(checkFirstChar && character != ':') {
 			if(this->isValidVariableFirstChar(character)) {
 				token.lexeme += character;
 				checkFirstChar = false;
@@ -74,28 +104,25 @@ Token Tokenizer::readGlobalVariable() {
 		}
 		// check for namespace symbol
 		else if(character == ':') {
-			if(this->getChar() == ':') { // next character must be a namespace
-				token.lexeme += "::";
-				checkFirstChar = true; // each symbol delimited by namespace should be a valid variable name
-
-				// make sure next character is valid variable symbol
-				character = this->getChar();
-				if(this->isValidVariableFirstChar(character)) {
-					this->prevChar(); // check satisfied, give character back
-				}
-				else {
-					this->error("invalid first character '%c' of global variable (must be [A-Za-z_])", character, token.lexeme.c_str());
-				}
+			// peek ahead and see if we're allowed to use this token here
+			char nextCharacter = this->getChar();
+			this->prevChar();
+			if(nextCharacter == ':' || this->isValidVariableFirstChar(nextCharacter)) {
+				token.lexeme += ':';
+				colonCount++;
+				checkFirstChar = true;
 			}
-			else {
-				token.lexeme += ":";
-				this->warning("incomplete namespace of global variable (namespace must be '::')", token.lexeme.c_str());
+			else { // if we only find one : and there's no more variables, we're probably hit the colon on a case statement
+				this->prevChar();
+				break;
 			}
 		}
 		else {
 			this->prevChar();
 			break; // we're done reading the variable name
 		}
+
+		lastCharacter = character;
 	}
 
 	return token;
