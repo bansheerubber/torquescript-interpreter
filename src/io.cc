@@ -1,55 +1,78 @@
-#include "io.h"
-
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
-void printError(const char* format, ...) {
-	#ifdef _WIN32
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-	#endif
+#include "io.h"
+
+#ifdef _WIN32
+class WindowsColor {
+	friend ostream& operator<<(ostream& out, WindowsColor color) {
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color.color);
+		return out;
+	}
 	
+	public:
+		WindowsColor(WORD color): color(color) {}
+
+	private:
+		WORD color;
+};
+#endif
+
+void printError(const char* format, ...) {
 	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
 	vsnprintf(output, 1024, format, argptr);
 	va_end(argptr);
 
+	#ifdef _WIN32
+	cout << WindowsColor(12) << output << WindowsColor(15);
+	#endif
+
+	#ifdef __linux__
 	cout << "\e[91m" << output << "\e[0m";
+	#endif
 }
 
 void printError(const char* format, va_list &argptr) {
-	#ifdef _WIN32
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-	#endif
-	
 	char output[1024];
 	vsnprintf(output, 1024, format, argptr);
 
+	#ifdef _WIN32
+	cout << WindowsColor(12) << output << WindowsColor(15);
+	#endif
+
+	#ifdef __linux__
 	cout << "\e[91m" << output << "\e[0m";
+	#endif
 }
 
 void printWarning(const char* format, ...) {
-	#ifdef _WIN32
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-	#endif
-	
 	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
 	vsnprintf(output, 1024, format, argptr);
 	va_end(argptr);
 
+	#ifdef _WIN32
+	cout << WindowsColor(14) << output << WindowsColor(15);
+	#endif
+
+	#ifdef __linux__
 	cout << "\e[93m" << output << "\e[0m";
+	#endif
 }
 
 void printWarning(const char* format, va_list &argptr) {
-	#ifdef _WIN32
-	SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-	#endif
-	
 	char output[1024];
 	vsnprintf(output, 1024, format, argptr);
 
+	#ifdef _WIN32
+	cout << WindowsColor(14) << output << WindowsColor(15);
+	#endif
+
+	#ifdef __linux__
 	cout << "\e[93m" << output << "\e[0m";
+	#endif
 }

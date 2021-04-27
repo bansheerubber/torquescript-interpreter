@@ -50,7 +50,7 @@ Argument getArgumentFromName(vector<Argument> &arguments, string &name) {
 }
 
 void printHelp(vector<Argument> &arguments, string argumentName) {
-	printf("usage: eggscript [options] [files or directories]\n");
+	cout << "usage: eggscript [options] [files or directories]" << endl;
 
 	int helpPosition = 50;
 	for(Argument argument: arguments) {
@@ -74,7 +74,13 @@ void printHelp(vector<Argument> &arguments, string argumentName) {
 			}
 		}
 		
-		printf("    %s%*c%s\n", parameters.c_str(), (int)(helpPosition - parameters.length()), ' ', argument.help.c_str());
+		// printf("    %s%*c%s\n", parameters.c_str(), (int)(helpPosition - parameters.length()), ' ', argument.help.c_str());
+		cout << "    ";
+		cout << parameters;
+		for(int i = 0; i < (int)(helpPosition - parameters.length()); i++) {
+			cout << " ";
+		}
+		cout << argument.help << endl;
 	}
 }
 

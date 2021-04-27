@@ -1,9 +1,20 @@
 #include <stdio.h>
 
+#include <chrono>
+#include <mutex>
+#include <thread>
+
 #include "../io.h"
 #include "parser.h"
 
+std::mutex& errorLock() {
+    static std::mutex m;
+    return m;
+}
+
 void Parser::error(const char* format, ...) {
+	lock_guard<mutex> lock(errorLock());
+	
 	Token token = this->tokenizer->peekToken();
 	printError("%s:%d:%d: ", this->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
 	

@@ -7,8 +7,11 @@
 #include <string>
 #include <sys/stat.h>
 #include <thread>
-#include <unistd.h>
 #include <vector>
+
+#ifdef __linux__
+#include <unistd.h>
+#endif
 
 #include "args.h"
 #include "io.h"
@@ -45,6 +48,8 @@ void parseThread(vector<string> paths, ParsedArguments args, promise<int> &&p) {
 }
 
 int main(int argc, char* argv[]) {
+	ios_base::sync_with_stdio(false);
+	
 	vector<Argument> arguments = createArguments();
 
 	bool isPiped = isPipe();
@@ -136,7 +141,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				printf("completed parsing %d lines from %s in %.2fs\n", totalLines, path.string().c_str(), time);
+				cout << "completed parsing " << totalLines << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
 			}
 			else if(filesystem::is_regular_file(path, error)) {
 				auto start = chrono::high_resolution_clock::now();
@@ -145,7 +150,7 @@ int main(int argc, char* argv[]) {
 				Parser* parser = new Parser(tokenizer, args);
 
 				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);
+				cout << "completed parsing " << tokenizer->getLineCount() << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
 			}
 			else {
 				printError("error opening file or directory %s\n", fileName.c_str());
