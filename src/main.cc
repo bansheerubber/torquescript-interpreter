@@ -51,16 +51,21 @@ int main(int argc, char* argv[]) {
 
 	// parse arguments
 	ParsedArguments args = parseArguments(arguments, argc, argv);
+	if(args.arguments["help"] != "") {
+		printHelp(arguments);
+		return 0;
+	}
+
 	if(args.argumentError) {
 		printError("error: expected correct arguments\n\n");
 		printHelp(arguments);
-		return 0;
+		return 1;
 	}
 
 	if(args.files.size() == 0 && !isPiped) {
 		printError("error: expected files/directories\n\n");
 		printHelp(arguments);
-		return 0;
+		return 1;
 	}
 
 	unsigned int maxThreadCount = thread::hardware_concurrency();
