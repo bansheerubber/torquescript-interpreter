@@ -30,12 +30,6 @@ class Tokenizer {
 		int getCharacterCount();
 		bool isAlphabeticalKeyword(TokenType keyword);
 
-		static void initializeKeywords();
-		// be potential symbols, like function names, object names, etc, so when we fail a keyword we need to read a symbol
-		static unordered_map<int, unordered_map<string, string>*> partialKeywords; // partial keyword tables. first int is length of partial keyword
-		static unordered_map<string, TokenType> validKeywords; // map of valid keyword
-		static unordered_map<TokenType, string> customLexeme;
-
 		string fileName;
 	
 	private:
@@ -61,7 +55,12 @@ class Tokenizer {
 		unsigned int infoSize = 0;
 		ifstream file;
 
+		// be potential symbols, like function names, object names, etc, so when we fail a keyword we need to read a symbol
+		unordered_map<int, unordered_map<string, string>*> partialKeywords; // partial keyword tables. first int is length of partial keyword
+		unordered_map<string, TokenType> validKeywords; // map of valid keyword
+		unordered_map<TokenType, string> customLexeme;
 		string getKeywordLexeme(TokenType type);
+		void initializeKeywords();
 		bool isPartialKeyword(char partial);
 		bool isPartialKeyword(string partial);
 		string getKeywordFromPartial(string partial);

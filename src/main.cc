@@ -236,8 +236,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	Tokenizer::initializeKeywords(); // init keywords for tokenizer
-
 	for(string fileName: parsed.files) {
 		filesystem::path path(fileName);
 		error_code error;
