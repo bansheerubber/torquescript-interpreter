@@ -38,7 +38,35 @@ bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* par
 		|| NamespaceStatement::ShouldParse(tokenizer, parser);
 }
 
-Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser, bool nestedMathExpression) {
+// handles member chaining, inline conditionals. basically, any tacked on stuff that we might
+// expect at the end of any component
+Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
+	if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
+		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
+	}
+	else if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
+		Component* access = AccessStatement::Parse(lvalue, parent, tokenizer, parser);
+		
+		bool isPostfix = false;
+		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
+			access = PostfixStatement::Parse(access, parent, tokenizer, parser);
+			isPostfix = true;
+		}
+
+		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)access, parent, tokenizer, parser)) {
+			lvalue = AssignStatement::Parse((AccessStatement*)access, parent, tokenizer, parser);
+		}
+		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(access, tokenizer, parser)) {
+			lvalue = MathExpression::Parse(access, parent, tokenizer, parser); // let math expression take over parsing
+		}
+		else {
+			lvalue = access;
+		}
+	}
+	return lvalue;
+}
+
+Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Component* output = nullptr;
 
 	if(NamespaceStatement::ShouldParse(tokenizer, parser)) {
@@ -67,18 +95,7 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 			output = lvalue;
 		}
 	}
-	// sometimes we want to force nested math expression parsing, so we can get
-	// the additional component support at the bottom of this function
-	else if(
-		(
-			nestedMathExpression
-			|| (
-				!nestedMathExpression
-				&& parent->getType() != MATH_EXPRESSION
-			)
-		)
-		&& MathExpression::ShouldParse(nullptr, tokenizer, parser)
-	) {
+	else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(nullptr, tokenizer, parser)) {
 		output = MathExpression::Parse(nullptr, parent, tokenizer, parser);
 	}
 	else if(NumberLiteral::ShouldParse(tokenizer, parser)) {
@@ -95,30 +112,7 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 	}
 	
 	// additional support for edge cases
-	if(InlineConditional::ShouldParse(tokenizer, parser) && output != nullptr) {
-		output = InlineConditional::Parse(output, parent, tokenizer, parser);
-	}
-	else if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
-		Component* lvalue = AccessStatement::Parse(output, parent, tokenizer, parser);
-		
-		bool isPostfix = false;
-		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-			lvalue = PostfixStatement::Parse(lvalue, parent, tokenizer, parser);
-			isPostfix = true;
-		}
-
-		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)lvalue, parent, tokenizer, parser)) {
-			output = AssignStatement::Parse((AccessStatement*)lvalue, parent, tokenizer, parser);
-		}
-		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(lvalue, tokenizer, parser)) {
-			output = MathExpression::Parse(lvalue, parent, tokenizer, parser); // let math expression take over parsing
-		}
-		else {
-			output = lvalue;
-		}
-	}
-	
-	return output;
+	return Component::AfterParse(output, parent, tokenizer, parser);
 }
 
 // handle recursive body parsing
