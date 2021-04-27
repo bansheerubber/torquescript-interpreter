@@ -56,6 +56,5 @@ string CaseBody::print() {
 	}
 	output += ":" + this->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
 	return output;
 }

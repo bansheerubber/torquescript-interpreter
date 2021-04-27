@@ -45,10 +45,7 @@ bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* par
 // handles member chaining, inline conditionals. basically, any tacked on stuff that we might
 // expect at the end of any component
 Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
-		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
-	}
-	else if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
+	if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
 		Component* access = AccessStatement::Parse(lvalue, parent, tokenizer, parser);
 		
 		bool isPostfix = false;
@@ -67,6 +64,11 @@ Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer
 			lvalue = access;
 		}
 	}
+
+	if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
+		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
+	}
+
 	return lvalue;
 }
 
@@ -87,6 +89,10 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
 			lvalue = PostfixStatement::Parse(lvalue, parent, tokenizer, parser);
 			isPostfix = true;
+		}
+		// handle inline conditionals here
+		else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
+			lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
 		}
 
 		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)lvalue, parent, tokenizer, parser)) {

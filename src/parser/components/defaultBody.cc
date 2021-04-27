@@ -19,6 +19,5 @@ DefaultBody* DefaultBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser
 string DefaultBody::print() {
 	string output = "default:" + this->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
 	return output;
 }
