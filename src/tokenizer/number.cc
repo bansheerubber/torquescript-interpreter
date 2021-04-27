@@ -20,8 +20,32 @@ Token Tokenizer::readNumber() {
 	char character;
 	bool encounteredDot = false;
 	bool encounteredExponent = false;
+	bool isHexadecimal = false;
 	while((character = this->getChar())) {
 		if(this->isNumber(character)) {
+			number.lexeme += character;
+		}
+		// handle hexadecimal
+		else if(character == 'x' || character == 'X') {
+			// make sure hexadecimal format is correct
+			if(number.lexeme != "0") {
+				this->error("incorrect hexadecimal format");
+			}
+			isHexadecimal = true;
+			number.lexeme += character;
+		}
+		// handle hexadecimal
+		else if(
+			isHexadecimal
+			&& (
+				character == 'a' || character == 'A'
+				|| character == 'b' || character == 'B'
+				|| character == 'c' || character == 'C'
+				|| character == 'd' || character == 'D'
+				|| character == 'e' || character == 'E'
+				|| character == 'f' || character == 'F'
+			)
+		) {
 			number.lexeme += character;
 		}
 		// handle exponents
@@ -52,6 +76,10 @@ Token Tokenizer::readNumber() {
 		}
 		// if this character is a decimal, we need the next character to be a number
 		else if(character == '.') {
+			if(isHexadecimal) {
+				this->error("did not expect decimal point in hexadecimal number");
+			}
+			
 			if(encounteredDot) {
 				if(encounteredExponent) {
 					this->error("did not expect decimal point in exponent");
