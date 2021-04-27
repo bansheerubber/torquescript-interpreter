@@ -5,11 +5,11 @@ bool Tokenizer::isWhitespace(char character) {
 }
 
 int Tokenizer::getLineNumber(int offset) {
-	return this->info[(int)this->file.tellg() - offset].lineNumber;
+	return this->info[this->fileIndex - offset].lineNumber;
 }
 
 int Tokenizer::getCharacterNumber(int offset) {
-	return this->info[(int)this->file.tellg() - offset].characterNumber;
+	return this->info[this->fileIndex - offset].characterNumber;
 }
 
 char Tokenizer::getChar() {
