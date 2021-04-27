@@ -1,89 +1,93 @@
 #include "tokenizer.h"
 
-void Tokenizer::initializeKeywords() {
-	this->validKeywords.insert(pair<string, TokenType>("!=", NOT_EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("==", EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("$=", STRING_EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("!$=", STRING_NOT_EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("<=", LESS_THAN_EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>(">=", GREATER_THAN_EQUAL));
-	this->validKeywords.insert(pair<string, TokenType>("<", LESS_THAN));
-	this->validKeywords.insert(pair<string, TokenType>(">", GREATER_THAN));
-	this->validKeywords.insert(pair<string, TokenType>("&&", LOGICAL_AND));
-	this->validKeywords.insert(pair<string, TokenType>("||", LOGICAL_OR));
-	this->validKeywords.insert(pair<string, TokenType>("^^", LOGICAL_XOR));
-	this->validKeywords.insert(pair<string, TokenType>("++", INCREMENT));
-	this->validKeywords.insert(pair<string, TokenType>("--", DECREMENT));
-	this->validKeywords.insert(pair<string, TokenType>("<<", SHIFT_LEFT));
-	this->validKeywords.insert(pair<string, TokenType>(">>", SHIFT_RIGHT));
-	this->validKeywords.insert(pair<string, TokenType>("+=", PLUS_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("-=", MINUS_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("/=", SLASH_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("*=", ASTERISK_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("|=", OR_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("&=", AND_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("^=", XOR_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("<<=", SHIFT_LEFT_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>(">>=", SHIFT_RIGHT_ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("=", ASSIGN));
-	this->validKeywords.insert(pair<string, TokenType>("!", LOGICAL_NOT));
-	this->validKeywords.insert(pair<string, TokenType>("%", MODULUS));
-	this->validKeywords.insert(pair<string, TokenType>("&", BITWISE_AND));
-	this->validKeywords.insert(pair<string, TokenType>("|", BITWISE_OR));
-	this->validKeywords.insert(pair<string, TokenType>("^", BITWISE_XOR));
-	this->validKeywords.insert(pair<string, TokenType>("?", QUESTION_MARK));
-	this->validKeywords.insert(pair<string, TokenType>(":", COLON));
-	this->validKeywords.insert(pair<string, TokenType>("@", APPEND));
-	this->validKeywords.insert(pair<string, TokenType>("~", BITWISE_NOT));
-	this->validKeywords.insert(pair<string, TokenType>("+", PLUS));
-	this->validKeywords.insert(pair<string, TokenType>("-", MINUS));
-	this->validKeywords.insert(pair<string, TokenType>("*", ASTERISK));
-	this->validKeywords.insert(pair<string, TokenType>("/", SLASH));
-	this->validKeywords.insert(pair<string, TokenType>("::", NAMESPACE));
-	this->validKeywords.insert(pair<string, TokenType>("(", LEFT_PARENTHESIS));
-	this->validKeywords.insert(pair<string, TokenType>(")", RIGHT_PARENTHESIS));
-	this->validKeywords.insert(pair<string, TokenType>("[", LEFT_BRACE));
-	this->validKeywords.insert(pair<string, TokenType>("]", RIGHT_BRACE));
-	this->validKeywords.insert(pair<string, TokenType>("{", LEFT_BRACKET));
-	this->validKeywords.insert(pair<string, TokenType>("}", RIGHT_BRACKET));
-	this->validKeywords.insert(pair<string, TokenType>(";", SEMICOLON));
-	this->validKeywords.insert(pair<string, TokenType>(",", COMMA));
-	this->validKeywords.insert(pair<string, TokenType>("return", RETURN));
-	this->validKeywords.insert(pair<string, TokenType>("package", PACKAGE));
-	this->validKeywords.insert(pair<string, TokenType>("new", NEW));
-	this->validKeywords.insert(pair<string, TokenType>("function", FUNCTION));
-	this->validKeywords.insert(pair<string, TokenType>("if", IF));
-	this->validKeywords.insert(pair<string, TokenType>("else", ELSE));
-	this->validKeywords.insert(pair<string, TokenType>("while", WHILE));
-	this->validKeywords.insert(pair<string, TokenType>("for", FOR));
-	this->validKeywords.insert(pair<string, TokenType>("switch", SWITCH));
-	this->validKeywords.insert(pair<string, TokenType>("switch$", STRING_SWITCH));
-	this->validKeywords.insert(pair<string, TokenType>("case", CASE));
-	this->validKeywords.insert(pair<string, TokenType>("or", OR));
-	this->validKeywords.insert(pair<string, TokenType>("default", DEFAULT));
-	this->validKeywords.insert(pair<string, TokenType>("parent", PARENT));
-	this->validKeywords.insert(pair<string, TokenType>("continue", CONTINUE));
-	this->validKeywords.insert(pair<string, TokenType>("break", BREAK));
-	this->validKeywords.insert(pair<string, TokenType>("datablock", DATABLOCK));
-	this->validKeywords.insert(pair<string, TokenType>("true", TRUE));
-	this->validKeywords.insert(pair<string, TokenType>("false", FALSE));
-	this->validKeywords.insert(pair<string, TokenType>("spc", SPC));
-	this->validKeywords.insert(pair<string, TokenType>("tab", TAB));
-	this->validKeywords.insert(pair<string, TokenType>("nl", NL));
+unordered_map<int, unordered_map<string, string>*> Tokenizer::partialKeywords;
+unordered_map<string, TokenType> Tokenizer::validKeywords;
+unordered_map<TokenType, string> Tokenizer::customLexeme;
 
-	this->customLexeme.insert(pair<TokenType, string>(SPC, "SPC"));
-	this->customLexeme.insert(pair<TokenType, string>(TAB, "TAB"));
-	this->customLexeme.insert(pair<TokenType, string>(NL, "NL"));
-	
-	for(auto const &[argument, value]: this->validKeywords) {
+void Tokenizer::initializeKeywords() {
+	validKeywords.insert(pair<string, TokenType>("!=", NOT_EQUAL));
+	validKeywords.insert(pair<string, TokenType>("==", EQUAL));
+	validKeywords.insert(pair<string, TokenType>("$=", STRING_EQUAL));
+	validKeywords.insert(pair<string, TokenType>("!$=", STRING_NOT_EQUAL));
+	validKeywords.insert(pair<string, TokenType>("<=", LESS_THAN_EQUAL));
+	validKeywords.insert(pair<string, TokenType>(">=", GREATER_THAN_EQUAL));
+	validKeywords.insert(pair<string, TokenType>("<", LESS_THAN));
+	validKeywords.insert(pair<string, TokenType>(">", GREATER_THAN));
+	validKeywords.insert(pair<string, TokenType>("&&", LOGICAL_AND));
+	validKeywords.insert(pair<string, TokenType>("||", LOGICAL_OR));
+	validKeywords.insert(pair<string, TokenType>("^^", LOGICAL_XOR));
+	validKeywords.insert(pair<string, TokenType>("++", INCREMENT));
+	validKeywords.insert(pair<string, TokenType>("--", DECREMENT));
+	validKeywords.insert(pair<string, TokenType>("<<", SHIFT_LEFT));
+	validKeywords.insert(pair<string, TokenType>(">>", SHIFT_RIGHT));
+	validKeywords.insert(pair<string, TokenType>("+=", PLUS_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("-=", MINUS_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("/=", SLASH_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("*=", ASTERISK_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("|=", OR_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("&=", AND_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("^=", XOR_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("<<=", SHIFT_LEFT_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>(">>=", SHIFT_RIGHT_ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("=", ASSIGN));
+	validKeywords.insert(pair<string, TokenType>("!", LOGICAL_NOT));
+	validKeywords.insert(pair<string, TokenType>("%", MODULUS));
+	validKeywords.insert(pair<string, TokenType>("&", BITWISE_AND));
+	validKeywords.insert(pair<string, TokenType>("|", BITWISE_OR));
+	validKeywords.insert(pair<string, TokenType>("^", BITWISE_XOR));
+	validKeywords.insert(pair<string, TokenType>("?", QUESTION_MARK));
+	validKeywords.insert(pair<string, TokenType>(":", COLON));
+	validKeywords.insert(pair<string, TokenType>("@", APPEND));
+	validKeywords.insert(pair<string, TokenType>("~", BITWISE_NOT));
+	validKeywords.insert(pair<string, TokenType>("+", PLUS));
+	validKeywords.insert(pair<string, TokenType>("-", MINUS));
+	validKeywords.insert(pair<string, TokenType>("*", ASTERISK));
+	validKeywords.insert(pair<string, TokenType>("/", SLASH));
+	validKeywords.insert(pair<string, TokenType>("::", NAMESPACE));
+	validKeywords.insert(pair<string, TokenType>("(", LEFT_PARENTHESIS));
+	validKeywords.insert(pair<string, TokenType>(")", RIGHT_PARENTHESIS));
+	validKeywords.insert(pair<string, TokenType>("[", LEFT_BRACE));
+	validKeywords.insert(pair<string, TokenType>("]", RIGHT_BRACE));
+	validKeywords.insert(pair<string, TokenType>("{", LEFT_BRACKET));
+	validKeywords.insert(pair<string, TokenType>("}", RIGHT_BRACKET));
+	validKeywords.insert(pair<string, TokenType>(";", SEMICOLON));
+	validKeywords.insert(pair<string, TokenType>(",", COMMA));
+	validKeywords.insert(pair<string, TokenType>("return", RETURN));
+	validKeywords.insert(pair<string, TokenType>("package", PACKAGE));
+	validKeywords.insert(pair<string, TokenType>("new", NEW));
+	validKeywords.insert(pair<string, TokenType>("function", FUNCTION));
+	validKeywords.insert(pair<string, TokenType>("if", IF));
+	validKeywords.insert(pair<string, TokenType>("else", ELSE));
+	validKeywords.insert(pair<string, TokenType>("while", WHILE));
+	validKeywords.insert(pair<string, TokenType>("for", FOR));
+	validKeywords.insert(pair<string, TokenType>("switch", SWITCH));
+	validKeywords.insert(pair<string, TokenType>("switch$", STRING_SWITCH));
+	validKeywords.insert(pair<string, TokenType>("case", CASE));
+	validKeywords.insert(pair<string, TokenType>("or", OR));
+	validKeywords.insert(pair<string, TokenType>("default", DEFAULT));
+	validKeywords.insert(pair<string, TokenType>("parent", PARENT));
+	validKeywords.insert(pair<string, TokenType>("continue", CONTINUE));
+	validKeywords.insert(pair<string, TokenType>("break", BREAK));
+	validKeywords.insert(pair<string, TokenType>("datablock", DATABLOCK));
+	validKeywords.insert(pair<string, TokenType>("true", TRUE));
+	validKeywords.insert(pair<string, TokenType>("false", FALSE));
+	validKeywords.insert(pair<string, TokenType>("spc", SPC));
+	validKeywords.insert(pair<string, TokenType>("tab", TAB));
+	validKeywords.insert(pair<string, TokenType>("nl", NL));
+
+	customLexeme.insert(pair<TokenType, string>(SPC, "SPC"));
+	customLexeme.insert(pair<TokenType, string>(TAB, "TAB"));
+	customLexeme.insert(pair<TokenType, string>(NL, "NL"));
+
+	for(auto const &[argument, value]: validKeywords) {
 		string output;
 		for(int i = 0; i < (int)argument.length(); i++) {
-			if(!this->partialKeywords[i + 1]) {
-				this->partialKeywords[i + 1] = new unordered_map<string, string>();
+			if(!partialKeywords[i + 1]) {
+				partialKeywords[i + 1] = new unordered_map<string, string>();
 			}
 
 			output += tolower(argument[i]);
-			this->partialKeywords[i + 1]->insert(pair<string, string>(output, argument));
+			partialKeywords[i + 1]->insert(pair<string, string>(output, argument));
 		}
 	}
 }
@@ -91,20 +95,20 @@ void Tokenizer::initializeKeywords() {
 bool Tokenizer::isPartialKeyword(char partial) {
 	string partialString;
 	partialString += tolower(partial);
-	return (*this->partialKeywords[1]).find(partialString) != (*this->partialKeywords[1]).end();
+	return (*partialKeywords[1]).find(partialString) != (*partialKeywords[1]).end();
 }
 
 bool Tokenizer::isPartialKeyword(string partial) {
 	int length = (int)partial.length();
-	if(this->partialKeywords.find(length) == this->partialKeywords.end()) {
+	if(partialKeywords.find(length) == partialKeywords.end()) {
 		return false;
 	}
-	return (*this->partialKeywords[length]).find(partial) != (*this->partialKeywords[length]).end();
+	return (*partialKeywords[length]).find(partial) != (*partialKeywords[length]).end();
 }
 
 string Tokenizer::getKeywordFromPartial(string partial) {
-	if(this->partialKeywords[(int)partial.length()]) {
-		return (*this->partialKeywords[(int)partial.length()])[partial];
+	if(partialKeywords[(int)partial.length()]) {
+		return (*partialKeywords[(int)partial.length()])[partial];
 	}
 	return "";
 }
@@ -124,14 +128,14 @@ bool Tokenizer::isAlphabeticalKeyword(TokenType type) {
 }
 
 TokenType Tokenizer::isValidKeyword(string argument) {
-	return this->validKeywords[argument];
+	return validKeywords[argument];
 }
 
 string Tokenizer::getKeywordLexeme(TokenType type) {
-	if(this->customLexeme[type] == "") {
+	if(customLexeme[type] == "") {
 		return "";
 	}
-	return this->customLexeme[type];
+	return customLexeme[type];
 }
 
 Token Tokenizer::readKeyword() {
