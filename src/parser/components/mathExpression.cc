@@ -152,6 +152,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 
 string MathExpression::print() {
 	string output;
+	MathElement lastElement;
 	for(MathElement element: this->elements) {
 		if(element.component != nullptr) {
 			output += element.component->print();
@@ -169,11 +170,23 @@ string MathExpression::print() {
 			output += "~";
 		}
 		else if(element.specialOp == MINUS_OPERATOR) {
-			output += "-";
+			if(this-parser->minified && lastElement.op.type == MINUS) {
+				output += " -";
+			}
+			else {
+				output += "-";
+			}
 		}
 		else {
+			if(this->parser->minified) {
+				if(element.op.type == SPC || element.op.type == TAB || element.op.type == NL || element.op.type == MODULUS) {
+					output += " " + element.op.lexeme + " ";
+					continue;
+				}
+			}
 			output += this->parser->space + element.op.lexeme + this->parser->space;
 		}
+		lastElement = element;
 	}
 
 	if(this->parent->requiresSemicolon(this)) {

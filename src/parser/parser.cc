@@ -8,6 +8,7 @@ Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
 		this->newLine = "";
 		this->tab = "";
 		this->space = "";
+		this->minified = true;
 	}
 
 	string outputPath = tokenizer->fileName;

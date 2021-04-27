@@ -25,6 +25,8 @@ class Parser {
 		string newLine;
 		string tab;
 		string space;
+
+		bool minified = false;
 	
 	private:
 		Tokenizer* tokenizer;
