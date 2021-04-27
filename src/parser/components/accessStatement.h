@@ -25,6 +25,8 @@ struct AccessElement {
 // $ex, $ex.hey, $ex.hey[0], $ex[0], $ex::ex2, $ex::ex2.hey, $ex::ex2.hey[0], $ex::ex2[0]
 class AccessStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return ACCESS_STATEMENT;
 		}

@@ -7,6 +7,8 @@
 
 class BreakStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return BREAK_STATEMENT;
 		}

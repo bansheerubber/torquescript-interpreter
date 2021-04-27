@@ -5,7 +5,7 @@ bool ContinueStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 ContinueStatement* ContinueStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ContinueStatement* output = new ContinueStatement();
+	ContinueStatement* output = new ContinueStatement(parser);
 	output->parent = parent;
 	parser->expectToken(CONTINUE);
 	parser->expectToken(SEMICOLON);

@@ -11,7 +11,7 @@ bool NamespaceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 NamespaceStatement* NamespaceStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NamespaceStatement* output = new NamespaceStatement();
+	NamespaceStatement* output = new NamespaceStatement(parser);
 	output->parent = parent;
 
 	if(tokenizer->peekToken().type == PARENT) {

@@ -5,7 +5,7 @@ bool InlineConditional::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 InlineConditional* InlineConditional::Parse(Component* leftHandSide, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	InlineConditional* output = new InlineConditional();
+	InlineConditional* output = new InlineConditional(parser);
 	output->parent = parent;
 	output->leftHandSide = leftHandSide;
 	leftHandSide->setParent(output->leftHandSide);

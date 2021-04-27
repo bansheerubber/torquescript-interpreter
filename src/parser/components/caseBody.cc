@@ -5,7 +5,7 @@ bool CaseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 CaseBody* CaseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	CaseBody* output = new CaseBody();
+	CaseBody* output = new CaseBody(parser);
 	output->parent = body;
 	
 	parser->expectToken(CASE);

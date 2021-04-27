@@ -14,6 +14,8 @@ using namespace std;
 
 class IfBody : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return IF_STATEMENT;
 		}
@@ -27,10 +29,9 @@ class IfBody : public Body {
 			}
 		}
 
+		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
 		static IfBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
-
-		string print();
 
 		Body* next;
 	

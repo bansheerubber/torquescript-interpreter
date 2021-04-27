@@ -27,6 +27,10 @@
 #include "newStatement.h"
 #include "comment.h"
 
+Component::Component(Parser* parser) {
+	this->parser = parser;
+}
+
 bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	return AccessStatement::ShouldParse(tokenizer, parser)
 		|| MathExpression::ShouldParse(nullptr, tokenizer, parser)

@@ -18,6 +18,8 @@ using namespace std;
 
 class DatablockDeclaration : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return DATABLOCK_DECLARATION;
 		}

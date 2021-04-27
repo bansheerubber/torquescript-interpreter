@@ -51,7 +51,7 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 }
 
 MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	MathExpression* output = new MathExpression();
+	MathExpression* output = new MathExpression(parser);
 	output->parent = parent;
 	
 	if(lvalue != nullptr) {

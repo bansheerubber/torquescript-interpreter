@@ -5,7 +5,7 @@ bool NumberLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 NumberLiteral* NumberLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NumberLiteral* output = new NumberLiteral();
+	NumberLiteral* output = new NumberLiteral(parser);
 	output->parent = parent;
 	output->number = tokenizer->getToken().lexeme;
 	return output;

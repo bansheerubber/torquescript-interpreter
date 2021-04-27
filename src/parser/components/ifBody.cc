@@ -7,7 +7,7 @@ bool IfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	IfBody* output = new IfBody();
+	IfBody* output = new IfBody(parser);
 	output->parent = body;
 	
 	parser->expectToken(IF);

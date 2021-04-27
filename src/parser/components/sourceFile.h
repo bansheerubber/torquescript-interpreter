@@ -9,6 +9,8 @@ using namespace std;
 
 class SourceFile : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return SOURCE_FILE;
 		}

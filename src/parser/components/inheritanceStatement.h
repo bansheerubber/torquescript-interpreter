@@ -8,6 +8,8 @@
 
 class InheritanceStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return INHERITANCE_STATEMENT;
 		}
@@ -17,7 +19,6 @@ class InheritanceStatement : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static InheritanceStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

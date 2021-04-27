@@ -5,7 +5,7 @@ bool WhileBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 WhileBody* WhileBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	WhileBody* output = new WhileBody();
+	WhileBody* output = new WhileBody(parser);
 	output->parent = body;
 	
 	parser->expectToken(WHILE);

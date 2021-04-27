@@ -14,6 +14,8 @@ using namespace std;
 
 class ElseBody : public Body {
 	public:
+		using Body::Body;
+
 		ComponentType getType() {
 			return ELSE_STATEMENT;
 		}
@@ -22,8 +24,7 @@ class ElseBody : public Body {
 			return true;
 		}
 
+		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
 		static ElseBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
-
-		string print();
 };

@@ -11,7 +11,7 @@ bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NewStatement* output = new NewStatement();
+	NewStatement* output = new NewStatement(parser);
 	output->parent = parent;
 
 	parser->expectToken(NEW);

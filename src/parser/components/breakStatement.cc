@@ -5,7 +5,7 @@ bool BreakStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 BreakStatement* BreakStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	BreakStatement* output = new BreakStatement();
+	BreakStatement* output = new BreakStatement(parser);
 	output->parent = parent;
 	parser->expectToken(BREAK);
 	parser->expectToken(SEMICOLON);

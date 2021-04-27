@@ -42,6 +42,8 @@ enum ComponentType {
 
 class Component {
 	public:
+		Component(class Parser* parser);
+		
 		virtual ComponentType getType() = 0; // gets the type of the component
 		virtual string print() = 0; // prints valid torquescript
 		virtual bool requiresSemicolon(Component* child) = 0; // whether or not a child of this component needs a semicolon
@@ -57,4 +59,5 @@ class Component {
 	
 	protected:
 		Component* parent;
+		Parser* parser;
 };

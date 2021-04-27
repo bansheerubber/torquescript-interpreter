@@ -9,6 +9,8 @@
 
 class NumberLiteral : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return NUMBER_LITERAL;
 		}
@@ -18,7 +20,6 @@ class NumberLiteral : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static NumberLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

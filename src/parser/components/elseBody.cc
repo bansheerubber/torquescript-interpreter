@@ -5,7 +5,7 @@ bool ElseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 ElseBody* ElseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	ElseBody* output = new ElseBody();
+	ElseBody* output = new ElseBody(parser);
 	output->parent = body;
 
 	parser->expectToken(ELSE);

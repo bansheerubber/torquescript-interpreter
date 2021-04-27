@@ -17,6 +17,8 @@ struct CallElement {
 // parses the [...] part of an access
 class CallStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return CALL_STATEMENT;
 		}

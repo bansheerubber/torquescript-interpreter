@@ -7,6 +7,8 @@
 
 class ContinueStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return CONTINUE_STATEMENT;
 		}

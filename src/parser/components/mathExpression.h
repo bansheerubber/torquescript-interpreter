@@ -28,6 +28,8 @@ struct MathElement {
 
 class MathExpression : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return MATH_EXPRESSION;
 		}
@@ -37,7 +39,6 @@ class MathExpression : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser);
 		static MathExpression* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 		static bool IsOperator(TokenType type);

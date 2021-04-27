@@ -16,6 +16,8 @@ using namespace std;
 
 class SwitchBody : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return SWITCH_STATEMENT;
 		}

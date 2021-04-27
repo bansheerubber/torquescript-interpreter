@@ -5,7 +5,7 @@ bool StringLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 StringLiteral* StringLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	StringLiteral* output = new StringLiteral();
+	StringLiteral* output = new StringLiteral(parser);
 	output->parent = parent;
 	output->value = tokenizer->getToken();
 	return output;

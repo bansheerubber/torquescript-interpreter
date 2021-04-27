@@ -3,7 +3,7 @@
 Parser::Parser(Tokenizer* tokenizer) {
 	// printf("parsed %d lines of code from %s\n", tokenizer->getLineCount(), tokenizer->fileName.c_str());
 	this->tokenizer = tokenizer;
-	this->sourceFile = new SourceFile();
+	this->sourceFile = new SourceFile(this);
 	Component::ParseBody(this->sourceFile, this->tokenizer, this);
 	// printf("%s\n", this->sourceFile->print().c_str());
 }

@@ -5,7 +5,7 @@ bool BooleanLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 BooleanLiteral* BooleanLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	BooleanLiteral* output = new BooleanLiteral();
+	BooleanLiteral* output = new BooleanLiteral(parser);
 	output->parent = parent;
 	output->value = tokenizer->getToken();
 	return output;

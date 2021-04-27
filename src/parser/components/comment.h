@@ -9,6 +9,8 @@
 
 class Comment : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return COMMENT_STATEMENT;
 		}
@@ -18,7 +20,6 @@ class Comment : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static Comment* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

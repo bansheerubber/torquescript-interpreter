@@ -17,6 +17,8 @@ struct CaseElement {
 
 class CaseBody : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return IF_STATEMENT;
 		}

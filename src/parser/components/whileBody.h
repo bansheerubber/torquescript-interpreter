@@ -14,6 +14,8 @@ using namespace std;
 
 class WhileBody : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return WHILE_STATEMENT;
 		}

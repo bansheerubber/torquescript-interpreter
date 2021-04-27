@@ -7,6 +7,8 @@
 
 class ReturnStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return RETURN_STATEMENT;
 		}

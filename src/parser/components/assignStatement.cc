@@ -25,7 +25,7 @@ bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, To
 }
 
 AssignStatement* AssignStatement::Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	AssignStatement* output = new AssignStatement();
+	AssignStatement* output = new AssignStatement(parser);
 	output->parent = parent;
 	lvalue->setParent(output);
 	output->lvalue = lvalue;

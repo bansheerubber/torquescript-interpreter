@@ -6,7 +6,7 @@ bool ArrayStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 ArrayStatement* ArrayStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ArrayStatement* output = new ArrayStatement();
+	ArrayStatement* output = new ArrayStatement(parser);
 	output->parent = parent;
 	
 	parser->expectToken(LEFT_BRACE);

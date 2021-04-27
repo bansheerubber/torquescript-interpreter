@@ -5,7 +5,7 @@ bool CallStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 CallStatement* CallStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	CallStatement* output = new CallStatement();
+	CallStatement* output = new CallStatement(parser);
 	output->parent = parent;
 	
 	parser->expectToken(LEFT_PARENTHESIS);

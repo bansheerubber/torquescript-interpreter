@@ -16,6 +16,8 @@ using namespace std;
 
 class FunctionDeclaration : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return FUNCTION_DECLARATION;
 		}

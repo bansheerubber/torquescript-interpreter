@@ -14,6 +14,8 @@ using namespace std;
 
 class ForBody : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return FOR_STATEMENT;
 		}

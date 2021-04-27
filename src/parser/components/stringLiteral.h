@@ -9,6 +9,8 @@
 
 class StringLiteral : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return STRING_LITERAL;
 		}
@@ -18,7 +20,6 @@ class StringLiteral : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static StringLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

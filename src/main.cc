@@ -250,9 +250,6 @@ int main(int argc, char* argv[]) {
 			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
 				string candidateFile = entry.path().string();
 				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-					/*Tokenizer* tokenizer = new Tokenizer(candidateFile);
-					Parser* parser = new Parser(tokenizer);
-					total += tokenizer->getLineCount();*/
 					paths.push_back(candidateFile);
 				}
 			}

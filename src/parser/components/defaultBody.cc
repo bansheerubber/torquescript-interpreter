@@ -5,7 +5,7 @@ bool DefaultBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 DefaultBody* DefaultBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	DefaultBody* output = new DefaultBody();
+	DefaultBody* output = new DefaultBody(parser);
 	output->parent = body;
 	
 	parser->expectToken(DEFAULT);

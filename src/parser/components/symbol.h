@@ -11,6 +11,8 @@ using namespace std;
 
 class Symbol : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return SYMBOL_STATEMENT;
 		}
@@ -20,7 +22,6 @@ class Symbol : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static Symbol* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

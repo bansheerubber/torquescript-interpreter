@@ -7,7 +7,7 @@ bool PostfixStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 PostfixStatement* PostfixStatement::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	PostfixStatement* output = new PostfixStatement();
+	PostfixStatement* output = new PostfixStatement(parser);
 	output->parent = parent;
 	output->lvalue = lvalue;
 	lvalue->setParent(output);

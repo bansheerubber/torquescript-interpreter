@@ -6,7 +6,7 @@ bool SwitchBody::ShouldParse(Tokenizer* tokenizer, class Parser* parser) {
 }
 
 SwitchBody* SwitchBody::Parse(Body* body, Tokenizer* tokenizer, class Parser* parser) {
-	SwitchBody* output = new SwitchBody();
+	SwitchBody* output = new SwitchBody(parser);
 	output->parent = body;
 
 	parser->expectToken(SWITCH, STRING_SWITCH);

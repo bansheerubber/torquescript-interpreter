@@ -9,6 +9,8 @@
 
 class InlineConditional : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return INLINE_CONDITIONAL;
 		}
@@ -18,7 +20,6 @@ class InlineConditional : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static InlineConditional* Parse(Component* leftHandSide, Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

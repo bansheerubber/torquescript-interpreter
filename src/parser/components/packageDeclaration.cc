@@ -5,7 +5,7 @@ bool PackageDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 PackageDeclaration* PackageDeclaration::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	PackageDeclaration* output = new PackageDeclaration();
+	PackageDeclaration* output = new PackageDeclaration(parser);
 
 	parser->expectToken(PACKAGE);
 

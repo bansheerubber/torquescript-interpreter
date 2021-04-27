@@ -17,6 +17,8 @@ struct ArrayElement {
 // parses the [...] part of an access
 class ArrayStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return ARRAY_STATEMENT;
 		}

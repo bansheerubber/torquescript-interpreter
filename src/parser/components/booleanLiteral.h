@@ -9,6 +9,8 @@
 
 class BooleanLiteral : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return BOOLEAN_LITERAL;
 		}
@@ -18,7 +20,6 @@ class BooleanLiteral : public Component {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static BooleanLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

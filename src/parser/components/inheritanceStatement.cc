@@ -24,7 +24,7 @@ bool InheritanceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 InheritanceStatement* InheritanceStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	InheritanceStatement* output = new InheritanceStatement();
+	InheritanceStatement* output = new InheritanceStatement(parser);
 	output->parent = parent;
 	
 	parser->expectToken(LEFT_PARENTHESIS);

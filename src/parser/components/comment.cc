@@ -5,7 +5,7 @@ bool Comment::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 Comment* Comment::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	Comment* output = new Comment();
+	Comment* output = new Comment(parser);
 	output->parent = parent;
 	output->comment = tokenizer->getToken().lexeme;
 	return output;

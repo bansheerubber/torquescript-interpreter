@@ -9,6 +9,8 @@
 
 class NamespaceStatement : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return PARENT_STATEMENT;
 		}

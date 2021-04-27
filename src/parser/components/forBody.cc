@@ -5,7 +5,7 @@ bool ForBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 ForBody* ForBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	ForBody* output = new ForBody();
+	ForBody* output = new ForBody(parser);
 	output->parent = body;
 	
 	parser->expectToken(FOR);

@@ -5,7 +5,7 @@ bool DatablockDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* tokenizer, Parser* parser) {
-	DatablockDeclaration* output = new DatablockDeclaration();
+	DatablockDeclaration* output = new DatablockDeclaration(parser);
 	output->parent = parent;
 	parser->expectToken(DATABLOCK);
 

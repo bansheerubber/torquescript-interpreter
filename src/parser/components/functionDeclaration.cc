@@ -9,7 +9,7 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 		parser->error("cannot declare scoped functions");
 	}
 	
-	FunctionDeclaration* output = new FunctionDeclaration();
+	FunctionDeclaration* output = new FunctionDeclaration(parser);
 	output->parent = parent;
 	parser->expectToken(FUNCTION);
 

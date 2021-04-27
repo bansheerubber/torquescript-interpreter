@@ -20,7 +20,7 @@ AccessStatement* AccessStatement::Parse(
 	Parser* parser,
 	bool useKeyword
 ) {
-	AccessStatement* output = new AccessStatement();
+	AccessStatement* output = new AccessStatement(parser);
 	output->parent = parent;
 
 	bool expectingArrayOrCall = true;

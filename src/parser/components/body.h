@@ -10,6 +10,8 @@ using namespace std;
 
 class Body : public Component {
 	public:
+		using Component::Component;
+		
 		ComponentType getType() {
 			return INVALID_STATEMENT;
 		}

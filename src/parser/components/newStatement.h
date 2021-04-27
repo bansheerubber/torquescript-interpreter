@@ -16,6 +16,8 @@
 
 class NewStatement : public Body {
 	public:
+		using Body::Body;
+		
 		ComponentType getType() {
 			return NEW_STATEMENT;
 		}
@@ -28,7 +30,6 @@ class NewStatement : public Body {
 		}
 
 		string print();
-		
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static NewStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

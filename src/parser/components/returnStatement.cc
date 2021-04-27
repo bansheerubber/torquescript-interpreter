@@ -5,7 +5,7 @@ bool ReturnStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 }
 
 ReturnStatement* ReturnStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ReturnStatement* output = new ReturnStatement();
+	ReturnStatement* output = new ReturnStatement(parser);
 	output->parent = parent;
 	parser->expectToken(RETURN);
 
