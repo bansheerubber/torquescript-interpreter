@@ -89,7 +89,7 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 string NewStatement::print() {
 	string output = "new " + this->className->print() + this->arguments->print();
 	if(this->children.size() != 0) {
-		output += " {\n";
+		output += " {" + this->parser->newLine;
 		output += this->printBody();
 		output += "}";
 	}

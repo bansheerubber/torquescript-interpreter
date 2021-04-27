@@ -23,6 +23,6 @@ class InheritanceStatement : public Component {
 		static InheritanceStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* className;
-		Symbol* parentClass;
+		Symbol* className = nullptr;
+		Symbol* parentClass = nullptr;
 };

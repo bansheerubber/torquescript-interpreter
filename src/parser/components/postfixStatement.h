@@ -23,5 +23,5 @@ class PostfixStatement : public Component {
 	
 	private:
 		Token op;
-		Component* lvalue;
+		Component* lvalue = nullptr;
 };

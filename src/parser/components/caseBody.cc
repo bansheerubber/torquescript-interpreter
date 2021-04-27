@@ -54,8 +54,8 @@ string CaseBody::print() {
 			output += " or ";
 		}
 	}
-	output += ":\n";
+	output += ":" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

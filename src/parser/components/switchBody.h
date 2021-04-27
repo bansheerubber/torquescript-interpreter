@@ -37,5 +37,5 @@ class SwitchBody : public Body {
 	
 	private:
 		Token switchType;
-		Component* conditional;
+		Component* conditional = nullptr;
 };

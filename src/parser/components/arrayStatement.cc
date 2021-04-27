@@ -1,7 +1,6 @@
 #include "arrayStatement.h"
 
 bool ArrayStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	printf("%s\n", tokenizer->typeToName(tokenizer->peekToken().type));
 	return tokenizer->peekToken().type == LEFT_BRACE;
 }
 
@@ -48,7 +47,7 @@ string ArrayStatement::print() {
 			output += element.component->print();
 		}
 		else if(element.isComma) {
-			output += ", ";
+			output += "," + this->parser->space;
 		}
 	}
 	output += "]";

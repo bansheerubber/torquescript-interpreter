@@ -51,8 +51,8 @@ ForBody* ForBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 }
 
 string ForBody::print() {
-	string output = "for(" + this->initialization->print() + "; " + this->conditional->print() + "; " + this->increment->print() + ") {\n";
+	string output = "for(" + this->initialization->print() + ";" + this->parser->space + this->conditional->print() + ";" + this->parser->space + this->increment->print() + ")" + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

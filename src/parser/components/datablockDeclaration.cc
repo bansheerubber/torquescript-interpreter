@@ -62,8 +62,8 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 }
 
 string DatablockDeclaration::print() {
-	string output = "datablock " + this->typeName->print() + this->className->print() + " {\n";
+	string output = "datablock " + this->typeName->print() + this->className->print() + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "};\n";
+	output += "};" + this->parser->newLine;
 	return output;
 }

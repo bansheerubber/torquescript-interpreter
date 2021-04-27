@@ -58,6 +58,6 @@ class Component {
 		}
 	
 	protected:
-		Component* parent;
-		Parser* parser;
+		Component* parent = nullptr;
+		Parser* parser = nullptr;
 };

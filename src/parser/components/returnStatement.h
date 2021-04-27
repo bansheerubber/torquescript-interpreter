@@ -22,5 +22,5 @@ class ReturnStatement : public Component {
 		static ReturnStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Component* operation;
+		Component* operation = nullptr;
 };

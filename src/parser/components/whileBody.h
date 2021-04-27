@@ -34,5 +34,5 @@ class WhileBody : public Body {
 		static WhileBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 	
 	private:
-		Component* conditional;
+		Component* conditional = nullptr;
 };

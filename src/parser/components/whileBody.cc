@@ -34,8 +34,8 @@ WhileBody* WhileBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 }
 
 string WhileBody::print() {
-	string output = "while(" + this->conditional->print() + ") {\n";
+	string output = "while(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

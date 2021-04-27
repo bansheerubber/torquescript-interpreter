@@ -1,19 +1,20 @@
 #include "body.h"
+#include "../parser.h"
 
 string Body::printBody() {
-	string output;
+	string output = "";
 	for(Component* child: this->children) {
 		string childPrint = child->print();
 
 		if(childPrint.find('\n') == string::npos) {
-			output += "\t" + childPrint + "\n";
+			output += this->parser->tab + childPrint + this->parser->newLine;
 		}
 		else { // add tabs to all lines of child's print
 			stringstream stream(childPrint);
 			string item;
 			vector<string> elems;
 			while(getline(stream, item)) {
-				output += "\t" + item + "\n";
+				output += this->parser->tab + item + this->parser->newLine;
 			}
 		}
 	}

@@ -42,8 +42,8 @@ SwitchBody* SwitchBody::Parse(Body* body, Tokenizer* tokenizer, class Parser* pa
 }
 
 string SwitchBody::print() {
-	string output = "switch(" + this->conditional->print() + ") {\n";
+	string output = "switch(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

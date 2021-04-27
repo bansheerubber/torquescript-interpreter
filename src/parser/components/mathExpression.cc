@@ -172,7 +172,7 @@ string MathExpression::print() {
 			output += "-";
 		}
 		else {
-			output += " " + element.op.lexeme + " ";
+			output += this->parser->space + element.op.lexeme + this->parser->space;
 		}
 	}
 

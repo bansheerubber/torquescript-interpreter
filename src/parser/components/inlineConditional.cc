@@ -30,5 +30,5 @@ InlineConditional* InlineConditional::Parse(Component* leftHandSide, Component* 
 }
 
 string InlineConditional::print() {
-	return this->leftHandSide->print() + " ? " + this->ifTrue->print() + " : " + this->ifFalse->print();
+	return this->leftHandSide->print() + this->parser->space + "?" + this->parser->space + this->ifTrue->print() + this->parser->space + ":" + this->parser->space + this->ifFalse->print();
 }

@@ -33,8 +33,8 @@ class IfBody : public Body {
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
 		static IfBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 
-		Body* next;
+		Body* next = nullptr;
 	
 	private:
-		Component* conditional;
+		Component* conditional = nullptr;
 };

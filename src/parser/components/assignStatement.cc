@@ -43,7 +43,7 @@ AssignStatement* AssignStatement::Parse(AccessStatement* lvalue, Component* pare
 }
 
 string AssignStatement::print() {
-	string output = this->lvalue->print() + " " + this->assignmentToken.lexeme + " " + this->rvalue->print();
+	string output = this->lvalue->print() + this->parser->space + this->assignmentToken.lexeme + this->parser->space + this->rvalue->print();
 	if(this->parent->requiresSemicolon(this)) {
 		output += ";";
 	}

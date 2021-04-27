@@ -30,5 +30,5 @@ class PackageDeclaration : public Body {
 		static PackageDeclaration* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* packageName;
+		Symbol* packageName = nullptr;
 };

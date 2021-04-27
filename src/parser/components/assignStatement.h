@@ -34,7 +34,7 @@ class AssignStatement : public Component {
 		}
 	
 	private:
-		class AccessStatement* lvalue;
-		Component* rvalue;
+		class AccessStatement* lvalue = nullptr;
+		Component* rvalue = nullptr;
 		Token assignmentToken;
 };

@@ -35,8 +35,8 @@ ElseIfBody* ElseIfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) 
 }
 
 string ElseIfBody::print() {
-	string output = "else if(" + this->conditional->print() + ") {\n";
+	string output = "else if(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

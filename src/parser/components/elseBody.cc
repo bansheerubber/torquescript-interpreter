@@ -26,8 +26,8 @@ ElseBody* ElseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 }
 
 string ElseBody::print() {
-	string output = "else {\n";
+	string output = "else" + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

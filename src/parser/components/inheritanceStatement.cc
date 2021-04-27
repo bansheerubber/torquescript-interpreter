@@ -49,10 +49,10 @@ InheritanceStatement* InheritanceStatement::Parse(Component* parent, Tokenizer* 
 
 string InheritanceStatement::print() {
 	if(this->className == nullptr && this->parentClass != nullptr) {
-		return "( : " + this->parentClass->print() + ")";
+		return "(" + this->parser->space + ":" + this->parser->space + this->parentClass->print() + ")";
 	}
 	else if(this->parentClass != nullptr) {
-		return "(" + this->className->print() + " : " + this->parentClass->print() + ")";
+		return "(" + this->className->print() + this->parser->space + ":" + this->parser->space + this->parentClass->print() + ")";
 	}
 	return "(" + this->className->print() + ")";
 }

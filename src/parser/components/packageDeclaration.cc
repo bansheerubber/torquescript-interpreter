@@ -33,8 +33,8 @@ PackageDeclaration* PackageDeclaration::Parse(Component* parent, Tokenizer* toke
 }
 
 string PackageDeclaration::print() {
-	string output = "package " + this->packageName->print() + " {\n";
+	string output = "package " + this->packageName->print() + this->parser->space + "{" + this->parser->newLine;
 	output += this->printBody();
-	output += "};\n";
+	output += "};" + this->parser->newLine;
 	return output;
 }

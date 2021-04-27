@@ -24,7 +24,7 @@ class InlineConditional : public Component {
 		static InlineConditional* Parse(Component* leftHandSide, Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Component* leftHandSide;
-		Component* ifTrue;
-		Component* ifFalse;		
+		Component* leftHandSide = nullptr;
+		Component* ifTrue = nullptr;
+		Component* ifFalse = nullptr;
 };

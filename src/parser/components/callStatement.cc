@@ -51,7 +51,7 @@ string CallStatement::print() {
 			output += element.component->print();
 		}
 		else if(element.isComma) {
-			output += ", ";
+			output += "," + this->parser->space;
 		}
 	}
 	output += ")";

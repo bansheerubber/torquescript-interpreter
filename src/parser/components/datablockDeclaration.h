@@ -33,6 +33,6 @@ class DatablockDeclaration : public Body {
 		static DatablockDeclaration* Parse(Body* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* typeName; // type name of datablock
-		InheritanceStatement* className; // class name or inheritence expression
+		Symbol* typeName = nullptr; // type name of datablock
+		InheritanceStatement* className = nullptr; // class name or inheritence expression
 };

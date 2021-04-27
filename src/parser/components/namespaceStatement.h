@@ -24,7 +24,7 @@ class NamespaceStatement : public Component {
 		static NamespaceStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* name;
-		Symbol* operation;
-		CallStatement* call;
+		Symbol* name = nullptr;
+		Symbol* operation = nullptr;
+		CallStatement* call = nullptr;
 };

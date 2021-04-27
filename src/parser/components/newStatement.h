@@ -34,6 +34,6 @@ class NewStatement : public Body {
 		static NewStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Component* className;
-		Component* arguments;
+		Component* className = nullptr;
+		Component* arguments = nullptr;
 };

@@ -64,12 +64,12 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 }
 
 string FunctionDeclaration::print() {
-	string output = "function " + this->name1->print() + this->args->print() + " {\n";
+	string output = "function " + this->name1->print() + this->args->print() + this->parser->space + "{" + this->parser->newLine;
 	if(this->name2 != nullptr) {
-		output = "function " + this->name1->print() + "::" + this->name2->print() + this->args->print() + " {\n";
+		output = "function " + this->name1->print() + "::" + this->name2->print() + this->args->print() + this->parser->space + "{" + this->parser->newLine;
 	}
 
 	output += this->printBody();
-	output += "}\n";
+	output += "}" + this->parser->newLine;
 	return output;
 }

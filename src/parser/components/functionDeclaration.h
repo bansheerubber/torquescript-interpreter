@@ -34,7 +34,7 @@ class FunctionDeclaration : public Body {
 		static FunctionDeclaration* Parse(Body* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* name1; // left hand side of namespace
-		Symbol* name2; // right hand side of namespace
-		CallStatement* args;
+		Symbol* name1 = nullptr; // left hand side of namespace
+		Symbol* name2 = nullptr; // right hand side of namespace
+		CallStatement* args = nullptr;
 };

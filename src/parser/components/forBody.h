@@ -32,7 +32,7 @@ class ForBody : public Body {
 		static ForBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 	
 	private:
-		Component* initialization;
-		Component* conditional;
-		Component* increment;
+		Component* initialization = nullptr;
+		Component* conditional = nullptr;
+		Component* increment = nullptr;
 };
