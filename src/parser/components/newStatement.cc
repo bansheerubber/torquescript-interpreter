@@ -52,7 +52,7 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			output->children.push_back(NewStatement::Parse(output, tokenizer, parser));
 			parser->expectToken(SEMICOLON);
 		}
-		if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
+		else if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
 			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
 			if(
 				access->hasChain()
