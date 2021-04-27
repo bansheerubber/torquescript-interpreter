@@ -20,7 +20,7 @@ vector<Argument> createArguments() {
 	output.push_back((Argument){
 		name: "threads",
 		shortcut: "t",
-		helpVariable: "number of threads",
+		helpVariable: "number",
 		help: "Number of threads used during parsing. Defaults to amount of logical cores on your computer.",
 		needsInput: true,
 	});
