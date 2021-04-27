@@ -37,7 +37,7 @@ bool isPipe() {
 void parseThread(vector<string> paths, ParsedArguments args, promise<int> &&p) {
 	int total = 0;
 	for(string path: paths) {
-		Tokenizer* tokenizer = new Tokenizer(path);
+		Tokenizer* tokenizer = new Tokenizer(path, args);
 		Parser* parser = new Parser(tokenizer, args);
 		total += tokenizer->getLineCount();
 	}
@@ -50,23 +50,23 @@ int main(int argc, char* argv[]) {
 	bool isPiped = isPipe();
 
 	// parse arguments
-	ParsedArguments parsed = parseArguments(arguments, argc, argv);
-	if(parsed.argumentError) {
+	ParsedArguments args = parseArguments(arguments, argc, argv);
+	if(args.argumentError) {
 		printError("error: expected correct arguments\n\n");
 		printHelp(arguments);
 		return 0;
 	}
 
-	if(parsed.files.size() == 0 && !isPiped) {
+	if(args.files.size() == 0 && !isPiped) {
 		printError("error: expected files/directories\n\n");
 		printHelp(arguments);
 		return 0;
 	}
 
 	unsigned int maxThreadCount = thread::hardware_concurrency();
-	if(parsed.arguments["threads"] != "") {
+	if(args.arguments["threads"] != "") {
 		try {
-			maxThreadCount = stoi(parsed.arguments["threads"]);
+			maxThreadCount = stoi(args.arguments["threads"]);
 			if(maxThreadCount == 0) {
 				maxThreadCount = 1;
 			}
@@ -85,13 +85,13 @@ int main(int argc, char* argv[]) {
 			file += line + "\n";
 		}
 
-		parsed.arguments["piped"] = "true"; // tell parser that input was piped
+		args.arguments["piped"] = "true"; // tell parser that input was piped
 
-		Tokenizer* tokenizer = new Tokenizer(file, true);
-		Parser* parser = new Parser(tokenizer, parsed);
+		Tokenizer* tokenizer = new Tokenizer(file, true, args);
+		Parser* parser = new Parser(tokenizer, args);
 	}
 	else {
-		for(string fileName: parsed.files) {
+		for(string fileName: args.files) {
 			filesystem::path path(fileName);
 			error_code error;
 
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 
 					promise<int> p;
 					futures.push_back(move(p.get_future()));
-					threads.push_back(thread(parseThread, pathsForThread, parsed, move(p)));
+					threads.push_back(thread(parseThread, pathsForThread, args, move(p)));
 				}
 
 				int totalLines = 0;
@@ -136,8 +136,8 @@ int main(int argc, char* argv[]) {
 			else if(filesystem::is_regular_file(path, error)) {
 				auto start = chrono::high_resolution_clock::now();
 				
-				Tokenizer* tokenizer = new Tokenizer(fileName);
-				Parser* parser = new Parser(tokenizer, parsed);
+				Tokenizer* tokenizer = new Tokenizer(fileName, args);
+				Parser* parser = new Parser(tokenizer, args);
 
 				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
 				printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);

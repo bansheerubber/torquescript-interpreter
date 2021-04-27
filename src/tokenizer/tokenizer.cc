@@ -1,14 +1,18 @@
 #include "tokenizer.h"
 #include "../io.h"
 
-Tokenizer::Tokenizer(string piped, bool isPiped) {
+Tokenizer::Tokenizer(string piped, bool isPiped, ParsedArguments args) {
+	this->handleArgs(args);
+	
 	this->isPiped = true;
 	this->pipedFile = piped;
 
 	this->tokenize();
 }
 
-Tokenizer::Tokenizer(string fileName) {
+Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
+	this->handleArgs(args);
+	
 	// read the file
 	this->file = ifstream(fileName);
 	this->fileName = fileName;
@@ -20,6 +24,17 @@ Tokenizer::Tokenizer(string fileName) {
 	this->tokenize();
 
 	this->file.close();
+}
+
+void Tokenizer::handleArgs(ParsedArguments args) {
+	this->args = args;
+	if(this->args.arguments["no-warnings"] != "") {
+		this->showWarnings = false;
+	}
+
+	if(this->args.arguments["piped"] != "") {
+		this->showWarnings = false;
+	}
 }
 
 void Tokenizer::tokenize() {

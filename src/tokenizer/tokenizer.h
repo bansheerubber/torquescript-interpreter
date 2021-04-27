@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "../args.h"
 #include "token.h"
 
 using namespace std;
@@ -19,8 +20,8 @@ struct CharacterInformation {
 
 class Tokenizer {
 	public:
-		Tokenizer(string fileName);
-		Tokenizer(string piped, bool isPiped);
+		Tokenizer(string fileName, ParsedArguments args);
+		Tokenizer(string piped, bool isPiped, ParsedArguments args);
 		Token& getToken();
 		Token& unGetToken();
 		Token& peekToken(int offset = 0);
@@ -34,6 +35,9 @@ class Tokenizer {
 		string fileName;
 	
 	private:
+		ParsedArguments args;
+		void handleArgs(ParsedArguments args);
+		
 		void tokenize();
 		char getChar();
 		void prevChar();
@@ -50,6 +54,7 @@ class Tokenizer {
 		unsigned int fileIndex = 0;
 		int tokenIndex = 0;
 		bool isPiped = false;
+		bool showWarnings = true;
 		string pipedFile;
 
 		bool isNumber(char input);

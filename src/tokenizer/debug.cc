@@ -15,14 +15,16 @@ void Tokenizer::error(const char* format, ...) {
 }
 
 void Tokenizer::warning(const char* format, ...) {
-	printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
-	
-	va_list argptr;
-	va_start(argptr, format);
-	printWarning(format, argptr);
-	va_end(argptr);
+	if(this->showWarnings) {
+		printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
+		
+		va_list argptr;
+		va_start(argptr, format);
+		printWarning(format, argptr);
+		va_end(argptr);
 
-	printWarning("\n");
+		printWarning("\n");
+	}
 }
 
 static const char* TokenTypeDebug[] = {
