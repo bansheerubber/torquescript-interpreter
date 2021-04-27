@@ -1,10 +1,12 @@
 #include <chrono>
 #include <filesystem>
+#include <future>
 #include <iostream>
 #include <map>
 #include <stdio.h>
 #include <string>
 #include <sys/stat.h>
+#include <thread>
 #include <unistd.h>
 #include <vector>
 
@@ -36,6 +38,14 @@ vector<Argument> createArguments() {
 		shortcut: "o",
 		helpVariable: "directory",
 		help: "Output transpiled Torquescript file(s) to the specified directory",
+		needsInput: true,
+	});
+
+	output.push_back((Argument){
+		name: "threads",
+		shortcut: "t",
+		helpVariable: "number of threads",
+		help: "Number of threads used during parsing. Defaults to amount of logical cores on your computer.",
 		needsInput: true,
 	});
 
@@ -179,9 +189,19 @@ bool isPipe() {
 	return false;
 }
 
+void parseThread(vector<string> paths, promise<int> &&p) {
+	int total = 0;
+	for(string path: paths) {
+		Tokenizer* tokenizer = new Tokenizer(path);
+		Parser* parser = new Parser(tokenizer);
+		total += tokenizer->getLineCount();
+	}
+	p.set_value(total);
+}
+
 int main(int argc, char* argv[]) {
 	vector<Argument> arguments = createArguments();
-	
+
 	bool isPiped = isPipe();
 	if(isPiped) {
 		// TODO grab code from pipe
@@ -201,25 +221,65 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	unsigned int maxThreadCount = thread::hardware_concurrency();
+	if(parsed.arguments["threads"] != "") {
+		try {
+			maxThreadCount = stoi(parsed.arguments["threads"]);
+			if(maxThreadCount <= 0) {
+				maxThreadCount = 1;
+			}
+		}
+		catch(...) {
+			printError("error: expected integer for max thread count\n\n");
+			printHelp(arguments);
+			return 1;
+		}
+	}
+
 	for(string fileName: parsed.files) {
 		filesystem::path path(fileName);
 		error_code error;
 
 		if(filesystem::is_directory(path, error)) {
-			int total = 0;
 			auto start = chrono::high_resolution_clock::now();
+
+			vector<string> paths;
+			vector<thread> threads;
+			vector<future<int>> futures;
 
 			for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
 				string candidateFile = entry.path().string();
 				if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-					Tokenizer* tokenizer = new Tokenizer(candidateFile);
+					/*Tokenizer* tokenizer = new Tokenizer(candidateFile);
 					Parser* parser = new Parser(tokenizer);
-					total += tokenizer->getLineCount();
+					total += tokenizer->getLineCount();*/
+					paths.push_back(candidateFile);
 				}
 			}
 
+			int increment = (int)paths.size() / maxThreadCount + (int)paths.size() % maxThreadCount;
+			for(int i = 0; i < (int)paths.size(); i += increment) {
+				vector<string> pathsForThread;
+				for(int j = 0; j < increment && j + i < (int)paths.size(); j++) {
+					pathsForThread.push_back(paths[i + j]);
+				}
+
+				promise<int> p;
+				futures.push_back(move(p.get_future()));
+				threads.push_back(thread(parseThread, pathsForThread, move(p)));
+			}
+
+			int totalLines = 0;
+			for(int i = 0; i < (int)threads.size(); i++) {
+				thread &t = threads[i];
+				t.join();
+
+				future<int> &f = futures[i];
+				totalLines += f.get();
+			}
+
 			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-			printf("completed parsing %d lines from %s in %.2fs\n", total, path.string().c_str(), time);
+			printf("completed parsing %d lines from %s in %.2fs\n", totalLines, path.string().c_str(), time);
 		}
 		else if(filesystem::is_regular_file(path, error)) {
 			auto start = chrono::high_resolution_clock::now();
