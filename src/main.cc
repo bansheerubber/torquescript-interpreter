@@ -290,6 +290,9 @@ int main(int argc, char* argv[]) {
 			float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
 			printf("completed parsing %d lines from %s in %.2fs\n", tokenizer->getLineCount(), path.string().c_str(), time);
 		}
+		else {
+			printError("error opening file or directory %s\n", fileName.c_str());
+		}
 	}
 	
 	return 0;
