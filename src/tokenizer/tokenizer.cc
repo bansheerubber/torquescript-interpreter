@@ -4,8 +4,9 @@
 Tokenizer::Tokenizer(string piped, bool isPiped, ParsedArguments args) {
 	this->handleArgs(args);
 	
-	this->isPiped = true;
-	this->pipedFile = piped;
+	this->contentSize = piped.size();
+	this->contents = new char[this->contentSize];
+	strcpy(this->contents, piped.c_str());
 
 	this->tokenize();
 }
@@ -14,16 +15,22 @@ Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
 	this->handleArgs(args);
 	
 	// read the file
-	this->file = ifstream(fileName);
+	ifstream file = ifstream(fileName);
 	this->fileName = fileName;
 
 	if((file.rdstate() & ifstream::failbit) != 0) {
 		printError("failed to read file %s\n", fileName.c_str());
 	}
 
-	this->tokenize();
+	// TODO this is probably insecure
+	file.seekg(0, ios::end);
+	contentSize = file.tellg();
+	this->contents = new char[this->contentSize];
+	file.seekg(0);
+	file.read(this->contents, this->contentSize);
+	file.close();
 
-	this->file.close();
+	this->tokenize();
 }
 
 void Tokenizer::handleArgs(ParsedArguments args) {
@@ -42,7 +49,7 @@ void Tokenizer::tokenize() {
 	this->initializeKeywords();
 
 	char character;
-	while((character = this->getChar()) && !this->isFileEOF()) {
+	while(!this->isFileEOF() && (character = this->getChar())) {
 		bool failedKeyword = false;
 		
 		// read a number
@@ -66,8 +73,8 @@ void Tokenizer::tokenize() {
 				this->tokens.push_back(Token {
 					lexeme: "%=",
 					type: MODULUS_ASSIGN,
-					lineNumber: this->getLineNumber(2),
-					characterNumber: this->getCharacterNumber(2),
+					lineNumber: this->getLineNumber(),
+					characterNumber: this->getCharacterNumber(),
 				});
 			}
 			// we just found a normal modulus token
@@ -76,8 +83,8 @@ void Tokenizer::tokenize() {
 				this->tokens.push_back(Token {
 					lexeme: "%",
 					type: MODULUS,
-					lineNumber: this->getLineNumber(1),
-					characterNumber: this->getCharacterNumber(1),
+					lineNumber: this->getLineNumber(),
+					characterNumber: this->getCharacterNumber(),
 				});
 			}
 		}
@@ -132,14 +139,10 @@ void Tokenizer::tokenize() {
 	/*for(Token token: this->tokens) {
 		this->printToken(token);
 	}*/
-
-	/*for(auto info: this->info) {
-		printf("%c", info.character);
-	}*/
 }
 
 Token& Tokenizer::getToken() {
-	if(this->tokenIndex >= (int)this->tokens.size()) {
+	if(this->tokenIndex >= this->tokens.size()) {
 		return this->emptyToken;
 	}
 	return this->tokens[this->tokenIndex++];
@@ -153,7 +156,7 @@ Token& Tokenizer::unGetToken() {
 }
 
 Token& Tokenizer::peekToken(int offset) {
-	if(this->tokenIndex + offset >= (int)this->tokens.size()) {
+	if(this->tokenIndex + offset >= this->tokens.size()) {
 		return this->emptyToken;
 	}
 
@@ -165,7 +168,7 @@ Token& Tokenizer::peekToken(int offset) {
 }
 
 bool Tokenizer::eof() {
-	if(this->tokenIndex >= (int)this->tokens.size()) {
+	if(this->tokenIndex >= this->tokens.size()) {
 		return true;
 	}
 	return false;

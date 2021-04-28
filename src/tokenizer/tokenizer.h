@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <fstream>
 #include <iterator>
 #include <map>
@@ -28,8 +29,8 @@ class Tokenizer {
 		bool eof();
 		void printToken(Token token);
 		const char* typeToName(TokenType type);
-		int getLineCount();
-		int getCharacterCount();
+		int getTotalLineCount();
+		int getTotalCharacterCount();
 		bool isAlphabeticalKeyword(TokenType keyword);
 
 		string fileName;
@@ -44,26 +45,25 @@ class Tokenizer {
 		void error(const char* format, ...);
 		void warning(const char* format, ...);
 		bool isWhitespace(char character);
-		int getLineNumber(int offset = 0);
-		int getCharacterNumber(int offset = 0);
+		int getLineNumber();
+		int getCharacterNumber();
 		bool isFileEOF();
-		int lastValidLineNumber = 1;
-		int lastValidCharacterNumber = 0;
+
+		unsigned int lineNumber = 1;
+		unsigned int characterNumber = 1;
+
 		bool freezeKeywordTest = false;
 		int overrun = 0;
 		unsigned int fileIndex = 0;
-		int tokenIndex = 0;
-		bool isPiped = false;
+		unsigned int tokenIndex = 0;
 		bool showWarnings = true;
-		string pipedFile;
 
 		bool isNumber(char input);
 		Token readNumber();
 		
 		vector<Token> tokens;
-		vector<CharacterInformation> info;
-		unsigned int infoSize = 0;
-		ifstream file;
+		char* contents = nullptr;
+		unsigned int contentSize = 0;
 
 		// be potential symbols, like function names, object names, etc, so when we fail a keyword we need to read a symbol
 		unordered_map<int, unordered_map<string, string>*> partialKeywords; // partial keyword tables. first int is length of partial keyword

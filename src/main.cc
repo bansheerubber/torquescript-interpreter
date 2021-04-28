@@ -42,7 +42,7 @@ void parseThread(vector<string> paths, ParsedArguments args, promise<int> &&p) {
 	for(string path: paths) {
 		Tokenizer* tokenizer = new Tokenizer(path, args);
 		Parser* parser = new Parser(tokenizer, args);
-		total += tokenizer->getLineCount();
+		total += tokenizer->getTotalLineCount();
 	}
 	p.set_value(total);
 }
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 				Parser* parser = new Parser(tokenizer, args);
 
 				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				cout << "completed parsing " << tokenizer->getLineCount() << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
+				cout << "completed parsing " << tokenizer->getTotalLineCount() << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
 			}
 			else {
 				printError("error opening file or directory %s\n", fileName.c_str());

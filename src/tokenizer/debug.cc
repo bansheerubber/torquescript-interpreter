@@ -2,7 +2,7 @@
 #include "../io.h"
 
 void Tokenizer::error(const char* format, ...) {
-	printError("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
+	printError("%s:%d:%d: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
@@ -16,7 +16,7 @@ void Tokenizer::error(const char* format, ...) {
 
 void Tokenizer::warning(const char* format, ...) {
 	if(this->showWarnings) {
-		printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lastValidLineNumber, this->lastValidCharacterNumber);
+		printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 		
 		va_list argptr;
 		va_start(argptr, format);
