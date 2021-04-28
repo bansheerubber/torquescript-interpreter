@@ -4,8 +4,8 @@ Token Tokenizer::readComment() {
 	Token token = {
 		lexeme: "",
 		type: COMMENT,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 	
 	// absorb "//"

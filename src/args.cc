@@ -74,10 +74,9 @@ void printHelp(vector<Argument> &arguments, string argumentName) {
 			}
 		}
 		
-		// printf("    %s%*c%s\n", parameters.c_str(), (int)(helpPosition - parameters.length()), ' ', argument.help.c_str());
 		cout << "    ";
 		cout << parameters;
-		for(int i = 0; i < (int)(helpPosition - parameters.length()); i++) {
+		for(unsigned int i = 0; i < helpPosition - parameters.length(); i++) {
 			cout << " ";
 		}
 		cout << argument.help << endl;

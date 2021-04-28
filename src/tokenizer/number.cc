@@ -13,8 +13,8 @@ Token Tokenizer::readNumber() {
 	Token number = {
 		lexeme: "",
 		type: NUMBER,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 	
 	char character;
@@ -38,12 +38,8 @@ Token Tokenizer::readNumber() {
 		else if(
 			isHexadecimal
 			&& (
-				character == 'a' || character == 'A'
-				|| character == 'b' || character == 'B'
-				|| character == 'c' || character == 'C'
-				|| character == 'd' || character == 'D'
-				|| character == 'e' || character == 'E'
-				|| character == 'f' || character == 'F'
+				(character >= 'a' && character <= 'f')
+				|| (character >= 'A' && character <= 'F')
 			)
 		) {
 			number.lexeme += character;

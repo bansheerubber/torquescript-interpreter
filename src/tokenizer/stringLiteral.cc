@@ -4,8 +4,8 @@ Token Tokenizer::readStringLiteral(bool isTaggedString) {
 	Token output = {
 		lexeme: "",
 		type: isTaggedString ? TAGGED_STRING : STRING,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 
 	this->getChar(); // absorb "

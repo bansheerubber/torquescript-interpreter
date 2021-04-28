@@ -45,8 +45,6 @@ class Tokenizer {
 		void error(const char* format, ...);
 		void warning(const char* format, ...);
 		bool isWhitespace(char character);
-		int getLineNumber();
-		int getCharacterNumber();
 		bool isFileEOF();
 
 		unsigned int lineNumber = 1;
@@ -67,6 +65,7 @@ class Tokenizer {
 
 		// be potential symbols, like function names, object names, etc, so when we fail a keyword we need to read a symbol
 		unordered_map<int, unordered_map<string, string>*> partialKeywords; // partial keyword tables. first int is length of partial keyword
+		unsigned int largestPartial = 0;
 		unordered_map<string, TokenType> validKeywords; // map of valid keyword
 		unordered_map<TokenType, string> customLexeme;
 		string getKeywordLexeme(TokenType type);

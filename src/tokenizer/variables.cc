@@ -27,8 +27,8 @@ Token Tokenizer::readLocalVariable() {
 	Token token = {
 		lexeme: "",
 		type: LOCAL_VARIABLE,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 	
 	this->getChar(); // absorb modulus
@@ -69,8 +69,8 @@ Token Tokenizer::readGlobalVariable() {
 	Token token = {
 		lexeme: "",
 		type: GLOBAL_VARIABLE,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 	
 	this->getChar(); // absorb $
@@ -96,7 +96,7 @@ Token Tokenizer::readGlobalVariable() {
 				checkFirstChar = false;
 			}
 			else {
-				this->error("invalid first character '%c' of global variable (must be [A-Za-z_])", character, token.lexeme.c_str());
+				this->error("invalid first character '%c' of global variable (must be [A-Za-z_])", character);
 			}
 		}
 		else if(this->isValidVariableChar(character)) {
@@ -132,12 +132,18 @@ Token Tokenizer::readMemberChain() {
 	Token token = {
 		lexeme: ".",
 		type: MEMBER_CHAIN,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 
+	// make sure the first character is valid
+	char character = this->getChar();
+	if(!this->isValidVariableFirstChar(character)) {
+		this->error("invalid first character '%c' of member chain (must be [A-Za-z_])", character);
+	}
+	token.lexeme += character;
+
 	// read a symbol
-	char character;
 	while((character = this->getChar())) {
 		if(this->isValidVariableChar(character)) {
 			token.lexeme += character;

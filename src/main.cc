@@ -48,8 +48,6 @@ void parseThread(vector<string> paths, ParsedArguments args, promise<int> &&p) {
 }
 
 int main(int argc, char* argv[]) {
-	ios_base::sync_with_stdio(false);
-	
 	vector<Argument> arguments = createArguments();
 
 	bool isPiped = isPipe();
@@ -119,10 +117,10 @@ int main(int argc, char* argv[]) {
 					}
 				}
 
-				int increment = (int)paths.size() / maxThreadCount + (int)paths.size() % maxThreadCount;
-				for(int i = 0; i < (int)paths.size(); i += increment) {
+				unsigned int increment = paths.size() / maxThreadCount + paths.size() % maxThreadCount;
+				for(unsigned int i = 0; i < paths.size(); i += increment) {
 					vector<string> pathsForThread;
-					for(int j = 0; j < increment && j + i < (int)paths.size(); j++) {
+					for(unsigned int j = 0; j < increment && j + i < paths.size(); j++) {
 						pathsForThread.push_back(paths[i + j]);
 					}
 
@@ -132,7 +130,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				int totalLines = 0;
-				for(int i = 0; i < (int)threads.size(); i++) {
+				for(unsigned int i = 0; i < threads.size(); i++) {
 					thread &t = threads[i];
 					t.join();
 

@@ -4,8 +4,8 @@ Token Tokenizer::readSymbol() {
 	Token token = {
 		lexeme: "",
 		type: SYMBOL,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 	
 	// read a symbol

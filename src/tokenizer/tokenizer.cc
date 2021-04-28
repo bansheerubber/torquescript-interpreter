@@ -72,8 +72,8 @@ void Tokenizer::tokenize() {
 				this->tokens.push_back(Token {
 					lexeme: "%=",
 					type: MODULUS_ASSIGN,
-					lineNumber: this->getLineNumber(),
-					characterNumber: this->getCharacterNumber(),
+					lineNumber: this->lineNumber,
+					characterNumber: this->characterNumber,
 				});
 			}
 			// we just found a normal modulus token
@@ -82,8 +82,8 @@ void Tokenizer::tokenize() {
 				this->tokens.push_back(Token {
 					lexeme: "%",
 					type: MODULUS,
-					lineNumber: this->getLineNumber(),
-					characterNumber: this->getCharacterNumber(),
+					lineNumber: this->lineNumber,
+					characterNumber: this->characterNumber,
 				});
 			}
 		}
@@ -113,7 +113,7 @@ void Tokenizer::tokenize() {
 				}
 				else {
 					failedKeyword = true;
-				}	
+				}
 			}
 		}
 		// member chain parsing

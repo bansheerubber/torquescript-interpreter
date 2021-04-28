@@ -77,13 +77,17 @@ void Tokenizer::initializeKeywords() {
 	
 	for(auto const &[argument, value]: this->validKeywords) {
 		string output;
-		for(int i = 0; i < (int)argument.length(); i++) {
+		for(unsigned int i = 0; i < argument.length(); i++) {
 			if(!this->partialKeywords[i + 1]) {
 				this->partialKeywords[i + 1] = new unordered_map<string, string>();
 			}
 
 			output += tolower(argument[i]);
 			this->partialKeywords[i + 1]->insert(pair<string, string>(output, argument));
+
+			if(i + 1 > this->largestPartial) {
+				this->largestPartial = i + 1;
+			}
 		}
 	}
 }
@@ -95,16 +99,16 @@ bool Tokenizer::isPartialKeyword(char partial) {
 }
 
 bool Tokenizer::isPartialKeyword(string partial) {
-	int length = (int)partial.length();
-	if(this->partialKeywords.find(length) == this->partialKeywords.end()) {
+	unsigned int length = partial.length();
+	if(length > this->largestPartial) {
 		return false;
 	}
 	return (*this->partialKeywords[length]).find(partial) != (*this->partialKeywords[length]).end();
 }
 
 string Tokenizer::getKeywordFromPartial(string partial) {
-	if(this->partialKeywords[(int)partial.length()]) {
-		return (*this->partialKeywords[(int)partial.length()])[partial];
+	if(partial.length() < this->largestPartial) {
+		return (*this->partialKeywords[partial.length()])[partial];
 	}
 	return "";
 }
@@ -138,8 +142,8 @@ Token Tokenizer::readKeyword() {
 	Token argument = {
 		lexeme: "",
 		type: INVALID,
-		lineNumber: this->getLineNumber(),
-		characterNumber: this->getCharacterNumber(),
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
 	};
 
 	string argumentBuffer;
@@ -157,8 +161,8 @@ Token Tokenizer::readKeyword() {
 	// if we remove one character from the argument buffer, are we a valid argument?
 	char nextChar = '\0';
 	if(finished) {
-		nextChar = argumentBuffer[(int)argumentBuffer.length() - 1];
-		argumentBuffer.erase(argumentBuffer.length() - 1, 1);
+		nextChar = argumentBuffer.back();
+		argumentBuffer.pop_back();
 		this->prevChar(); // give back last character we read
 	}
 
@@ -202,7 +206,8 @@ Token Tokenizer::readKeyword() {
 		}
 		
 		// give back the characters we read
-		for(int i = 0; i < (int)argumentBuffer.length(); i++) {
+		unsigned int size = argumentBuffer.length();
+		for(unsigned int i = 0; i < size; i++) {
 			this->prevChar();
 		}
 

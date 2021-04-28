@@ -41,7 +41,7 @@ void Tokenizer::prevChar() {
 
 		if(this->fileIndex < this->contentSize && this->contents[this->fileIndex] == '\n') {
 			// count the amount of characters on this line
-			// note: doesn't affect parsing performance
+			// TODO does this affect parsing performance significantly?
 			int count = 0;
 			for(int i = this->fileIndex - 1; i >= 0; i--) {
 				if(this->contents[i] == '\n') {
@@ -61,14 +61,6 @@ void Tokenizer::prevChar() {
 			this->prevChar();
 		}
 	}
-}
-
-int Tokenizer::getLineNumber() {
-	return this->lineNumber;
-}
-
-int Tokenizer::getCharacterNumber() {
-	return this->characterNumber;
 }
 
 int Tokenizer::getTotalLineCount() {
