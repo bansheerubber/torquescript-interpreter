@@ -15,7 +15,7 @@ Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
 	this->handleArgs(args);
 	
 	// read the file
-	ifstream file = ifstream(fileName);
+	ifstream file = ifstream(fileName, ios::binary | ios::ate);
 	this->fileName = fileName;
 
 	if((file.rdstate() & ifstream::failbit) != 0) {
@@ -23,7 +23,6 @@ Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
 	}
 
 	// TODO this is probably insecure
-	file.seekg(0, ios::end);
 	contentSize = file.tellg();
 	this->contents = new char[this->contentSize];
 	file.seekg(0);
