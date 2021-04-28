@@ -23,7 +23,7 @@ AccessStatement* AccessStatement::Parse(
 	AccessStatement* output = new AccessStatement(parser);
 	output->parent = parent;
 
-	bool expectingArrayOrCall = true;
+	Token token = tokenizer->peekToken();
 	if(firstValue != nullptr) {
 		output->elements.push_back({
 			component: firstValue,
@@ -31,20 +31,20 @@ AccessStatement* AccessStatement::Parse(
 		firstValue->setParent(output);
 	}
 	else if(
-		tokenizer->peekToken().type == LOCAL_VARIABLE
-		|| tokenizer->peekToken().type == GLOBAL_VARIABLE
-		|| tokenizer->peekToken().type == SYMBOL
-		|| (useKeyword && tokenizer->isAlphabeticalKeyword(tokenizer->peekToken().type))
+		token.type == LOCAL_VARIABLE
+		|| token.type == GLOBAL_VARIABLE
+		|| token.type == SYMBOL
+		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	) { // we read in a single variable at the start of the chain
 		output->elements.push_back({
 			token: tokenizer->getToken(),
 		});
 	}
 	
-	Token token;
-	while((token = tokenizer->getToken()).type) {
+	bool expectingArrayOrCall = true;
+	while(!tokenizer->eof()) {
+		token = tokenizer->peekToken();
 		if(token.type == LEFT_BRACE) {
-			tokenizer->unGetToken();
 			if(expectingArrayOrCall) {
 				output->elements.push_back({
 					isArray: true,
@@ -57,7 +57,6 @@ AccessStatement* AccessStatement::Parse(
 			}
 		}
 		else if(token.type == LEFT_PARENTHESIS) {
-			tokenizer->unGetToken();
 			if(expectingArrayOrCall) {
 				output->elements.push_back({
 					isCall: true,
@@ -70,13 +69,13 @@ AccessStatement* AccessStatement::Parse(
 			}
 		}
 		else if(token.type == MEMBER_CHAIN) {
+			tokenizer->getToken(); // absorb the token we peeked
 			output->elements.push_back({
 				token: token,
 			});
 			expectingArrayOrCall = true;
 		}
 		else {
-			tokenizer->unGetToken();
 			break;
 		}
 	}

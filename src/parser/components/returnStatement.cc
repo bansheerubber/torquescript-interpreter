@@ -14,7 +14,6 @@ ReturnStatement* ReturnStatement::Parse(Component* parent, Tokenizer* tokenizer,
 		if(!Component::ShouldParse(output, tokenizer, parser)) {
 			parser->error("need valid expression for 'return' statement");
 		}
-
 		output->operation = Component::Parse(output, tokenizer, parser);
 
 		parser->expectToken(SEMICOLON);

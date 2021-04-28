@@ -17,7 +17,6 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 	if(!Symbol::ShouldParse(tokenizer, parser)) {
 		parser->error("invalid function name");
 	}
-
 	output->name1 = Symbol::Parse(output, tokenizer, parser);
 
 	if(tokenizer->peekToken().type == NAMESPACE) {
@@ -27,7 +26,6 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 		if(!Symbol::ShouldParse(tokenizer, parser)) {
 			parser->error("invalid function name");
 		}
-
 		output->name2 = Symbol::Parse(output, tokenizer, parser);
 	}
 
@@ -35,7 +33,6 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 	if(!CallStatement::ShouldParse(tokenizer, parser)) {
 		parser->error("expected arguments for function");
 	}
-
 	output->args = CallStatement::Parse(output, tokenizer, parser);
 
 	// find errors in args

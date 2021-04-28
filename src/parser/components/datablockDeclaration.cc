@@ -13,14 +13,12 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 	if(!Symbol::ShouldParse(tokenizer, parser)) {
 		parser->error("invalid datablock name");
 	}
-
 	output->typeName = Symbol::Parse(output, tokenizer, parser);
 
 	// parse inheritance statement
 	if(!InheritanceStatement::ShouldParse(tokenizer, parser)) {
 		parser->error("invalid datablock class name");
 	}
-
 	output->className = InheritanceStatement::Parse(output, tokenizer, parser);
 	
 	parser->expectToken(LEFT_BRACKET);

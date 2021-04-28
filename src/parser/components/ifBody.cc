@@ -16,8 +16,8 @@ IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 	if(!Component::ShouldParse(output, tokenizer, parser)) {
 		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'if' conditional");
 	}
-
 	output->conditional = Component::Parse(output, tokenizer, parser);
+	
 	parser->expectToken(RIGHT_PARENTHESIS);
 
 	// handle one line if statements

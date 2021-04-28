@@ -15,8 +15,8 @@ SwitchBody* SwitchBody::Parse(Body* body, Tokenizer* tokenizer, class Parser* pa
 	if(!Component::ShouldParse(output, tokenizer, parser)) {
 		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'switch' conditional");
 	}
-
 	output->conditional = Component::Parse(output, tokenizer, parser);
+	
 	parser->expectToken(RIGHT_PARENTHESIS);
 	parser->expectToken(LEFT_BRACKET);
 

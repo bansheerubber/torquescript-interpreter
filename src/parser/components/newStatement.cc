@@ -68,7 +68,6 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
 				parser->error("expected property assignment in new object");
 			}
-
 			output->children.push_back(AssignStatement::Parse(access, output, tokenizer, parser));
 
 			parser->expectToken(SEMICOLON);
