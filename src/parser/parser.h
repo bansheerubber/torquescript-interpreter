@@ -6,8 +6,8 @@
 
 #include "../args.h"
 #include "../tokenizer/tokenizer.h"
-#include "./components/component.h"
-#include "./components/sourceFile.h"
+#include "../components/component.h"
+#include "../components/sourceFile.h"
 
 using namespace std;
 
@@ -21,7 +21,6 @@ class Parser {
 
 		const char* typeToName(ComponentType type);
 
-		vector<Component*> orphans;
 		string newLine;
 		string tab;
 		string space;

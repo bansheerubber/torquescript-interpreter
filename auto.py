@@ -17,7 +17,7 @@ last_compile = 0
 def make():
 	global last_compile
 	if time() - last_compile > 1:
-		process = subprocess.Popen("make", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		process = subprocess.Popen(["make", "-j", "8"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		error = False
 		for line in process.stderr:
@@ -35,7 +35,7 @@ def make():
 		last_compile = time()
 
 os.system("make clean")
-os.system("make")
+os.system("make -j 8")
 print("---------------------------------------------------------------------------------")
 
 handler = EventHandler()
