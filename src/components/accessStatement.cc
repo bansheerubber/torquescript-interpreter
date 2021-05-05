@@ -159,3 +159,7 @@ bool AccessStatement::IsValidLvalue() {
 ts::InstructionReturn AccessStatement::compile() {
 	return {};
 }
+
+string AccessStatement::getVariableName() {
+	return this->elements[0].token.lexeme;
+}

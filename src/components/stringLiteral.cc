@@ -23,3 +23,7 @@ string StringLiteral::print() {
 ts::InstructionReturn StringLiteral::compile() {
 	return {};
 }
+
+string StringLiteral::getString() {
+	return this->value.lexeme;
+}

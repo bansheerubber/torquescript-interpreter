@@ -1,5 +1,7 @@
 #include "assignStatement.h"
 #include "accessStatement.h"
+#include "numberLiteral.h"
+#include "stringLiteral.h"
 
 bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -51,5 +53,22 @@ string AssignStatement::print() {
 }
 
 ts::InstructionReturn AssignStatement::compile() {
-	return {};
+	ts::InstructionReturn output;
+	if(this->rvalue->getType() == NUMBER_LITERAL) {
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::LOCAL_ASSIGN;
+		instruction->localAssign.entry.setNumber(((NumberLiteral*)this->rvalue)->getNumber());
+		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
+		output.first = instruction;
+		output.last = instruction;
+	}
+	else if(this->rvalue->getType() == STRING_LITERAL) {
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::LOCAL_ASSIGN;
+		instruction->localAssign.entry.setString(((StringLiteral*)this->rvalue)->getString());
+		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
+		output.first = instruction;
+		output.last = instruction;
+	}
+	return output;
 }

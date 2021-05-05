@@ -9,6 +9,7 @@
 #include "../parser/parser.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
+#include "../interpreter/stack.h"
 
 using namespace std;
 
@@ -57,6 +58,8 @@ class AccessStatement : public Component {
 		bool IsValidLvalue();
 
 		static bool DatablockAsSymbol;
+
+		string getVariableName();
 	
 	private:
 		// the tokens that make this statement up

@@ -2,47 +2,32 @@
 
 #include <string>
 
+#include "stack.h"
+
 using namespace std;
 
-typedef unsigned int stack_location;
-typedef unsigned int relative_stack_location;
-
 namespace ts {
-	enum EntryType {
-		INVALID_ENTRY,
-		NUMBER,
-		STRING,
-	};
+	namespace entry {
+		enum EntryType {
+			INVALID,
+			NUMBER,
+			STRING,
+		};
+	}
 	
 	struct Entry {
-		EntryType type;
+		entry::EntryType type;
 		union {
-			int* numberData;
+			// TODO handle deconstruction of pointers
+			double* numberData;
 			string* stringData;
 		};
 
-		Entry() {
-			this->type = INVALID_ENTRY;
-			this->numberData = nullptr;
-		}
-
-		Entry(Entry* copy) {
-			this->type = copy->type;
-			switch(this->type) {
-				case INVALID_ENTRY: {
-					break;
-				}
-				
-				case NUMBER: {
-					*this->numberData = *copy->numberData;
-					break;
-				}
-
-				case STRING: {
-					this->stringData = new string(*copy->stringData);
-					break;
-				}
-			}
-		}
+		Entry();
+		Entry(Entry* copy);
+		~Entry();
+		void setNumber(double value);
+		void setString(string value);
+		void print();
 	};
 }

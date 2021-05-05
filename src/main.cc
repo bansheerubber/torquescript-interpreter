@@ -17,6 +17,8 @@
 #include "io.h"
 #include "./tokenizer/tokenizer.h"
 #include "./parser/parser.h"
+#include "./interpreter/compiler.h"
+#include "./interpreter/interpreter.h"
 
 using namespace std;
 
@@ -71,6 +73,8 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	ts::Interpreter* interpreter = new ts::Interpreter();
+
 	unsigned int maxThreadCount = thread::hardware_concurrency();
 	if(args.arguments["threads"] != "") {
 		try {
@@ -97,6 +101,9 @@ int main(int argc, char* argv[]) {
 
 		Tokenizer* tokenizer = new Tokenizer(file, true, args);
 		Parser* parser = new Parser(tokenizer, args);
+		interpreter->current = interpreter->head = ts::Compile(parser);
+		interpreter->interpret();
+		delete interpreter;
 	}
 	else {
 		for(string fileName: args.files) {

@@ -24,6 +24,8 @@ class NumberLiteral : public Component {
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static NumberLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+
+		double getNumber();
 	
 	private:
 		string number;

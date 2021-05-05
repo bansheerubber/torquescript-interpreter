@@ -64,3 +64,7 @@ Token Parser::expectToken(TokenType type1, TokenType type2, TokenType type3, Tok
 
 	return token;
 }
+
+SourceFile* Parser::getSourceFile() {
+	return this->sourceFile;
+}

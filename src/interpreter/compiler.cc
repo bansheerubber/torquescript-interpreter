@@ -3,5 +3,6 @@
 using namespace ts;
 
 Instruction* ts::Compile(Parser* parser) {
-	return new Instruction();
+	InstructionReturn result = parser->getSourceFile()->compile();
+	return result.first;
 }

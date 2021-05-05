@@ -24,6 +24,8 @@ class StringLiteral : public Component {
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static StringLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+
+		string getString();
 	
 	private:
 		Token value;

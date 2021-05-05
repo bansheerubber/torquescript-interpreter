@@ -1,5 +1,7 @@
 #include "numberLiteral.h"
 
+using namespace ts;
+
 bool NumberLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == NUMBER;
 }
@@ -15,6 +17,15 @@ string NumberLiteral::print() {
 	return this->number;
 }
 
-ts::InstructionReturn NumberLiteral::compile() {
-	return {};
+InstructionReturn NumberLiteral::compile() {
+	Instruction* instruction = new Instruction();
+	instruction->type = instruction::PUSH;
+	instruction->push.entry = new Entry();
+	instruction->push.entry.type = entry::NUMBER;
+	instruction->push.entry.setNumber(stod(this->number));
+	return InstructionReturn(instruction, instruction);
+}
+
+double NumberLiteral::getNumber() {
+	return stod(this->number);
 }
