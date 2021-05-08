@@ -11,7 +11,6 @@ void Tokenizer::initializeKeywords() {
 	this->validKeywords.insert(pair<string, TokenType>(">", GREATER_THAN));
 	this->validKeywords.insert(pair<string, TokenType>("&&", LOGICAL_AND));
 	this->validKeywords.insert(pair<string, TokenType>("||", LOGICAL_OR));
-	this->validKeywords.insert(pair<string, TokenType>("^^", LOGICAL_XOR));
 	this->validKeywords.insert(pair<string, TokenType>("++", INCREMENT));
 	this->validKeywords.insert(pair<string, TokenType>("--", DECREMENT));
 	this->validKeywords.insert(pair<string, TokenType>("<<", SHIFT_LEFT));

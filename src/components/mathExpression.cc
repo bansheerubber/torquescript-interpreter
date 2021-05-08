@@ -16,7 +16,6 @@ bool MathExpression::IsOperator(TokenType type) {
 		|| type == GREATER_THAN
 		|| type == LOGICAL_AND
 		|| type == LOGICAL_OR
-		|| type == LOGICAL_XOR
 		|| type == SHIFT_LEFT
 		|| type == SHIFT_RIGHT
 		|| type == BITWISE_AND

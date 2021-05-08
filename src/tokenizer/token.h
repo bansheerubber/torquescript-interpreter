@@ -21,7 +21,6 @@ enum TokenType {
 	GREATER_THAN, // >
 	LOGICAL_AND, // &&
 	LOGICAL_OR, // ||
-	LOGICAL_XOR, // ^^
 	INCREMENT, // ++
 	DECREMENT, // --
 	SHIFT_LEFT, // <<
