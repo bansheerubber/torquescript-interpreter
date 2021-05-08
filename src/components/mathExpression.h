@@ -10,6 +10,7 @@
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
+#include "../interpreter/stack.h"
 
 enum SpecialOperator {
 	INVALID_OPERATOR,
@@ -24,6 +25,11 @@ struct MathElement {
 	Component* component;
 	Token op;
 	SpecialOperator specialOp;
+};
+
+struct Operation { // used for math evaluation algorithm
+	MathElement element;
+	relative_stack_location stack;
 };
 
 class MathExpression : public Component {
@@ -47,4 +53,14 @@ class MathExpression : public Component {
 	
 	private:
 		vector<MathElement> elements;
+
+		static map<TokenType, int> CreatePrecedenceMap();
+		static map<TokenType, int> Precedence;
+
+		void parsePrecedence();
+		void createInstructions(
+			vector<Operation> &operands,
+			vector<Operation> &operators,
+			relative_stack_location &stackPointer
+		);
 };

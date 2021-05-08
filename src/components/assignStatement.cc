@@ -2,6 +2,7 @@
 #include "accessStatement.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
+#include "mathExpression.h"
 
 bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -70,5 +71,11 @@ ts::InstructionReturn AssignStatement::compile() {
 		output.first = instruction;
 		output.last = instruction;
 	}
+	else if(this->rvalue->getType() == MATH_EXPRESSION) {
+		ts::InstructionReturn instruction = this->rvalue->compile();
+		output.first = instruction.first;
+		output.last = instruction.last;
+	}
+
 	return output;
 }

@@ -1,5 +1,7 @@
 #include "mathExpression.h"
 
+map<TokenType, int> MathExpression::Precedence = MathExpression::CreatePrecedenceMap();
+
 bool MathExpression::IsOperator(TokenType type) {
 	return type == PLUS
 		|| type == MINUS
@@ -65,6 +67,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	if(tokenizer->peekToken().type == LEFT_PARENTHESIS) {
 		tokenizer->getToken(); // absorb parenthesis
 		output->elements.push_back({
+			component: nullptr,
 			specialOp: LEFT_PARENTHESIS_OPERATOR,
 		});
 		parenthesis = true;
@@ -76,12 +79,14 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			Token token = tokenizer->getToken();
 			if(MathExpression::IsOperator(token.type)) {
 				output->elements.push_back({
+					component: nullptr,
 					op: token,
 				});
 				expectingOperator = false;
 			}
 			else if(parenthesis && token.type == RIGHT_PARENTHESIS) {
 				output->elements.push_back({
+					component: nullptr,
 					specialOp: RIGHT_PARENTHESIS_OPERATOR,
 				});
 				break; // quit out of loop since our statement is now over
@@ -106,6 +111,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			else if(tokenizer->peekToken().type == LOGICAL_NOT) {
 				tokenizer->getToken(); // absorb token
 				output->elements.push_back({
+					component: nullptr,
 					specialOp: LOGICAL_NOT_OPERATOR,
 				});
 				expectingOperator = false;
@@ -113,6 +119,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			else if(tokenizer->peekToken().type == BITWISE_NOT) {
 				tokenizer->getToken(); // absorb token
 				output->elements.push_back({
+					component: nullptr,
 					specialOp: BITWISE_NOT_OPERATOR,
 				});
 				expectingOperator = false;
@@ -120,6 +127,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			else if(tokenizer->peekToken().type == MINUS) {
 				tokenizer->getToken(); // absorb token
 				output->elements.push_back({
+					component: nullptr,
 					specialOp: MINUS_OPERATOR,
 				});
 				expectingOperator = false;
@@ -198,6 +206,100 @@ string MathExpression::print() {
 	return output;
 }
 
+map<TokenType, int> MathExpression::CreatePrecedenceMap() {
+	map<TokenType, int> output;
+	output[PLUS] = 1;
+	output[MINUS] = 1;
+	output[ASTERISK] = 2;
+	output[SLASH] = 2;
+	return output;
+}
+
+// helper function for parsing Precedence
+void MathExpression::createInstructions(
+	vector<Operation> &operands,
+	vector<Operation> &operators,
+	relative_stack_location &stackPointer
+) {
+	// keep track of the current precedence, since we will be going down the operators list until we hit something
+	// that isn't equal to this precedence
+	int topPrecedence = MathExpression::Precedence[operators.back().element.op.type];
+	
+	// pointers into the operands/operators vector for when we need to evaluate expressions
+	unsigned int operandIndex = operands.size() - 1, operatorIndex = 0;
+	for(int i = operators.size() - 1; i >= 0; i--) { // find our place in the vectors
+		if(MathExpression::Precedence[operators[i].element.op.type] != topPrecedence) {
+			operatorIndex = i + 1; // find the first operator we will start performing mathematics on
+			break;
+		}
+		operandIndex--; // go further down the operand list
+	}
+
+	// keep going until we have evaluated all the expressions starting frm inside of the vector
+	// until the end of the vector, removing math elements as we go
+	while(operatorIndex < operators.size()) {
+		Operation op = operators[operatorIndex];
+		operators.erase(operators.begin() + operatorIndex); // remove the operator from the vector
+
+		// get the operands
+		Operation lvalue = operands[operandIndex];
+		Operation rvalue = operands[operandIndex + 1];
+
+		if(lvalue.element.component != nullptr) {
+			printf("%s", lvalue.element.component->print().c_str());
+		}
+		else {
+			printf("stack{%d}", lvalue.stack);
+		}
+
+		printf(" %s ", this->parser->tokenizer->typeToName(op.element.op.type));
+
+		if(rvalue.element.component != nullptr) {
+			printf("%s", rvalue.element.component->print().c_str());
+		}
+		else {
+			printf("stack{%d}", rvalue.stack);
+		}
+
+		printf(", saved to stack{%d}\n", stackPointer);
+
+		operands[operandIndex] = {
+			stack: stackPointer++,
+		}; // add result of expression back to the operand stack
+		operands.erase(operands.begin() + operandIndex + 1); // remove the operand from the vector
+	}
+}
+
+void MathExpression::parsePrecedence() {
+	vector<Operation> operands, operators;
+	relative_stack_location stackPointer = 0;
+
+	for(MathElement element: this->elements) {
+		if(element.component != nullptr) { // if the element is an operand, push it to the operand stack
+			operands.push_back({
+				element: element,
+			});
+		}
+		else {
+			while(
+				operators.size() > 0
+				&& MathExpression::Precedence[operators.back().element.op.type] > MathExpression::Precedence[element.op.type]
+			) {
+				this->createInstructions(operands, operators, stackPointer);
+			}
+
+			operators.push_back({
+				element: element,
+			});
+		}
+	}
+
+	while(operators.size() > 0) {
+		this->createInstructions(operands, operators, stackPointer);
+	}
+}
+
 ts::InstructionReturn MathExpression::compile() {
+	this->parsePrecedence();
 	return {};
 }
