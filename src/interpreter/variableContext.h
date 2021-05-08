@@ -11,11 +11,11 @@ namespace ts {
 		public:
 			~VariableContext();
 			
-			Entry* getVariableEntry(string variable);
-			void setVariableEntry(string name, Entry* entry);
+			Entry& getVariableEntry(string variable);
+			void setVariableEntry(string name, Entry& entry);
 			void print();
 		
 		private:
-			unordered_map<string, Entry*> variableMap;
+			unordered_map<string, Entry> variableMap;
 	};
 }

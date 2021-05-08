@@ -26,7 +26,7 @@ Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
 
 	// don't overwrite original file
 	if(args.arguments["piped"] != "") {
-		printf("%s\n", this->sourceFile->print().c_str());
+		// printf("%s\n", this->sourceFile->print().c_str());
 	}
 	else {
 		if(outputPath != tokenizer->fileName) {

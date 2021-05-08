@@ -66,7 +66,9 @@ ts::InstructionReturn AssignStatement::compile() {
 	else if(this->rvalue->getType() == STRING_LITERAL) {
 		ts::Instruction* instruction = new ts::Instruction();
 		instruction->type = ts::instruction::LOCAL_ASSIGN;
-		instruction->localAssign.entry.setString(((StringLiteral*)this->rvalue)->getString());
+
+		string literal = ((StringLiteral*)this->rvalue)->getString();
+		instruction->localAssign.entry.setString(literal);
 		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
 		output.first = instruction;
 		output.last = instruction;

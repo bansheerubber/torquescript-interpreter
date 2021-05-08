@@ -1,10 +1,12 @@
 #pragma once
 
+#include <chrono>
 #include <stack>
 #include <vector>
 
 #include "entry.h"
 #include "instruction.h"
+#include "../io.h"
 #include "stack.h"
 #include "variableContext.h"
 
@@ -15,21 +17,29 @@ namespace ts {
 		public:
 			Interpreter();
 			~Interpreter();
+
+			void startInterpretation(Instruction* head);
 			
-			void interpret(); // interprets the next instruction
 			void printInstruction(Instruction* instruction);
 			void printStack();
-			Instruction* head;
-			Instruction* current; // the current instruction
 		
 		private:
-			void push(Entry entry);
+			void interpret(); // interprets the next instruction
+			Instruction* head;
+			Instruction* current; // the current instruction
+			
+			void push(Entry& entry);
+			void push(double number);
 			void pop();
 
-			Entry stack[1024];
-			stack_location stackPointer = 0; // points to the next valid location on the stack (stackPointer - 1 == top of stack)
+			int ranInstructions = 0;
+			chrono::high_resolution_clock::time_point startTime;
 
-			std::stack<StackFrame> frames;
+			Entry stack[100000];
+			stack_location stackPointer = 0; // points to the next valid location on the stack (stackPointer - 1 == top of stack)
+			
+			StackFrame frames[1024];
+			unsigned int framePointer = 0;
 
 			VariableContext& getTopVariableContext();
 			vector<VariableContext> contexts;

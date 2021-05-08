@@ -1,4 +1,5 @@
 #include "interpreter.h"
+#include "entry.h"
 
 using namespace ts;
 
@@ -19,45 +20,65 @@ VariableContext& Interpreter::getTopVariableContext() {
 	return this->contexts.back();
 }
 
-void Interpreter::push(Entry entry) {
-	if(this->frames.size() > 0) {
-		StackFrame& frame = this->frames.top();
-		frame.size++;
+// push an entry onto the stack
+void Interpreter::push(Entry& entry) {
+	if(this->framePointer != 0) {
+		this->frames[this->framePointer - 1].size++; // top frame
 	}
-	this->stack[this->stackPointer] = entry;
+	copyEntry(entry, this->stack[this->stackPointer]);
+	this->stackPointer++;
+}
+
+// push a number onto the stack
+void Interpreter::push(double number) {
+	if(this->framePointer != 0) {
+		this->frames[this->framePointer - 1].size++; // top frame
+	}
+	this->stack[this->stackPointer].setNumber(number);
 	this->stackPointer++;
 }
 
 void Interpreter::pop() {
 	if(this->stackPointer == 0) { // protect against empty stack
+		printError("empty stack\n");
 		exit(1);
 	}
 	
-	if(this->frames.size() > 0) {
-		StackFrame& frame = this->frames.top();
-		frame.size--;
+	if(this->framePointer != 0) {
+		this->frames[this->framePointer - 1].size--; // top frame
 	}
-	this->stack[this->stackPointer - 1] = Entry();
 	this->stackPointer--;
+}
+
+void Interpreter::startInterpretation(Instruction* head) {
+	this->head = head;
+	this->current = head;
+
+	this->startTime = chrono::high_resolution_clock::now();
+
+	this->interpret();
 }
 
 void Interpreter::interpret() {
 	Instruction* instruction = this->current;
 
 	if(instruction == nullptr) { // quit once we run out of instructions
+		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
+		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->getTopVariableContext().print();
 		return;
 	}
 
-	this->printInstruction(instruction);
+	// this->printInstruction(instruction);
 	
 	switch(instruction->type) {
 		case instruction::INVALID_INSTRUCTION: {
+			printError("invalid instruction\n");
 			exit(1);
 		}
 
 		case instruction::PUSH: {
-			this->push(Entry(&instruction->push.entry));
+			this->push(instruction->push.entry);
 			break;
 		}
 
@@ -72,28 +93,33 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::MATHEMATICS: {
-			Entry lvalue = this->stack[instruction->mathematics.lvalue];
-			Entry rvalue = this->stack[instruction->mathematics.rvalue];
+			Entry& lvalue = this->stack[instruction->mathematics.lvalue];
+			Entry& rvalue = this->stack[instruction->mathematics.rvalue];
 
-			Entry result;
+			double result;
+			bool evaluated = false;
 			switch(instruction->mathematics.operation) {
 				case instruction::ADDITION: {
-					result.setNumber((*lvalue.numberData) + (*rvalue.numberData));
+					result = lvalue.numberData + rvalue.numberData;
+					evaluated = true;
 					break;
 				}
 
 				case instruction::SUBTRACT: {
-					result.setNumber((*lvalue.numberData) - (*rvalue.numberData));
+					result = lvalue.numberData - rvalue.numberData;
+					evaluated = true;
 					break;
 				}
 
 				case instruction::DIVISION: {
-					result.setNumber((*lvalue.numberData) / (*rvalue.numberData));
+					result = lvalue.numberData / rvalue.numberData;
+					evaluated = true;
 					break;
 				}
 
 				case instruction::MULTIPLY: {
-					result.setNumber((*lvalue.numberData) * (*rvalue.numberData));
+					result = lvalue.numberData * rvalue.numberData;
+					evaluated = true;
 					break;
 				}
 
@@ -101,8 +127,12 @@ void Interpreter::interpret() {
 					break;
 			}
 			
-			if(result.type != entry::INVALID) {
+			if(evaluated) {
 				this->push(result);
+			}
+			else {
+				printError("could not evaluate math instruction\n");
+				exit(1);
 			}
 
 			break;
@@ -112,45 +142,62 @@ void Interpreter::interpret() {
 			if(instruction->localAssign.fromStack) {
 				this->getTopVariableContext().setVariableEntry(
 					instruction->localAssign.destination,
-					&this->stack[this->stackPointer - 1]
+					this->stack[this->stackPointer - 1]
 				);
 				this->pop();
 			}
 			else {
 				this->getTopVariableContext().setVariableEntry(
 					instruction->localAssign.destination,
-					&instruction->localAssign.entry
+					instruction->localAssign.entry
 				);
 			}
 			break;
 		}
 
 		case instruction::NEW_FRAME: {
-			this->frames.push({
-				start: this->stackPointer,
-				size: 0,
-			});
+			this->frames[this->framePointer].start = this->stackPointer;
+			this->frames[this->framePointer].size = 0;
+			this->framePointer++;
 			break;
 		}
 
+		// TODO we can probably optimize SavedEntry a little more (not sure if really necessary though)
 		case instruction::DELETE_FRAME: {
-			vector<Entry> entries; // entries to save
+			StackFrame& frame = this->frames[this->framePointer - 1]; // top frame
+			this->framePointer--;
 
-			StackFrame& frame = this->frames.top();
-			int top = frame.start + frame.size - 1; 
-			for(int i = top; i > top - (int)instruction->deleteFrame.save; i--) {
-				entries.push_back(this->stack[i]);
+			struct SavedEntry {
+				Entry entry;
+				SavedEntry* next;
+			};
+
+			// save entries to a linked list if needed
+			SavedEntry* head = nullptr;
+			SavedEntry* current = nullptr;
+			int top = frame.start + frame.size;
+			for(int i = top - (int)instruction->deleteFrame.save; i < top; i++) {
+				if(head == nullptr) {
+					current = head = new SavedEntry();
+					head->entry = this->stack[i];
+				}
+				else {
+					current->next = new SavedEntry();
+					current->next->entry = this->stack[i];
+					current = current->next;
+				}
 			}
 
+			// pop the entire frame
 			unsigned int size = frame.size;
 			for(unsigned int i = 0; i < size; i++) {
 				this->pop();
 			}
-			this->frames.pop();
 
 			// apply saved entries to new top frame
-			for(Entry entry: entries) {
-				this->push(entry);
+			while(head != nullptr) {
+				this->push(head->entry);
+				head = head->next;
 			}
 
 			break;
@@ -162,6 +209,8 @@ void Interpreter::interpret() {
 		this->current = instruction->next;
 	}
 
+	this->ranInstructions++;
+
 	this->interpret();
 }
 
@@ -170,14 +219,14 @@ void Interpreter::printStack() {
 	for(unsigned int i = 0; i < this->stackPointer; i++) {
 		Entry entry = this->stack[i];
 		
-		printf("ENTRY {\n");
+		printf("ENTRY #%d {\n", i);
 		printf("   type: %d,\n", entry.type);
 
 		if(entry.type == entry::STRING) {
 			printf("   data: \"%s\",\n", entry.stringData->c_str());
 		}
 		if(entry.type == entry::NUMBER) {
-			printf("   data: %f,\n", *entry.numberData);
+			printf("   data: %f,\n", entry.numberData);
 		}
 
 		printf("};\n");
@@ -200,7 +249,7 @@ void Interpreter::printInstruction(Instruction* instruction) {
 				printf("   entry data: \"%s\",\n", instruction->push.entry.stringData->c_str());
 			}
 			else {
-				printf("   entry data: %f,\n", *instruction->push.entry.numberData);
+				printf("   entry data: %f,\n", instruction->push.entry.numberData);
 			}
 
 			printf("};\n");
@@ -240,7 +289,7 @@ void Interpreter::printInstruction(Instruction* instruction) {
 					printf("   entry data: \"%s\",\n", instruction->localAssign.entry.stringData->c_str());
 				}
 				else {
-					printf("   entry data: %f,\n", *instruction->localAssign.entry.numberData);
+					printf("   entry data: %f,\n", instruction->localAssign.entry.numberData);
 				}
 			}
 

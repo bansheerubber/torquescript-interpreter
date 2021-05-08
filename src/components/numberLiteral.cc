@@ -20,7 +20,6 @@ string NumberLiteral::print() {
 InstructionReturn NumberLiteral::compile() {
 	Instruction* instruction = new Instruction();
 	instruction->type = instruction::PUSH;
-	instruction->push.entry = Entry();
 	instruction->push.entry.type = entry::NUMBER;
 	instruction->push.entry.setNumber(stod(this->number));
 	return InstructionReturn(instruction, instruction);

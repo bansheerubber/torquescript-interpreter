@@ -17,17 +17,16 @@ namespace ts {
 	
 	struct Entry {
 		entry::EntryType type;
-		union {
-			// TODO handle deconstruction of pointers
-			double* numberData;
-			string* stringData;
-		};
+		double numberData;
+		string* stringData;
 
 		Entry();
 		Entry(Entry* copy);
 		~Entry();
 		void setNumber(double value);
-		void setString(string value);
+		void setString(string& value);
 		void print();
 	};
+
+	void copyEntry(Entry& source, Entry& destination);
 }
