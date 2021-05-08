@@ -21,7 +21,21 @@ string StringLiteral::print() {
 }
 
 ts::InstructionReturn StringLiteral::compile() {
-	return {};
+	ts::InstructionReturn output;
+	if(this->value.type == STRING) {
+		ts::Instruction* newFrame = new ts::Instruction();
+		newFrame->type = ts::instruction::NEW_FRAME;
+		output.first = newFrame;
+		output.last = newFrame;
+	}
+	else {
+		ts::Instruction* deleteFrame = new ts::Instruction();
+		deleteFrame->type = ts::instruction::DELETE_FRAME;
+		deleteFrame->deleteFrame.save = 1;
+		output.first = deleteFrame;
+		output.last = deleteFrame;
+	}
+	return output;
 }
 
 string StringLiteral::getString() {

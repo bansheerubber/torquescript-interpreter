@@ -24,9 +24,9 @@ namespace ts {
 		Entry(Entry* copy);
 		~Entry();
 		void setNumber(double value);
-		void setString(string& value);
+		void setString(string &value);
 		void print();
 	};
 
-	void copyEntry(Entry& source, Entry& destination);
+	void copyEntry(Entry &source, Entry &destination);
 }

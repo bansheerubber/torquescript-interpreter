@@ -41,6 +41,9 @@ namespace ts {
 			struct {
 				relative_stack_location lvalue;
 				relative_stack_location rvalue;
+
+				Entry lvalueEntry;
+				Entry rvalueEntry;
 				
 				// the operator this instruction will perform
 				instruction::MathematicsOperator operation;

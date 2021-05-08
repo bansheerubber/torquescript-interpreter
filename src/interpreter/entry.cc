@@ -40,7 +40,7 @@ void Entry::setNumber(double value) {
 	this->type = entry::NUMBER;
 }
 
-void Entry::setString(string& value) {
+void Entry::setString(string &value) {
 	this->stringData = new string(value);
 	this->type = entry::STRING;
 }
@@ -60,7 +60,7 @@ void Entry::print() {
 	printf("};\n");
 }
 
-void ts::copyEntry(Entry& source, Entry& destination) {
+void ts::copyEntry(Entry &source, Entry &destination) {
 	destination.type = source.type;
 	destination.numberData = 0.0;
 	destination.stringData = nullptr;

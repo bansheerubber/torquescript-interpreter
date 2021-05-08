@@ -10,7 +10,7 @@ Entry& VariableContext::getVariableEntry(string variable) {
 	return this->variableMap[variable];
 }
 
-void VariableContext::setVariableEntry(string name, Entry& entry) {
+void VariableContext::setVariableEntry(string &name, Entry &entry) {
 	copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries
 }
 

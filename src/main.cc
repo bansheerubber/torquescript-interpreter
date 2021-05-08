@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 				vector<thread> threads;
 				vector<future<int>> futures;
 
-				for(const auto& entry: filesystem::recursive_directory_iterator(path)) {
+				for(const auto &entry: filesystem::recursive_directory_iterator(path)) {
 					string candidateFile = entry.path().string();
 					if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
 						paths.push_back(candidateFile);

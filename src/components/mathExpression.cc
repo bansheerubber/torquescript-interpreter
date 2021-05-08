@@ -231,6 +231,38 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 	}
 }
 
+// helper function for create instruction
+struct Value {
+	ts::Entry entry; // entry of a literal value
+	relative_stack_location stack; // location on the stack for a non-literal value
+	bool onStack;
+};
+
+Value parseValue(
+	Operation &value,
+	vector<ts::InstructionReturn> &instructions,
+	relative_stack_location &stackPointer
+) {
+	Value output;
+	
+	if(value.element.component != nullptr) {
+		if(value.element.component->getType() == NUMBER_LITERAL) {
+			output.entry.setNumber(((NumberLiteral*)value.element.component)->getNumber());
+			output.onStack = false;
+		}
+		else {
+			instructions.push_back(value.element.component->compile()); // push component to instructions
+			output.stack = stackPointer++;
+			output.onStack = true;
+		}
+	}
+	else {
+		output.stack = value.stack++;
+		output.onStack = true;
+	}
+	return output;
+}
+
 // helper function for parsing Precedence
 ts::InstructionReturn MathExpression::createInstructions(
 	vector<Operation> &operands,
@@ -265,31 +297,32 @@ ts::InstructionReturn MathExpression::createInstructions(
 		Operation rvalue = operands[operandIndex + 1];
 
 		// compile to push to stack operation
-		relative_stack_location lvalueStackPointer;
-		if(lvalue.element.component != nullptr) {
-			instructions.push_back(lvalue.element.component->compile());
-			lvalueStackPointer = stackPointer++;
-		}
-		else {
-			lvalueStackPointer = lvalue.stack;
-		}
-
-		// compile to push to stack operation
-		relative_stack_location rvalueStackPointer;
-		if(rvalue.element.component != nullptr) {
-			instructions.push_back(rvalue.element.component->compile());
-			rvalueStackPointer = stackPointer++;
-		}
-		else {
-			rvalueStackPointer = rvalue.stack;
-		}
+		Value lvalueResult = parseValue(lvalue, instructions, stackPointer);
+		Value rvalueResult = parseValue(rvalue, instructions, stackPointer);
 
 		// push the mathematics instruction
 		ts::Instruction* instruction = new ts::Instruction();
 		instruction->type = ts::instruction::MATHEMATICS;
 		instruction->mathematics.operation = MathExpression::TypeToOperator(op.element.op.type);
-		instruction->mathematics.lvalue = lvalueStackPointer;
-		instruction->mathematics.rvalue = rvalueStackPointer;
+
+		if(lvalueResult.onStack) {
+			instruction->mathematics.lvalue = lvalueResult.stack;
+			instruction->mathematics.lvalueEntry.type = ts::entry::INVALID;
+		}
+		else {
+			instruction->mathematics.lvalue = 0;
+			copyEntry(lvalueResult.entry, instruction->mathematics.lvalueEntry);
+		}
+		
+		if(rvalueResult.onStack) {
+			instruction->mathematics.rvalue = rvalueResult.stack;
+			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
+		}
+		else {
+			instruction->mathematics.rvalue = 0;
+			copyEntry(rvalueResult.entry, instruction->mathematics.rvalueEntry);
+		}
+
 		instructions.push_back({
 			first: instruction,
 			last: instruction,

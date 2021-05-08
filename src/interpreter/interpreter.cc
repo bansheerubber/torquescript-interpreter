@@ -21,7 +21,7 @@ VariableContext& Interpreter::getTopVariableContext() {
 }
 
 // push an entry onto the stack
-void Interpreter::push(Entry& entry) {
+void Interpreter::push(Entry &entry) {
 	if(this->framePointer != 0) {
 		this->frames[this->framePointer - 1].size++; // top frame
 	}
@@ -93,32 +93,48 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::MATHEMATICS: {
-			Entry& lvalue = this->stack[instruction->mathematics.lvalue];
-			Entry& rvalue = this->stack[instruction->mathematics.rvalue];
+			Entry* lvalue;
+			Entry* rvalue;
+
+			// set lvalue
+			if(instruction->mathematics.lvalueEntry.type != entry::INVALID) {
+				lvalue = &instruction->mathematics.lvalueEntry;
+			}
+			else {
+				lvalue = &this->stack[instruction->mathematics.lvalue];
+			}
+
+			// set rvalue
+			if(instruction->mathematics.rvalueEntry.type != entry::INVALID) {
+				rvalue = &instruction->mathematics.rvalueEntry;
+			}
+			else {
+				rvalue = &this->stack[instruction->mathematics.rvalue];
+			}
 
 			double result;
 			bool evaluated = false;
 			switch(instruction->mathematics.operation) {
 				case instruction::ADDITION: {
-					result = lvalue.numberData + rvalue.numberData;
+					result = lvalue->numberData + rvalue->numberData;
 					evaluated = true;
 					break;
 				}
 
 				case instruction::SUBTRACT: {
-					result = lvalue.numberData - rvalue.numberData;
+					result = lvalue->numberData - rvalue->numberData;
 					evaluated = true;
 					break;
 				}
 
 				case instruction::DIVISION: {
-					result = lvalue.numberData / rvalue.numberData;
+					result = lvalue->numberData / rvalue->numberData;
 					evaluated = true;
 					break;
 				}
 
 				case instruction::MULTIPLY: {
-					result = lvalue.numberData * rvalue.numberData;
+					result = lvalue->numberData * rvalue->numberData;
 					evaluated = true;
 					break;
 				}
@@ -164,7 +180,7 @@ void Interpreter::interpret() {
 
 		// TODO we can probably optimize SavedEntry a little more (not sure if really necessary though)
 		case instruction::DELETE_FRAME: {
-			StackFrame& frame = this->frames[this->framePointer - 1]; // top frame
+			StackFrame &frame = this->frames[this->framePointer - 1]; // top frame
 			this->framePointer--;
 
 			struct SavedEntry {

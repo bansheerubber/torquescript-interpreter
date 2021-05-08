@@ -11,6 +11,7 @@
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 #include "../interpreter/stack.h"
+#include "../interpreter/entry.h"
 
 enum SpecialOperator {
 	INVALID_OPERATOR,

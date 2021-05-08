@@ -28,7 +28,7 @@ namespace ts {
 			Instruction* head;
 			Instruction* current; // the current instruction
 			
-			void push(Entry& entry);
+			void push(Entry &entry);
 			void push(double number);
 			void pop();
 

@@ -12,7 +12,7 @@ namespace ts {
 			~VariableContext();
 			
 			Entry& getVariableEntry(string variable);
-			void setVariableEntry(string name, Entry& entry);
+			void setVariableEntry(string &name, Entry &entry);
 			void print();
 		
 		private:
