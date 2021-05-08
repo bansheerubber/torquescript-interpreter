@@ -11,6 +11,8 @@ namespace ts {
 			JUMP, // jump to a particular instruction
 			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
+			NEW_FRAME, // create a new stack frame
+			DELETE_FRAME, // delete the latest stack frame, pop all values the frame encompassed
 		};
 
 		enum MathematicsOperator {
@@ -37,23 +39,24 @@ namespace ts {
 			} jump;
 
 			struct {
-				// stack values that are determined upon compilation
-				relative_stack_location location1;
-				relative_stack_location location2;
-
-				// literal values that are determined upon compilation
-				Entry entry1;
-				Entry entry2;
-
+				relative_stack_location lvalue;
+				relative_stack_location rvalue;
+				
 				// the operator this instruction will perform
 				instruction::MathematicsOperator operation;
 			} mathematics;
 
 			struct {
 				string destination;
-				relative_stack_location stack;
+				bool fromStack;
 				Entry entry;
 			} localAssign;
+
+			struct {
+				// the amount of entries we want to save from the top of the current frame,
+				// these values will get pushed to the next frame down
+				unsigned int save;
+			} deleteFrame;
 		};
 
 		Instruction() {

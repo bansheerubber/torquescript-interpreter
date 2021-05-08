@@ -72,9 +72,18 @@ ts::InstructionReturn AssignStatement::compile() {
 		output.last = instruction;
 	}
 	else if(this->rvalue->getType() == MATH_EXPRESSION) {
-		ts::InstructionReturn instruction = this->rvalue->compile();
-		output.first = instruction.first;
-		output.last = instruction.last;
+		ts::InstructionReturn compiled = this->rvalue->compile();
+		output.first = compiled.first;
+		output.last = compiled.last;
+
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::LOCAL_ASSIGN;
+		instruction->localAssign.fromStack = true;
+		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
+
+		compiled.last->next = instruction;
+		compiled.last = instruction;
+		output.last = compiled.last;
 	}
 
 	return output;

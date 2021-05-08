@@ -19,6 +19,28 @@ VariableContext& Interpreter::getTopVariableContext() {
 	return this->contexts.back();
 }
 
+void Interpreter::push(Entry entry) {
+	if(this->frames.size() > 0) {
+		StackFrame& frame = this->frames.top();
+		frame.size++;
+	}
+	this->stack[this->stackPointer] = entry;
+	this->stackPointer++;
+}
+
+void Interpreter::pop() {
+	if(this->stackPointer == 0) { // protect against empty stack
+		exit(1);
+	}
+	
+	if(this->frames.size() > 0) {
+		StackFrame& frame = this->frames.top();
+		frame.size--;
+	}
+	this->stack[this->stackPointer - 1] = Entry();
+	this->stackPointer--;
+}
+
 void Interpreter::interpret() {
 	Instruction* instruction = this->current;
 
@@ -35,18 +57,12 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::PUSH: {
-			this->stack[this->stackPointer] = Entry(&instruction->push.entry);
-			this->stackPointer++;
+			this->push(Entry(&instruction->push.entry));
 			break;
 		}
 
 		case instruction::POP: {
-			if(this->stackPointer == 0) { // protect against empty stack
-				exit(1);
-			}
-			
-			this->stack[this->stackPointer - 1] = Entry();
-			this->stackPointer--;
+			this->pop();
 			break;
 		}
 
@@ -56,14 +72,87 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::MATHEMATICS: {
+			Entry lvalue = this->stack[instruction->mathematics.lvalue];
+			Entry rvalue = this->stack[instruction->mathematics.rvalue];
+
+			Entry result;
+			switch(instruction->mathematics.operation) {
+				case instruction::ADDITION: {
+					result.setNumber((*lvalue.numberData) + (*rvalue.numberData));
+					break;
+				}
+
+				case instruction::SUBTRACT: {
+					result.setNumber((*lvalue.numberData) - (*rvalue.numberData));
+					break;
+				}
+
+				case instruction::DIVISION: {
+					result.setNumber((*lvalue.numberData) / (*rvalue.numberData));
+					break;
+				}
+
+				case instruction::MULTIPLY: {
+					result.setNumber((*lvalue.numberData) * (*rvalue.numberData));
+					break;
+				}
+
+				default:
+					break;
+			}
+			
+			if(result.type != entry::INVALID) {
+				this->push(result);
+			}
+
 			break;
 		}
 
 		case instruction::LOCAL_ASSIGN: {
-			this->getTopVariableContext().setVariableEntry(
-				instruction->localAssign.destination,
-				&instruction->localAssign.entry
-			);
+			if(instruction->localAssign.fromStack) {
+				this->getTopVariableContext().setVariableEntry(
+					instruction->localAssign.destination,
+					&this->stack[this->stackPointer - 1]
+				);
+				this->pop();
+			}
+			else {
+				this->getTopVariableContext().setVariableEntry(
+					instruction->localAssign.destination,
+					&instruction->localAssign.entry
+				);
+			}
+			break;
+		}
+
+		case instruction::NEW_FRAME: {
+			this->frames.push({
+				start: this->stackPointer,
+				size: 0,
+			});
+			break;
+		}
+
+		case instruction::DELETE_FRAME: {
+			vector<Entry> entries; // entries to save
+
+			StackFrame& frame = this->frames.top();
+			int top = frame.start + frame.size - 1; 
+			for(int i = top; i > top - (int)instruction->deleteFrame.save; i--) {
+				entries.push_back(this->stack[i]);
+			}
+
+			unsigned int size = frame.size;
+			for(unsigned int i = 0; i < size; i++) {
+				this->pop();
+			}
+			this->frames.pop();
+
+			// apply saved entries to new top frame
+			for(Entry entry: entries) {
+				this->push(entry);
+			}
+
 			break;
 		}
 	}
@@ -74,6 +163,26 @@ void Interpreter::interpret() {
 	}
 
 	this->interpret();
+}
+
+void Interpreter::printStack() {
+	printf("\nSTACK: %d\n", this->stackPointer);
+	for(unsigned int i = 0; i < this->stackPointer; i++) {
+		Entry entry = this->stack[i];
+		
+		printf("ENTRY {\n");
+		printf("   type: %d,\n", entry.type);
+
+		if(entry.type == entry::STRING) {
+			printf("   data: \"%s\",\n", entry.stringData->c_str());
+		}
+		if(entry.type == entry::NUMBER) {
+			printf("   data: %f,\n", *entry.numberData);
+		}
+
+		printf("};\n");
+	}
+	printf("\n");
 }
 
 void Interpreter::printInstruction(Instruction* instruction) {
@@ -104,11 +213,15 @@ void Interpreter::printInstruction(Instruction* instruction) {
 		}
 
 		case instruction::JUMP: {
-			
 			break;
 		}
 
 		case instruction::MATHEMATICS: {
+			printf("MATHEMATICS {\n");
+			printf("   operator type: %d,\n", instruction->mathematics.operation);
+			printf("   lvalue: %d,\n", instruction->mathematics.lvalue);
+			printf("   rvalue: %d,\n", instruction->mathematics.rvalue);
+			printf("};\n");
 			break;
 		}
 
@@ -116,16 +229,35 @@ void Interpreter::printInstruction(Instruction* instruction) {
 			printf("LOCAL_ASSIGN {\n");
 
 			printf("   destination: %s, \n", instruction->localAssign.destination.c_str());
-			printf("   entry type: %d,\n", instruction->localAssign.entry.type);
 
-			if(instruction->localAssign.entry.type == entry::STRING) {
-				printf("   entry data: \"%s\",\n", instruction->localAssign.entry.stringData->c_str());
+			if(instruction->localAssign.fromStack) {
+				printf("   from stack: true, \n");
 			}
 			else {
-				printf("   entry data: %f,\n", *instruction->localAssign.entry.numberData);
+				printf("   entry type: %d,\n", instruction->localAssign.entry.type);
+	
+				if(instruction->localAssign.entry.type == entry::STRING) {
+					printf("   entry data: \"%s\",\n", instruction->localAssign.entry.stringData->c_str());
+				}
+				else {
+					printf("   entry data: %f,\n", *instruction->localAssign.entry.numberData);
+				}
 			}
 
 			printf("};\n");
+			break;
+		}
+
+		case instruction::NEW_FRAME: {
+			printf("NEW_FRAME;\n");
+			break;
+		}
+
+		case instruction::DELETE_FRAME: {
+			printf("DELETE_FRAME {\n");
+			printf("   save: %d,\n", instruction->deleteFrame.save);
+			printf("};\n");
+			break;
 		}
 	}
 }

@@ -9,6 +9,7 @@ Entry::Entry() {
 
 Entry::Entry(Entry* copy) {
 	this->type = copy->type;
+	this->numberData = nullptr;
 	switch(this->type) {
 		case entry::INVALID: {
 			break;
@@ -27,9 +28,7 @@ Entry::Entry(Entry* copy) {
 }
 
 Entry::~Entry() {
-	if(this->numberData != nullptr) {
-		delete this->numberData;	
-	}
+	// TODO: figure out when to delete the data
 }
 
 void Entry::setNumber(double value) {

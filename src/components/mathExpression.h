@@ -55,10 +55,10 @@ class MathExpression : public Component {
 		vector<MathElement> elements;
 
 		static map<TokenType, int> CreatePrecedenceMap();
+		static ts::instruction::MathematicsOperator TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		void parsePrecedence();
-		void createInstructions(
+		ts::InstructionReturn createInstructions(
 			vector<Operation> &operands,
 			vector<Operation> &operators,
 			relative_stack_location &stackPointer

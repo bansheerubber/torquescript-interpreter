@@ -215,16 +215,35 @@ map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	return output;
 }
 
+ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType type) {
+	switch(type) {
+		case PLUS:
+			return ts::instruction::ADDITION;
+		case MINUS:
+			return ts::instruction::SUBTRACT;
+		case ASTERISK:
+			return ts::instruction::MULTIPLY;
+		case SLASH:
+			return ts::instruction::DIVISION;
+		
+		default:
+			return ts::instruction::INVALID_OPERATOR;
+	}
+}
+
 // helper function for parsing Precedence
-void MathExpression::createInstructions(
+ts::InstructionReturn MathExpression::createInstructions(
 	vector<Operation> &operands,
 	vector<Operation> &operators,
 	relative_stack_location &stackPointer
 ) {
+	ts::InstructionReturn output;
+	vector<ts::InstructionReturn> instructions;
+	
 	// keep track of the current precedence, since we will be going down the operators list until we hit something
 	// that isn't equal to this precedence
 	int topPrecedence = MathExpression::Precedence[operators.back().element.op.type];
-	
+
 	// pointers into the operands/operators vector for when we need to evaluate expressions
 	unsigned int operandIndex = operands.size() - 1, operatorIndex = 0;
 	for(int i = operators.size() - 1; i >= 0; i--) { // find our place in the vectors
@@ -245,32 +264,65 @@ void MathExpression::createInstructions(
 		Operation lvalue = operands[operandIndex];
 		Operation rvalue = operands[operandIndex + 1];
 
+		// compile to push to stack operation
+		relative_stack_location lvalueStackPointer;
 		if(lvalue.element.component != nullptr) {
-			printf("%s", lvalue.element.component->print().c_str());
+			instructions.push_back(lvalue.element.component->compile());
+			lvalueStackPointer = stackPointer++;
 		}
 		else {
-			printf("stack{%d}", lvalue.stack);
+			lvalueStackPointer = lvalue.stack;
 		}
 
-		printf(" %s ", this->parser->tokenizer->typeToName(op.element.op.type));
-
+		// compile to push to stack operation
+		relative_stack_location rvalueStackPointer;
 		if(rvalue.element.component != nullptr) {
-			printf("%s", rvalue.element.component->print().c_str());
+			instructions.push_back(rvalue.element.component->compile());
+			rvalueStackPointer = stackPointer++;
 		}
 		else {
-			printf("stack{%d}", rvalue.stack);
+			rvalueStackPointer = rvalue.stack;
 		}
 
-		printf(", saved to stack{%d}\n", stackPointer);
+		// push the mathematics instruction
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::MATHEMATICS;
+		instruction->mathematics.operation = MathExpression::TypeToOperator(op.element.op.type);
+		instruction->mathematics.lvalue = lvalueStackPointer;
+		instruction->mathematics.rvalue = rvalueStackPointer;
+		instructions.push_back({
+			first: instruction,
+			last: instruction,
+		});
 
 		operands[operandIndex] = {
-			stack: stackPointer++,
+			stack: stackPointer++, // reserve a location on the stack for the math expression result
 		}; // add result of expression back to the operand stack
 		operands.erase(operands.begin() + operandIndex + 1); // remove the operand from the vector
 	}
+
+	// weave together output
+	for(auto instruction: instructions) {
+		if(output.first == nullptr) {
+			output.first = instruction.first;
+			output.last = instruction.last;
+		}
+		else {
+			output.last->next = instruction.first;
+			output.last = instruction.last;
+		}
+	}
+
+	return output;
 }
 
-void MathExpression::parsePrecedence() {
+ts::InstructionReturn MathExpression::compile() {
+	ts::InstructionReturn output;
+	ts::Instruction* newFrame = new ts::Instruction();
+	newFrame->type = ts::instruction::NEW_FRAME;
+	output.first = newFrame;
+	output.last = newFrame;
+	
 	vector<Operation> operands, operators;
 	relative_stack_location stackPointer = 0;
 
@@ -285,7 +337,9 @@ void MathExpression::parsePrecedence() {
 				operators.size() > 0
 				&& MathExpression::Precedence[operators.back().element.op.type] > MathExpression::Precedence[element.op.type]
 			) {
-				this->createInstructions(operands, operators, stackPointer);
+				ts::InstructionReturn instructions = this->createInstructions(operands, operators, stackPointer);
+				output.last->next = instructions.first;
+				output.last = instructions.last;
 			}
 
 			operators.push_back({
@@ -295,11 +349,16 @@ void MathExpression::parsePrecedence() {
 	}
 
 	while(operators.size() > 0) {
-		this->createInstructions(operands, operators, stackPointer);
+		ts::InstructionReturn instructions = this->createInstructions(operands, operators, stackPointer);
+		output.last->next = instructions.first;
+		output.last = instructions.last;
 	}
-}
 
-ts::InstructionReturn MathExpression::compile() {
-	this->parsePrecedence();
-	return {};
+	ts::Instruction* deleteFrame = new ts::Instruction();
+	deleteFrame->type = ts::instruction::DELETE_FRAME;
+	deleteFrame->deleteFrame.save = 1;
+	output.last->next = deleteFrame;
+	output.last = deleteFrame;
+
+	return output;
 }
