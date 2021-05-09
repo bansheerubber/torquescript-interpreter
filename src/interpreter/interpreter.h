@@ -35,14 +35,17 @@ namespace ts {
 			int ranInstructions = 0;
 			chrono::high_resolution_clock::time_point startTime;
 
-			Entry stack[100000];
+			Entry stack[1024];
 			stack_location stackPointer = 0; // points to the next valid location on the stack (stackPointer - 1 == top of stack)
 			
 			StackFrame frames[1024];
 			unsigned int framePointer = 0;
+			StackFrame* topFrame;
 
-			VariableContext& getTopVariableContext();
-			vector<VariableContext> contexts;
+			VariableContext &getTopVariableContext();
+			VariableContext contexts[256];
+			VariableContext* topContext;
+			int contextPointer = 0;
 
 			Instruction* instructionArray;
 			int instructionArraySize = 0;

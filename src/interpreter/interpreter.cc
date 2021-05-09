@@ -4,7 +4,7 @@
 using namespace ts;
 
 Interpreter::Interpreter() {
-	this->contexts.push_back(VariableContext());
+	this->contextPointer++;
 }
 
 Interpreter::~Interpreter() {
@@ -17,13 +17,13 @@ Interpreter::~Interpreter() {
 }
 
 VariableContext& Interpreter::getTopVariableContext() {
-	return this->contexts.back();
+	return this->contexts[this->contextPointer - 1];
 }
 
 // push an entry onto the stack
 void Interpreter::push(Entry &entry) {
 	if(this->framePointer != 0) {
-		this->frames[this->framePointer - 1].size++; // top frame
+		this->topFrame->size++;
 	}
 	copyEntry(entry, this->stack[this->stackPointer]);
 	this->stackPointer++;
@@ -32,7 +32,7 @@ void Interpreter::push(Entry &entry) {
 // push a number onto the stack
 void Interpreter::push(double number) {
 	if(this->framePointer != 0) {
-		this->frames[this->framePointer - 1].size++; // top frame
+		this->topFrame->size++;
 	}
 	this->stack[this->stackPointer].setNumber(number);
 	this->stackPointer++;
@@ -45,7 +45,7 @@ void Interpreter::pop() {
 	}
 	
 	if(this->framePointer != 0) {
-		this->frames[this->framePointer - 1].size--; // top frame
+		this->topFrame->size--;
 	}
 	this->stackPointer--;
 }
@@ -87,7 +87,7 @@ void Interpreter::interpret() {
 		return;
 	}
 
-	Instruction* instruction = &this->instructionArray[this->instructionPointer];
+	Instruction &instruction = this->instructionArray[this->instructionPointer];
 	this->instructionPointer++;
 
 	// this->printInstruction(instruction);
@@ -95,17 +95,17 @@ void Interpreter::interpret() {
 	// offset for stack accesses
 	relative_stack_location offset = 0;
 	if(this->framePointer != 0) {
-		offset = this->frames[this->framePointer - 1].start;
+		offset = this->topFrame->start;
 	}
 	
-	switch(instruction->type) {
+	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
 			printError("invalid instruction\n");
 			exit(1);
 		}
 
 		case instruction::PUSH: { // push to the stack
-			this->push(instruction->push.entry);
+			this->push(instruction.push.entry);
 			break;
 		}
 
@@ -115,7 +115,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP: { // jump to an instruction
-			this->current = instruction->jump.jumpPoint;
+			this->current = instruction.jump.jumpPoint;
 			break;
 		}
 
@@ -124,24 +124,24 @@ void Interpreter::interpret() {
 			Entry* rvalue;
 
 			// set lvalue
-			if(instruction->mathematics.lvalueEntry.type != entry::INVALID) {
-				lvalue = &instruction->mathematics.lvalueEntry;
+			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+				lvalue = &instruction.mathematics.lvalueEntry;
 			}
 			else {
-				lvalue = &this->stack[instruction->mathematics.lvalue + offset]; // index from base of frame
+				lvalue = &this->stack[instruction.mathematics.lvalue + offset]; // index from base of frame
 			}
 
 			// set rvalue
-			if(instruction->mathematics.rvalueEntry.type != entry::INVALID) {
-				rvalue = &instruction->mathematics.rvalueEntry;
+			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+				rvalue = &instruction.mathematics.rvalueEntry;
 			}
 			else {
-				rvalue = &this->stack[instruction->mathematics.rvalue + offset]; // index from base of frame
+				rvalue = &this->stack[instruction.mathematics.rvalue + offset]; // index from base of frame
 			}
 
 			double result;
 			bool evaluated = false;
-			switch(instruction->mathematics.operation) {
+			switch(instruction.mathematics.operation) {
 				case instruction::ADDITION: {
 					result = lvalue->numberData + rvalue->numberData;
 					evaluated = true;
@@ -185,7 +185,7 @@ void Interpreter::interpret() {
 			variable::Array* head = nullptr;
 			variable::Array* last = nullptr;
 			
-			for(int i = instruction->localAssign.dimensions - 1; i >= 0; i--) {
+			for(int i = instruction.localAssign.dimensions - 1; i >= 0; i--) {
 				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
 				if(last == nullptr) {
 					head = last = new variable::Array(&value);
@@ -196,23 +196,23 @@ void Interpreter::interpret() {
 				}
 			}
 			
-			if(instruction->localAssign.fromStack) {
+			if(instruction.localAssign.fromStack) {
 				this->getTopVariableContext().setVariableEntry(
-					instruction->localAssign.destination,
+					instruction.localAssign.destination,
 					head,
-					this->stack[this->stackPointer - 1 - instruction->localAssign.dimensions] // start from top of stack
+					this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions] // start from top of stack
 				);
 				this->pop();
 			}
 			else {
 				this->getTopVariableContext().setVariableEntry(
-					instruction->localAssign.destination,
+					instruction.localAssign.destination,
 					head,
-					instruction->localAssign.entry
+					instruction.localAssign.entry
 				);
 			}
 
-			for(int i = 0; i < instruction->localAssign.dimensions; i++) {
+			for(int i = 0; i < instruction.localAssign.dimensions; i++) {
 				this->pop(); // pop the dimensions
 			}
 
@@ -223,7 +223,7 @@ void Interpreter::interpret() {
 			variable::Array* head = nullptr;
 			variable::Array* last = nullptr;
 			
-			for(int i = instruction->localAccess.dimensions - 1; i >= 0; i--) {
+			for(int i = instruction.localAccess.dimensions - 1; i >= 0; i--) {
 				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
 				if(last == nullptr) {
 					head = last = new variable::Array(&value);
@@ -236,12 +236,12 @@ void Interpreter::interpret() {
 			
 			this->push(
 				this->getTopVariableContext().getVariableEntry(
-					instruction->localAccess.source,
+					instruction.localAccess.source,
 					head
 				)
 			);
 
-			for(int i = 0; i < instruction->localAccess.dimensions; i++) {
+			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
 				this->pop(); // pop the dimensions
 			}
 
@@ -251,25 +251,29 @@ void Interpreter::interpret() {
 		case instruction::NEW_FRAME: { // create a new frame
 			this->frames[this->framePointer].start = this->stackPointer;
 			this->frames[this->framePointer].size = 0;
+			this->topFrame = &this->frames[this->framePointer];
 			this->framePointer++;
 			break;
 		}
 
 		case instruction::DELETE_FRAME: { // delete the last frame
-			StackFrame &frame = this->frames[this->framePointer - 1]; // top frame
-			int saveTop = frame.start + frame.size;
-			int saveStart = saveTop - instruction->deleteFrame.save;
+			int saveTop = this->topFrame->start + this->topFrame->size;
+			int saveStart = saveTop - instruction.deleteFrame.save;
 
 			// pop the entire frame
-			unsigned int size = frame.size;
-			for(unsigned int i = 0; i < size; i++) { // pop from top of stack
-				this->pop();
-			}
+			this->stackPointer -= this->topFrame->size;
 			this->framePointer--; // pop the frame
 
 			// move the saved entries onto the new stack
 			for(int i = saveStart; i < saveTop; i++) {
 				this->push(this->stack[i]);
+			}
+
+			if(this->framePointer != 0) {
+				this->topFrame = &this->frames[this->framePointer - 1];
+			}
+			else {
+				this->topFrame = nullptr;
 			}
 
 			break;
