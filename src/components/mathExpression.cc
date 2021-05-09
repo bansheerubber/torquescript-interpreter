@@ -336,14 +336,7 @@ ts::InstructionReturn MathExpression::createInstructions(
 
 	// weave together output
 	for(auto instruction: instructions) {
-		if(output.first == nullptr) {
-			output.first = instruction.first;
-			output.last = instruction.last;
-		}
-		else {
-			output.last->next = instruction.first;
-			output.last = instruction.last;
-		}
+		output.add(instruction);
 	}
 
 	return output;
@@ -353,8 +346,7 @@ ts::InstructionReturn MathExpression::compile() {
 	ts::InstructionReturn output;
 	ts::Instruction* newFrame = new ts::Instruction();
 	newFrame->type = ts::instruction::NEW_FRAME;
-	output.first = newFrame;
-	output.last = newFrame;
+	output.add(newFrame);
 	
 	vector<Operation> operands, operators;
 	relative_stack_location stackPointer = 0;
@@ -370,9 +362,7 @@ ts::InstructionReturn MathExpression::compile() {
 				operators.size() > 0
 				&& MathExpression::Precedence[operators.back().element.op.type] > MathExpression::Precedence[element.op.type]
 			) {
-				ts::InstructionReturn instructions = this->createInstructions(operands, operators, stackPointer);
-				output.last->next = instructions.first;
-				output.last = instructions.last;
+				output.add(this->createInstructions(operands, operators, stackPointer));
 			}
 
 			operators.push_back({
@@ -382,16 +372,13 @@ ts::InstructionReturn MathExpression::compile() {
 	}
 
 	while(operators.size() > 0) {
-		ts::InstructionReturn instructions = this->createInstructions(operands, operators, stackPointer);
-		output.last->next = instructions.first;
-		output.last = instructions.last;
+		output.add(this->createInstructions(operands, operators, stackPointer));
 	}
 
 	ts::Instruction* deleteFrame = new ts::Instruction();
 	deleteFrame->type = ts::instruction::DELETE_FRAME;
 	deleteFrame->deleteFrame.save = 1;
-	output.last->next = deleteFrame;
-	output.last = deleteFrame;
+	output.add(deleteFrame);
 
 	return output;
 }

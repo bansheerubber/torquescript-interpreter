@@ -18,14 +18,7 @@ ts::InstructionReturn SourceFile::compile() {
 	for(Component* child: this->children) {
 		ts::InstructionReturn compiled = child->compile();
 		if(compiled.first != nullptr) {
-			if(output.first == nullptr) {
-				output.first = compiled.first;
-				output.last = compiled.last;
-			}
-			else {
-				output.last->next = compiled.first;
-				output.last = compiled.last;
-			}
+			output.add(compiled);
 		}
 	}
 

@@ -169,8 +169,7 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 		instruction->type = ts::instruction::LOCAL_ACCESS;
 		new((void*)&instruction->localAccess.source) string(this->getVariableName()); // TODO move this initialization elsewhere
 
-		c.output.first = instruction;
-		c.output.last = instruction;
+		c.output.add(instruction);
 		c.lastAccess = instruction;
 		return c;
 	}
@@ -189,28 +188,11 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
-
-			ts::InstructionReturn compiled = element.component->compile();
-
-			if(c.output.first == nullptr) {
-				c.output.first = compiled.first;
-				c.output.last = compiled.last;
-			}
-			else {
-				c.output.last->next = compiled.first;
-				c.output.last = compiled.last;
-			}
+			c.output.add(element.component->compile());
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
-				if(c.output.first == nullptr) {
-					c.output.first = lastInstruction;
-					c.output.last = lastInstruction;
-				}
-				else {
-					c.output.last->next = lastInstruction;
-					c.output.last = lastInstruction;
-				}
+				c.output.add(lastInstruction);
 			}
 			
 			continue;
@@ -219,14 +201,7 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 	}
 
 	if(lastInstruction != nullptr) {
-		if(c.output.first == nullptr) {
-			c.output.first = lastInstruction;
-			c.output.last = lastInstruction;
-		}
-		else {
-			c.output.last->next = lastInstruction;
-			c.output.last = lastInstruction;
-		}
+		c.output.add(lastInstruction);
 	}
 
 	return c;

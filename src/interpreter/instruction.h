@@ -97,5 +97,27 @@ namespace ts {
 			this->first = first;
 			this->last = last;
 		}
+
+		void add(Instruction* instruction) {
+			if(this->first == nullptr) {
+				this->first = instruction;
+				this->last = instruction;
+			}
+			else {
+				this->last->next = instruction;
+				this->last = instruction;
+			}
+		}
+
+		void add(InstructionReturn compiled) {
+			if(this->first == nullptr) {
+				this->first = compiled.first;
+				this->last = compiled.last;
+			}
+			else {
+				this->last->next = compiled.first;
+				this->last = compiled.last;
+			}
+		}
 	};
 }

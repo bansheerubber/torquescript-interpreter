@@ -69,16 +69,7 @@ ts::InstructionReturn ArrayStatement::compile() {
 
 	for(ArrayElement &element: this->elements) {
 		if(!element.isComma) {
-			ts::InstructionReturn compiled = element.component->compile();
-			
-			if(output.first == nullptr) {
-				output.first = compiled.first;
-				output.last = compiled.last;
-			}
-			else {
-				output.last->next = compiled.first;
-				output.last = compiled.last;
-			}
+			output.add(element.component->compile());
 		}
 	}
 

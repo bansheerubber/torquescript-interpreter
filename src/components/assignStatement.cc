@@ -77,28 +77,11 @@ ts::InstructionReturn AssignStatement::compile() {
 		instruction->localAssign.entry.setString(literal);
 	}
 	else if(this->rvalue->getType() == MATH_EXPRESSION) {
-		ts::InstructionReturn compiled = this->rvalue->compile();
-
-		if(output.first == nullptr) {
-			output.first = compiled.first;
-			output.last = compiled.last;
-		}
-		else {
-			output.last->next = compiled.first;
-			output.last = compiled.last;
-		}
-
+		output.add(this->rvalue->compile());
 		instruction->localAssign.fromStack = true;
 	}
 
-	if(output.first == nullptr) {
-		output.first = c.output.first;
-		output.last = c.output.last;
-	}
-	else {
-		output.last->next = c.output.first;
-		output.last = c.output.last;
-	}
+	output.add(c.output);
 
 	return output;
 }
