@@ -63,11 +63,6 @@ namespace ts {
 			} localAccess;
 
 			struct {
-				// amount of entries on the stack this new frame steals for itself
-				unsigned int steal;
-			} newFrame;
-
-			struct {
 				// the amount of entries we want to save from the top of the current frame,
 				// these values will get pushed to the next frame down
 				unsigned int save;
@@ -83,6 +78,8 @@ namespace ts {
 			
 		}
 	};
+
+	void copyInstruction(Instruction &source, Instruction &destination);
 
 	struct InstructionReturn {
 		Instruction* first; // first instruction in mini linked list

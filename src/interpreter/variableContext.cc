@@ -28,16 +28,14 @@ string computeVariableString(string &variable, variable::Array* array) {
 
 Entry& VariableContext::getVariableEntry(string &variable, variable::Array* array) {
 	if(array != nullptr) {
-		string egg = computeVariableString(variable, array);
-		return this->variableMap[egg];
+		return this->variableMap[computeVariableString(variable, array)];
 	}
 	return this->variableMap[variable];
 }
 
 void VariableContext::setVariableEntry(string &name, variable::Array* array, Entry &entry) {
 	if(array != nullptr) {
-		string egg = computeVariableString(name, array);
-		copyEntry(entry, this->variableMap[egg]);
+		copyEntry(entry, this->variableMap[computeVariableString(name, array)]);
 	}
 	else {
 		copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries

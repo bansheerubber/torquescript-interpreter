@@ -43,5 +43,9 @@ namespace ts {
 
 			VariableContext& getTopVariableContext();
 			vector<VariableContext> contexts;
+
+			Instruction* instructionArray;
+			int instructionArraySize = 0;
+			int instructionPointer = 0;
 	};
 }
