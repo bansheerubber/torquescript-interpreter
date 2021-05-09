@@ -20,6 +20,11 @@ struct AccessElement {
 	Component* component; // array access if there is any
 };
 
+struct AccessStatementCompiled {
+	ts::InstructionReturn output;
+	ts::Instruction* lastAccess;
+};
+
 // a local/global access
 // examples:
 // %ex, %ex.hey, %ex.hey[0], %ex[0]
@@ -37,6 +42,7 @@ class AccessStatement : public Component {
 		}
 
 		ts::InstructionReturn compile();
+		AccessStatementCompiled compileAccess();
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword = false);

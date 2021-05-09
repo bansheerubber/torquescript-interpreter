@@ -55,37 +55,49 @@ string AssignStatement::print() {
 
 ts::InstructionReturn AssignStatement::compile() {
 	ts::InstructionReturn output;
+
+	AccessStatementCompiled c = this->lvalue->compileAccess();
+	ts::Instruction* instruction = c.lastAccess;
+	instruction->type = ts::instruction::LOCAL_ASSIGN;
+	
+	if(c.output.last->type == ts::instruction::DELETE_FRAME) {
+		c.output.last->deleteFrame.save = 0; // TODO change this behavior so it saves the result of the variable to the stack
+	}
+
+	// copy access instruction to assign instruction
+	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
+	instruction->localAssign.fromStack = false;
+
 	if(this->rvalue->getType() == NUMBER_LITERAL) {
-		ts::Instruction* instruction = new ts::Instruction();
-		instruction->type = ts::instruction::LOCAL_ASSIGN;
 		instruction->localAssign.entry.setNumber(((NumberLiteral*)this->rvalue)->getNumber());
-		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
-		output.first = instruction;
-		output.last = instruction;
 	}
 	else if(this->rvalue->getType() == STRING_LITERAL) {
-		ts::Instruction* instruction = new ts::Instruction();
-		instruction->type = ts::instruction::LOCAL_ASSIGN;
-
 		string literal = ((StringLiteral*)this->rvalue)->getString();
 		instruction->localAssign.entry.setString(literal);
-		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
-		output.first = instruction;
-		output.last = instruction;
 	}
 	else if(this->rvalue->getType() == MATH_EXPRESSION) {
 		ts::InstructionReturn compiled = this->rvalue->compile();
-		output.first = compiled.first;
-		output.last = compiled.last;
 
-		ts::Instruction* instruction = new ts::Instruction();
-		instruction->type = ts::instruction::LOCAL_ASSIGN;
+		if(output.first == nullptr) {
+			output.first = compiled.first;
+			output.last = compiled.last;
+		}
+		else {
+			output.last->next = compiled.first;
+			output.last = compiled.last;
+		}
+
 		instruction->localAssign.fromStack = true;
-		new((void*)&instruction->localAssign.destination) string(this->lvalue->getVariableName()); // TODO move this initialization elsewhere
+	}
 
-		compiled.last->next = instruction;
-		compiled.last = instruction;
-		output.last = compiled.last;
+	if(output.first == nullptr) {
+		output.first = c.output.first;
+		output.last = c.output.last;
+	}
+	else {
+		output.last->next = c.output.first;
+		output.last = c.output.last;
 	}
 
 	return output;

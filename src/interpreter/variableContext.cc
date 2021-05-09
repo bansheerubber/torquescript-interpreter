@@ -6,12 +6,42 @@ VariableContext::~VariableContext() {
 	
 }
 
-Entry& VariableContext::getVariableEntry(string variable) {
+string computeVariableString(string &variable, variable::Array* array) {
+	string newVariable(variable);
+	variable::Array* next = array;
+	while(next != nullptr) {
+		if(next != array) {
+			newVariable += '_';
+		}
+		
+		// convert double to integer
+		if((long)next->entry->numberData == next->entry->numberData) {
+			newVariable = newVariable + to_string((long)next->entry->numberData);
+		}
+		else {
+			newVariable = newVariable + to_string(next->entry->numberData);
+		}
+		next = next->next;
+	}
+	return newVariable;
+}
+
+Entry& VariableContext::getVariableEntry(string &variable, variable::Array* array) {
+	if(array != nullptr) {
+		string egg = computeVariableString(variable, array);
+		return this->variableMap[egg];
+	}
 	return this->variableMap[variable];
 }
 
-void VariableContext::setVariableEntry(string &name, Entry &entry) {
-	copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries
+void VariableContext::setVariableEntry(string &name, variable::Array* array, Entry &entry) {
+	if(array != nullptr) {
+		string egg = computeVariableString(name, array);
+		copyEntry(entry, this->variableMap[egg]);
+	}
+	else {
+		copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries
+	}
 }
 
 void VariableContext::print() {

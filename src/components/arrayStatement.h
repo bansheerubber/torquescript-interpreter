@@ -32,6 +32,8 @@ class ArrayStatement : public Component {
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static ArrayStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+
+		int getDimensions();
 	
 	private:
 		// can be literals, a mathematical statement, access statements, etc

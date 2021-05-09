@@ -11,6 +11,7 @@ namespace ts {
 			JUMP, // jump to a particular instruction
 			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
+			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			NEW_FRAME, // create a new stack frame
 			DELETE_FRAME, // delete the latest stack frame, pop all values the frame encompassed
 		};
@@ -53,7 +54,18 @@ namespace ts {
 				string destination;
 				bool fromStack;
 				Entry entry;
+				int dimensions;
 			} localAssign;
+
+			struct {
+				string source;
+				int dimensions;
+			} localAccess;
+
+			struct {
+				// amount of entries on the stack this new frame steals for itself
+				unsigned int steal;
+			} newFrame;
 
 			struct {
 				// the amount of entries we want to save from the top of the current frame,

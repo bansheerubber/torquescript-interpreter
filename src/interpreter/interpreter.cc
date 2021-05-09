@@ -66,10 +66,17 @@ void Interpreter::interpret() {
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->getTopVariableContext().print();
+		this->printStack();
 		return;
 	}
 
 	// this->printInstruction(instruction);
+
+	// offset for stack accesses
+	relative_stack_location offset = 0;
+	if(this->framePointer != 0) {
+		offset = this->frames[this->framePointer - 1].start;
+	}
 	
 	switch(instruction->type) {
 		case instruction::INVALID_INSTRUCTION: {
@@ -77,22 +84,22 @@ void Interpreter::interpret() {
 			exit(1);
 		}
 
-		case instruction::PUSH: {
+		case instruction::PUSH: { // push to the stack
 			this->push(instruction->push.entry);
 			break;
 		}
 
-		case instruction::POP: {
+		case instruction::POP: { // pop from the stack
 			this->pop();
 			break;
 		}
 
-		case instruction::JUMP: {
+		case instruction::JUMP: { // jump to an instruction
 			this->current = instruction->jump.jumpPoint;
 			break;
 		}
 
-		case instruction::MATHEMATICS: {
+		case instruction::MATHEMATICS: { // do the math
 			Entry* lvalue;
 			Entry* rvalue;
 
@@ -101,7 +108,7 @@ void Interpreter::interpret() {
 				lvalue = &instruction->mathematics.lvalueEntry;
 			}
 			else {
-				lvalue = &this->stack[instruction->mathematics.lvalue];
+				lvalue = &this->stack[instruction->mathematics.lvalue + offset]; // index from base of frame
 			}
 
 			// set rvalue
@@ -109,7 +116,7 @@ void Interpreter::interpret() {
 				rvalue = &instruction->mathematics.rvalueEntry;
 			}
 			else {
-				rvalue = &this->stack[instruction->mathematics.rvalue];
+				rvalue = &this->stack[instruction->mathematics.rvalue + offset]; // index from base of frame
 			}
 
 			double result;
@@ -155,23 +162,74 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::LOCAL_ASSIGN: {
+			variable::Array* head = nullptr;
+			variable::Array* last = nullptr;
+			
+			for(int i = instruction->localAssign.dimensions - 1; i >= 0; i--) {
+				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
+				if(last == nullptr) {
+					head = last = new variable::Array(&value);
+				}
+				else {
+					last->next = new variable::Array(&value);
+					last = last->next;
+				}
+			}
+			
 			if(instruction->localAssign.fromStack) {
 				this->getTopVariableContext().setVariableEntry(
 					instruction->localAssign.destination,
-					this->stack[this->stackPointer - 1]
+					head,
+					this->stack[this->stackPointer - 1 - instruction->localAssign.dimensions] // start from top of stack
 				);
 				this->pop();
 			}
 			else {
 				this->getTopVariableContext().setVariableEntry(
 					instruction->localAssign.destination,
+					head,
 					instruction->localAssign.entry
 				);
 			}
+
+			for(int i = 0; i < instruction->localAssign.dimensions; i++) {
+				this->pop(); // pop the dimensions
+			}
+
 			break;
 		}
 
-		case instruction::NEW_FRAME: {
+		case instruction::LOCAL_ACCESS: { // push local variable to stack
+
+			variable::Array* head = nullptr;
+			variable::Array* last = nullptr;
+			
+			for(int i = instruction->localAccess.dimensions - 1; i >= 0; i--) {
+				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
+				if(last == nullptr) {
+					head = last = new variable::Array(&value);
+				}
+				else {
+					last->next = new variable::Array(&value);
+					last = last->next;
+				}
+			}
+			
+			this->push(
+				this->getTopVariableContext().getVariableEntry(
+					instruction->localAccess.source,
+					head
+				)
+			);
+
+			for(int i = 0; i < instruction->localAccess.dimensions; i++) {
+				this->pop(); // pop the dimensions
+			}
+
+			break;
+		}
+
+		case instruction::NEW_FRAME: { // create a new frame
 			this->frames[this->framePointer].start = this->stackPointer;
 			this->frames[this->framePointer].size = 0;
 			this->framePointer++;
@@ -179,9 +237,8 @@ void Interpreter::interpret() {
 		}
 
 		// TODO we can probably optimize SavedEntry a little more (not sure if really necessary though)
-		case instruction::DELETE_FRAME: {
+		case instruction::DELETE_FRAME: { // delete the last frame
 			StackFrame &frame = this->frames[this->framePointer - 1]; // top frame
-			this->framePointer--;
 
 			struct SavedEntry {
 				Entry entry;
@@ -192,7 +249,7 @@ void Interpreter::interpret() {
 			SavedEntry* head = nullptr;
 			SavedEntry* current = nullptr;
 			int top = frame.start + frame.size;
-			for(int i = top - (int)instruction->deleteFrame.save; i < top; i++) {
+			for(int i = top - (int)instruction->deleteFrame.save; i < top; i++) { // start from top of stack
 				if(head == nullptr) {
 					current = head = new SavedEntry();
 					head->entry = this->stack[i];
@@ -206,9 +263,10 @@ void Interpreter::interpret() {
 
 			// pop the entire frame
 			unsigned int size = frame.size;
-			for(unsigned int i = 0; i < size; i++) {
+			for(unsigned int i = 0; i < size; i++) { // pop from top of stack
 				this->pop();
 			}
+			this->framePointer--; // pop the frame
 
 			// apply saved entries to new top frame
 			while(head != nullptr) {
@@ -284,8 +342,35 @@ void Interpreter::printInstruction(Instruction* instruction) {
 		case instruction::MATHEMATICS: {
 			printf("MATHEMATICS {\n");
 			printf("   operator type: %d,\n", instruction->mathematics.operation);
-			printf("   lvalue: %d,\n", instruction->mathematics.lvalue);
-			printf("   rvalue: %d,\n", instruction->mathematics.rvalue);
+
+			if(instruction->mathematics.lvalueEntry.type != entry::INVALID) {
+				printf("   lvalue type: %d,\n", instruction->mathematics.lvalueEntry.type);
+	
+				if(instruction->mathematics.lvalueEntry.type == entry::STRING) {
+					printf("   lvalue data: \"%s\",\n", instruction->mathematics.lvalueEntry.stringData->c_str());
+				}
+				else {
+					printf("   lvalue data: %f,\n", instruction->mathematics.lvalueEntry.numberData);
+				}
+			}
+			else {
+				printf("   lvalue stack: %d,\n", instruction->mathematics.lvalue);
+			}
+
+			if(instruction->mathematics.rvalueEntry.type != entry::INVALID) {
+				printf("   rvalue type: %d,\n", instruction->mathematics.rvalueEntry.type);
+	
+				if(instruction->mathematics.rvalueEntry.type == entry::STRING) {
+					printf("   rvalue data: \"%s\",\n", instruction->mathematics.rvalueEntry.stringData->c_str());
+				}
+				else {
+					printf("   rvalue data: %f,\n", instruction->mathematics.rvalueEntry.numberData);
+				}
+			}
+			else {
+				printf("   rvalue stack: %d,\n", instruction->mathematics.rvalue);
+			}
+			
 			printf("};\n");
 			break;
 		}
@@ -294,6 +379,7 @@ void Interpreter::printInstruction(Instruction* instruction) {
 			printf("LOCAL_ASSIGN {\n");
 
 			printf("   destination: %s, \n", instruction->localAssign.destination.c_str());
+			printf("   dimensions: %d, \n", instruction->localAssign.dimensions);
 
 			if(instruction->localAssign.fromStack) {
 				printf("   from stack: true, \n");
@@ -310,6 +396,15 @@ void Interpreter::printInstruction(Instruction* instruction) {
 			}
 
 			printf("};\n");
+			break;
+		}
+
+		case instruction::LOCAL_ACCESS: {
+			printf("LOCAL_ACCESS {\n");
+			printf("   source: %s, \n", instruction->localAccess.source.c_str());
+			printf("   dimensions: %d, \n", instruction->localAccess.dimensions);
+			printf("};\n");
+			
 			break;
 		}
 

@@ -40,6 +40,16 @@ ArrayStatement* ArrayStatement::Parse(Component* parent, Tokenizer* tokenizer, P
 	return output;
 }
 
+int ArrayStatement::getDimensions() {
+	int count = 0;
+	for(ArrayElement &element: this->elements) {	
+		if(element.component != nullptr) {
+			count++;
+		}
+	}
+	return count;
+}
+
 string ArrayStatement::print() {
 	string output = "[";
 	for(ArrayElement element: this->elements) {
@@ -55,5 +65,22 @@ string ArrayStatement::print() {
 }
 
 ts::InstructionReturn ArrayStatement::compile() {
-	return {};
+	ts::InstructionReturn output;
+
+	for(ArrayElement &element: this->elements) {
+		if(!element.isComma) {
+			ts::InstructionReturn compiled = element.component->compile();
+			
+			if(output.first == nullptr) {
+				output.first = compiled.first;
+				output.last = compiled.last;
+			}
+			else {
+				output.last->next = compiled.first;
+				output.last = compiled.last;
+			}
+		}
+	}
+
+	return output;
 }
