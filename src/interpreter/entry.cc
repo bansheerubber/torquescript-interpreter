@@ -5,13 +5,10 @@ using namespace ts;
 Entry::Entry() {
 	this->type = entry::INVALID;
 	this->numberData = 0.0;
-	this->stringData = nullptr;
 }
 
 Entry::Entry(Entry* copy) {
 	this->type = copy->type;
-	this->numberData = 0.0;
-	this->stringData = nullptr;
 	switch(this->type) {
 		case entry::INVALID: {
 			break;
@@ -30,19 +27,21 @@ Entry::Entry(Entry* copy) {
 }
 
 Entry::~Entry() {
-	if(this->stringData != nullptr) {
-		delete this->stringData;
+	if(this->type == entry::STRING) {
+		if(this->stringData != nullptr) {
+			delete this->stringData;
+		}
 	}
 }
 
 void Entry::setNumber(double value) {
-	this->numberData = value;
 	this->type = entry::NUMBER;
+	this->numberData = value;
 }
 
 void Entry::setString(string &value) {
-	this->stringData = new string(value);
 	this->type = entry::STRING;
+	this->stringData = new string(value);
 }
 
 void Entry::print() {
@@ -62,21 +61,19 @@ void Entry::print() {
 
 void ts::copyEntry(Entry &source, Entry &destination) {
 	destination.type = source.type;
-	destination.numberData = 0.0;
-	destination.stringData = nullptr;
 	switch(destination.type) {
 		case entry::INVALID: {
 			break;
 		}
 		
 		case entry::NUMBER: {
-			destination.setNumber(source.numberData);
+			destination.numberData = source.numberData;
 			break;
 		}
 
 		case entry::STRING: {
-			destination.setString(*source.stringData);
+			destination.stringData = new string(*source.stringData);
 			break;
 		}
-	}	
+	}
 }

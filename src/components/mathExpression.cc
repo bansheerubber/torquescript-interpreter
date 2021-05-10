@@ -323,10 +323,7 @@ ts::InstructionReturn MathExpression::createInstructions(
 			copyEntry(rvalueResult.entry, instruction->mathematics.rvalueEntry);
 		}
 
-		instructions.push_back({
-			first: instruction,
-			last: instruction,
-		});
+		instructions.push_back(ts::InstructionReturn(instruction, instruction));
 
 		operands[operandIndex] = {
 			stack: stackPointer++, // reserve a location on the stack for the math expression result

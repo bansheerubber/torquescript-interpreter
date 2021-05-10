@@ -260,8 +260,7 @@ void Interpreter::interpret() {
 			int saveTop = this->topFrame->start + this->topFrame->size;
 			int saveStart = saveTop - instruction.deleteFrame.save;
 
-			// pop the entire frame
-			this->stackPointer -= this->topFrame->size;
+			this->stackPointer -= this->topFrame->size; // pop the contents of the frame
 			this->framePointer--; // pop the frame
 
 			// move the saved entries onto the new stack
@@ -269,6 +268,7 @@ void Interpreter::interpret() {
 				this->push(this->stack[i]);
 			}
 
+			// update top frame pointer
 			if(this->framePointer != 0) {
 				this->topFrame = &this->frames[this->framePointer - 1];
 			}
@@ -305,8 +305,8 @@ void Interpreter::printStack() {
 	printf("\n");
 }
 
-void Interpreter::printInstruction(Instruction* instruction) {
-	switch(instruction->type) {
+void Interpreter::printInstruction(Instruction &instruction) {
+	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
 			printf("INVALID_INSTRUCTION;\n");
 			break;
@@ -314,13 +314,13 @@ void Interpreter::printInstruction(Instruction* instruction) {
 
 		case instruction::PUSH: {
 			printf("PUSH {\n");
-			printf("   entry type: %d,\n", instruction->push.entry.type);
+			printf("   entry type: %d,\n", instruction.push.entry.type);
 
-			if(instruction->push.entry.type == entry::STRING) {
-				printf("   entry data: \"%s\",\n", instruction->push.entry.stringData->c_str());
+			if(instruction.push.entry.type == entry::STRING) {
+				printf("   entry data: \"%s\",\n", instruction.push.entry.stringData->c_str());
 			}
 			else {
-				printf("   entry data: %f,\n", instruction->push.entry.numberData);
+				printf("   entry data: %f,\n", instruction.push.entry.numberData);
 			}
 
 			printf("};\n");
@@ -338,34 +338,34 @@ void Interpreter::printInstruction(Instruction* instruction) {
 
 		case instruction::MATHEMATICS: {
 			printf("MATHEMATICS {\n");
-			printf("   operator type: %d,\n", instruction->mathematics.operation);
+			printf("   operator type: %d,\n", instruction.mathematics.operation);
 
-			if(instruction->mathematics.lvalueEntry.type != entry::INVALID) {
-				printf("   lvalue type: %d,\n", instruction->mathematics.lvalueEntry.type);
+			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+				printf("   lvalue type: %d,\n", instruction.mathematics.lvalueEntry.type);
 	
-				if(instruction->mathematics.lvalueEntry.type == entry::STRING) {
-					printf("   lvalue data: \"%s\",\n", instruction->mathematics.lvalueEntry.stringData->c_str());
+				if(instruction.mathematics.lvalueEntry.type == entry::STRING) {
+					printf("   lvalue data: \"%s\",\n", instruction.mathematics.lvalueEntry.stringData->c_str());
 				}
 				else {
-					printf("   lvalue data: %f,\n", instruction->mathematics.lvalueEntry.numberData);
+					printf("   lvalue data: %f,\n", instruction.mathematics.lvalueEntry.numberData);
 				}
 			}
 			else {
-				printf("   lvalue stack: %d,\n", instruction->mathematics.lvalue);
+				printf("   lvalue stack: %d,\n", instruction.mathematics.lvalue);
 			}
 
-			if(instruction->mathematics.rvalueEntry.type != entry::INVALID) {
-				printf("   rvalue type: %d,\n", instruction->mathematics.rvalueEntry.type);
+			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+				printf("   rvalue type: %d,\n", instruction.mathematics.rvalueEntry.type);
 	
-				if(instruction->mathematics.rvalueEntry.type == entry::STRING) {
-					printf("   rvalue data: \"%s\",\n", instruction->mathematics.rvalueEntry.stringData->c_str());
+				if(instruction.mathematics.rvalueEntry.type == entry::STRING) {
+					printf("   rvalue data: \"%s\",\n", instruction.mathematics.rvalueEntry.stringData->c_str());
 				}
 				else {
-					printf("   rvalue data: %f,\n", instruction->mathematics.rvalueEntry.numberData);
+					printf("   rvalue data: %f,\n", instruction.mathematics.rvalueEntry.numberData);
 				}
 			}
 			else {
-				printf("   rvalue stack: %d,\n", instruction->mathematics.rvalue);
+				printf("   rvalue stack: %d,\n", instruction.mathematics.rvalue);
 			}
 			
 			printf("};\n");
@@ -375,20 +375,20 @@ void Interpreter::printInstruction(Instruction* instruction) {
 		case instruction::LOCAL_ASSIGN: {
 			printf("LOCAL_ASSIGN {\n");
 
-			printf("   destination: %s, \n", instruction->localAssign.destination.c_str());
-			printf("   dimensions: %d, \n", instruction->localAssign.dimensions);
+			printf("   destination: %s, \n", instruction.localAssign.destination.c_str());
+			printf("   dimensions: %d, \n", instruction.localAssign.dimensions);
 
-			if(instruction->localAssign.fromStack) {
+			if(instruction.localAssign.fromStack) {
 				printf("   from stack: true, \n");
 			}
 			else {
-				printf("   entry type: %d,\n", instruction->localAssign.entry.type);
+				printf("   entry type: %d,\n", instruction.localAssign.entry.type);
 	
-				if(instruction->localAssign.entry.type == entry::STRING) {
-					printf("   entry data: \"%s\",\n", instruction->localAssign.entry.stringData->c_str());
+				if(instruction.localAssign.entry.type == entry::STRING) {
+					printf("   entry data: \"%s\",\n", instruction.localAssign.entry.stringData->c_str());
 				}
 				else {
-					printf("   entry data: %f,\n", instruction->localAssign.entry.numberData);
+					printf("   entry data: %f,\n", instruction.localAssign.entry.numberData);
 				}
 			}
 
@@ -398,8 +398,8 @@ void Interpreter::printInstruction(Instruction* instruction) {
 
 		case instruction::LOCAL_ACCESS: {
 			printf("LOCAL_ACCESS {\n");
-			printf("   source: %s, \n", instruction->localAccess.source.c_str());
-			printf("   dimensions: %d, \n", instruction->localAccess.dimensions);
+			printf("   source: %s, \n", instruction.localAccess.source.c_str());
+			printf("   dimensions: %d, \n", instruction.localAccess.dimensions);
 			printf("};\n");
 			
 			break;
@@ -412,7 +412,7 @@ void Interpreter::printInstruction(Instruction* instruction) {
 
 		case instruction::DELETE_FRAME: {
 			printf("DELETE_FRAME {\n");
-			printf("   save: %d,\n", instruction->deleteFrame.save);
+			printf("   save: %d,\n", instruction.deleteFrame.save);
 			printf("};\n");
 			break;
 		}

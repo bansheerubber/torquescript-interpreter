@@ -59,6 +59,7 @@ ts::InstructionReturn AssignStatement::compile() {
 	AccessStatementCompiled c = this->lvalue->compileAccess();
 	ts::Instruction* instruction = c.lastAccess;
 	instruction->type = ts::instruction::LOCAL_ASSIGN;
+	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 	
 	if(c.output.last->type == ts::instruction::DELETE_FRAME) {
 		c.output.last->deleteFrame.save = 0; // TODO change this behavior so it saves the result of the variable to the stack

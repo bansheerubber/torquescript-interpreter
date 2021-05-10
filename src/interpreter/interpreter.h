@@ -20,7 +20,7 @@ namespace ts {
 
 			void startInterpretation(Instruction* head);
 			
-			void printInstruction(Instruction* instruction);
+			void printInstruction(Instruction &instruction);
 			void printStack();
 		
 		private:

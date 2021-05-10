@@ -167,6 +167,7 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 	if(this->elements.size() == 1) {
 		ts::Instruction* instruction = new ts::Instruction();
 		instruction->type = ts::instruction::LOCAL_ACCESS;
+		instruction->localAccess.dimensions = 0;
 		new((void*)&instruction->localAccess.source) string(this->getVariableName()); // TODO move this initialization elsewhere
 
 		c.output.add(instruction);
@@ -180,6 +181,7 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 		if(element.token.type == LOCAL_VARIABLE) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
+			instruction->localAccess.dimensions = 0;
 			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
 
 			c.lastAccess = instruction;

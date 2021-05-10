@@ -17,8 +17,10 @@ namespace ts {
 	
 	struct Entry {
 		entry::EntryType type;
-		double numberData;
-		string* stringData;
+		union {
+			double numberData;
+			string* stringData;	
+		};
 
 		Entry();
 		Entry(Entry* copy);
