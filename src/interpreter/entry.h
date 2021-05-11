@@ -27,7 +27,7 @@ namespace ts {
 		~Entry();
 		void setNumber(double value);
 		void setString(string &value);
-		void print();
+		void print() const;
 	};
 
 	void copyEntry(Entry &source, Entry &destination);

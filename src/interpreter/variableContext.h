@@ -1,10 +1,12 @@
 #pragma once
 
 #include <unordered_map>
+#include "../include/tsl/robin_map.h"
 
 #include "entry.h"
 
 using namespace std;
+using namespace tsl;
 
 namespace ts {
 	namespace variable {
@@ -33,6 +35,6 @@ namespace ts {
 			void print();
 		
 		private:
-			unordered_map<string, Entry> variableMap;
+			robin_map<string, Entry> variableMap;
 	};
 }

@@ -44,9 +44,9 @@ void VariableContext::setVariableEntry(string &name, variable::Array* array, Ent
 
 void VariableContext::print() {
 	printf("-------------------------------\n");
-	for(auto &[key, value]: this->variableMap) {
-		printf("%s:\n", key.c_str());
-		value.print();
+	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
+		printf("%s:\n", it->first.c_str());
+		it->second.print();
 		printf("-------------------------------\n");
 	}
 }

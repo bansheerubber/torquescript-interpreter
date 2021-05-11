@@ -44,7 +44,7 @@ void Entry::setString(string &value) {
 	this->stringData = new string(value);
 }
 
-void Entry::print() {
+void Entry::print() const {
 	printf("ENTRY {\n");
 
 	printf("   type: %d,\n", this->type);
