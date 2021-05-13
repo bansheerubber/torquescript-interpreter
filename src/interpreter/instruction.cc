@@ -36,19 +36,20 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		}
 
 		case instruction::LOCAL_ASSIGN: {
+			destination.localAssign.dimensions = source.localAssign.dimensions;
 			destination.localAssign.fromStack = source.localAssign.fromStack;
 			if(!destination.localAssign.fromStack) {
 				copyEntry(source.localAssign.entry, destination.localAssign.entry);
 			}
 
-			destination.localAssign.destination = source.localAssign.destination;
+			new((void*)&destination.localAssign.destination) string(source.localAssign.destination); // TODO move this initialization elsewhere
 			destination.localAssign.dimensions = source.localAssign.dimensions;
 			break;
 		}
 
 		case instruction::LOCAL_ACCESS: {
-			destination.localAccess.source = source.localAccess.source;
 			destination.localAccess.dimensions = source.localAccess.dimensions;
+			new((void*)&destination.localAccess.source) string(source.localAccess.source); // TODO move this initialization elsewhere
 			break;
 		}
 

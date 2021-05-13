@@ -30,11 +30,14 @@ namespace ts {
 		public:
 			~VariableContext();
 			
-			Entry& getVariableEntry(string &variable, variable::Array* array);
-			void setVariableEntry(string &name, variable::Array* array, Entry &entry);
+			Entry& getVariableEntry(class Instruction &instruction, string &variable);
+			void setVariableEntry(class Instruction &instruction, string &name, Entry &entry);
+			string computeVariableString(class Instruction &instruction, string &variable);
 			void print();
 		
 		private:
+			class Interpreter* interpreter;
+			friend class Interpreter;
 			robin_map<string, Entry> variableMap;
 	};
 }

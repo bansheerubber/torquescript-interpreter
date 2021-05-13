@@ -5,6 +5,7 @@ using namespace ts;
 
 Interpreter::Interpreter() {
 	this->contextPointer++;
+	this->getTopVariableContext().interpreter = this;
 }
 
 Interpreter::~Interpreter() {
@@ -278,67 +279,39 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::LOCAL_ASSIGN: {
-			variable::Array* head = nullptr;
-			variable::Array* last = nullptr;
-			
-			for(int i = instruction.localAssign.dimensions - 1; i >= 0; i--) {
-				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
-				if(last == nullptr) {
-					head = last = new variable::Array(&value);
-				}
-				else {
-					last->next = new variable::Array(&value);
-					last = last->next;
-				}
-			}
-			
 			if(instruction.localAssign.fromStack) {
 				this->getTopVariableContext().setVariableEntry(
+					instruction,
 					instruction.localAssign.destination,
-					head,
 					this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions] // start from top of stack
 				);
 				this->pop();
 			}
 			else {
 				this->getTopVariableContext().setVariableEntry(
+					instruction,
 					instruction.localAssign.destination,
-					head,
 					instruction.localAssign.entry
 				);
 			}
 
 			for(int i = 0; i < instruction.localAssign.dimensions; i++) {
-				this->pop(); // pop the dimensions
+				this->pop(); // pop the dimensions if we have any
 			}
 
 			break;
 		}
 
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			variable::Array* head = nullptr;
-			variable::Array* last = nullptr;
-			
-			for(int i = instruction.localAccess.dimensions - 1; i >= 0; i--) {
-				Entry &value = this->stack[this->stackPointer - 1 - i]; // start from top of stack
-				if(last == nullptr) {
-					head = last = new variable::Array(&value);
-				}
-				else {
-					last->next = new variable::Array(&value);
-					last = last->next;
-				}
-			}
-			
 			this->push(
 				this->getTopVariableContext().getVariableEntry(
-					instruction.localAccess.source,
-					head
+					instruction,
+					instruction.localAccess.source
 				)
 			);
 
 			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
-				this->pop(); // pop the dimensions
+				this->pop(); // pop the dimensions if we have any
 			}
 
 			break;

@@ -85,15 +85,15 @@ namespace ts {
 			} mathematics;
 
 			struct {
+				int dimensions;
 				string destination;
 				bool fromStack;
 				Entry entry;
-				int dimensions;
 			} localAssign;
 
 			struct {
-				string source;
 				int dimensions;
+				string source;
 			} localAccess;
 
 			struct {

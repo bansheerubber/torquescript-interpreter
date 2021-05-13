@@ -1,4 +1,6 @@
 #include "variableContext.h"
+#include "instruction.h"
+#include "interpreter.h"
 
 using namespace ts;
 
@@ -6,36 +8,39 @@ VariableContext::~VariableContext() {
 	
 }
 
-string computeVariableString(string &variable, variable::Array* array) {
+string VariableContext::computeVariableString(Instruction &instruction, string &variable) {
 	string newVariable(variable);
-	variable::Array* next = array;
-	while(next != nullptr) {
-		if(next != array) {
+
+	bool firstDimensionSet = false;
+	for(int i = instruction.localAssign.dimensions - 1; i >= 0; i--) {
+		if(firstDimensionSet) {
 			newVariable += '_';
 		}
 		
+		Entry &entry = this->interpreter->stack[this->interpreter->stackPointer - 1 - i]; // start from top of stack
 		// convert double to integer
-		if((long)next->entry->numberData == next->entry->numberData) {
-			newVariable = newVariable + to_string((long)next->entry->numberData);
+		if((long)entry.numberData == entry.numberData) {
+			newVariable = newVariable + to_string((long)entry.numberData);
 		}
 		else {
-			newVariable = newVariable + to_string(next->entry->numberData);
+			newVariable = newVariable + to_string(entry.numberData);
 		}
-		next = next->next;
+
+		firstDimensionSet = true;
 	}
 	return newVariable;
 }
 
-Entry& VariableContext::getVariableEntry(string &variable, variable::Array* array) {
-	if(array != nullptr) {
-		return this->variableMap[computeVariableString(variable, array)];
+Entry& VariableContext::getVariableEntry(Instruction &instruction, string &variable) {
+	if(instruction.localAssign.dimensions > 0) {
+		return this->variableMap[computeVariableString(instruction, variable)];
 	}
 	return this->variableMap[variable];
 }
 
-void VariableContext::setVariableEntry(string &name, variable::Array* array, Entry &entry) {
-	if(array != nullptr) {
-		copyEntry(entry, this->variableMap[computeVariableString(name, array)]);
+void VariableContext::setVariableEntry(Instruction &instruction, string &name, Entry &entry) {
+	if(instruction.localAssign.dimensions > 0) {
+		copyEntry(entry, this->variableMap[computeVariableString(instruction, name)]);
 	}
 	else {
 		copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries

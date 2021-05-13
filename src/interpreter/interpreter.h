@@ -46,6 +46,7 @@ namespace ts {
 			VariableContext contexts[256];
 			VariableContext* topContext;
 			int contextPointer = 0;
+			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
 			Instruction* instructionArray;
 			int instructionArraySize = 0;
