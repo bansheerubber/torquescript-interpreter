@@ -278,21 +278,52 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		// TODO this whole thing probably needs to be optimized
 		case instruction::LOCAL_ASSIGN: {
-			if(instruction.localAssign.fromStack) {
-				this->getTopVariableContext().setVariableEntry(
+			Entry* entry;
+			if(instruction.localAssign.operation != instruction::EQUALS) {
+				entry = &this->getTopVariableContext().getVariableEntry(
 					instruction,
-					instruction.localAssign.destination,
-					this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions] // start from top of stack
+					instruction.localAssign.destination
 				);
-				this->pop();
+			}
+
+			Entry* value;
+			bool fromStack = instruction.localAssign.fromStack;
+			if(fromStack) {
+				value = &this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions]; // start from top of stack
 			}
 			else {
-				this->getTopVariableContext().setVariableEntry(
-					instruction,
-					instruction.localAssign.destination,
-					instruction.localAssign.entry
-				);
+				value = &instruction.localAssign.entry;
+			}
+
+			switch(instruction.localAssign.operation) {
+				case instruction::EQUALS: {
+					this->getTopVariableContext().setVariableEntry(
+						instruction,
+						instruction.localAssign.destination,
+						*value
+					);
+					break;
+				}
+
+				case instruction::INCREMENT: {
+					entry->numberData++;
+					break;
+				}
+
+				case instruction::DECREMENT: {
+					entry->numberData--;
+					break;
+				}
+
+				default: {
+					break;
+				}
+			}
+
+			if(instruction.localAssign.fromStack) {
+				this->pop(); // pop value from the stack
 			}
 
 			for(int i = 0; i < instruction.localAssign.dimensions; i++) {

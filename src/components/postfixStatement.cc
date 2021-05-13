@@ -6,7 +6,7 @@ bool PostfixStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 		|| token.type == DECREMENT;
 }
 
-PostfixStatement* PostfixStatement::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
+PostfixStatement* PostfixStatement::Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	PostfixStatement* output = new PostfixStatement(parser);
 	output->parent = parent;
 	output->lvalue = lvalue;
@@ -24,5 +24,22 @@ string PostfixStatement::print() {
 }
 
 ts::InstructionReturn PostfixStatement::compile() {
-	return {};
+	AccessStatementCompiled compiled = this->lvalue->compileAccess();
+
+	ts::Instruction* instruction = compiled.lastAccess;
+	instruction->type = ts::instruction::LOCAL_ASSIGN;
+	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
+
+	// copy access instruction to assign instruction
+	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
+	instruction->localAssign.fromStack = false;
+
+	if(this->op.type == INCREMENT) {
+		instruction->localAssign.operation = ts::instruction::INCREMENT;
+	}
+	else {
+		instruction->localAssign.operation = ts::instruction::DECREMENT;
+	}
+	return compiled.output;
 }

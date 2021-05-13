@@ -19,6 +19,13 @@ namespace ts {
 			DELETE_FRAME, // delete the latest stack frame, pop all values the frame encompassed
 		};
 
+		enum AssignOperations {
+			INVALID_ASSIGN,
+			EQUALS,
+			INCREMENT,
+			DECREMENT,
+		};
+
 		enum MathematicsOperator {
 			INVALID_OPERATOR,
 			ADDITION,
@@ -89,6 +96,7 @@ namespace ts {
 				string destination;
 				bool fromStack;
 				Entry entry;
+				instruction::AssignOperations operation;
 			} localAssign;
 
 			struct {

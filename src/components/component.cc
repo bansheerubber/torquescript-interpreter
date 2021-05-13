@@ -50,7 +50,7 @@ Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer
 		
 		bool isPostfix = false;
 		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-			access = PostfixStatement::Parse(access, parent, tokenizer, parser);
+			access = PostfixStatement::Parse((AccessStatement*)access, parent, tokenizer, parser);
 			isPostfix = true;
 		}
 
@@ -87,7 +87,7 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 		
 		bool isPostfix = false;
 		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-			lvalue = PostfixStatement::Parse(lvalue, parent, tokenizer, parser);
+			lvalue = PostfixStatement::Parse((AccessStatement*)lvalue, parent, tokenizer, parser);
 			isPostfix = true;
 		}
 		// handle inline conditionals here

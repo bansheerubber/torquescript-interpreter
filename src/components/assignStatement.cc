@@ -69,6 +69,7 @@ ts::InstructionReturn AssignStatement::compile() {
 	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
+	instruction->localAssign.operation = ts::instruction::EQUALS;
 
 	if(this->rvalue->getType() == NUMBER_LITERAL) {
 		instruction->localAssign.entry.setNumber(((NumberLiteral*)this->rvalue)->getNumber());

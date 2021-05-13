@@ -4,6 +4,7 @@
 #include "../parser/parser.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
+#include "accessStatement.h"
 
 class PostfixStatement : public Component {
 	public:
@@ -21,9 +22,9 @@ class PostfixStatement : public Component {
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static PostfixStatement* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static PostfixStatement* Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
 		Token op;
-		Component* lvalue = nullptr;
+		AccessStatement* lvalue = nullptr;
 };

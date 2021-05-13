@@ -43,7 +43,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			}
 
 			new((void*)&destination.localAssign.destination) string(source.localAssign.destination); // TODO move this initialization elsewhere
-			destination.localAssign.dimensions = source.localAssign.dimensions;
+			destination.localAssign.operation = source.localAssign.operation;
 			break;
 		}
 
