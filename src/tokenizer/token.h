@@ -72,9 +72,9 @@ enum TokenType {
 	DATABLOCK,
 	TRUE,
 	FALSE,
-	SPC,
-	TAB,
-	NL,
+	SPC, // SPC
+	TAB, // TAB
+	NL, // NL
 	MODULUS_ASSIGN, // %=, technically not an argument
 	MODULUS, // %, technically not an argument
 	STRING, // "..."

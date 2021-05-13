@@ -12,6 +12,12 @@
 
 using namespace std;
 
+struct ElseIfBodyCompiled {
+	ts::InstructionReturn output;
+	ts::Instruction* lastJump;
+	ts::Instruction* conditionalJump;
+};
+
 class ElseIfBody : public Body {
 	public:
 		using Body::Body;
@@ -30,6 +36,7 @@ class ElseIfBody : public Body {
 		}
 
 		ts::InstructionReturn compile();
+		ElseIfBodyCompiled compileElseIf();
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);

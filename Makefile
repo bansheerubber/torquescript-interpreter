@@ -1,7 +1,7 @@
 target = dist/eggscript
 cclibs = -lpthread
 cc = g++
-ccflags = -O2 -Wall -std=c++17
+ccflags = -O2 -Wall -Wno-switch -std=c++17
 
 cpp_source = $(shell find src -name "*.cc")
 cpp_headers = $(shell find src -name "*.h")

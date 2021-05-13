@@ -58,8 +58,10 @@ void Interpreter::startInterpretation(Instruction* head) {
 	int count = 0;
 	Instruction* instruction = this->head;
 	while(instruction != nullptr) {
-		count++;
+		Instruction* temp = instruction;
 		instruction = instruction->next;
+		temp->index = count; // convert next properties to flat array index
+		count++;
 	}
 
 	this->instructionArray = new Instruction[count];
@@ -69,6 +71,32 @@ void Interpreter::startInterpretation(Instruction* head) {
 	count = 0;
 	while(instruction != nullptr) {
 		copyInstruction(*instruction, this->instructionArray[count]);
+		
+		// convert jump instruction pointers to indices for flat array
+		switch(instruction->type) {
+			case instruction::JUMP: {
+				this->instructionArray[count].jump.index = this->instructionArray[count].jump.instruction->index;
+				break;
+			}
+
+			case instruction::JUMP_IF_TRUE: {
+				this->instructionArray[count].jumpIfTrue.index = this->instructionArray[count].jumpIfTrue.instruction->index;
+				break;
+			}
+
+			case instruction::JUMP_IF_FALSE: {
+				this->instructionArray[count].jumpIfFalse.index = this->instructionArray[count].jumpIfFalse.instruction->index;
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+
+		/*printf("%d: ", count);
+		this->printInstruction(this->instructionArray[count]);*/
+
 		count++;
 		instruction = instruction->next;
 	}
@@ -103,6 +131,10 @@ void Interpreter::interpret() {
 			printError("invalid instruction\n");
 			exit(1);
 		}
+		
+		case instruction::NOOP: {
+			break;
+		}
 
 		case instruction::PUSH: { // push to the stack
 			this->push(instruction.push.entry);
@@ -115,7 +147,23 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP: { // jump to an instruction
-			this->current = instruction.jump.jumpPoint;
+			this->instructionPointer = instruction.jump.index;
+			break;
+		}
+
+		case instruction::JUMP_IF_TRUE: { // jump to an instruction
+			if(this->stack[this->stackPointer - 1].numberData == 1) {
+				this->instructionPointer = instruction.jumpIfTrue.index;
+			}
+			this->pop();
+			break;
+		}
+
+		case instruction::JUMP_IF_FALSE: { // jump to an instruction
+			if(this->stack[this->stackPointer - 1].numberData == 0) {
+				this->instructionPointer = instruction.jumpIfFalse.index;
+			}
+			this->pop();
 			break;
 		}
 
@@ -162,6 +210,54 @@ void Interpreter::interpret() {
 
 				case instruction::MULTIPLY: {
 					result = lvalue->numberData * rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::EQUAL: {
+					result = lvalue->numberData == rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::LESS_THAN_EQUAL: {
+					result = lvalue->numberData <= rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::GREATER_THAN_EQUAL: {
+					result = lvalue->numberData >= rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::LESS_THAN: {
+					result = lvalue->numberData < rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::GREATER_THAN: {
+					result = lvalue->numberData > rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::BITWISE_AND: {
+					result = (int)lvalue->numberData & (int)rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::BITWISE_OR: {
+					result = (int)lvalue->numberData | (int)rvalue->numberData;
+					evaluated = true;
+					break;
+				}
+
+				case instruction::BITWISE_XOR: {
+					result = (int)lvalue->numberData ^ (int)rvalue->numberData;
 					evaluated = true;
 					break;
 				}
@@ -312,6 +408,11 @@ void Interpreter::printInstruction(Instruction &instruction) {
 			break;
 		}
 
+		case instruction::NOOP: {
+			printf("NOOP;\n");
+			break;
+		}
+
 		case instruction::PUSH: {
 			printf("PUSH {\n");
 			printf("   entry type: %d,\n", instruction.push.entry.type);
@@ -333,6 +434,23 @@ void Interpreter::printInstruction(Instruction &instruction) {
 		}
 
 		case instruction::JUMP: {
+			printf("JUMP {\n");
+			printf("   index: %ld,\n", instruction.jump.index);
+			printf("}\n");
+			break;
+		}
+
+		case instruction::JUMP_IF_TRUE: {
+			printf("JUMP_IF_TRUE {\n");
+			printf("   index: %ld,\n", instruction.jumpIfTrue.index);
+			printf("}\n");
+			break;
+		}
+
+		case instruction::JUMP_IF_FALSE: {
+			printf("JUMP_IF_FALSE {\n");
+			printf("   index: %ld,\n", instruction.jumpIfFalse.index);
+			printf("}\n");
 			break;
 		}
 

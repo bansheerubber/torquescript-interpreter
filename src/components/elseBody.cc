@@ -33,5 +33,16 @@ string ElseBody::print() {
 }
 
 ts::InstructionReturn ElseBody::compile() {
-	return {};
+	ts::InstructionReturn output;
+	if(this->children.size() == 0) {
+		ts::Instruction* noop = new ts::Instruction();
+		noop->type = ts::instruction::NOOP;	
+		output.add(noop);
+	}
+	else {
+		for(Component* component: this->children) {
+			output.add(component->compile());
+		}
+	}
+	return output;
 }

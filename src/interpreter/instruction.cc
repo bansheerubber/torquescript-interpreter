@@ -2,6 +2,7 @@
 
 void ts::copyInstruction(Instruction &source, Instruction &destination) {
 	destination.type = source.type;
+	destination.index = source.index;
 	switch(source.type) {
 		case instruction::PUSH: {
 			copyEntry(source.push.entry, destination.push.entry);
@@ -9,7 +10,17 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		}
 
 		case instruction::JUMP: {
-			destination.jump.jumpPoint = source.jump.jumpPoint;
+			destination.jump.instruction = source.jump.instruction;
+			break;
+		}
+
+		case instruction::JUMP_IF_TRUE: {
+			destination.jumpIfTrue.instruction = source.jump.instruction;
+			break;
+		}
+
+		case instruction::JUMP_IF_FALSE: {
+			destination.jumpIfFalse.instruction = source.jump.instruction;
 			break;
 		}
 

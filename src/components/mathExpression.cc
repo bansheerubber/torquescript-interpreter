@@ -225,7 +225,33 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 			return ts::instruction::MULTIPLY;
 		case SLASH:
 			return ts::instruction::DIVISION;
-		
+		case EQUAL:
+			return ts::instruction::EQUAL;
+		case STRING_EQUAL:
+			return ts::instruction::STRING_EQUAL;
+		case STRING_NOT_EQUAL:
+			return ts::instruction::STRING_NOT_EQUAL;
+		case LESS_THAN_EQUAL:
+			return ts::instruction::LESS_THAN_EQUAL;
+		case GREATER_THAN_EQUAL:
+			return ts::instruction::GREATER_THAN_EQUAL;
+		case LESS_THAN:
+			return ts::instruction::LESS_THAN;
+		case GREATER_THAN:
+			return ts::instruction::GREATER_THAN;
+		case BITWISE_AND:
+			return ts::instruction::BITWISE_AND;
+		case BITWISE_OR:
+			return ts::instruction::BITWISE_OR;
+		case BITWISE_XOR:
+			return ts::instruction::BITWISE_XOR;
+		case APPEND:
+			return ts::instruction::APPEND;
+		case SPC:
+			return ts::instruction::SPC;
+		case TAB:
+			return ts::instruction::TAB;
+
 		default:
 			return ts::instruction::INVALID_OPERATOR;
 	}

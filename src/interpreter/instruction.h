@@ -6,9 +6,12 @@ namespace ts {
 	namespace instruction {
 		enum InstructionType {
 			INVALID_INSTRUCTION, // an instruction with an invalid type will cause the interpreter to stop
+			NOOP,
 			PUSH, // push a literal value onto the stack, specifies type
 			POP, // pop the top of the stack
 			JUMP, // jump to a particular instruction
+			JUMP_IF_TRUE, // jump to particular insturction if top element on stack is true, pops the element
+			JUMP_IF_FALSE, // jump to particular insturction if top element on stack is false, pops the element
 			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
@@ -22,13 +25,27 @@ namespace ts {
 			SUBTRACT,
 			MULTIPLY,
 			DIVISION,
+			EQUAL,
+			STRING_EQUAL,
+			STRING_NOT_EQUAL,
+			LESS_THAN_EQUAL,
+			GREATER_THAN_EQUAL,
+			LESS_THAN,
+			GREATER_THAN,
+			BITWISE_AND,
+			BITWISE_OR,
+			BITWISE_XOR,
+			APPEND,
+			SPC,
+			TAB,
 		};
 	}
 	
 	// instructions form a linked list
 	struct Instruction {
 		instruction::InstructionType type;
-		Instruction* next;
+		Instruction* next; // next instruction in linked list
+		long int index; // instruction's index in flat array
 
 		union {
 			struct {
@@ -36,8 +53,25 @@ namespace ts {
 			} push;
 
 			struct {
-				Instruction* jumpPoint;
+				union {
+					Instruction* instruction;
+					long int index;
+				};
 			} jump;
+
+			struct {
+				union {
+					Instruction* instruction;
+					long int index;
+				};
+			} jumpIfTrue;
+
+			struct {
+				union {
+					Instruction* instruction;
+					long int index;
+				};
+			} jumpIfFalse;
 
 			struct {
 				relative_stack_location lvalue;

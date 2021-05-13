@@ -89,5 +89,54 @@ string IfBody::print() {
 }
 
 ts::InstructionReturn IfBody::compile() {
-	return {};
+	ts::InstructionReturn output;
+
+	// final NOOP statement in if statement
+	ts::Instruction* noop = new ts::Instruction();
+	noop->type = ts::instruction::NOOP;
+
+	// conditional statement for if statement
+	ts::Instruction* conditionalJump = new ts::Instruction();
+	conditionalJump->type = ts::instruction::JUMP_IF_FALSE;
+	conditionalJump->jumpIfFalse.instruction = noop;
+
+	output.add(this->conditional->compile());
+	output.add(conditionalJump);
+	
+	for(Component* component: this->children) {
+		output.add(component->compile());
+	}
+
+	if(this->next != nullptr) {
+		// jump at the end of the if statement, prevents else/else if
+		ts::Instruction* jump = new ts::Instruction();
+		jump->type = ts::instruction::JUMP;
+		jump->jump.instruction = noop;
+		output.add(jump);
+
+		// iterate through else/else if chain
+		ts::Instruction* lastConditionalJump = conditionalJump;
+		Body* next = this->next;
+		while(next != nullptr) {
+			if(next->getType() == ELSE_IF_STATEMENT) {
+				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf();
+				compiled.lastJump->jump.instruction = noop;
+				output.add(compiled.output);
+
+				lastConditionalJump->jumpIfFalse.instruction = compiled.output.first; // weave together jumps with first of chain
+				lastConditionalJump = compiled.conditionalJump;
+				next = ((ElseIfBody*)next)->next;
+			}
+			else if(next->getType() == ELSE_STATEMENT) {
+				ts::InstructionReturn compiled = next->compile();
+				lastConditionalJump->jumpIfFalse.instruction = compiled.first;
+				output.add(compiled);
+				next = nullptr;
+			}
+		}
+	}
+
+	output.add(noop);
+
+	return output;
 }

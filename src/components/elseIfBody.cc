@@ -42,5 +42,27 @@ string ElseIfBody::print() {
 }
 
 ts::InstructionReturn ElseIfBody::compile() {
-	return {};
+	return this->compileElseIf().output;
+}
+
+ElseIfBodyCompiled ElseIfBody::compileElseIf() {
+	ElseIfBodyCompiled compiled;
+
+	ts::Instruction* conditionalJump = new ts::Instruction();
+	conditionalJump->type = ts::instruction::JUMP_IF_FALSE; // the instruction this jumps to will be set by the if statement compilation
+	compiled.conditionalJump = conditionalJump;
+
+	compiled.output.add(this->conditional->compile());
+	compiled.output.add(conditionalJump);
+
+	for(Component* component: this->children) {
+		compiled.output.add(component->compile());
+	}
+
+	ts::Instruction* jump = new ts::Instruction();
+	jump->type = ts::instruction::JUMP; // the instruction this jumps to will be set by the if statement compilation
+	compiled.lastJump = jump;
+	compiled.output.add(jump);
+
+	return compiled;
 }
