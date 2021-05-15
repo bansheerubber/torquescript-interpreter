@@ -41,5 +41,33 @@ string WhileBody::print() {
 }
 
 ts::InstructionReturn WhileBody::compile() {
-	return {};
+	ts::InstructionReturn output;
+	
+	// final NOOP statement in while statement
+	ts::Instruction* noop = new ts::Instruction();
+	noop->type = ts::instruction::NOOP;
+
+	// add conditional
+	ts::InstructionReturn compiledConditional = this->conditional->compile();
+	output.add(compiledConditional);
+
+	// add conditional jump
+	ts::Instruction* conditionalJump = new ts::Instruction();
+	conditionalJump->type = ts::instruction::JUMP_IF_FALSE;
+	conditionalJump->jumpIfFalse.instruction = noop;
+	output.add(conditionalJump);
+
+	// add the body
+	for(Component* component: this->children) {
+		output.add(component->compile());
+	}
+
+	// add jump to conditional
+	ts::Instruction* jump = new ts::Instruction();
+	jump->type = ts::instruction::JUMP;
+	jump->jump.instruction = compiledConditional.first;
+	output.add(jump);
+	output.add(noop);
+	
+	return output;
 }
