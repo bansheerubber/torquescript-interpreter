@@ -112,6 +112,14 @@ namespace ts {
 				// these values will get pushed to the next frame down
 				unsigned int save;
 			} deleteFrame;
+
+			struct {
+				string name;
+				// cache the index when we lookup the name of the function at runtime
+				// (hashing an int during runtime is probably faster than hashing a string)
+				unsigned long cachedIndex;
+				bool isCached;
+			} callFunction;
 		};
 
 		Instruction() {

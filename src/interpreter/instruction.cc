@@ -58,6 +58,13 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			break;
 		}
 
+		case instruction::CALL_FUNCTION: {
+			new((void*)&destination.callFunction.name) string(source.callFunction.name); // TODO move this initialization elsewhere
+			destination.callFunction.cachedIndex = source.callFunction.cachedIndex;
+			destination.callFunction.isCached = source.callFunction.isCached;
+			break;
+		}
+
 		default: {
 			break;
 		}

@@ -73,5 +73,12 @@ string FunctionDeclaration::print() {
 }
 
 ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::InstructionReturn output;
+	for(Component* component: this->children) {
+		output.add(component->compile(interpreter));
+	}
+	string name = this->name1->print();
+	interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
+	
+	return {}; // do not output anything to the body, functions are stored elsewhere
 }

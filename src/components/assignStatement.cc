@@ -83,10 +83,10 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;
 	}
-	/*else if(this->rvalue->getType() == ACCESS_STATEMENT) {
+	else if(this->rvalue->getType() == ACCESS_STATEMENT) {
 		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;
-	}*/
+	}
 
 	output.add(c.output);
 

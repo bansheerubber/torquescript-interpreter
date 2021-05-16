@@ -10,6 +10,7 @@
 #include "stack.h"
 #include "variableContext.h"
 #include "instructionContainer.h"
+#include "../include/tsl/robin_map.h"
 
 using namespace std;
 
@@ -21,8 +22,9 @@ namespace ts {
 
 			void startInterpretation(Instruction* head);
 			
-			void printInstruction(Instruction &instruction);
 			void printStack();
+
+			void addFunction(string &name, InstructionReturn output);
 		
 		private:
 			void interpret(); // interprets the next instruction
@@ -51,5 +53,9 @@ namespace ts {
 
 			InstructionContainer* instructions;
 			unsigned long instructionPointer = 0;
+
+			robin_map<string, int> nameToIndex;
+			robin_map<int, InstructionContainer*> indexToFunction;
+			unsigned long functionCount = 0;
 	};
 }

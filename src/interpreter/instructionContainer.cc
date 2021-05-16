@@ -1,4 +1,5 @@
 #include "instructionContainer.h"
+#include "debug.h"
 
 using namespace ts;
 
@@ -44,7 +45,7 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 		}
 
 		// printf("%d: ", count);
-		// this->printInstruction(this->instructionArray[count]);
+		// PrintInstruction(this->array[count]);
 
 		count++;
 		instruction = instruction->next;
