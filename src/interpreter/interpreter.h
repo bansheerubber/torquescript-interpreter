@@ -9,6 +9,7 @@
 #include "../io.h"
 #include "stack.h"
 #include "variableContext.h"
+#include "instructionContainer.h"
 
 using namespace std;
 
@@ -25,8 +26,6 @@ namespace ts {
 		
 		private:
 			void interpret(); // interprets the next instruction
-			Instruction* head;
-			Instruction* current; // the current instruction
 			
 			void push(Entry &entry);
 			void push(double number);
@@ -50,8 +49,7 @@ namespace ts {
 			int contextPointer = 0;
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
-			Instruction* instructionArray;
-			int instructionArraySize = 0;
-			int instructionPointer = 0;
+			InstructionContainer* instructions;
+			unsigned long instructionPointer = 0;
 	};
 }

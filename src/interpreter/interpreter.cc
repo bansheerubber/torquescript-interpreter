@@ -8,12 +8,7 @@ Interpreter::Interpreter() {
 }
 
 Interpreter::~Interpreter() {
-	Instruction* current = this->head;
-	while(current != nullptr) {
-		Instruction* temp = current;
-		current = current->next;
-		delete temp;
-	}
+	
 }
 
 void Interpreter::pushVariableContext() {
@@ -61,63 +56,13 @@ void Interpreter::pop() {
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
-	this->head = head;
-	this->current = head;
-
-	// flatten instructions into array so CPU can cache instruction data types (improves performance by 20%)
-	int count = 0;
-	Instruction* instruction = this->head;
-	while(instruction != nullptr) {
-		Instruction* temp = instruction;
-		instruction = instruction->next;
-		temp->index = count; // convert next properties to flat array index
-		count++;
-	}
-
-	this->instructionArray = new Instruction[count];
-	this->instructionArraySize = count;
-
-	instruction = this->head;
-	count = 0;
-	while(instruction != nullptr) {
-		copyInstruction(*instruction, this->instructionArray[count]);
-		
-		// convert jump instruction pointers to indices for flat array
-		switch(instruction->type) {
-			case instruction::JUMP: {
-				this->instructionArray[count].jump.index = this->instructionArray[count].jump.instruction->index;
-				break;
-			}
-
-			case instruction::JUMP_IF_TRUE: {
-				this->instructionArray[count].jumpIfTrue.index = this->instructionArray[count].jumpIfTrue.instruction->index;
-				break;
-			}
-
-			case instruction::JUMP_IF_FALSE: {
-				this->instructionArray[count].jumpIfFalse.index = this->instructionArray[count].jumpIfFalse.instruction->index;
-				break;
-			}
-
-			default: {
-				break;
-			}
-		}
-
-		// printf("%d: ", count);
-		// this->printInstruction(this->instructionArray[count]);
-
-		count++;
-		instruction = instruction->next;
-	}
-
+	this->instructions = new InstructionContainer(head); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
-
-	// this->interpret();
+	this->interpret();
 }
 
 void Interpreter::interpret() {
-	if(this->instructionPointer >= this->instructionArraySize) { // quit once we run out of instructions
+	if(this->instructionPointer >= this->instructions->size) { // quit once we run out of instructions
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->getTopVariableContext().print();
@@ -125,7 +70,7 @@ void Interpreter::interpret() {
 		return;
 	}
 
-	Instruction &instruction = this->instructionArray[this->instructionPointer];
+	Instruction &instruction = this->instructions->array[this->instructionPointer];
 	this->instructionPointer++;
 
 	// this->printInstruction(instruction);
