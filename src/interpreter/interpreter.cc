@@ -4,8 +4,7 @@
 using namespace ts;
 
 Interpreter::Interpreter() {
-	this->contextPointer++;
-	this->getTopVariableContext().interpreter = this;
+	this->pushVariableContext();
 }
 
 Interpreter::~Interpreter() {
@@ -15,6 +14,16 @@ Interpreter::~Interpreter() {
 		current = current->next;
 		delete temp;
 	}
+}
+
+void Interpreter::pushVariableContext() {
+	this->contextPointer++;
+	this->getTopVariableContext().interpreter = this;
+}
+
+void Interpreter::popVariableContext() {
+	this->getTopVariableContext().clear();
+	this->contextPointer--;
 }
 
 VariableContext& Interpreter::getTopVariableContext() {
@@ -95,8 +104,8 @@ void Interpreter::startInterpretation(Instruction* head) {
 			}
 		}
 
-		/*printf("%d: ", count);
-		this->printInstruction(this->instructionArray[count]);*/
+		// printf("%d: ", count);
+		// this->printInstruction(this->instructionArray[count]);
 
 		count++;
 		instruction = instruction->next;
@@ -104,7 +113,7 @@ void Interpreter::startInterpretation(Instruction* head) {
 
 	this->startTime = chrono::high_resolution_clock::now();
 
-	this->interpret();
+	// this->interpret();
 }
 
 void Interpreter::interpret() {
@@ -120,12 +129,6 @@ void Interpreter::interpret() {
 	this->instructionPointer++;
 
 	// this->printInstruction(instruction);
-
-	// offset for stack accesses
-	relative_stack_location offset = 0;
-	if(this->framePointer != 0) {
-		offset = this->topFrame->start;
-	}
 	
 	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
@@ -169,6 +172,12 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::MATHEMATICS: { // do the math
+			// offset for stack accesses
+			relative_stack_location offset = 0;
+			if(this->framePointer != 0) {
+				offset = this->topFrame->start;
+			}
+			
 			Entry* lvalue;
 			Entry* rvalue;
 
@@ -376,6 +385,16 @@ void Interpreter::interpret() {
 				this->topFrame = nullptr;
 			}
 
+			break;
+		}
+
+		case instruction::PUSH_VARIABLE_CONTEXT: {
+			this->pushVariableContext();
+			break;
+		}
+
+		case instruction::POP_VARIABLE_CONTEXT: {
+			this->popVariableContext();
 			break;
 		}
 	}

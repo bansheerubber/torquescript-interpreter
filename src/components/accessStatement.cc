@@ -114,6 +114,19 @@ bool AccessStatement::isGlobalVariable() {
 	return this->elements.front().token.type == GLOBAL_VARIABLE;
 }
 
+bool AccessStatement::isFunction() {
+	if(
+		this->elements.size() < 2
+		|| this->elements.front().token.type != SYMBOL
+		|| this->elements[1].component == nullptr
+		|| this->elements[1].component->getType() != CALL_STATEMENT
+	) {
+		return false;
+	}
+	
+	return true;
+}
+
 bool AccessStatement::hasChain() {
 	for(AccessElement element: this->elements) {
 		if(element.token.type == MEMBER_CHAIN) {
@@ -164,14 +177,9 @@ ts::InstructionReturn AccessStatement::compile() {
 AccessStatementCompiled AccessStatement::compileAccess() {
 	AccessStatementCompiled c;
 
-	if(this->elements.size() == 1) {
-		ts::Instruction* instruction = new ts::Instruction();
-		instruction->type = ts::instruction::LOCAL_ACCESS;
-		instruction->localAccess.dimensions = 0;
-		new((void*)&instruction->localAccess.source) string(this->getVariableName()); // TODO move this initialization elsewhere
-
-		c.output.add(instruction);
-		c.lastAccess = instruction;
+	if(this->isFunction()) { // compile a function call
+		printf("should compile function\n");
+		c.output.add(this->elements[1].component->compile());
 		return c;
 	}
 

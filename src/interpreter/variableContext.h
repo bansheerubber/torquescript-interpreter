@@ -34,6 +34,7 @@ namespace ts {
 			void setVariableEntry(class Instruction &instruction, string &name, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void print();
+			void clear();
 		
 		private:
 			class Interpreter* interpreter;

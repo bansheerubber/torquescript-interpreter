@@ -8,6 +8,10 @@ VariableContext::~VariableContext() {
 	
 }
 
+void VariableContext::clear() {
+	this->variableMap.clear();
+}
+
 string VariableContext::computeVariableString(Instruction &instruction, string &variable) {
 	string newVariable(variable);
 

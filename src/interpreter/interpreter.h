@@ -42,6 +42,8 @@ namespace ts {
 			unsigned int framePointer = 0;
 			StackFrame* topFrame;
 
+			void pushVariableContext();
+			void popVariableContext();
 			VariableContext &getTopVariableContext();
 			VariableContext contexts[256];
 			VariableContext* topContext;

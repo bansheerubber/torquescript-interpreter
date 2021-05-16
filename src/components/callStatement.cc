@@ -65,6 +65,13 @@ pair<
 	return make_pair(this->elements.begin(), this->elements.end());
 }
 
+// upon compilation, push values of the variables
 ts::InstructionReturn CallStatement::compile() {
-	return {};
+	ts::InstructionReturn output;
+	for(CallElement &element: this->elements) {
+		if(!element.isComma) {
+			output.add(element.component->compile());
+		}
+	}
+	return output;
 }
