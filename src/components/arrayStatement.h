@@ -9,6 +9,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 struct ArrayElement {
 	Component* component;
 	bool isComma;
@@ -27,7 +32,7 @@ class ArrayStatement : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);

@@ -1,4 +1,5 @@
 #include "symbol.h"
+#include "../interpreter/interpreter.h"
 
 bool Symbol::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == SYMBOL;
@@ -15,6 +16,6 @@ string Symbol::print() {
 	return this->value;
 }
 
-ts::InstructionReturn Symbol::compile() {
+ts::InstructionReturn Symbol::compile(ts::Interpreter* interpreter) {
 	return {};
 }

@@ -8,6 +8,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class Body : public Component {
 	public:
 		using Component::Component;
@@ -20,7 +25,7 @@ class Body : public Component {
 			return false;
 		}
 
-		virtual ts::InstructionReturn compile() = 0;
+		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter) = 0;
 
 		string print() {
 			return "";

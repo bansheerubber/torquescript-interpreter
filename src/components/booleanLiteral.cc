@@ -1,4 +1,5 @@
 #include "booleanLiteral.h"
+#include "../interpreter/interpreter.h"
 
 bool BooleanLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == TRUE || tokenizer->peekToken().type == FALSE;
@@ -20,6 +21,6 @@ string BooleanLiteral::print() {
 	}
 }
 
-ts::InstructionReturn BooleanLiteral::compile() {
+ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter) {
 	return {};
 }

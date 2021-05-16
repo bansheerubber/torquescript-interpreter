@@ -7,6 +7,11 @@
 #include "callStatement.h"
 #include "symbol.h"
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class NamespaceStatement : public Component {
 	public:
 		using Component::Component;
@@ -19,7 +24,7 @@ class NamespaceStatement : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);

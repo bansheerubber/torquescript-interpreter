@@ -3,6 +3,7 @@
 #include "numberLiteral.h"
 #include "stringLiteral.h"
 #include "mathExpression.h"
+#include "../interpreter/interpreter.h"
 
 bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -53,10 +54,10 @@ string AssignStatement::print() {
 	return output;
 }
 
-ts::InstructionReturn AssignStatement::compile() {
+ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
-	AccessStatementCompiled c = this->lvalue->compileAccess();
+	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter);
 	ts::Instruction* instruction = c.lastAccess;
 	instruction->type = ts::instruction::LOCAL_ASSIGN;
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
@@ -79,11 +80,11 @@ ts::InstructionReturn AssignStatement::compile() {
 		instruction->localAssign.entry.setString(literal);
 	}
 	else if(this->rvalue->getType() == MATH_EXPRESSION) {
-		output.add(this->rvalue->compile());
+		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;
 	}
 	/*else if(this->rvalue->getType() == ACCESS_STATEMENT) {
-		output.add(this->rvalue->compile());
+		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;
 	}*/
 

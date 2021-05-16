@@ -1,4 +1,5 @@
 #include "defaultBody.h"
+#include "../interpreter/interpreter.h"
 
 bool DefaultBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == DEFAULT;
@@ -22,6 +23,6 @@ string DefaultBody::print() {
 	return output;
 }
 
-ts::InstructionReturn DefaultBody::compile() {
+ts::InstructionReturn DefaultBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

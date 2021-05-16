@@ -1,4 +1,5 @@
 #include "elseBody.h"
+#include "../interpreter/interpreter.h"
 
 bool ElseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == ELSE;
@@ -32,7 +33,7 @@ string ElseBody::print() {
 	return output;
 }
 
-ts::InstructionReturn ElseBody::compile() {
+ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	if(this->children.size() == 0) {
 		ts::Instruction* noop = new ts::Instruction();
@@ -41,7 +42,7 @@ ts::InstructionReturn ElseBody::compile() {
 	}
 	else {
 		for(Component* component: this->children) {
-			output.add(component->compile());
+			output.add(component->compile(interpreter));
 		}
 	}
 	return output;

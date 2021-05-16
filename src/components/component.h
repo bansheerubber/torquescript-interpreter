@@ -7,6 +7,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 enum ComponentType {
 	INVALID_STATEMENT,
 	SOURCE_FILE,
@@ -48,7 +53,7 @@ class Component {
 		virtual ComponentType getType() = 0; // gets the type of the component
 		virtual string print() = 0; // prints valid torquescript
 		virtual bool requiresSemicolon(Component* child) = 0; // whether or not a child of this component needs a semicolon
-		virtual ts::InstructionReturn compile() = 0; // compile to bytecode
+		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter) = 0; // compile to bytecode
 
 		static bool ShouldParse(Component* parent, Tokenizer* tokenizer, class Parser* parser);
 		static Component* AfterParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, class Parser* parser);

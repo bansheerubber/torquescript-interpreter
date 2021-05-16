@@ -1,6 +1,7 @@
 #include "ifBody.h"
 #include "elseIfBody.h"
 #include "elseBody.h"
+#include "../interpreter/interpreter.h"
 
 bool IfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == IF;
@@ -88,7 +89,7 @@ string IfBody::print() {
 	return output;
 }
 
-ts::InstructionReturn IfBody::compile() {
+ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in if statement
@@ -100,11 +101,11 @@ ts::InstructionReturn IfBody::compile() {
 	conditionalJump->type = ts::instruction::JUMP_IF_FALSE;
 	conditionalJump->jumpIfFalse.instruction = noop;
 
-	output.add(this->conditional->compile());
+	output.add(this->conditional->compile(interpreter));
 	output.add(conditionalJump);
 	
 	for(Component* component: this->children) {
-		output.add(component->compile());
+		output.add(component->compile(interpreter));
 	}
 
 	if(this->next != nullptr) {
@@ -119,7 +120,7 @@ ts::InstructionReturn IfBody::compile() {
 		Body* next = this->next;
 		while(next != nullptr) {
 			if(next->getType() == ELSE_IF_STATEMENT) {
-				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf();
+				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf(interpreter);
 				compiled.lastJump->jump.instruction = noop;
 				output.add(compiled.output);
 
@@ -128,7 +129,7 @@ ts::InstructionReturn IfBody::compile() {
 				next = ((ElseIfBody*)next)->next;
 			}
 			else if(next->getType() == ELSE_STATEMENT) {
-				ts::InstructionReturn compiled = next->compile();
+				ts::InstructionReturn compiled = next->compile(interpreter);
 				lastConditionalJump->jumpIfFalse.instruction = compiled.first;
 				output.add(compiled);
 				next = nullptr;

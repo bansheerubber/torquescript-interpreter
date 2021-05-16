@@ -1,4 +1,5 @@
 #include "packageDeclaration.h"
+#include "../interpreter/interpreter.h"
 
 bool PackageDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == PACKAGE;
@@ -39,6 +40,6 @@ string PackageDeclaration::print() {
 	return output;
 }
 
-ts::InstructionReturn PackageDeclaration::compile() {
+ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter) {
 	return {};
 }

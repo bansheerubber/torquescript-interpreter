@@ -1,4 +1,5 @@
 #include "returnStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool ReturnStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == RETURN;
@@ -34,6 +35,6 @@ string ReturnStatement::print() {
 	}
 }
 
-ts::InstructionReturn ReturnStatement::compile() {
+ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

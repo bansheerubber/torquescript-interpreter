@@ -1,4 +1,5 @@
 #include "postfixStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool PostfixStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -23,8 +24,8 @@ string PostfixStatement::print() {
 	return output;
 }
 
-ts::InstructionReturn PostfixStatement::compile() {
-	AccessStatementCompiled compiled = this->lvalue->compileAccess();
+ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter) {
+	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter);
 
 	ts::Instruction* instruction = compiled.lastAccess;
 	instruction->type = ts::instruction::LOCAL_ASSIGN;

@@ -9,6 +9,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class AssignStatement : public Component {
 	public:
 		using Component::Component;
@@ -21,7 +26,7 @@ class AssignStatement : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);

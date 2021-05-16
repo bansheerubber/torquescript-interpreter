@@ -1,4 +1,5 @@
 #include "stringLiteral.h"
+#include "../interpreter/interpreter.h"
 
 bool StringLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == STRING || tokenizer->peekToken().type == TAGGED_STRING;
@@ -20,7 +21,7 @@ string StringLiteral::print() {
 	}
 }
 
-ts::InstructionReturn StringLiteral::compile() {
+ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter) {
 	return {};
 }
 

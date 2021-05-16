@@ -1,4 +1,5 @@
 #include "comment.h"
+#include "../interpreter/interpreter.h"
 
 bool Comment::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == COMMENT;
@@ -15,6 +16,6 @@ string Comment::print() {
 	return "//" + this->comment + "\n";
 }
 
-ts::InstructionReturn Comment::compile() {
+ts::InstructionReturn Comment::compile(ts::Interpreter* interpreter) {
 	return {};
 }

@@ -1,4 +1,5 @@
 #include "numberLiteral.h"
+#include "../interpreter/interpreter.h"
 
 using namespace ts;
 
@@ -17,7 +18,7 @@ string NumberLiteral::print() {
 	return this->number;
 }
 
-InstructionReturn NumberLiteral::compile() {
+InstructionReturn NumberLiteral::compile(ts::Interpreter* interpreter) {
 	Instruction* instruction = new Instruction();
 	instruction->type = instruction::PUSH;
 	instruction->push.entry.type = entry::NUMBER;

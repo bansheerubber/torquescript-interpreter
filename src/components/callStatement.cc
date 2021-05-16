@@ -1,4 +1,5 @@
 #include "callStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool CallStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == LEFT_PARENTHESIS;
@@ -66,11 +67,11 @@ pair<
 }
 
 // upon compilation, push values of the variables
-ts::InstructionReturn CallStatement::compile() {
+ts::InstructionReturn CallStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	for(CallElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile());
+			output.add(element.component->compile(interpreter));
 		}
 	}
 	return output;

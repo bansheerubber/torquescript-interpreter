@@ -1,4 +1,5 @@
 #include "breakStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool BreakStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == BREAK;
@@ -16,6 +17,6 @@ string BreakStatement::print() {
 	return "break;";
 }
 
-ts::InstructionReturn BreakStatement::compile() {
+ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

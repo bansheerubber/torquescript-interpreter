@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 
 		Tokenizer* tokenizer = new Tokenizer(file, true, args);
 		Parser* parser = new Parser(tokenizer, args);
-		interpreter->startInterpretation(ts::Compile(parser));
+		interpreter->startInterpretation(ts::Compile(parser, interpreter));
 		delete interpreter;
 	}
 	else {

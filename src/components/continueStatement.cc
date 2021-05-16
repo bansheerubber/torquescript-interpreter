@@ -1,4 +1,5 @@
 #include "continueStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool ContinueStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == CONTINUE;
@@ -16,6 +17,6 @@ string ContinueStatement::print() {
 	return "continue;";
 }
 
-ts::InstructionReturn ContinueStatement::compile() {
+ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

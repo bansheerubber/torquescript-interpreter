@@ -1,4 +1,5 @@
 #include "caseBody.h"
+#include "../interpreter/interpreter.h"
 
 bool CaseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == CASE;
@@ -59,6 +60,6 @@ string CaseBody::print() {
 	return output;
 }
 
-ts::InstructionReturn CaseBody::compile() {
+ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

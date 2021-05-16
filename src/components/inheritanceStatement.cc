@@ -1,4 +1,5 @@
 #include "inheritanceStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool InheritanceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return (
@@ -57,6 +58,6 @@ string InheritanceStatement::print() {
 	return "(" + this->className->print() + ")";
 }
 
-ts::InstructionReturn InheritanceStatement::compile() {
+ts::InstructionReturn InheritanceStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

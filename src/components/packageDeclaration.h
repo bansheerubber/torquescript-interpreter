@@ -13,6 +13,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class PackageDeclaration : public Body {
 	public:
 		using Body::Body;
@@ -25,7 +30,7 @@ class PackageDeclaration : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);

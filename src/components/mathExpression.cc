@@ -1,4 +1,5 @@
 #include "mathExpression.h"
+#include "../interpreter/interpreter.h"
 
 map<TokenType, int> MathExpression::Precedence = MathExpression::CreatePrecedenceMap();
 
@@ -267,7 +268,8 @@ struct Value {
 Value parseValue(
 	Operation &value,
 	vector<ts::InstructionReturn> &instructions,
-	relative_stack_location &stackPointer
+	relative_stack_location &stackPointer,
+	ts::Interpreter* interpreter
 ) {
 	Value output;
 	
@@ -277,7 +279,7 @@ Value parseValue(
 			output.onStack = false;
 		}
 		else {
-			instructions.push_back(value.element.component->compile()); // push component to instructions
+			instructions.push_back(value.element.component->compile(interpreter)); // push component to instructions
 			output.stack = stackPointer++;
 			output.onStack = true;
 		}
@@ -293,7 +295,8 @@ Value parseValue(
 ts::InstructionReturn MathExpression::createInstructions(
 	vector<Operation> &operands,
 	vector<Operation> &operators,
-	relative_stack_location &stackPointer
+	relative_stack_location &stackPointer,
+	ts::Interpreter* interpreter
 ) {
 	ts::InstructionReturn output;
 	vector<ts::InstructionReturn> instructions;
@@ -323,8 +326,8 @@ ts::InstructionReturn MathExpression::createInstructions(
 		Operation rvalue = operands[operandIndex + 1];
 
 		// compile to push to stack operation
-		Value lvalueResult = parseValue(lvalue, instructions, stackPointer);
-		Value rvalueResult = parseValue(rvalue, instructions, stackPointer);
+		Value lvalueResult = parseValue(lvalue, instructions, stackPointer, interpreter);
+		Value rvalueResult = parseValue(rvalue, instructions, stackPointer, interpreter);
 
 		// push the mathematics instruction
 		ts::Instruction* instruction = new ts::Instruction();
@@ -365,7 +368,7 @@ ts::InstructionReturn MathExpression::createInstructions(
 	return output;
 }
 
-ts::InstructionReturn MathExpression::compile() {
+ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	ts::Instruction* newFrame = new ts::Instruction();
 	newFrame->type = ts::instruction::NEW_FRAME;
@@ -385,7 +388,7 @@ ts::InstructionReturn MathExpression::compile() {
 				operators.size() > 0
 				&& MathExpression::Precedence[operators.back().element.op.type] > MathExpression::Precedence[element.op.type]
 			) {
-				output.add(this->createInstructions(operands, operators, stackPointer));
+				output.add(this->createInstructions(operands, operators, stackPointer, interpreter));
 			}
 
 			operators.push_back({
@@ -395,7 +398,7 @@ ts::InstructionReturn MathExpression::compile() {
 	}
 
 	while(operators.size() > 0) {
-		output.add(this->createInstructions(operands, operators, stackPointer));
+		output.add(this->createInstructions(operands, operators, stackPointer, interpreter));
 	}
 
 	ts::Instruction* deleteFrame = new ts::Instruction();

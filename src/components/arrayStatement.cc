@@ -1,4 +1,5 @@
 #include "arrayStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool ArrayStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == LEFT_BRACE;
@@ -64,12 +65,12 @@ string ArrayStatement::print() {
 	return output;
 }
 
-ts::InstructionReturn ArrayStatement::compile() {
+ts::InstructionReturn ArrayStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
 	for(ArrayElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile());
+			output.add(element.component->compile(interpreter));
 		}
 	}
 

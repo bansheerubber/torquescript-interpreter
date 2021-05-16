@@ -1,4 +1,5 @@
 #include "namespaceStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool NamespaceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return (
@@ -55,6 +56,6 @@ string NamespaceStatement::print() {
 	return output;
 }
 
-ts::InstructionReturn NamespaceStatement::compile() {
+ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

@@ -13,6 +13,11 @@
 #include "../interpreter/stack.h"
 #include "../interpreter/entry.h"
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 enum SpecialOperator {
 	INVALID_OPERATOR,
 	LEFT_PARENTHESIS_OPERATOR,
@@ -45,7 +50,7 @@ class MathExpression : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser);
@@ -62,6 +67,7 @@ class MathExpression : public Component {
 		ts::InstructionReturn createInstructions(
 			vector<Operation> &operands,
 			vector<Operation> &operators,
-			relative_stack_location &stackPointer
+			relative_stack_location &stackPointer,
+			ts::Interpreter* interpreter
 		);
 };

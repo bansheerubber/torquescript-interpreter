@@ -1,4 +1,5 @@
 #include "forBody.h"
+#include "../interpreter/interpreter.h"
 
 bool ForBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == FOR;
@@ -57,7 +58,7 @@ string ForBody::print() {
 	return output;
 }
 
-ts::InstructionReturn ForBody::compile() {
+ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in for statement
@@ -65,10 +66,10 @@ ts::InstructionReturn ForBody::compile() {
 	noop->type = ts::instruction::NOOP;
 
 	// add variable initialization
-	output.add(this->initialization->compile());
+	output.add(this->initialization->compile(interpreter));
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile();
+	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter);
 	output.add(compiledConditional);
 
 	// add conditional jump
@@ -79,11 +80,11 @@ ts::InstructionReturn ForBody::compile() {
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile());
+		output.add(component->compile(interpreter));
 	}
 
 	// add the increment
-	output.add(this->increment->compile());
+	output.add(this->increment->compile(interpreter));
 
 	// add jump to conditional
 	ts::Instruction* jump = new ts::Instruction();

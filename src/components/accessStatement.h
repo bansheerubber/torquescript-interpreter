@@ -11,6 +11,11 @@
 #include "../tokenizer/token.h"
 #include "../interpreter/stack.h"
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 using namespace std;
 
 struct AccessElement {
@@ -41,8 +46,8 @@ class AccessStatement : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
-		AccessStatementCompiled compileAccess();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword = false);

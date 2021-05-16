@@ -1,4 +1,5 @@
 #include "functionDeclaration.h"
+#include "../interpreter/interpreter.h"
 
 bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == FUNCTION;
@@ -71,6 +72,6 @@ string FunctionDeclaration::print() {
 	return output;
 }
 
-ts::InstructionReturn FunctionDeclaration::compile() {
+ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
 	return {};
 }

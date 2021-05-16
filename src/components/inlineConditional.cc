@@ -1,4 +1,5 @@
 #include "inlineConditional.h"
+#include "../interpreter/interpreter.h"
 
 bool InlineConditional::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == QUESTION_MARK;
@@ -33,6 +34,6 @@ string InlineConditional::print() {
 	return this->leftHandSide->print() + this->parser->space + "?" + this->parser->space + this->ifTrue->print() + " : " + this->ifFalse->print();
 }
 
-ts::InstructionReturn InlineConditional::compile() {
+ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter) {
 	return {};
 }

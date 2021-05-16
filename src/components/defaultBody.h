@@ -10,6 +10,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class DefaultBody : public Body {
 	public:
 		using Body::Body;
@@ -22,7 +27,7 @@ class DefaultBody : public Body {
 			return true;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);

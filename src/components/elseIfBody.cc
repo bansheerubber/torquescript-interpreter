@@ -1,4 +1,5 @@
 #include "elseIfBody.h"
+#include "../interpreter/interpreter.h"
 
 bool ElseIfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == ELSE && tokenizer->peekToken(1).type == IF;
@@ -41,22 +42,22 @@ string ElseIfBody::print() {
 	return output;
 }
 
-ts::InstructionReturn ElseIfBody::compile() {
-	return this->compileElseIf().output;
+ts::InstructionReturn ElseIfBody::compile(ts::Interpreter* interpreter) {
+	return this->compileElseIf(interpreter).output;
 }
 
-ElseIfBodyCompiled ElseIfBody::compileElseIf() {
+ElseIfBodyCompiled ElseIfBody::compileElseIf(ts::Interpreter* interpreter) {
 	ElseIfBodyCompiled compiled;
 
 	ts::Instruction* conditionalJump = new ts::Instruction();
 	conditionalJump->type = ts::instruction::JUMP_IF_FALSE; // the instruction this jumps to will be set by the if statement compilation
 	compiled.conditionalJump = conditionalJump;
 
-	compiled.output.add(this->conditional->compile());
+	compiled.output.add(this->conditional->compile(interpreter));
 	compiled.output.add(conditionalJump);
 
 	for(Component* component: this->children) {
-		compiled.output.add(component->compile());
+		compiled.output.add(component->compile(interpreter));
 	}
 
 	ts::Instruction* jump = new ts::Instruction();

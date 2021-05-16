@@ -12,6 +12,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 struct ElseIfBodyCompiled {
 	ts::InstructionReturn output;
 	ts::Instruction* lastJump;
@@ -35,8 +40,8 @@ class ElseIfBody : public Body {
 			}
 		}
 
-		ts::InstructionReturn compile();
-		ElseIfBodyCompiled compileElseIf();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);

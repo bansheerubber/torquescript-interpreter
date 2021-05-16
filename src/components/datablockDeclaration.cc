@@ -1,4 +1,5 @@
 #include "datablockDeclaration.h"
+#include "../interpreter/interpreter.h"
 
 bool DatablockDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == DATABLOCK;
@@ -66,6 +67,6 @@ string DatablockDeclaration::print() {
 	return output;
 }
 
-ts::InstructionReturn DatablockDeclaration::compile() {
+ts::InstructionReturn DatablockDeclaration::compile(ts::Interpreter* interpreter) {
 	return {};
 }

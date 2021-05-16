@@ -14,6 +14,11 @@
 #include "mathExpression.h"
 #include "symbol.h"
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class NewStatement : public Body {
 	public:
 		using Body::Body;
@@ -29,7 +34,7 @@ class NewStatement : public Body {
 			return true;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);

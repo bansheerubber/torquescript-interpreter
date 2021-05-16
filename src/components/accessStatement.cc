@@ -1,5 +1,6 @@
 #include "accessStatement.h"
 #include "mathExpression.h"
+#include "../interpreter/interpreter.h"
 
 bool AccessStatement::DatablockAsSymbol = false;
 
@@ -169,17 +170,17 @@ bool AccessStatement::IsValidLvalue() {
 	return true;
 }
 
-ts::InstructionReturn AccessStatement::compile() {
-	return this->compileAccess().output;
+ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter) {
+	return this->compileAccess(interpreter).output;
 }
 
 // create instructions that set up the stack for an array access/object property access instruction
-AccessStatementCompiled AccessStatement::compileAccess() {
+AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter) {
 	AccessStatementCompiled c;
 
 	if(this->isFunction()) { // compile a function call
 		printf("should compile function\n");
-		c.output.add(this->elements[1].component->compile());
+		c.output.add(this->elements[1].component->compile(interpreter));
 		return c;
 	}
 
@@ -198,7 +199,7 @@ AccessStatementCompiled AccessStatement::compileAccess() {
 		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
-			c.output.add(element.component->compile());
+			c.output.add(element.component->compile(interpreter));
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {

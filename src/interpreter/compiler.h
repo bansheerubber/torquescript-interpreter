@@ -4,5 +4,5 @@
 #include "../parser/parser.h"
 
 namespace ts {
-	Instruction* Compile(Parser* parser);
+	Instruction* Compile(Parser* parser, Interpreter* interpreter);
 }

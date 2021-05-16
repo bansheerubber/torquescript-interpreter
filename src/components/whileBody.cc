@@ -1,4 +1,5 @@
 #include "whileBody.h"
+#include "../interpreter/interpreter.h"
 
 bool WhileBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == WHILE;
@@ -40,7 +41,7 @@ string WhileBody::print() {
 	return output;
 }
 
-ts::InstructionReturn WhileBody::compile() {
+ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	
 	// final NOOP statement in while statement
@@ -48,7 +49,7 @@ ts::InstructionReturn WhileBody::compile() {
 	noop->type = ts::instruction::NOOP;
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile();
+	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter);
 	output.add(compiledConditional);
 
 	// add conditional jump
@@ -59,7 +60,7 @@ ts::InstructionReturn WhileBody::compile() {
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile());
+		output.add(component->compile(interpreter));
 	}
 
 	// add jump to conditional

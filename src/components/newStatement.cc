@@ -1,4 +1,5 @@
 #include "newStatement.h"
+#include "../interpreter/interpreter.h"
 
 bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return (
@@ -99,6 +100,6 @@ string NewStatement::print() {
 	return output;
 }
 
-ts::InstructionReturn NewStatement::compile() {
+ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

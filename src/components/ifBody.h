@@ -12,6 +12,11 @@
 
 using namespace std;
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class IfBody : public Body {
 	public:
 		using Body::Body;
@@ -29,7 +34,7 @@ class IfBody : public Body {
 			}
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);

@@ -1,4 +1,5 @@
 #include "switchBody.h"
+#include "../interpreter/interpreter.h"
 
 bool SwitchBody::ShouldParse(Tokenizer* tokenizer, class Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -48,6 +49,6 @@ string SwitchBody::print() {
 	return output;
 }
 
-ts::InstructionReturn SwitchBody::compile() {
+ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

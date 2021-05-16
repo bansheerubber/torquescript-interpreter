@@ -7,6 +7,11 @@
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
+// forward declare interpreter
+namespace ts {
+	class Interpreter;
+}
+
 class Comment : public Component {
 	public:
 		using Component::Component;
@@ -19,7 +24,7 @@ class Comment : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile();
+		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
