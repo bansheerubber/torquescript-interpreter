@@ -52,7 +52,12 @@ namespace ts {
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
 			InstructionContainer* instructions;
-			unsigned long instructionPointer = 0;
+			InstructionContainer* topContainer;
+			std::stack<InstructionContainer*> containerStack;
+			std::stack<unsigned long*> pointerStack;
+			unsigned long* instructionPointer;
+			void pushInstructionContainer(InstructionContainer* container);
+			void popInstructionContainer();
 
 			robin_map<string, int> nameToIndex;
 			robin_map<int, InstructionContainer*> indexToFunction;

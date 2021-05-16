@@ -20,6 +20,7 @@ namespace ts {
 			PUSH_VARIABLE_CONTEXT, // create a new local variable context
 			POP_VARIABLE_CONTEXT, // delete a local variable context
 			CALL_FUNCTION, // call a globally scoped function
+			RETURN, // return from a function without returning a value
 		};
 
 		enum AssignOperations {

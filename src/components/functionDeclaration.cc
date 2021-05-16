@@ -77,6 +77,12 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 	for(Component* component: this->children) {
 		output.add(component->compile(interpreter));
 	}
+
+	// add a return statement that exits out from our function
+	ts::Instruction* returnInstruction = new ts::Instruction();
+	returnInstruction->type = ts::instruction::RETURN;	
+	output.add(returnInstruction);
+
 	string name = this->name1->print();
 	interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
 	

@@ -142,5 +142,10 @@ void PrintInstruction(Instruction &instruction) {
 			printf("};\n");
 			break;
 		}
+
+		case instruction::RETURN: {
+			printf("RETURN;\n");
+			break;
+		}
 	}
 }

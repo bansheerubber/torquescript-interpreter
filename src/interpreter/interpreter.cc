@@ -12,6 +12,29 @@ Interpreter::~Interpreter() {
 	
 }
 
+void Interpreter::pushInstructionContainer(InstructionContainer* container) {
+	// push container
+	this->topContainer = container;
+	this->containerStack.push(container);
+
+	// push pointer
+	this->pointerStack.push(new unsigned long);
+	this->instructionPointer = this->pointerStack.top();
+	*this->instructionPointer = 0;
+}
+
+void Interpreter::popInstructionContainer() {
+	// pop container
+	this->containerStack.pop();
+	this->topContainer = this->containerStack.top();
+
+	// pop pointer
+	unsigned long* oldPointer = this->pointerStack.top();
+	this->pointerStack.pop();
+	delete oldPointer; // free old pointer
+	this->instructionPointer = this->pointerStack.top();
+}
+
 void Interpreter::pushVariableContext() {
 	this->contextPointer++;
 	this->getTopVariableContext().interpreter = this;
@@ -57,13 +80,13 @@ void Interpreter::pop() {
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
-	this->instructions = new InstructionContainer(head); // create the instructions
+	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
 	this->interpret();
 }
 
 void Interpreter::interpret() {
-	if(this->instructionPointer >= this->instructions->size) { // quit once we run out of instructions
+	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->getTopVariableContext().print();
@@ -71,10 +94,10 @@ void Interpreter::interpret() {
 		return;
 	}
 
-	Instruction &instruction = this->instructions->array[this->instructionPointer];
-	this->instructionPointer++;
+	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
+	(*this->instructionPointer)++;
 
-	PrintInstruction(instruction);
+	// PrintInstruction(instruction);
 	
 	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
@@ -97,13 +120,13 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP: { // jump to an instruction
-			this->instructionPointer = instruction.jump.index;
+			*this->instructionPointer = instruction.jump.index;
 			break;
 		}
 
 		case instruction::JUMP_IF_TRUE: { // jump to an instruction
 			if(this->stack[this->stackPointer - 1].numberData == 1) {
-				this->instructionPointer = instruction.jumpIfTrue.index;
+				*this->instructionPointer = instruction.jumpIfTrue.index;
 			}
 			this->pop();
 			break;
@@ -111,7 +134,7 @@ void Interpreter::interpret() {
 
 		case instruction::JUMP_IF_FALSE: { // jump to an instruction
 			if(this->stack[this->stackPointer - 1].numberData == 0) {
-				this->instructionPointer = instruction.jumpIfFalse.index;
+				*this->instructionPointer = instruction.jumpIfFalse.index;
 			}
 			this->pop();
 			break;
@@ -349,6 +372,14 @@ void Interpreter::interpret() {
 				instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
 				instruction.callFunction.isCached = true;
 			}
+
+			this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);
+
+			break;
+		}
+
+		case instruction::RETURN: {
+			this->popInstructionContainer();
 			break;
 		}
 	}
