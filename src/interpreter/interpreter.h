@@ -51,11 +51,13 @@ namespace ts {
 			int contextPointer = 0;
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
-			InstructionContainer* instructions;
-			InstructionContainer* topContainer;
-			std::stack<InstructionContainer*> containerStack;
-			std::stack<unsigned long*> pointerStack;
-			unsigned long* instructionPointer;
+			InstructionContainer* containerStack[1024];
+			unsigned long containerStackPointer;
+			InstructionContainer* topContainer; // the current container we're executing code from, taken from the containerStack
+
+			unsigned long pointerStack[1024];
+			unsigned long pointerStackPointer;
+			unsigned long* instructionPointer; // the current instruction pointer, taken from the pointerStack
 			void pushInstructionContainer(InstructionContainer* container);
 			void popInstructionContainer();
 

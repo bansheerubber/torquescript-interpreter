@@ -15,24 +15,23 @@ Interpreter::~Interpreter() {
 void Interpreter::pushInstructionContainer(InstructionContainer* container) {
 	// push container
 	this->topContainer = container;
-	this->containerStack.push(container);
+	this->containerStack[this->containerStackPointer] = container;
+	this->containerStackPointer++;
 
 	// push pointer
-	this->pointerStack.push(new unsigned long);
-	this->instructionPointer = this->pointerStack.top();
-	*this->instructionPointer = 0;
+	this->pointerStack[this->pointerStackPointer] = 0;
+	this->instructionPointer = &this->pointerStack[this->pointerStackPointer];
+	this->pointerStackPointer++;
 }
 
 void Interpreter::popInstructionContainer() {
 	// pop container
-	this->containerStack.pop();
-	this->topContainer = this->containerStack.top();
+	this->containerStackPointer--;
+	this->topContainer = this->containerStack[this->containerStackPointer - 1];
 
 	// pop pointer
-	unsigned long* oldPointer = this->pointerStack.top();
-	this->pointerStack.pop();
-	delete oldPointer; // free old pointer
-	this->instructionPointer = this->pointerStack.top();
+	this->pointerStackPointer--;
+	this->instructionPointer = &this->pointerStack[this->pointerStackPointer - 1];
 }
 
 void Interpreter::pushVariableContext() {
@@ -357,16 +356,6 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		case instruction::PUSH_VARIABLE_CONTEXT: {
-			this->pushVariableContext();
-			break;
-		}
-
-		case instruction::POP_VARIABLE_CONTEXT: {
-			this->popVariableContext();
-			break;
-		}
-
 		case instruction::CALL_FUNCTION: {
 			if(!instruction.callFunction.isCached) {
 				instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
@@ -374,12 +363,13 @@ void Interpreter::interpret() {
 			}
 
 			this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);
-
+			this->pushVariableContext();
 			break;
 		}
 
 		case instruction::RETURN: {
 			this->popInstructionContainer();
+			this->popVariableContext();
 			break;
 		}
 	}

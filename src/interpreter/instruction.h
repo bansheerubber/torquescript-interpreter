@@ -17,8 +17,6 @@ namespace ts {
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			NEW_FRAME, // create a new stack frame
 			DELETE_FRAME, // delete the latest stack frame, pop all values the frame encompassed
-			PUSH_VARIABLE_CONTEXT, // create a new local variable context
-			POP_VARIABLE_CONTEXT, // delete a local variable context
 			CALL_FUNCTION, // call a globally scoped function
 			RETURN, // return from a function without returning a value
 		};
