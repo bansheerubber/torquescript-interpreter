@@ -22,7 +22,11 @@ string StringLiteral::print() {
 }
 
 ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::PUSH;
+	instruction->push.entry.type = ts::entry::STRING;
+	instruction->push.entry.setString(this->value.lexeme);
+	return ts::InstructionReturn(instruction, instruction);
 }
 
 string StringLiteral::getString() {

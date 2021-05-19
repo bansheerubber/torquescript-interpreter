@@ -31,6 +31,7 @@ namespace ts {
 			
 			void push(Entry &entry);
 			void push(double number);
+			void push(string* data);
 			void pop();
 
 			int ranInstructions = 0;
