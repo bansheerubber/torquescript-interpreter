@@ -336,11 +336,22 @@ void Interpreter::interpret() {
 		// TODO this whole thing probably needs to be optimized
 		case instruction::LOCAL_ASSIGN: {
 			Entry* entry;
+			double entryNumber = 0;
+			string* entryString = nullptr;
 			if(instruction.localAssign.operation != instruction::EQUALS) {
 				entry = &this->getTopVariableContext().getVariableEntry(
 					instruction,
 					instruction.localAssign.destination
 				);
+
+				if(instruction.localAssign.operation >= instruction::INCREMENT) {
+					if(entry->type == entry::NUMBER) {
+						entryNumber = entry->numberData;
+					}
+					else {
+						entryNumber = stringToNumber(*entry->stringData);
+					}
+				}
 			}
 
 			Entry* value;
@@ -363,12 +374,12 @@ void Interpreter::interpret() {
 				}
 
 				case instruction::INCREMENT: {
-					entry->numberData++;
+					entry->setNumber(++entryNumber);
 					break;
 				}
 
 				case instruction::DECREMENT: {
-					entry->numberData--;
+					entry->setNumber(--entryNumber);
 					break;
 				}
 
