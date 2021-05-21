@@ -25,6 +25,8 @@ namespace ts {
 			void printStack();
 
 			void addFunction(string &name, InstructionReturn output);
+
+			Entry* emptyEntry = nullptr;
 		
 		private:
 			void interpret(); // interprets the next instruction

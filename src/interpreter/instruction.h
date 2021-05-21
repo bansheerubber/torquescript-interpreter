@@ -13,6 +13,7 @@ namespace ts {
 			JUMP_IF_TRUE, // jump to particular insturction if top element on stack is true, pops the element
 			JUMP_IF_FALSE, // jump to particular insturction if top element on stack is false, pops the element
 			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
+			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			NEW_FRAME, // create a new stack frame
@@ -100,6 +101,13 @@ namespace ts {
 				Entry entry;
 				instruction::AssignOperations operation;
 			} localAssign;
+
+			struct {
+				int dimensions;
+				relative_stack_location offset; // subtracted from top of stack
+				unsigned int argc; // expected amount of arguments
+				string destination;
+			} argumentAssign;
 
 			struct {
 				int dimensions;

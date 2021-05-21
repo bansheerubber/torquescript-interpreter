@@ -1,5 +1,6 @@
 #include "functionDeclaration.h"
 #include "../interpreter/interpreter.h"
+#include "accessStatement.h"
 
 bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == FUNCTION;
@@ -74,9 +75,36 @@ string FunctionDeclaration::print() {
 
 ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
+
+	// loop through the arguments and assign them from values on the stack
+	auto it = this->args->getElements();
+	int count = 0;
+	int argumentCount = this->args->getElementCount();
+	for (; it.first != it.second; it.first++) {
+		AccessStatement* component = (AccessStatement*)(*(it.first)).component; // we know these are local variables
+		if(component != nullptr) {
+			// assign a value from the stack to this variable	
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::ARGUMENT_ASSIGN;
+			new((void*)&instruction->argumentAssign.destination) string(component->getVariableName());
+			instruction->argumentAssign.dimensions = 0;
+			instruction->argumentAssign.offset = argumentCount - count;
+			instruction->argumentAssign.argc = argumentCount;
+			count++;
+			output.add(instruction);
+		}
+	}
+
+	// compile the body of the function
 	for(Component* component: this->children) {
 		output.add(component->compile(interpreter));
 	}
+
+	// push the empty value if we do not actually use a return statement from earlier in the function body
+	ts::Instruction* pushEmpty = new ts::Instruction();
+	pushEmpty->type = ts::instruction::PUSH;
+	copyEntry(*interpreter->emptyEntry, pushEmpty->push.entry);
+	output.add(pushEmpty);
 
 	// add a return statement that exits out from our function
 	ts::Instruction* returnInstruction = new ts::Instruction();
@@ -85,6 +113,6 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 
 	string name = this->name1->print();
 	interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
-	
+
 	return {}; // do not output anything to the body, functions are stored elsewhere
 }

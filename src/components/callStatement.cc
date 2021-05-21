@@ -66,6 +66,16 @@ pair<
 	return make_pair(this->elements.begin(), this->elements.end());
 }
 
+unsigned int CallStatement::getElementCount() {
+	unsigned int count = 0;
+	for(CallElement element: this->elements) {
+		if(element.component != nullptr) {
+			count++;
+		}
+	}
+	return count;
+}
+
 // upon compilation, push values of the variables
 ts::InstructionReturn CallStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;

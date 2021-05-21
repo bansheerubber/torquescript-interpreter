@@ -36,5 +36,13 @@ string ReturnStatement::print() {
 }
 
 ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::InstructionReturn output;
+	output.add(this->operation->compile(interpreter));
+
+	// add a return statement that exits out from our function
+	ts::Instruction* returnInstruction = new ts::Instruction();
+	returnInstruction->type = ts::instruction::RETURN;	
+	output.add(returnInstruction);
+	
+	return output;
 }

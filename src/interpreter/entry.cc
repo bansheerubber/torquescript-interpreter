@@ -30,6 +30,7 @@ Entry::~Entry() {
 	if(this->type == entry::STRING) {
 		if(this->stringData != nullptr) {
 			delete this->stringData;
+			this->stringData = nullptr;
 		}
 	}
 }

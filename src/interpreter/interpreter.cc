@@ -9,6 +9,10 @@ using namespace ts;
 
 Interpreter::Interpreter() {
 	this->pushVariableContext();
+
+	this->emptyEntry = new Entry();
+	string emptyString = string("");
+	this->emptyEntry->setString(emptyString);
 }
 
 Interpreter::~Interpreter() {
@@ -333,6 +337,28 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::ARGUMENT_ASSIGN: { // assign argument a value from the stack
+			int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used
+			int delta = instruction.argumentAssign.argc - actualArgumentCount;
+			relative_stack_location location = this->stackPointer - 1 - instruction.argumentAssign.offset + delta;
+
+			if((int)instruction.argumentAssign.offset <= delta) {
+				this->getTopVariableContext().setVariableEntry(
+					instruction,
+					instruction.argumentAssign.destination,
+					*this->emptyEntry
+				);
+			}
+			else {
+				this->getTopVariableContext().setVariableEntry(
+					instruction,
+					instruction.argumentAssign.destination,
+					this->stack[location]
+				);
+			}
+			break;
+		}
+
 		// TODO this whole thing probably needs to be optimized
 		case instruction::LOCAL_ASSIGN: {
 			Entry* entry;
@@ -429,17 +455,17 @@ void Interpreter::interpret() {
 			this->stackPointer -= this->topFrame->size; // pop the contents of the frame
 			this->framePointer--; // pop the frame
 
-			// move the saved entries onto the new stack
-			for(int i = saveStart; i < saveTop; i++) {
-				this->push(this->stack[i]);
-			}
-
 			// update top frame pointer
 			if(this->framePointer != 0) {
 				this->topFrame = &this->frames[this->framePointer - 1];
 			}
 			else {
 				this->topFrame = nullptr;
+			}
+
+			// move the saved entries onto the new stack
+			for(int i = saveStart; i < saveTop; i++) {
+				this->push(this->stack[i]);
 			}
 
 			break;

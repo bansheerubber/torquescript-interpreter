@@ -42,6 +42,8 @@ class CallStatement : public Component {
 			vector<CallElement>::iterator,
 			vector<CallElement>::iterator
 		> getElements();
+
+		unsigned int getElementCount();
 	
 	private:
 		// can be literals, a mathematical statement, access statements, etc

@@ -35,6 +35,13 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			break;
 		}
 
+		case instruction::ARGUMENT_ASSIGN: {
+			destination.argumentAssign.offset = source.argumentAssign.offset;
+			destination.argumentAssign.argc = source.argumentAssign.argc;
+			new((void*)&destination.argumentAssign.destination) string(source.argumentAssign.destination); // TODO move this initialization elsewhere
+			break;
+		}
+
 		case instruction::LOCAL_ASSIGN: {
 			destination.localAssign.dimensions = source.localAssign.dimensions;
 			destination.localAssign.fromStack = source.localAssign.fromStack;

@@ -63,7 +63,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 	
 	if(c.output.last->type == ts::instruction::DELETE_FRAME) {
-		c.output.last->deleteFrame.save = 0; // TODO change this behavior so it saves the result of the variable to the stack
+		c.output.last->deleteFrame.save = this->parent->requiresSemicolon(this) ? 0 : 1;
 	}
 
 	// copy access instruction to assign instruction

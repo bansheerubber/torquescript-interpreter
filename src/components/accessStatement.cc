@@ -179,10 +179,19 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	AccessStatementCompiled c;
 
 	if(this->isFunction()) { // compile a function call
+		ts::Instruction* newFrame = new ts::Instruction();
+		newFrame->type = ts::instruction::NEW_FRAME;
+		c.output.add(newFrame);
+		
 		c.output.add(this->elements[1].component->compile(interpreter)); // push arguments
 
+		// push the amount of arguments we just found
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::PUSH;
+		instruction->push.entry.type = ts::entry::NUMBER;
+		instruction->push.entry.setNumber(((CallStatement*)this->elements[1].component)->getElementCount());
+		c.output.add(instruction);
 
-		printf("should compile function\n");
 		// build call instruction
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
@@ -190,7 +199,17 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		callFunction->callFunction.cachedIndex = 0;
 		callFunction->callFunction.isCached = false;
 		c.output.add(callFunction);
-		printf("done\n");
+
+		ts::Instruction* deleteFrame = new ts::Instruction();
+		deleteFrame->type = ts::instruction::DELETE_FRAME;
+		deleteFrame->deleteFrame.save = 1;
+		c.output.add(deleteFrame);
+
+		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
+			ts::Instruction* pop = new ts::Instruction();
+			pop->type = ts::instruction::POP;
+			c.output.add(pop);
+		}
 
 		return c;
 	}

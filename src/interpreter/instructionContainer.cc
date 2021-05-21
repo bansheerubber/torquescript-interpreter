@@ -44,9 +44,6 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 			}
 		}
 
-		// printf("%d: ", count);
-		// PrintInstruction(this->array[count]);
-
 		count++;
 		instruction = instruction->next;
 	}
@@ -57,5 +54,14 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 		Instruction* temp = instruction;
 		instruction = instruction->next;
 		delete temp;
+	}
+
+	// this->print();
+}
+
+void InstructionContainer::print() {
+	printf("-----------------------------------------------------------------\n");
+	for(unsigned long i = 0; i < this->size; i++) {
+		PrintInstruction(this->array[i]);
 	}
 }
