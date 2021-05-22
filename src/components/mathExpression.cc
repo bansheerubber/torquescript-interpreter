@@ -378,6 +378,10 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 	relative_stack_location stackPointer = 0;
 
 	for(MathElement element: this->elements) {
+		if(element.specialOp == LEFT_PARENTHESIS_OPERATOR || element.specialOp == RIGHT_PARENTHESIS_OPERATOR) {
+			continue;
+		}
+		
 		if(element.component != nullptr) { // if the element is an operand, push it to the operand stack
 			operands.push_back({
 				element: element,
