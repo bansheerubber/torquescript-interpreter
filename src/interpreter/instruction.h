@@ -98,6 +98,7 @@ namespace ts {
 				int dimensions;
 				string destination;
 				bool fromStack;
+				bool pushResult;
 				Entry entry;
 				instruction::AssignOperations operation;
 			} localAssign;

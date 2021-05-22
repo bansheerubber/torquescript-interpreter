@@ -40,6 +40,13 @@ class ElseIfBody : public Body {
 			}
 		}
 
+		bool shouldPushToStack(Component* child) {
+			if(child == this->conditional) {
+				return true;
+			}
+			return false;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter);
 

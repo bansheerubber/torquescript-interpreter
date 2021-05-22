@@ -103,6 +103,7 @@ void PrintInstruction(Instruction &instruction) {
 
 			printf("   destination: %s, \n", instruction.localAssign.destination.c_str());
 			printf("   dimensions: %d, \n", instruction.localAssign.dimensions);
+			printf("   push result: %d, \n", instruction.localAssign.pushResult);
 
 			if(instruction.localAssign.fromStack) {
 				printf("   from stack: true, \n");

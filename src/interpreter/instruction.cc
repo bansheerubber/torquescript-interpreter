@@ -44,6 +44,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 
 		case instruction::LOCAL_ASSIGN: {
 			destination.localAssign.dimensions = source.localAssign.dimensions;
+			destination.localAssign.pushResult = source.localAssign.pushResult;
 			destination.localAssign.fromStack = source.localAssign.fromStack;
 			if(!destination.localAssign.fromStack) {
 				copyEntry(source.localAssign.entry, destination.localAssign.entry);

@@ -32,6 +32,13 @@ class ForBody : public Body {
 			return true;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			if(child == this->conditional) {
+				return true;
+			}
+			return false;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();

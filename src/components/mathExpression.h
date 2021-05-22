@@ -50,6 +50,10 @@ class MathExpression : public Component {
 			return false;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			return true;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();

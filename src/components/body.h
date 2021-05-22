@@ -25,6 +25,10 @@ class Body : public Component {
 			return false;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			return false;
+		}
+
 		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter) = 0;
 
 		string print() {

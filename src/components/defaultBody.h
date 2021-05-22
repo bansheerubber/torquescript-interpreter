@@ -27,6 +27,10 @@ class DefaultBody : public Body {
 			return true;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			return false;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();

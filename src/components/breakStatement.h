@@ -21,6 +21,10 @@ class BreakStatement : public Component {
 		bool requiresSemicolon(Component* child) {
 			return false;
 		}
+
+		bool shouldPushToStack(Component* child) {
+			return false;
+		}
 		
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 

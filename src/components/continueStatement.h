@@ -22,6 +22,10 @@ class ContinueStatement : public Component {
 			return false;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			return false;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();

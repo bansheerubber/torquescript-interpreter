@@ -30,6 +30,10 @@ class PackageDeclaration : public Body {
 			return false;
 		}
 
+		bool shouldPushToStack(Component* child) {
+			return false;
+		}
+
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();

@@ -1,4 +1,4 @@
-#pragma once
+	#pragma once
 
 #include <string>
 #include <sstream>
@@ -32,6 +32,13 @@ class WhileBody : public Body {
 			else {
 				return true;
 			}
+		}
+
+		bool shouldPushToStack(Component* child) {
+			if(child == this->conditional) {
+				return true;
+			}
+			return false;
 		}
 
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);

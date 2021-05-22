@@ -63,13 +63,14 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 	
 	if(c.output.last->type == ts::instruction::DELETE_FRAME) {
-		c.output.last->deleteFrame.save = this->parent->requiresSemicolon(this) ? 0 : 1;
+		c.output.last->deleteFrame.save = 0;
 	}
 
 	// copy access instruction to assign instruction
 	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
+	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
 	instruction->localAssign.operation = ts::instruction::EQUALS;
 
 	if(this->rvalue->getType() == NUMBER_LITERAL) {
@@ -79,11 +80,11 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		string literal = ((StringLiteral*)this->rvalue)->getString();
 		instruction->localAssign.entry.setString(literal);
 	}
-	else if(this->rvalue->getType() == MATH_EXPRESSION) {
-		output.add(this->rvalue->compile(interpreter));
-		instruction->localAssign.fromStack = true;
-	}
-	else if(this->rvalue->getType() == ACCESS_STATEMENT) {
+	else if(
+		this->rvalue->getType() == MATH_EXPRESSION
+		|| this->rvalue->getType() == ACCESS_STATEMENT
+		|| this->rvalue->getType() == ASSIGN_STATEMENT
+	) {
 		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;
 	}

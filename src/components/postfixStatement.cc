@@ -35,6 +35,7 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter) {
 	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
+	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
 
 	if(this->op.type == INCREMENT) {
 		instruction->localAssign.operation = ts::instruction::INCREMENT;

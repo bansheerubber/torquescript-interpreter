@@ -358,7 +358,7 @@ void Interpreter::interpret() {
 
 		// TODO this whole thing probably needs to be optimized
 		case instruction::LOCAL_ASSIGN: {
-			Entry* entry;
+			Entry* entry = nullptr;
 			double entryNumber = 0;
 			string* entryString = nullptr;
 			if(instruction.localAssign.operation != instruction::EQUALS) {
@@ -377,7 +377,7 @@ void Interpreter::interpret() {
 				}
 			}
 
-			Entry* value;
+			Entry* value = nullptr;
 			bool fromStack = instruction.localAssign.fromStack;
 			if(fromStack) {
 				value = &this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions]; // start from top of stack
@@ -411,12 +411,21 @@ void Interpreter::interpret() {
 				}
 			}
 
+			for(int i = 0; i < instruction.localAssign.dimensions; i++) {
+				this->pop(); // pop the dimensions if we have any
+			}
+
 			if(instruction.localAssign.fromStack) {
 				this->pop(); // pop value from the stack
 			}
 
-			for(int i = 0; i < instruction.localAssign.dimensions; i++) {
-				this->pop(); // pop the dimensions if we have any
+			if(instruction.localAssign.operation != instruction::EQUALS) {
+				if(instruction.localAssign.pushResult && entry != nullptr) {
+					this->push(*entry);
+				}
+			}
+			else if(instruction.localAssign.pushResult) {
+				this->push(*value);
 			}
 
 			break;

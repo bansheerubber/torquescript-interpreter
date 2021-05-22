@@ -53,6 +53,7 @@ class Component {
 		virtual ComponentType getType() = 0; // gets the type of the component
 		virtual string print() = 0; // prints valid torquescript
 		virtual bool requiresSemicolon(Component* child) = 0; // whether or not a child of this component needs a semicolon
+		virtual bool shouldPushToStack(Component* child) = 0; // whether or not a child should push its value to the stack
 		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter) = 0; // compile to bytecode
 
 		static bool ShouldParse(Component* parent, Tokenizer* tokenizer, class Parser* parser);
