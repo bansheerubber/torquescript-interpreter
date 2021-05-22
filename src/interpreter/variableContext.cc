@@ -5,7 +5,7 @@
 using namespace ts;
 
 VariableContext::~VariableContext() {
-	
+
 }
 
 void VariableContext::clear() {
@@ -37,17 +37,46 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 
 Entry& VariableContext::getVariableEntry(Instruction &instruction, string &variable) {
 	if(instruction.localAssign.dimensions > 0) {
-		return this->variableMap[computeVariableString(instruction, variable)];
+		string computedString = computeVariableString(instruction, variable);
+
+		Entry* variableEntry = this->variableMap[computedString];
+		if(variableEntry == nullptr) { // initialize empty string
+			variableEntry = new Entry();
+			this->variableMap[computedString] = variableEntry;
+			copyEntry(this->interpreter->emptyEntry, *variableEntry);
+		}
+		printf("%f\n", variableEntry->numberData);
+		return *variableEntry;
 	}
-	return this->variableMap[variable];
+	else {
+		Entry* variableEntry = this->variableMap[variable];
+		if(variableEntry == nullptr) { // initialize empty string
+			variableEntry = new Entry();
+			this->variableMap[variable] = variableEntry;
+			copyEntry(this->interpreter->emptyEntry, *variableEntry);
+		}
+		return *variableEntry;
+	}
 }
 
 void VariableContext::setVariableEntry(Instruction &instruction, string &name, Entry &entry) {
 	if(instruction.localAssign.dimensions > 0) {
-		copyEntry(entry, this->variableMap[computeVariableString(instruction, name)]);
+		string computedString = computeVariableString(instruction, name);
+
+		Entry* variableEntry = this->variableMap[computedString];
+		if(variableEntry == nullptr) {
+			variableEntry = new Entry();
+			this->variableMap[computedString] = variableEntry;
+		}
+		copyEntry(entry, *variableEntry);
 	}
 	else {
-		copyEntry(entry, this->variableMap[name]); // [] operator automatically creates entries
+		Entry* variableEntry = this->variableMap[name];
+		if(variableEntry == nullptr) {
+			variableEntry = new Entry();
+			this->variableMap[name] = variableEntry;
+		}
+		copyEntry(entry, *variableEntry);
 	}
 }
 
@@ -55,7 +84,7 @@ void VariableContext::print() {
 	printf("-------------------------------\n");
 	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
 		printf("%s:\n", it->first.c_str());
-		it->second.print();
+		it->second->print();
 		printf("-------------------------------\n");
 	}
 }

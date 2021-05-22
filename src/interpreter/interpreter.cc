@@ -9,10 +9,7 @@ using namespace ts;
 
 Interpreter::Interpreter() {
 	this->pushVariableContext();
-
-	this->emptyEntry = new Entry();
-	string emptyString = string("");
-	this->emptyEntry->setString(emptyString);
+	this->emptyEntry.setString(new string(""));
 }
 
 Interpreter::~Interpreter() {
@@ -346,7 +343,7 @@ void Interpreter::interpret() {
 				this->getTopVariableContext().setVariableEntry(
 					instruction,
 					instruction.argumentAssign.destination,
-					*this->emptyEntry
+					this->emptyEntry
 				);
 			}
 			else {
@@ -426,16 +423,16 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			this->push(
-				this->getTopVariableContext().getVariableEntry(
-					instruction,
-					instruction.localAccess.source
-				)
+			Entry &entry = this->getTopVariableContext().getVariableEntry(
+				instruction,
+				instruction.localAccess.source
 			);
 
 			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
 				this->pop(); // pop the dimensions if we have any
 			}
+
+			this->push(entry);
 
 			break;
 		}

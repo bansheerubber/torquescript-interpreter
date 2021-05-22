@@ -103,7 +103,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 	// push the empty value if we do not actually use a return statement from earlier in the function body
 	ts::Instruction* pushEmpty = new ts::Instruction();
 	pushEmpty->type = ts::instruction::PUSH;
-	copyEntry(*interpreter->emptyEntry, pushEmpty->push.entry);
+	copyEntry(interpreter->emptyEntry, pushEmpty->push.entry);
 	output.add(pushEmpty);
 
 	// add a return statement that exits out from our function

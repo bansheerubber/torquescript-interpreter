@@ -26,7 +26,7 @@ namespace ts {
 
 			void addFunction(string &name, InstructionReturn output);
 
-			Entry* emptyEntry = nullptr;
+			Entry emptyEntry;
 		
 		private:
 			void interpret(); // interprets the next instruction
@@ -52,6 +52,7 @@ namespace ts {
 			VariableContext contexts[256];
 			VariableContext* topContext;
 			int contextPointer = 0;
+			Entry& getVariableEntry(class Instruction &instruction, string &variable);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
 			InstructionContainer* containerStack[1024];

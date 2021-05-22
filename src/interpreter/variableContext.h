@@ -39,6 +39,6 @@ namespace ts {
 		private:
 			class Interpreter* interpreter;
 			friend class Interpreter;
-			robin_map<string, Entry> variableMap;
+			robin_map<string, Entry*> variableMap;
 	};
 }

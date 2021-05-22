@@ -91,7 +91,7 @@ void PrintInstruction(Instruction &instruction) {
 
 		case instruction::ARGUMENT_ASSIGN: {
 			printf("ARGUMENT_ASSIGN {\n");
-			printf("   destination: %s, \n", instruction.localAssign.destination.c_str());
+			printf("   destination: %s, \n", instruction.argumentAssign.destination.c_str());
 			printf("   offset: %d, \n", instruction.argumentAssign.offset);
 			printf("   argc: %d, \n", instruction.argumentAssign.argc);
 			printf("};\n");
