@@ -258,157 +258,93 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 	}
 }
 
-// helper function for create instruction
-struct Value {
-	ts::Entry entry; // entry of a literal value
-	relative_stack_location stack; // location on the stack for a non-literal value
-	bool onStack;
-};
+vector<MathElement*> MathExpression::convertToPostfix() {
+	vector<MathElement*> postfix;
+	stack<MathElement*> operatorStack;
 
-Value parseValue(
-	Operation &value,
-	vector<ts::InstructionReturn> &instructions,
-	relative_stack_location &stackPointer,
-	ts::Interpreter* interpreter
-) {
-	Value output;
-	
-	if(value.element.component != nullptr) {
-		if(value.element.component->getType() == NUMBER_LITERAL) {
-			output.entry.setNumber(((NumberLiteral*)value.element.component)->getNumber());
-			output.onStack = false;
-		}
-		else {
-			instructions.push_back(value.element.component->compile(interpreter)); // push component to instructions
-			output.stack = stackPointer++;
-			output.onStack = true;
-		}
-	}
-	else {
-		output.stack = value.stack++;
-		output.onStack = true;
-	}
-	return output;
-}
-
-// helper function for parsing Precedence
-ts::InstructionReturn MathExpression::createInstructions(
-	vector<Operation> &operands,
-	vector<Operation> &operators,
-	relative_stack_location &stackPointer,
-	ts::Interpreter* interpreter
-) {
-	ts::InstructionReturn output;
-	vector<ts::InstructionReturn> instructions;
-	
-	// keep track of the current precedence, since we will be going down the operators list until we hit something
-	// that isn't equal to this precedence
-	int topPrecedence = MathExpression::Precedence[operators.back().element.op.type];
-
-	// pointers into the operands/operators vector for when we need to evaluate expressions
-	unsigned int operandIndex = operands.size() - 1, operatorIndex = 0;
-	for(int i = operators.size() - 1; i >= 0; i--) { // find our place in the vectors
-		if(MathExpression::Precedence[operators[i].element.op.type] != topPrecedence) {
-			operatorIndex = i + 1; // find the first operator we will start performing mathematics on
-			break;
-		}
-		operandIndex--; // go further down the operand list
-	}
-
-	// keep going until we have evaluated all the expressions starting frm inside of the vector
-	// until the end of the vector, removing math elements as we go
-	while(operatorIndex < operators.size()) {
-		Operation op = operators[operatorIndex];
-		operators.erase(operators.begin() + operatorIndex); // remove the operator from the vector
-
-		// get the operands
-		Operation lvalue = operands[operandIndex];
-		Operation rvalue = operands[operandIndex + 1];
-
-		// compile to push to stack operation
-		Value lvalueResult = parseValue(lvalue, instructions, stackPointer, interpreter);
-		Value rvalueResult = parseValue(rvalue, instructions, stackPointer, interpreter);
-
-		// push the mathematics instruction
-		ts::Instruction* instruction = new ts::Instruction();
-		instruction->type = ts::instruction::MATHEMATICS;
-		instruction->mathematics.operation = MathExpression::TypeToOperator(op.element.op.type);
-
-		if(lvalueResult.onStack) {
-			instruction->mathematics.lvalue = lvalueResult.stack;
-			instruction->mathematics.lvalueEntry.type = ts::entry::INVALID;
-		}
-		else {
-			instruction->mathematics.lvalue = 0;
-			copyEntry(lvalueResult.entry, instruction->mathematics.lvalueEntry);
-		}
-		
-		if(rvalueResult.onStack) {
-			instruction->mathematics.rvalue = rvalueResult.stack;
-			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
-		}
-		else {
-			instruction->mathematics.rvalue = 0;
-			copyEntry(rvalueResult.entry, instruction->mathematics.rvalueEntry);
-		}
-
-		instructions.push_back(ts::InstructionReturn(instruction, instruction));
-
-		operands[operandIndex] = {
-			stack: stackPointer++, // reserve a location on the stack for the math expression result
-		}; // add result of expression back to the operand stack
-		operands.erase(operands.begin() + operandIndex + 1); // remove the operand from the vector
-	}
-
-	// weave together output
-	for(auto instruction: instructions) {
-		output.add(instruction);
-	}
-
-	return output;
-}
-
-ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
-	ts::InstructionReturn output;
-	ts::Instruction* newFrame = new ts::Instruction();
-	newFrame->type = ts::instruction::NEW_FRAME;
-	output.add(newFrame);
-	
-	vector<Operation> operands, operators;
-	relative_stack_location stackPointer = 0;
-
-	for(MathElement element: this->elements) {
+	for(MathElement &element: this->elements) {
 		if(element.specialOp == LEFT_PARENTHESIS_OPERATOR || element.specialOp == RIGHT_PARENTHESIS_OPERATOR) {
 			continue;
 		}
 		
-		if(element.component != nullptr) { // if the element is an operand, push it to the operand stack
-			operands.push_back({
-				element: element,
-			});
+		if(element.component != nullptr) { // if the element is an operand, push it to the stack
+			postfix.push_back(&element);
 		}
 		else {
-			while(
-				operators.size() > 0
-				&& MathExpression::Precedence[operators.back().element.op.type] > MathExpression::Precedence[element.op.type]
+			if(
+				operatorStack.size() == 0
+				|| MathExpression::Precedence[operatorStack.top()->op.type] < MathExpression::Precedence[element.op.type]
 			) {
-				output.add(this->createInstructions(operands, operators, stackPointer, interpreter));
+				operatorStack.push(&element);
 			}
-
-			operators.push_back({
-				element: element,
-			});
+			else {
+				// push operators onto the final stack if the operators on the operator stack are greater precedence than
+				// the current operator
+				while(
+					operatorStack.size() != 0
+					&& MathExpression::Precedence[operatorStack.top()->op.type] >= MathExpression::Precedence[element.op.type]
+				) {
+					postfix.push_back(operatorStack.top());
+					operatorStack.pop();
+				}
+				operatorStack.push(&element);
+			}
 		}
 	}
 
-	while(operators.size() > 0) {
-		output.add(this->createInstructions(operands, operators, stackPointer, interpreter));
+	// push rest of operators onto the stack
+	while(operatorStack.size() != 0) {
+		postfix.push_back(operatorStack.top());
+		operatorStack.pop();
 	}
 
-	ts::Instruction* deleteFrame = new ts::Instruction();
-	deleteFrame->type = ts::instruction::DELETE_FRAME;
-	deleteFrame->deleteFrame.save = 1;
-	output.add(deleteFrame);
+	return postfix;
+}
+
+ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
+	ts::InstructionReturn output;
+
+	vector<MathElement*> postfix = this->convertToPostfix();
+
+	MathElement* lastLValue = nullptr;
+	MathElement* lastRValue = nullptr;
+	for(MathElement* element: postfix) {
+		if(element->component == nullptr) { // handle an operator
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::MATHEMATICS;
+			instruction->mathematics.lvalueEntry = ts::Entry();
+			instruction->mathematics.lvalueEntry.type = ts::entry::INVALID;
+			instruction->mathematics.rvalueEntry = ts::Entry();
+			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
+			instruction->mathematics.operation = MathExpression::TypeToOperator(element->op.type);
+			
+			if(
+				lastLValue != nullptr
+				&& lastLValue->component != nullptr
+				&& lastLValue->component->getType() == NUMBER_LITERAL
+			) { // potential literal l-value
+				instruction->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lastLValue->component)->getNumber());
+			}
+
+			if(
+				lastRValue != nullptr && lastRValue->component != nullptr
+				&& lastRValue->component->getType() == NUMBER_LITERAL
+			) { // potential literal r-value
+				instruction->mathematics.rvalueEntry.setNumber(((NumberLiteral*)lastRValue->component)->getNumber());
+			}
+
+			output.add(instruction);
+
+			lastLValue = nullptr; // reset lvalues so we can correctly detect literal values later
+			lastRValue = nullptr;
+		}
+		else if(element->component->getType() != NUMBER_LITERAL) { // handle an operand
+			output.add(element->component->compile(interpreter));
+		}
+
+		lastLValue = lastRValue;
+		lastRValue = element;
+	}
 
 	return output;
 }

@@ -25,9 +25,6 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		}
 
 		case instruction::MATHEMATICS: {
-			destination.mathematics.lvalue = source.mathematics.lvalue;
-			destination.mathematics.rvalue = source.mathematics.rvalue;
-
 			copyEntry(source.mathematics.lvalueEntry, destination.mathematics.lvalueEntry);
 			copyEntry(source.mathematics.rvalueEntry, destination.mathematics.rvalueEntry);
 
@@ -58,11 +55,6 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		case instruction::LOCAL_ACCESS: {
 			destination.localAccess.dimensions = source.localAccess.dimensions;
 			new((void*)&destination.localAccess.source) string(source.localAccess.source); // TODO move this initialization elsewhere
-			break;
-		}
-
-		case instruction::DELETE_FRAME: {
-			destination.deleteFrame.save = source.deleteFrame.save;
 			break;
 		}
 

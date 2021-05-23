@@ -95,6 +95,11 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 		}
 	}
 
+	// tell the interpreter to pop values from the stack that were pushed as arguments
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::POP_ARGUMENTS;
+	output.add(instruction);
+
 	// compile the body of the function
 	for(Component* component: this->children) {
 		output.add(component->compile(interpreter));

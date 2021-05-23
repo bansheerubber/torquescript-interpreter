@@ -61,10 +61,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	ts::Instruction* instruction = c.lastAccess;
 	instruction->type = ts::instruction::LOCAL_ASSIGN;
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
-	
-	if(c.output.last->type == ts::instruction::DELETE_FRAME) {
-		c.output.last->deleteFrame.save = 0;
-	}
 
 	// copy access instruction to assign instruction
 	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere

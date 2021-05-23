@@ -56,7 +56,7 @@ void PrintInstruction(Instruction &instruction) {
 		case instruction::MATHEMATICS: {
 			printf("MATHEMATICS {\n");
 			printf("   operator type: %d,\n", instruction.mathematics.operation);
-
+			
 			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
 				printf("   lvalue type: %d,\n", instruction.mathematics.lvalueEntry.type);
 	
@@ -66,9 +66,6 @@ void PrintInstruction(Instruction &instruction) {
 				else {
 					printf("   lvalue data: %f,\n", instruction.mathematics.lvalueEntry.numberData);
 				}
-			}
-			else {
-				printf("   lvalue stack: %d,\n", instruction.mathematics.lvalue);
 			}
 
 			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
@@ -81,11 +78,9 @@ void PrintInstruction(Instruction &instruction) {
 					printf("   rvalue data: %f,\n", instruction.mathematics.rvalueEntry.numberData);
 				}
 			}
-			else {
-				printf("   rvalue stack: %d,\n", instruction.mathematics.rvalue);
-			}
-			
-			printf("};\n");
+
+			printf("}\n");
+
 			break;
 		}
 
@@ -132,18 +127,6 @@ void PrintInstruction(Instruction &instruction) {
 			break;
 		}
 
-		case instruction::NEW_FRAME: {
-			printf("NEW_FRAME;\n");
-			break;
-		}
-
-		case instruction::DELETE_FRAME: {
-			printf("DELETE_FRAME {\n");
-			printf("   save: %d,\n", instruction.deleteFrame.save);
-			printf("};\n");
-			break;
-		}
-
 		case instruction::CALL_FUNCTION: {
 			printf("CALL_FUNCTION {\n");
 			printf("   name: %s,\n", instruction.callFunction.name.c_str());
@@ -155,6 +138,11 @@ void PrintInstruction(Instruction &instruction) {
 
 		case instruction::RETURN: {
 			printf("RETURN;\n");
+			break;
+		}
+
+		case instruction::POP_ARGUMENTS: {
+			printf("POP_ARGUMENTS;\n");
 			break;
 		}
 	}

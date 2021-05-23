@@ -54,27 +54,18 @@ VariableContext& Interpreter::getTopVariableContext() {
 
 // push an entry onto the stack
 void Interpreter::push(Entry &entry) {
-	if(this->framePointer != 0) {
-		this->topFrame->size++;
-	}
 	copyEntry(entry, this->stack[this->stackPointer]);
 	this->stackPointer++;
 }
 
 // push a number onto the stack
 void Interpreter::push(double number) {
-	if(this->framePointer != 0) {
-		this->topFrame->size++;
-	}
 	this->stack[this->stackPointer].setNumber(number);
 	this->stackPointer++;
 }
 
 // push a string onto the stack
 void Interpreter::push(string* value) {
-	if(this->framePointer != 0) {
-		this->topFrame->size++;
-	}
 	this->stack[this->stackPointer].setString(value);
 	this->stackPointer++;
 }
@@ -85,14 +76,12 @@ void Interpreter::pop() {
 		exit(1);
 	}
 	
-	if(this->framePointer != 0) {
-		this->topFrame->size--;
-	}
 	this->stackPointer--;
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
 	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
+	// this->topContainer->print();
 	this->startTime = chrono::high_resolution_clock::now();
 	this->interpret();
 }
@@ -153,32 +142,28 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::MATHEMATICS: { // do the math
-			// offset for stack accesses
-			relative_stack_location offset = 0;
-			if(this->framePointer != 0) {
-				offset = this->topFrame->start;
-			}
-			
 			Entry* lvalue;
 			Entry* rvalue;
-
-			// set lvalue
-			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-				lvalue = &instruction.mathematics.lvalueEntry;
-			}
-			else {
-				lvalue = &this->stack[instruction.mathematics.lvalue + offset]; // index from base of frame
-			}
 
 			// set rvalue
 			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
 				rvalue = &instruction.mathematics.rvalueEntry;
 			}
 			else {
-				rvalue = &this->stack[instruction.mathematics.rvalue + offset]; // index from base of frame
+				rvalue = &this->stack[this->stackPointer - 1];
+				this->pop();
 			}
 
-			// begin typechecking
+			// set lvalue
+			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+				lvalue = &instruction.mathematics.lvalueEntry;
+			}
+			else {
+				lvalue = &this->stack[this->stackPointer - 1];
+				this->pop();
+			}
+
+			// start the hell that is dynamic typing
 			double lvalueNumber = 0;
 			double rvalueNumber = 0;
 			string* lvalueString = nullptr;
@@ -310,14 +295,17 @@ void Interpreter::interpret() {
 				}
 			}
 
+			// delete lvalue string if we converted it from a number
 			if(deleteLValueString) {
 				delete lvalueString;
 			}
 
+			// delete rvalue string if we converted it from a number
 			if(deleteRValueString) {
 				delete rvalueString;
 			}
-			
+
+			// push the results to the stack			
 			if(evaluated) {
 				if(stringResult == nullptr) {
 					this->push(numberResult);
@@ -446,38 +434,7 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		case instruction::NEW_FRAME: { // create a new frame
-			this->frames[this->framePointer].start = this->stackPointer;
-			this->frames[this->framePointer].size = 0;
-			this->topFrame = &this->frames[this->framePointer];
-			this->framePointer++;
-			break;
-		}
-
-		case instruction::DELETE_FRAME: { // delete the last frame
-			int saveTop = this->topFrame->start + this->topFrame->size;
-			int saveStart = saveTop - instruction.deleteFrame.save;
-
-			this->stackPointer -= this->topFrame->size; // pop the contents of the frame
-			this->framePointer--; // pop the frame
-
-			// update top frame pointer
-			if(this->framePointer != 0) {
-				this->topFrame = &this->frames[this->framePointer - 1];
-			}
-			else {
-				this->topFrame = nullptr;
-			}
-
-			// move the saved entries onto the new stack
-			for(int i = saveStart; i < saveTop; i++) {
-				this->push(this->stack[i]);
-			}
-
-			break;
-		}
-
-		case instruction::CALL_FUNCTION: {
+		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
 				instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
 				instruction.callFunction.isCached = true;
@@ -488,12 +445,25 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		case instruction::RETURN: {
+		case instruction::RETURN: { // return from a function
 			this->popInstructionContainer();
 			this->popVariableContext();
 			break;
 		}
+
+		case instruction::POP_ARGUMENTS: {
+			Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+
+			int number = (int)numberOfArguments.numberData;
+			for(int i = 0; i < number + 1; i++) {
+				this->pop();
+			}
+
+			break;
+		}
 	}
+
+	// this->printStack();
 
 	this->ranInstructions++;
 
@@ -503,7 +473,7 @@ void Interpreter::interpret() {
 void Interpreter::printStack() {
 	printf("\nSTACK: %d\n", this->stackPointer);
 	for(unsigned int i = 0; i < this->stackPointer; i++) {
-		Entry entry = this->stack[i];
+		Entry &entry = this->stack[i];
 		
 		printf("ENTRY #%d {\n", i);
 		printf("   type: %d,\n", entry.type);

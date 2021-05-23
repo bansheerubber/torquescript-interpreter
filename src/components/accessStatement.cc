@@ -179,10 +179,6 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	AccessStatementCompiled c;
 
 	if(this->isFunction()) { // compile a function call
-		ts::Instruction* newFrame = new ts::Instruction();
-		newFrame->type = ts::instruction::NEW_FRAME;
-		c.output.add(newFrame);
-		
 		c.output.add(this->elements[1].component->compile(interpreter)); // push arguments
 
 		// push the amount of arguments we just found
@@ -199,11 +195,6 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		callFunction->callFunction.cachedIndex = 0;
 		callFunction->callFunction.isCached = false;
 		c.output.add(callFunction);
-
-		ts::Instruction* deleteFrame = new ts::Instruction();
-		deleteFrame->type = ts::instruction::DELETE_FRAME;
-		deleteFrame->deleteFrame.save = 1;
-		c.output.add(deleteFrame);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
 			ts::Instruction* pop = new ts::Instruction();

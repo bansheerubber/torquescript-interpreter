@@ -41,10 +41,6 @@ namespace ts {
 
 			Entry stack[1024];
 			stack_location stackPointer = 0; // points to the next valid location on the stack (stackPointer - 1 == top of stack)
-			
-			StackFrame frames[1024];
-			unsigned int framePointer = 0;
-			StackFrame* topFrame;
 
 			void pushVariableContext();
 			void popVariableContext();

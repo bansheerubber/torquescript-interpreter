@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stack>
 #include <string>
 
 #include "component.h"
@@ -68,10 +69,5 @@ class MathExpression : public Component {
 		static ts::instruction::MathematicsOperator TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		ts::InstructionReturn createInstructions(
-			vector<Operation> &operands,
-			vector<Operation> &operators,
-			relative_stack_location &stackPointer,
-			ts::Interpreter* interpreter
-		);
+		vector<MathElement*> convertToPostfix();
 };

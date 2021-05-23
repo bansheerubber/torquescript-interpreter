@@ -16,10 +16,9 @@ namespace ts {
 			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
-			NEW_FRAME, // create a new stack frame
-			DELETE_FRAME, // delete the latest stack frame, pop all values the frame encompassed
 			CALL_FUNCTION, // call a globally scoped function
 			RETURN, // return from a function without returning a value
+			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
 		};
 
 		enum AssignOperations {
@@ -84,14 +83,9 @@ namespace ts {
 			} jumpIfFalse;
 
 			struct {
-				relative_stack_location lvalue;
-				relative_stack_location rvalue;
-
 				Entry lvalueEntry;
 				Entry rvalueEntry;
-				
-				// the operator this instruction will perform
-				instruction::MathematicsOperator operation;
+				instruction::MathematicsOperator operation; // the operator this instruction will perform
 			} mathematics;
 
 			struct {
@@ -114,12 +108,6 @@ namespace ts {
 				int dimensions;
 				string source;
 			} localAccess;
-
-			struct {
-				// the amount of entries we want to save from the top of the current frame,
-				// these values will get pushed to the next frame down
-				unsigned int save;
-			} deleteFrame;
 
 			struct {
 				string name;
