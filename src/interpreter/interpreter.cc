@@ -436,6 +436,11 @@ void Interpreter::interpret() {
 
 		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
+				if(this->nameToIndex.find(instruction.callFunction.name) == this->nameToIndex.end()) {
+					printError("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
+					exit(1);
+				}
+				
 				instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
 				instruction.callFunction.isCached = true;
 			}
