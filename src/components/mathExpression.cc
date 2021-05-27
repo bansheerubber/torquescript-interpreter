@@ -258,11 +258,17 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 	}
 }
 
-vector<MathElement*> MathExpression::convertToPostfix() {
+vector<MathElement*> MathExpression::convertToPostfix(bool prefixMod) {
 	vector<MathElement*> postfix;
 	stack<MathElement*> operatorStack;
 
-	for(MathElement &element: this->elements) {
+	if(prefixMod) {
+		reverse(this->elements.begin(), this->elements.end());		
+	}
+
+	for(auto it = this->elements.begin(); it != this->elements.end(); ++it) {
+		MathElement &element = *it;
+
 		if(element.specialOp == LEFT_PARENTHESIS_OPERATOR || element.specialOp == RIGHT_PARENTHESIS_OPERATOR) {
 			continue;
 		}
@@ -282,7 +288,11 @@ vector<MathElement*> MathExpression::convertToPostfix() {
 				// the current operator
 				while(
 					operatorStack.size() != 0
-					&& MathExpression::Precedence[operatorStack.top()->op.type] >= MathExpression::Precedence[element.op.type]
+					&& (
+						prefixMod
+						? MathExpression::Precedence[operatorStack.top()->op.type] > MathExpression::Precedence[element.op.type]
+						: MathExpression::Precedence[operatorStack.top()->op.type] >= MathExpression::Precedence[element.op.type]
+					)
 				) {
 					postfix.push_back(operatorStack.top());
 					operatorStack.pop();
@@ -304,10 +314,21 @@ vector<MathElement*> MathExpression::convertToPostfix() {
 ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
-	vector<MathElement*> postfix = this->convertToPostfix();
+	vector<MathElement*> postfix = this->convertToPostfix(TS_INTERPRETER_PREFIX);
+	stack<Component*> componentStack;
 
-	MathElement* lastLValue = nullptr;
-	MathElement* lastRValue = nullptr;
+	struct Value {
+		Component* component;
+		ts::Instruction* math;
+
+		Value(Component* component, ts::Instruction* math) {
+			this->component = component;
+			this->math = math;
+		}
+	};
+
+	// generate the ideal instruction execution order
+	vector<Value*> instructionList;
 	for(MathElement* element: postfix) {
 		if(element->component == nullptr) { // handle an operator
 			ts::Instruction* instruction = new ts::Instruction();
@@ -317,33 +338,65 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 			instruction->mathematics.rvalueEntry = ts::Entry();
 			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
 			instruction->mathematics.operation = MathExpression::TypeToOperator(element->op.type);
+
+			instructionList.push_back(new Value(nullptr, instruction)); // push empty value as dummy for our result
+		}
+		else {
+			instructionList.push_back(new Value(element->component, nullptr));
+		}
+	}
+
+	// go through instruction stack and evaluate it, determining which entries we should turn into literals
+	stack<Value*> evaluationStack;
+	vector<Value*> eraseList;
+	for(Value* value: instructionList) {
+		if(value->component != nullptr) {
+			evaluationStack.push(value);
+		}
+		else {
+			Value* lvalue;
+			Value* rvalue;
+			if(TS_INTERPRETER_PREFIX) {
+				lvalue = evaluationStack.top();
+				evaluationStack.pop();
+				rvalue = evaluationStack.top();
+				evaluationStack.pop();
+			}
+			else {
+				rvalue = evaluationStack.top();
+				evaluationStack.pop();
+				lvalue = evaluationStack.top();
+				evaluationStack.pop();
+			}
+
+			// figure out if we should cache literal in instruction
+			if(lvalue->component != nullptr && lvalue->component->getType() == NUMBER_LITERAL) {
+				value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
+				eraseList.push_back(lvalue);
+			}
+
+			if(rvalue->component != nullptr && rvalue->component->getType() == NUMBER_LITERAL) {
+				value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
+				eraseList.push_back(rvalue);
+			}
 			
-			if(
-				lastLValue != nullptr
-				&& lastLValue->component != nullptr
-				&& lastLValue->component->getType() == NUMBER_LITERAL
-			) { // potential literal l-value
-				instruction->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lastLValue->component)->getNumber());
-			}
-
-			if(
-				lastRValue != nullptr && lastRValue->component != nullptr
-				&& lastRValue->component->getType() == NUMBER_LITERAL
-			) { // potential literal r-value
-				instruction->mathematics.rvalueEntry.setNumber(((NumberLiteral*)lastRValue->component)->getNumber());
-			}
-
-			output.add(instruction);
-
-			lastLValue = nullptr; // reset lvalues so we can correctly detect literal values later
-			lastRValue = nullptr;
+			evaluationStack.push(value);
 		}
-		else if(element->component->getType() != NUMBER_LITERAL) { // handle an operand
-			output.add(element->component->compile(interpreter));
-		}
+	}
 
-		lastLValue = lastRValue;
-		lastRValue = element;
+	// erase values we swapped for literals
+	for(Value* value: eraseList) {
+		instructionList.erase(find(instructionList.begin(), instructionList.end(), value));
+	}
+
+	// finally add instructions to output
+	for(Value* value: instructionList) {
+		if(value->component != nullptr) {
+			output.add(value->component->compile(interpreter));
+		}
+		else {
+			output.add(value->math);
+		}
 	}
 
 	return output;

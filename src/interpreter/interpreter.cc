@@ -145,23 +145,48 @@ void Interpreter::interpret() {
 			Entry* lvalue;
 			Entry* rvalue;
 
-			// set rvalue
-			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
-				rvalue = &instruction.mathematics.rvalueEntry;
+			// do this at compile time so we for sure remove the conditional from runtime
+			#if(TS_INTERPRETER_PREFIX == 1)
+			{
+				// we have to define lvalue first when working with prefix
+				if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+					lvalue = &instruction.mathematics.lvalueEntry;
+				}
+				else {
+					lvalue = &this->stack[this->stackPointer - 1];
+					this->pop();
+				}
+				
+				// set rvalue
+				if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+					rvalue = &instruction.mathematics.rvalueEntry;
+				}
+				else {
+					rvalue = &this->stack[this->stackPointer - 1];
+					this->pop();
+				}
 			}
-			else {
-				rvalue = &this->stack[this->stackPointer - 1];
-				this->pop();
-			}
+			#else
+			{
+				// we have to define rvalue first when working with postfix
+				if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+					rvalue = &instruction.mathematics.rvalueEntry;
+				}
+				else {
+					rvalue = &this->stack[this->stackPointer - 1];
+					this->pop();
+				}
 
-			// set lvalue
-			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-				lvalue = &instruction.mathematics.lvalueEntry;
+				// set lvalue
+				if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+					lvalue = &instruction.mathematics.lvalueEntry;
+				}
+				else {
+					lvalue = &this->stack[this->stackPointer - 1];
+					this->pop();
+				}
 			}
-			else {
-				lvalue = &this->stack[this->stackPointer - 1];
-				this->pop();
-			}
+			#endif
 
 			// start the hell that is dynamic typing
 			double lvalueNumber = 0;

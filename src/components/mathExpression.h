@@ -69,5 +69,5 @@ class MathExpression : public Component {
 		static ts::instruction::MathematicsOperator TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		vector<MathElement*> convertToPostfix();
+		vector<MathElement*> convertToPostfix(bool prefixMod = false);
 };

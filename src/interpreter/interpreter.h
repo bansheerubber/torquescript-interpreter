@@ -14,6 +14,8 @@
 
 using namespace std;
 
+#define TS_INTERPRETER_PREFIX false
+
 namespace ts {
 	class Interpreter {
 		public:
