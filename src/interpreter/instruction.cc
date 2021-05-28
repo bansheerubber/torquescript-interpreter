@@ -36,6 +36,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			destination.argumentAssign.offset = source.argumentAssign.offset;
 			destination.argumentAssign.argc = source.argumentAssign.argc;
 			new((void*)&destination.argumentAssign.destination) string(source.argumentAssign.destination); // TODO move this initialization elsewhere
+			destination.argumentAssign.hash = source.argumentAssign.hash;
 			break;
 		}
 
@@ -48,6 +49,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			}
 
 			new((void*)&destination.localAssign.destination) string(source.localAssign.destination); // TODO move this initialization elsewhere
+			destination.localAssign.hash = source.localAssign.hash;
 			destination.localAssign.operation = source.localAssign.operation;
 			break;
 		}
@@ -55,6 +57,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		case instruction::LOCAL_ACCESS: {
 			destination.localAccess.dimensions = source.localAccess.dimensions;
 			new((void*)&destination.localAccess.source) string(source.localAccess.source); // TODO move this initialization elsewhere
+			destination.localAccess.hash = source.localAccess.hash;
 			break;
 		}
 

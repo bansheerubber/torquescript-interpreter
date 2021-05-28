@@ -87,6 +87,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::ARGUMENT_ASSIGN;
 			new((void*)&instruction->argumentAssign.destination) string(component->getVariableName());
+			instruction->argumentAssign.hash = hash<string>{}(component->getVariableName());
 			instruction->argumentAssign.dimensions = 0;
 			instruction->argumentAssign.offset = argumentCount - count;
 			instruction->argumentAssign.argc = argumentCount;

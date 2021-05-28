@@ -91,6 +91,7 @@ namespace ts {
 			struct {
 				int dimensions;
 				string destination;
+				size_t hash;
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
@@ -102,11 +103,13 @@ namespace ts {
 				relative_stack_location offset; // subtracted from top of stack
 				unsigned int argc; // expected amount of arguments
 				string destination;
+				size_t hash;
 			} argumentAssign;
 
 			struct {
 				int dimensions;
 				string source;
+				size_t hash;
 			} localAccess;
 
 			struct {

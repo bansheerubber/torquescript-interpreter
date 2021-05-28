@@ -30,8 +30,8 @@ namespace ts {
 		public:
 			~VariableContext();
 			
-			Entry& getVariableEntry(class Instruction &instruction, string &variable);
-			void setVariableEntry(class Instruction &instruction, string &name, Entry &entry);
+			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
+			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void print();
 			void clear();

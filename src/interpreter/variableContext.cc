@@ -35,9 +35,9 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 	return newVariable;
 }
 
-Entry& VariableContext::getVariableEntry(Instruction &instruction, string &variable) {
+Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name, size_t hash) {
 	if(instruction.localAssign.dimensions > 0) {
-		string computedString = computeVariableString(instruction, variable);
+		string computedString = computeVariableString(instruction, name);
 
 		Entry* variableEntry = this->variableMap[computedString];
 		if(variableEntry == nullptr) { // initialize empty string
@@ -49,17 +49,20 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &varia
 		return *variableEntry;
 	}
 	else {
-		Entry* variableEntry = this->variableMap[variable];
-		if(variableEntry == nullptr) { // initialize empty string
-			variableEntry = new Entry();
-			this->variableMap[variable] = variableEntry;
+		auto value = this->variableMap.find(name, hash);
+		if(value == this->variableMap.end()) { // initialize empty string
+			Entry* variableEntry = new Entry();
+			this->variableMap[name] = variableEntry;
 			copyEntry(this->interpreter->emptyEntry, *variableEntry);
+			return *variableEntry;
 		}
-		return *variableEntry;
+		else {
+			return *value->second;
+		}
 	}
 }
 
-void VariableContext::setVariableEntry(Instruction &instruction, string &name, Entry &entry) {
+void VariableContext::setVariableEntry(Instruction &instruction, string &name, size_t hash, Entry &entry) {
 	if(instruction.localAssign.dimensions > 0) {
 		string computedString = computeVariableString(instruction, name);
 
@@ -71,12 +74,15 @@ void VariableContext::setVariableEntry(Instruction &instruction, string &name, E
 		copyEntry(entry, *variableEntry);
 	}
 	else {
-		Entry* variableEntry = this->variableMap[name];
-		if(variableEntry == nullptr) {
-			variableEntry = new Entry();
+		auto value = this->variableMap.find(name, hash);
+		if(value == this->variableMap.end()) { // create the entry
+			Entry* variableEntry = new Entry();
 			this->variableMap[name] = variableEntry;
+			copyEntry(entry, *variableEntry);
 		}
-		copyEntry(entry, *variableEntry);
+		else {
+			copyEntry(entry, *value->second);
+		}
 	}
 }
 

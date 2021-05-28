@@ -50,7 +50,7 @@ namespace ts {
 			VariableContext contexts[256];
 			VariableContext* topContext;
 			int contextPointer = 0;
-			Entry& getVariableEntry(class Instruction &instruction, string &variable);
+			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
 			InstructionContainer* containerStack[1024];

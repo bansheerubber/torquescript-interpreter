@@ -356,6 +356,7 @@ void Interpreter::interpret() {
 				this->getTopVariableContext().setVariableEntry(
 					instruction,
 					instruction.argumentAssign.destination,
+					instruction.argumentAssign.hash,
 					this->emptyEntry
 				);
 			}
@@ -363,6 +364,7 @@ void Interpreter::interpret() {
 				this->getTopVariableContext().setVariableEntry(
 					instruction,
 					instruction.argumentAssign.destination,
+					instruction.argumentAssign.hash,
 					this->stack[location]
 				);
 			}
@@ -377,7 +379,8 @@ void Interpreter::interpret() {
 			if(instruction.localAssign.operation != instruction::EQUALS) {
 				entry = &this->getTopVariableContext().getVariableEntry(
 					instruction,
-					instruction.localAssign.destination
+					instruction.localAssign.destination,
+					instruction.localAssign.hash
 				);
 
 				if(instruction.localAssign.operation >= instruction::INCREMENT) {
@@ -404,6 +407,7 @@ void Interpreter::interpret() {
 					this->getTopVariableContext().setVariableEntry(
 						instruction,
 						instruction.localAssign.destination,
+						instruction.localAssign.hash,
 						*value
 					);
 					break;
@@ -447,7 +451,8 @@ void Interpreter::interpret() {
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
 			Entry &entry = this->getTopVariableContext().getVariableEntry(
 				instruction,
-				instruction.localAccess.source
+				instruction.localAccess.source,
+				instruction.localAssign.hash
 			);
 
 			for(int i = 0; i < instruction.localAccess.dimensions; i++) {

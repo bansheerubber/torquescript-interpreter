@@ -212,6 +212,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
 			instruction->localAccess.dimensions = 0;
+			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
 			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
 
 			c.lastAccess = instruction;
