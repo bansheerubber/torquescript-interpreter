@@ -518,8 +518,17 @@ void Interpreter::interpret() {
 					this->pop();
 				}
 
-				function->function(actualArgumentCount, arguments);
-				this->push(this->emptyEntry); // push return value
+				void* returnValue = function->function(actualArgumentCount, arguments);
+				if(function->returnType == functions::type::STRING) {
+					this->push((string*)returnValue);
+				}
+				else if(function->returnType == functions::type::NUMBER) {
+					this->push(*((double*)returnValue));
+					delete (double*)returnValue;
+				}
+				else { // push void return value
+					this->push(this->emptyEntry);
+				}
 			}
 			else {
 				this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);

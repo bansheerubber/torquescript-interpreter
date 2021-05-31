@@ -45,6 +45,11 @@ void Entry::setString(string &value) {
 }
 
 void Entry::setString(string* value) {
+	// TODO possible wild pointer free
+	if(this->type == entry::STRING && this->stringData != nullptr) { // delete old string data
+		delete this->stringData;
+	}
+	
 	this->type = entry::STRING;
 	this->stringData = value;
 }

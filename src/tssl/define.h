@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define TS_FUNC(name)		void (*name)(int argc, void** args)
+#define TS_FUNC(name)		void* (*name)(int argc, void** args)
 #define TS_ARG_COUNT		16
 
 namespace ts {
