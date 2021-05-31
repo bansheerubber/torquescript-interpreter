@@ -118,6 +118,7 @@ namespace ts {
 				// (hashing an int during runtime is probably faster than hashing a string)
 				unsigned long cachedIndex;
 				bool isCached;
+				bool isTSSL;
 			} callFunction;
 		};
 

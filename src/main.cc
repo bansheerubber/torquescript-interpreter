@@ -19,6 +19,7 @@
 #include "./parser/parser.h"
 #include "./interpreter/compiler.h"
 #include "./interpreter/interpreter.h"
+#include "./tssl/define.h"
 
 using namespace std;
 
@@ -53,6 +54,8 @@ int main(int argc, char* argv[]) {
 	vector<Argument> arguments = createArguments();
 
 	bool isPiped = isPipe();
+
+	ts::functions::define(); // define torquescript standard library
 
 	// parse arguments
 	ParsedArguments args = parseArguments(arguments, argc, argv);

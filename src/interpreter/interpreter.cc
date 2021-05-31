@@ -466,17 +466,65 @@ void Interpreter::interpret() {
 
 		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
-				if(this->nameToIndex.find(instruction.callFunction.name) == this->nameToIndex.end()) {
+				bool found = false;
+				if(this->nameToIndex.find(instruction.callFunction.name) != this->nameToIndex.end()) {
+					instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
+					instruction.callFunction.isCached = true;
+					found = true;
+				}
+
+				if(functions::nameToIndex.find(instruction.callFunction.name) != functions::nameToIndex.end()) {
+					instruction.callFunction.cachedIndex = functions::nameToIndex[instruction.callFunction.name];
+					instruction.callFunction.isCached = true;
+					instruction.callFunction.isTSSL = true;
+					found = true;
+				}
+
+				if(found == false) {
 					printError("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
 					exit(1);
 				}
-				
-				instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
-				instruction.callFunction.isCached = true;
 			}
 
-			this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);
-			this->pushVariableContext();
+			if(instruction.callFunction.isTSSL) { // call a standard library function if this instruction is defined as such
+				functions::Function* function = functions::functions[instruction.callFunction.cachedIndex];
+
+				void* arguments[TS_ARG_COUNT];
+				// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
+				int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used in the program
+				int delta = function->argumentCount - actualArgumentCount;
+
+				int count = 1;
+				for(int i = function->argumentCount; i >= 1; i--) { // load arguments array backwards
+					if(count <= delta) { // TODO better error handling
+						printError("incorrect amount of arguments\n");
+						exit(0);
+					}
+					else {
+						relative_stack_location location = this->stackPointer - 1 - i + delta;
+						Entry &entry = this->stack[location];
+						if(entry.type == entry::NUMBER) {
+							arguments[count - 1] = &entry.numberData;
+						}
+						else {
+							arguments[count - 1] = entry.stringData;
+						}
+					}
+					count++;
+				}
+
+				// pop the data
+				for(int i = 0; i < actualArgumentCount + 1; i++) {
+					this->pop();
+				}
+
+				function->function(actualArgumentCount, arguments);
+				this->push(this->emptyEntry); // push return value
+			}
+			else {
+				this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);
+				this->pushVariableContext();
+			}
 			break;
 		}
 

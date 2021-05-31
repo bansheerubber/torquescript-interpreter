@@ -11,6 +11,7 @@
 #include "variableContext.h"
 #include "instructionContainer.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
+#include "../tssl/define.h"
 
 using namespace std;
 

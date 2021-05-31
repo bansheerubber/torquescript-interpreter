@@ -194,6 +194,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		new((void*)&callFunction->callFunction.name) string(this->elements[0].token.lexeme); // TODO move this initialization elsewhere
 		callFunction->callFunction.cachedIndex = 0;
 		callFunction->callFunction.isCached = false;
+		callFunction->callFunction.isTSSL = false;
 		c.output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it

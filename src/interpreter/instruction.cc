@@ -65,6 +65,7 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			new((void*)&destination.callFunction.name) string(source.callFunction.name); // TODO move this initialization elsewhere
 			destination.callFunction.cachedIndex = source.callFunction.cachedIndex;
 			destination.callFunction.isCached = source.callFunction.isCached;
+			destination.callFunction.isTSSL = source.callFunction.isTSSL;
 			break;
 		}
 
