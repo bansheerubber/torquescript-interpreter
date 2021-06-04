@@ -478,6 +478,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 					ts::Instruction* jumpIfFalse = new ts::Instruction();
 					jumpIfFalse->type = ts::instruction::JUMP_IF_FALSE;
 					jumpIfFalse->jumpIfFalse.instruction = andNoop;
+					jumpIfFalse->jumpIfFalse.pop = false;
 					output.add(jumpIfFalse);
 
 					ts::Instruction* pop = new ts::Instruction();

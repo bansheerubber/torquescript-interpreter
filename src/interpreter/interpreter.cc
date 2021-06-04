@@ -126,7 +126,17 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP_IF_TRUE: { // jump to an instruction
-			if(this->stack[this->stackPointer - 1].numberData != 0) {
+			Entry &entry = this->stack[this->stackPointer - 1];
+			if(
+				(
+					entry.type == entry::NUMBER
+					&& entry.numberData != 0
+				)
+				|| (
+					entry.type == entry::STRING
+					&& entry.stringData->length() != 0
+				)
+			) {
 				*this->instructionPointer = instruction.jumpIfTrue.index;
 			}
 
@@ -137,7 +147,17 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP_IF_FALSE: { // jump to an instruction
-			if(this->stack[this->stackPointer - 1].numberData == 0) {
+			Entry &entry = this->stack[this->stackPointer - 1];
+			if(
+				(
+					entry.type == entry::NUMBER
+					&& entry.numberData == 0
+				)
+				|| (
+					entry.type == entry::STRING
+					&& entry.stringData->length() == 0
+				)
+			) {
 				*this->instructionPointer = instruction.jumpIfFalse.index;
 			}
 
