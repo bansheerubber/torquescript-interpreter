@@ -76,6 +76,7 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
 	ts::Instruction* conditionalJump = new ts::Instruction();
 	conditionalJump->type = ts::instruction::JUMP_IF_FALSE;
 	conditionalJump->jumpIfFalse.instruction = noop;
+	conditionalJump->jumpIfFalse.pop = true;
 	output.add(conditionalJump);
 
 	// add the body

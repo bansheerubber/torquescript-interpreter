@@ -1,5 +1,6 @@
 #include "mathExpression.h"
 #include "../interpreter/interpreter.h"
+#include "../interpreter/debug.h"
 
 map<TokenType, int> MathExpression::Precedence = MathExpression::CreatePrecedenceMap();
 
@@ -209,6 +210,19 @@ string MathExpression::print() {
 
 map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	map<TokenType, int> output;
+	// use the precedence map for logical operators, even though they aren't
+	// handled using the normal postfix/prefix calculations
+	output[LOGICAL_OR] = 0;
+	output[LOGICAL_AND] = 1;
+
+	output[EQUAL] = 0;
+	output[STRING_EQUAL] = 0;
+	output[STRING_NOT_EQUAL] = 0;
+	output[LESS_THAN_EQUAL] = 0;
+	output[GREATER_THAN_EQUAL] = 0;
+	output[LESS_THAN] = 0;
+	output[GREATER_THAN] = 0;
+	output[PLUS] = 1;
 	output[PLUS] = 1;
 	output[MINUS] = 1;
 	output[ASTERISK] = 2;
@@ -258,30 +272,30 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 	}
 }
 
-vector<MathElement*> MathExpression::convertToPostfix(bool prefixMod) {
+vector<MathElement*> MathExpression::convertToPostfix(vector<MathElement*>* list, bool prefixMod) {
 	vector<MathElement*> postfix;
 	stack<MathElement*> operatorStack;
 
 	if(prefixMod) {
-		reverse(this->elements.begin(), this->elements.end());		
+		reverse(list->begin(), list->end());		
 	}
 
-	for(auto it = this->elements.begin(); it != this->elements.end(); ++it) {
-		MathElement &element = *it;
+	for(auto it = list->begin(); it != list->end(); ++it) {
+		MathElement* element = *it;
 
-		if(element.specialOp == LEFT_PARENTHESIS_OPERATOR || element.specialOp == RIGHT_PARENTHESIS_OPERATOR) {
+		if(element->specialOp == LEFT_PARENTHESIS_OPERATOR || element->specialOp == RIGHT_PARENTHESIS_OPERATOR) {
 			continue;
 		}
 		
-		if(element.component != nullptr) { // if the element is an operand, push it to the stack
-			postfix.push_back(&element);
+		if(element->component != nullptr) { // if the element is an operand, push it to the stack
+			postfix.push_back(element);
 		}
 		else {
 			if(
 				operatorStack.size() == 0
-				|| MathExpression::Precedence[operatorStack.top()->op.type] < MathExpression::Precedence[element.op.type]
+				|| MathExpression::Precedence[operatorStack.top()->op.type] < MathExpression::Precedence[element->op.type]
 			) {
-				operatorStack.push(&element);
+				operatorStack.push(element);
 			}
 			else {
 				// push operators onto the final stack if the operators on the operator stack are greater precedence than
@@ -290,14 +304,14 @@ vector<MathElement*> MathExpression::convertToPostfix(bool prefixMod) {
 					operatorStack.size() != 0
 					&& (
 						prefixMod
-						? MathExpression::Precedence[operatorStack.top()->op.type] > MathExpression::Precedence[element.op.type]
-						: MathExpression::Precedence[operatorStack.top()->op.type] >= MathExpression::Precedence[element.op.type]
+						? MathExpression::Precedence[operatorStack.top()->op.type] > MathExpression::Precedence[element->op.type]
+						: MathExpression::Precedence[operatorStack.top()->op.type] >= MathExpression::Precedence[element->op.type]
 					)
 				) {
 					postfix.push_back(operatorStack.top());
 					operatorStack.pop();
 				}
-				operatorStack.push(&element);
+				operatorStack.push(element);
 			}
 		}
 	}
@@ -311,10 +325,10 @@ vector<MathElement*> MathExpression::convertToPostfix(bool prefixMod) {
 	return postfix;
 }
 
-ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
-
-	vector<MathElement*> postfix = this->convertToPostfix(TS_INTERPRETER_PREFIX);
+	
+	vector<MathElement*> postfix = this->convertToPostfix(list, TS_INTERPRETER_PREFIX);
 	stack<Component*> componentStack;
 
 	struct Value {
@@ -398,6 +412,100 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 			output.add(value->math);
 		}
 	}
+
+	return output;
+}
+
+ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
+	ts::InstructionReturn output;
+
+	// split along logical operators
+	vector<LogicalElement> splitElements;
+	vector<MathElement*>* current = new vector<MathElement*>();
+	for(MathElement &element: this->elements) {
+		if(element.op.type == LOGICAL_OR) {
+			LogicalElement value1 = {
+				list: current
+			};
+			splitElements.push_back(value1);
+
+			LogicalElement value2 = {
+				list: nullptr,
+				op: element.op
+			};
+			splitElements.push_back(value2);
+
+			current = new vector<MathElement*>();
+		}
+		else {
+			current->push_back(&element);
+		}
+	}
+	
+	// push last value
+	LogicalElement tempValue = {
+		list: current
+	};
+	splitElements.push_back(tempValue);
+
+	// result of split:
+	// 5 || 1 && 6 || 7 => [(5), (||), (1 && 6), (||), (7)]
+	ts::Instruction* noop = nullptr;
+	vector<MathElement*> andList; // place to temporarily store && operands for compilation
+	for(LogicalElement &value: splitElements) {
+		if(value.list != nullptr) {
+			// parse potential && runs
+			ts::Instruction* andNoop = nullptr;
+			for(MathElement* element: *value.list) {
+				if(element->component != nullptr) {
+					andList.push_back(element);
+				}
+				else if(element->op.type != LOGICAL_AND) {
+					andList.push_back(element);
+				}
+				else {
+					output.add(this->compileList(&andList, interpreter));
+					andList.clear();
+
+					if(andNoop == nullptr) {
+						andNoop = new ts::Instruction();
+						andNoop->type = ts::instruction::NOOP;
+					}
+
+					ts::Instruction* jumpIfFalse = new ts::Instruction();
+					jumpIfFalse->type = ts::instruction::JUMP_IF_FALSE;
+					jumpIfFalse->jumpIfFalse.instruction = andNoop;
+					output.add(jumpIfFalse);
+
+					ts::Instruction* pop = new ts::Instruction();
+					pop->type = ts::instruction::POP;
+					output.add(pop);
+				}
+			}
+
+			output.add(this->compileList(&andList, interpreter));
+			andList.clear();
+
+			output.add(andNoop);
+		}
+		else { // if we hit an || operator, compile the relevant instructions
+			if(noop == nullptr) {
+				noop = new ts::Instruction();
+				noop->type = ts::instruction::NOOP;
+			}
+			
+			ts::Instruction* jumpIfTrue = new ts::Instruction();
+			jumpIfTrue->type = ts::instruction::JUMP_IF_TRUE;
+			jumpIfTrue->jumpIfTrue.instruction = noop;
+			jumpIfTrue->jumpIfTrue.pop = false;
+			output.add(jumpIfTrue);
+
+			ts::Instruction* pop = new ts::Instruction();
+			pop->type = ts::instruction::POP;
+			output.add(pop);
+		}
+	}
+	output.add(noop);
 
 	return output;
 }

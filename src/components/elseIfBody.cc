@@ -51,6 +51,7 @@ ElseIfBodyCompiled ElseIfBody::compileElseIf(ts::Interpreter* interpreter) {
 
 	ts::Instruction* conditionalJump = new ts::Instruction();
 	conditionalJump->type = ts::instruction::JUMP_IF_FALSE; // the instruction this jumps to will be set by the if statement compilation
+	conditionalJump->jumpIfFalse.pop = true;
 	compiled.conditionalJump = conditionalJump;
 
 	compiled.output.add(this->conditional->compile(interpreter));

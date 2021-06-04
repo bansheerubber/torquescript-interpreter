@@ -15,12 +15,14 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 		}
 
 		case instruction::JUMP_IF_TRUE: {
-			destination.jumpIfTrue.instruction = source.jump.instruction;
+			destination.jumpIfTrue.instruction = source.jumpIfTrue.instruction;
+			destination.jumpIfTrue.pop = source.jumpIfTrue.pop;
 			break;
 		}
 
 		case instruction::JUMP_IF_FALSE: {
-			destination.jumpIfFalse.instruction = source.jump.instruction;
+			destination.jumpIfFalse.instruction = source.jumpIfFalse.instruction;
+			destination.jumpIfFalse.pop = source.jumpIfFalse.pop;
 			break;
 		}
 

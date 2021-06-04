@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include <stack>
 #include <string>
 
@@ -32,6 +33,11 @@ struct MathElement {
 	Component* component;
 	Token op;
 	SpecialOperator specialOp;
+};
+
+struct LogicalElement {
+	vector<MathElement*>* list;
+	Token op;
 };
 
 struct Operation { // used for math evaluation algorithm
@@ -69,5 +75,6 @@ class MathExpression : public Component {
 		static ts::instruction::MathematicsOperator TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		vector<MathElement*> convertToPostfix(bool prefixMod = false);
+		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter);
+		vector<MathElement*> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
 };

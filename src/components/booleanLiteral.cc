@@ -22,5 +22,9 @@ string BooleanLiteral::print() {
 }
 
 ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::PUSH;
+	instruction->push.entry.type = ts::entry::NUMBER;
+	instruction->push.entry.setNumber(this->value.type == TRUE);
+	return ts::InstructionReturn(instruction, instruction);
 }

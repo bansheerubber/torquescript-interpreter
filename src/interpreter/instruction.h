@@ -73,6 +73,7 @@ namespace ts {
 					Instruction* instruction;
 					long int index;
 				};
+				bool pop;
 			} jumpIfTrue;
 
 			struct {
@@ -80,6 +81,7 @@ namespace ts {
 					Instruction* instruction;
 					long int index;
 				};
+				bool pop;
 			} jumpIfFalse;
 
 			struct {
