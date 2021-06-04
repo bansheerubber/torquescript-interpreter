@@ -45,6 +45,8 @@ class AssignStatement : public Component {
 		}
 	
 	private:
+		static ts::instruction::AssignOperations TypeToOperator(TokenType type);
+		
 		class AccessStatement* lvalue = nullptr;
 		Component* rvalue = nullptr;
 		Token assignmentToken;

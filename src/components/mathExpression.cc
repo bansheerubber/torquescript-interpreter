@@ -215,19 +215,25 @@ map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	output[LOGICAL_OR] = 0;
 	output[LOGICAL_AND] = 1;
 
-	output[EQUAL] = 0;
-	output[STRING_EQUAL] = 0;
-	output[STRING_NOT_EQUAL] = 0;
-	output[LESS_THAN_EQUAL] = 0;
-	output[GREATER_THAN_EQUAL] = 0;
-	output[LESS_THAN] = 0;
-	output[GREATER_THAN] = 0;
-	output[PLUS] = 1;
-	output[PLUS] = 1;
-	output[MINUS] = 1;
-	output[MODULUS] = 2;
-	output[ASTERISK] = 2;
-	output[SLASH] = 2;
+	// use C-style operator precedence
+	output[BITWISE_OR] = 0;
+	output[BITWISE_XOR] = 1;
+	output[BITWISE_AND] = 2;
+	output[EQUAL] = 3;
+	output[NOT_EQUAL] = 3;
+	output[STRING_EQUAL] = 3;
+	output[STRING_NOT_EQUAL] = 3;
+	output[LESS_THAN_EQUAL] = 4;
+	output[GREATER_THAN_EQUAL] = 4;
+	output[LESS_THAN] = 4;
+	output[GREATER_THAN] = 4;
+	output[SHIFT_LEFT] = 5;
+	output[SHIFT_RIGHT] = 5;
+	output[PLUS] = 6;
+	output[MINUS] = 6;
+	output[MODULUS] = 7;
+	output[ASTERISK] = 7;
+	output[SLASH] = 7;
 	return output;
 }
 
@@ -245,6 +251,8 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 			return ts::instruction::MODULUS;
 		case EQUAL:
 			return ts::instruction::EQUAL;
+		case NOT_EQUAL:
+			return ts::instruction::NOT_EQUAL;
 		case STRING_EQUAL:
 			return ts::instruction::STRING_EQUAL;
 		case STRING_NOT_EQUAL:
@@ -263,6 +271,10 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 			return ts::instruction::BITWISE_OR;
 		case BITWISE_XOR:
 			return ts::instruction::BITWISE_XOR;
+		case SHIFT_LEFT:
+			return ts::instruction::SHIFT_LEFT;
+		case SHIFT_RIGHT:
+			return ts::instruction::SHIFT_RIGHT;
 		case APPEND:
 			return ts::instruction::APPEND;
 		case SPC:

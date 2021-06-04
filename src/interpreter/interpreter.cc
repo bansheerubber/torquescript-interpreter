@@ -288,6 +288,11 @@ void Interpreter::interpret() {
 					break;
 				}
 
+				case instruction::NOT_EQUAL: {
+					numberResult = lvalueNumber != rvalueNumber;
+					break;
+				}
+
 				case instruction::LESS_THAN_EQUAL: {
 					numberResult = lvalueNumber <= rvalueNumber;
 					break;
@@ -330,6 +335,16 @@ void Interpreter::interpret() {
 
 				case instruction::STRING_NOT_EQUAL: {
 					numberResult = toLower(*lvalueString).compare(toLower(*rvalueString)) != 0;
+					break;
+				}
+
+				case instruction::SHIFT_LEFT: {
+					numberResult = (int)lvalueNumber <<	(int)rvalueNumber;
+					break;
+				}
+
+				case instruction::SHIFT_RIGHT: {
+					numberResult = (int)lvalueNumber >> (int)rvalueNumber;
 					break;
 				}
 
@@ -414,13 +429,11 @@ void Interpreter::interpret() {
 					instruction.localAssign.hash
 				);
 
-				if(instruction.localAssign.operation >= instruction::INCREMENT) {
-					if(entry->type == entry::NUMBER) {
-						entryNumber = entry->numberData;
-					}
-					else {
-						entryNumber = stringToNumber(*entry->stringData);
-					}
+				if(entry->type == entry::NUMBER) {
+					entryNumber = entry->numberData;
+				}
+				else {
+					entryNumber = stringToNumber(*entry->stringData);
 				}
 			}
 
@@ -431,6 +444,16 @@ void Interpreter::interpret() {
 			}
 			else {
 				value = &instruction.localAssign.entry;
+			}
+
+			double valueNumber = 0;
+			if(instruction.localAssign.operation >= instruction::PLUS_EQUALS) {
+				if(value->type == entry::NUMBER) {
+					valueNumber = value->numberData;
+				}
+				else {
+					valueNumber = stringToNumber(*value->stringData);
+				}
 			}
 
 			switch(instruction.localAssign.operation) {
@@ -451,6 +474,56 @@ void Interpreter::interpret() {
 
 				case instruction::DECREMENT: {
 					entry->setNumber(--entryNumber);
+					break;
+				}
+
+				case instruction::PLUS_EQUALS: {
+					entry->setNumber(entryNumber + valueNumber);
+					break;
+				}
+
+				case instruction::MINUS_EQUALS: {
+					entry->setNumber(entryNumber - valueNumber);
+					break;
+				}
+
+				case instruction::ASTERISK_EQUALS: {
+					entry->setNumber(entryNumber * valueNumber);
+					break;
+				}
+
+				case instruction::SLASH_EQUALS: {
+					entry->setNumber(entryNumber / valueNumber);
+					break;
+				}
+
+				case instruction::MODULUS_EQUALS: {
+					entry->setNumber((int)entryNumber % (int)valueNumber);
+					break;
+				}
+
+				case instruction::SHIFT_LEFT_EQUALS: {
+					entry->setNumber((int)entryNumber << (int)valueNumber);
+					break;
+				}
+
+				case instruction::SHIFT_RIGHT_EQUALS: {
+					entry->setNumber((int)entryNumber >> (int)valueNumber);
+					break;
+				}
+
+				case instruction::BITWISE_AND_EQUALS: {
+					entry->setNumber((int)entryNumber & (int)valueNumber);
+					break;
+				}
+
+				case instruction::BITWISE_XOR_EQUALS: {
+					entry->setNumber((int)entryNumber ^ (int)valueNumber);
+					break;
+				}
+
+				case instruction::BITWISE_OR_EQUALS: {
+					entry->setNumber((int)entryNumber | (int)valueNumber);
 					break;
 				}
 
