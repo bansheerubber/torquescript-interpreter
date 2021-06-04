@@ -84,6 +84,13 @@ void PrintInstruction(Instruction &instruction) {
 			break;
 		}
 
+		case instruction::UNARY_MATHEMATICS: {
+			printf("UNARY_MATHEMATICS {\n");
+			printf("   operation: %d,\n", instruction.unaryMathematics.operation);
+			printf("}\n");
+			break;
+		}
+
 		case instruction::ARGUMENT_ASSIGN: {
 			printf("ARGUMENT_ASSIGN {\n");
 			printf("   destination: %s, \n", instruction.argumentAssign.destination.c_str());

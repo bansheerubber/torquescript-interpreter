@@ -40,6 +40,11 @@ struct LogicalElement {
 	Token op;
 };
 
+struct PostfixElement {
+	MathElement* element;
+	SpecialOperator unary;
+};
+
 struct Operation { // used for math evaluation algorithm
 	MathElement element;
 	relative_stack_location stack;
@@ -76,5 +81,5 @@ class MathExpression : public Component {
 		static map<TokenType, int> Precedence;
 
 		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter);
-		vector<MathElement*> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
+		vector<PostfixElement> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
 };

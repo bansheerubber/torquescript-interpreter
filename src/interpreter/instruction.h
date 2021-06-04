@@ -13,6 +13,7 @@ namespace ts {
 			JUMP_IF_TRUE, // jump to particular insturction if top element on stack is true, pops the element
 			JUMP_IF_FALSE, // jump to particular insturction if top element on stack is false, pops the element
 			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
+			UNARY_MATHEMATICS, // apply a unary operator
 			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
@@ -62,6 +63,13 @@ namespace ts {
 			SPC,
 			TAB,
 		};
+
+		enum UnaryOperator {
+			INVALID_UNARY,
+			BITWISE_NOT,
+			LOGICAL_NOT,
+			NEGATE,
+		};
 	}
 	
 	// instructions form a linked list
@@ -103,6 +111,10 @@ namespace ts {
 				Entry rvalueEntry;
 				instruction::MathematicsOperator operation; // the operator this instruction will perform
 			} mathematics;
+
+			struct {
+				instruction::UnaryOperator operation; // the operator this instruction will perform
+			} unaryMathematics;
 
 			struct {
 				int dimensions;

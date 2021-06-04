@@ -34,6 +34,11 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			break;
 		}
 
+		case instruction::UNARY_MATHEMATICS: {
+			destination.unaryMathematics.operation = source.unaryMathematics.operation;
+			break;
+		}
+
 		case instruction::ARGUMENT_ASSIGN: {
 			destination.argumentAssign.offset = source.argumentAssign.offset;
 			destination.argumentAssign.argc = source.argumentAssign.argc;

@@ -393,6 +393,39 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::UNARY_MATHEMATICS: {
+			Entry &value = this->stack[this->stackPointer - 1];
+			double valueNumber = 0;
+			if(value.type == entry::NUMBER) {
+				valueNumber = value.numberData;
+			}
+			else {
+				valueNumber = stringToNumber(*value.stringData);
+			}
+			
+			this->pop();
+
+			double result = 0.0;
+			switch(instruction.unaryMathematics.operation) {
+				case instruction::BITWISE_NOT: {
+					result = ~((int)valueNumber);
+					break;
+				}
+
+				case instruction::LOGICAL_NOT: {
+					result = !((int)valueNumber);
+					break;
+				}
+
+				case instruction::NEGATE: {
+					result = -((int)valueNumber);
+					break;
+				}
+			}
+			this->push(result);
+			break;
+		}
+
 		case instruction::ARGUMENT_ASSIGN: { // assign argument a value from the stack
 			int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used
 			int delta = instruction.argumentAssign.argc - actualArgumentCount;
