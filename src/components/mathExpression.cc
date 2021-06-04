@@ -225,6 +225,7 @@ map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	output[PLUS] = 1;
 	output[PLUS] = 1;
 	output[MINUS] = 1;
+	output[MODULUS] = 2;
 	output[ASTERISK] = 2;
 	output[SLASH] = 2;
 	return output;
@@ -240,6 +241,8 @@ ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType ty
 			return ts::instruction::MULTIPLY;
 		case SLASH:
 			return ts::instruction::DIVISION;
+		case MODULUS:
+			return ts::instruction::MODULUS;
 		case EQUAL:
 			return ts::instruction::EQUAL;
 		case STRING_EQUAL:

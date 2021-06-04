@@ -258,6 +258,11 @@ void Interpreter::interpret() {
 					break;
 				}
 
+				case instruction::MODULUS: {
+					numberResult = (int)lvalueNumber % (int)rvalueNumber;
+					break;
+				}
+
 				case instruction::EQUAL: {
 					numberResult = lvalueNumber == rvalueNumber;
 					break;

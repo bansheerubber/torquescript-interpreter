@@ -34,6 +34,7 @@ namespace ts {
 			SUBTRACT,
 			MULTIPLY,
 			DIVISION,
+			MODULUS,
 			EQUAL,
 			LESS_THAN_EQUAL,
 			GREATER_THAN_EQUAL,
