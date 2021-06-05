@@ -295,6 +295,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 		reverse(list->begin(), list->end());
 	}
 
+	bool pushedSpecialOp = false;
 	for(auto it = list->begin(); it != list->end(); ++it) {
 		MathElement* element = *it;
 
@@ -303,21 +304,32 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 		}
 		
 		if(element->component != nullptr) { // if the element is an operand, push it to the stack
-			postfix.push_back((PostfixElement){
-				element: element
-			});
+			if(prefixMod) {
+				
+			}
+			else if(pushedSpecialOp) {
+				postfix[postfix.size() - 1].element = element;
+			}
+			else {
+				postfix.push_back((PostfixElement){
+					element: element
+				});
+			}
 		}
 		else if(element->specialOp != INVALID_OPERATOR) {
 			if(prefixMod) {
 
 			}
 			else {
-				MathElement* next = *(++it);
-				postfix.push_back((PostfixElement){
-					element: next,
-					unary: element->specialOp
-				});
+				if(!pushedSpecialOp) {
+					postfix.push_back((PostfixElement){
+						element: nullptr,
+					});
+				}
+				postfix[postfix.size() - 1].unary.push_back(element->specialOp);
+				pushedSpecialOp = true;
 			}
+			continue;
 		}
 		else {
 			if(
@@ -345,6 +357,8 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 				operatorStack.push(element);
 			}
 		}
+
+		pushedSpecialOp = false;
 	}
 
 	// push rest of operators onto the stack
@@ -367,12 +381,11 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	struct Value {
 		Component* component;
 		ts::Instruction* math;
-		ts::instruction::UnaryOperator unary;
+		deque<ts::instruction::UnaryOperator> unary;
 
-		Value(Component* component, ts::Instruction* math, ts::instruction::UnaryOperator unary) {
+		Value(Component* component, ts::Instruction* math) {
 			this->component = component;
 			this->math = math;
-			this->unary = unary;
 		}
 	};
 
@@ -388,37 +401,39 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
 			instruction->mathematics.operation = MathExpression::TypeToOperator(element.element->op.type);
 
-			instructionList.push_back(new Value(nullptr, instruction, ts::instruction::INVALID_UNARY)); // push empty value as dummy for our result
+			instructionList.push_back(new Value(nullptr, instruction)); // push empty value as dummy for our result
 		}
-		else if(element.unary != INVALID_OPERATOR) {
-			// ts::InstructionReturn unaryCompiled;
-			ts::instruction::UnaryOperator unaryOperator;
-			switch(element.unary) {
-				case BITWISE_NOT_OPERATOR: {
-					unaryOperator = ts::instruction::BITWISE_NOT;
-					break;
-				}
-				
-				case LOGICAL_NOT_OPERATOR: {
-					unaryOperator = ts::instruction::LOGICAL_NOT;
-					break;
-				}
+		else if(element.unary.size() != 0) {
+			Value* value = new Value(element.element->component, nullptr);
+			
+			for(SpecialOperator unaryOperator: element.unary) {
+				switch(unaryOperator) {
+					case BITWISE_NOT_OPERATOR: {
+						value->unary.push_front(ts::instruction::BITWISE_NOT);
+						break;
+					}
+					
+					case LOGICAL_NOT_OPERATOR: {
+						value->unary.push_front(ts::instruction::LOGICAL_NOT);
+						break;
+					}
 
-				case MINUS_OPERATOR: {
-					unaryOperator = ts::instruction::NEGATE;
-					break;
-				}
+					case MINUS_OPERATOR: {
+						value->unary.push_front(ts::instruction::NEGATE);
+						break;
+					}
 
-				default: {
-					unaryOperator = ts::instruction::INVALID_UNARY;
-					break;
+					default: {
+						value->unary.push_front(ts::instruction::INVALID_UNARY);
+						break;
+					}
 				}
 			}
 
-			instructionList.push_back(new Value(element.element->component, nullptr, unaryOperator));
+			instructionList.push_back(value);
 		}
 		else {
-			instructionList.push_back(new Value(element.element->component, nullptr, ts::instruction::INVALID_UNARY));
+			instructionList.push_back(new Value(element.element->component, nullptr));
 		}
 	}
 
@@ -448,7 +463,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			// figure out if we should cache literal in instruction
 			if(
 				lvalue->component != nullptr
-				&& lvalue->unary == ts::instruction::INVALID_UNARY
+				&& lvalue->unary.size() == 0
 				&& lvalue->component->getType() == NUMBER_LITERAL
 			) {
 				value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
@@ -457,7 +472,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 
 			if(
 				rvalue->component != nullptr
-				&& rvalue->unary == ts::instruction::INVALID_UNARY
+				&& rvalue->unary.size() == 0
 				&& rvalue->component->getType() == NUMBER_LITERAL
 			) {
 				value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
@@ -481,11 +496,13 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 		if(value->component != nullptr) {
 			output.add(value->component->compile(interpreter));
 
-			if(value->unary != ts::instruction::INVALID_UNARY) {
-				ts::Instruction* unaryInstruction = new ts::Instruction();
-				unaryInstruction->type = ts::instruction::UNARY_MATHEMATICS;
-				unaryInstruction->unaryMathematics.operation = value->unary;
-				output.add(unaryInstruction);
+			if(value->unary.size() != ts::instruction::INVALID_UNARY) {
+				for(ts::instruction::UnaryOperator operation: value->unary) {
+					ts::Instruction* unaryInstruction = new ts::Instruction();
+					unaryInstruction->type = ts::instruction::UNARY_MATHEMATICS;
+					unaryInstruction->unaryMathematics.operation = operation;
+					output.add(unaryInstruction);
+				}
 			}
 		}
 		else if(value->math != nullptr) {

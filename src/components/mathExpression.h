@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <queue>
 #include <stack>
 #include <string>
@@ -42,7 +43,7 @@ struct LogicalElement {
 
 struct PostfixElement {
 	MathElement* element;
-	SpecialOperator unary;
+	vector<SpecialOperator> unary;
 };
 
 struct Operation { // used for math evaluation algorithm
