@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#define TS_INTERPRETER_PREFIX false
+#define TS_INTERPRETER_PREFIX true
 
 namespace ts {
 	class Interpreter {

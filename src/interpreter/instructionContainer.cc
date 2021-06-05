@@ -56,7 +56,7 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 		delete temp;
 	}
 
-	this->print();
+	// this->print();
 }
 
 void InstructionContainer::print() {

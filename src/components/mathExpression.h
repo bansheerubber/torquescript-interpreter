@@ -43,7 +43,7 @@ struct LogicalElement {
 
 struct PostfixElement {
 	MathElement* element;
-	vector<SpecialOperator> unary;
+	deque<SpecialOperator> unary;
 };
 
 struct Operation { // used for math evaluation algorithm

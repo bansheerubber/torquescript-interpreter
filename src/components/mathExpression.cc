@@ -295,6 +295,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 		reverse(list->begin(), list->end());
 	}
 
+	MathElement* lastElement = nullptr;
 	bool pushedSpecialOp = false;
 	for(auto it = list->begin(); it != list->end(); ++it) {
 		MathElement* element = *it;
@@ -304,21 +305,27 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 		}
 		
 		if(element->component != nullptr) { // if the element is an operand, push it to the stack
-			if(prefixMod) {
-				
-			}
-			else if(pushedSpecialOp) {
+			if(pushedSpecialOp) {
 				postfix[postfix.size() - 1].element = element;
 			}
 			else {
 				postfix.push_back((PostfixElement){
 					element: element
 				});
+
+				lastElement = element;
 			}
 		}
 		else if(element->specialOp != INVALID_OPERATOR) {
 			if(prefixMod) {
-
+				if(!pushedSpecialOp) {
+					postfix.pop_back(); // pop last element, because we're stealing it
+					postfix.push_back((PostfixElement){
+						element: lastElement,
+					});
+				}
+				postfix[postfix.size() - 1].unary.push_back(element->specialOp);
+				pushedSpecialOp = true;
 			}
 			else {
 				if(!pushedSpecialOp) {
@@ -326,7 +333,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 						element: nullptr,
 					});
 				}
-				postfix[postfix.size() - 1].unary.push_back(element->specialOp);
+				postfix[postfix.size() - 1].unary.push_front(element->specialOp);
 				pushedSpecialOp = true;
 			}
 			continue;
@@ -381,7 +388,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	struct Value {
 		Component* component;
 		ts::Instruction* math;
-		deque<ts::instruction::UnaryOperator> unary;
+		vector<ts::instruction::UnaryOperator> unary;
 
 		Value(Component* component, ts::Instruction* math) {
 			this->component = component;
@@ -409,22 +416,22 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			for(SpecialOperator unaryOperator: element.unary) {
 				switch(unaryOperator) {
 					case BITWISE_NOT_OPERATOR: {
-						value->unary.push_front(ts::instruction::BITWISE_NOT);
+						value->unary.push_back(ts::instruction::BITWISE_NOT);
 						break;
 					}
 					
 					case LOGICAL_NOT_OPERATOR: {
-						value->unary.push_front(ts::instruction::LOGICAL_NOT);
+						value->unary.push_back(ts::instruction::LOGICAL_NOT);
 						break;
 					}
 
 					case MINUS_OPERATOR: {
-						value->unary.push_front(ts::instruction::NEGATE);
+						value->unary.push_back(ts::instruction::NEGATE);
 						break;
 					}
 
 					default: {
-						value->unary.push_front(ts::instruction::INVALID_UNARY);
+						value->unary.push_back(ts::instruction::INVALID_UNARY);
 						break;
 					}
 				}
