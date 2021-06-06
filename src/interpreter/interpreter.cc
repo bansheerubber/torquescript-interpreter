@@ -8,6 +8,10 @@
 using namespace ts;
 
 Interpreter::Interpreter() {
+	for(int i = 0; i < 256; i++) {
+		this->contexts[i].interpreter = this;
+	}
+	
 	this->pushVariableContext();
 	this->emptyEntry.setString(new string(""));
 }
@@ -39,17 +43,14 @@ void Interpreter::popInstructionContainer() {
 }
 
 void Interpreter::pushVariableContext() {
+	this->topContext = &this->contexts[this->contextPointer];
 	this->contextPointer++;
-	this->getTopVariableContext().interpreter = this;
 }
 
 void Interpreter::popVariableContext() {
-	this->getTopVariableContext().clear();
+	this->topContext->clear();
 	this->contextPointer--;
-}
-
-VariableContext& Interpreter::getTopVariableContext() {
-	return this->contexts[this->contextPointer - 1];
+	this->topContext = &this->contexts[this->contextPointer - 1];
 }
 
 // push an entry onto the stack
@@ -90,7 +91,7 @@ void Interpreter::interpret() {
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
-		this->getTopVariableContext().print();
+		this->topContext->print();
 		this->printStack();
 		return;
 	}
@@ -487,7 +488,7 @@ void Interpreter::interpret() {
 			relative_stack_location location = this->stackPointer - 1 - instruction.argumentAssign.offset + delta;
 
 			if((int)instruction.argumentAssign.offset <= delta) {
-				this->getTopVariableContext().setVariableEntry(
+				this->topContext->setVariableEntry(
 					instruction,
 					instruction.argumentAssign.destination,
 					instruction.argumentAssign.hash,
@@ -495,7 +496,7 @@ void Interpreter::interpret() {
 				);
 			}
 			else {
-				this->getTopVariableContext().setVariableEntry(
+				this->topContext->setVariableEntry(
 					instruction,
 					instruction.argumentAssign.destination,
 					instruction.argumentAssign.hash,
@@ -511,7 +512,7 @@ void Interpreter::interpret() {
 			double entryNumber = 0;
 			string* entryString = nullptr;
 			if(instruction.localAssign.operation != instruction::EQUALS) {
-				entry = &this->getTopVariableContext().getVariableEntry(
+				entry = &this->topContext->getVariableEntry(
 					instruction,
 					instruction.localAssign.destination,
 					instruction.localAssign.hash
@@ -546,7 +547,7 @@ void Interpreter::interpret() {
 
 			switch(instruction.localAssign.operation) {
 				case instruction::EQUALS: {
-					this->getTopVariableContext().setVariableEntry(
+					this->topContext->setVariableEntry(
 						instruction,
 						instruction.localAssign.destination,
 						instruction.localAssign.hash,
@@ -641,7 +642,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			Entry &entry = this->getTopVariableContext().getVariableEntry(
+			Entry &entry = this->topContext->getVariableEntry(
 				instruction,
 				instruction.localAccess.source,
 				instruction.localAssign.hash

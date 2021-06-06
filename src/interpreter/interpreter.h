@@ -46,7 +46,6 @@ namespace ts {
 
 			void pushVariableContext();
 			void popVariableContext();
-			VariableContext &getTopVariableContext();
 			VariableContext contexts[256];
 			VariableContext* topContext;
 			int contextPointer = 0;
