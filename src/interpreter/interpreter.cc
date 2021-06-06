@@ -682,6 +682,7 @@ void Interpreter::interpret() {
 				functions::Function* function = functions::functions[instruction.callFunction.cachedIndex];
 
 				void* arguments[TS_ARG_COUNT];
+				bool deleteArguments[TS_ARG_COUNT];
 				// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
 				int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used in the program
 				int delta = function->argumentCount - actualArgumentCount;
@@ -695,11 +696,25 @@ void Interpreter::interpret() {
 					else {
 						relative_stack_location location = this->stackPointer - 1 - i + delta;
 						Entry &entry = this->stack[location];
-						if(entry.type == entry::NUMBER) {
-							arguments[count - 1] = &entry.numberData;
+						if(function->argumentTypes[count - 1] == functions::STRING) {
+							if(entry.type == entry::NUMBER) {
+								arguments[count - 1] = numberToString(entry.numberData);
+								deleteArguments[count - 1] = true;
+							}
+							else {
+								arguments[count - 1] = entry.stringData;
+								deleteArguments[count - 1] = false;
+							}
 						}
 						else {
-							arguments[count - 1] = entry.stringData;
+							if(entry.type == entry::NUMBER) {
+								arguments[count - 1] = &entry.numberData;
+								deleteArguments[count - 1] = false;
+							}
+							else {
+								arguments[count - 1] = new double(stringToNumber(*entry.stringData));
+								deleteArguments[count - 1] = true;
+							}
 						}
 					}
 					count++;
@@ -720,6 +735,12 @@ void Interpreter::interpret() {
 				}
 				else { // push void return value
 					this->push(this->emptyEntry);
+				}
+
+				for(int i = 0; i < TS_ARG_COUNT; i++) {
+					if(deleteArguments[i]) {
+						delete arguments[i];
+					}
 				}
 			}
 			else {

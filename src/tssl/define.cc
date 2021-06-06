@@ -19,6 +19,6 @@ void ts::functions::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const ch
 }
 
 void ts::functions::define() {
-	type echoArguments[TS_ARG_COUNT] = { type::STRING };
+	type* echoArguments = new type[TS_ARG_COUNT] { type::STRING };
 	FUNC_DEF(type::VOID, &echo, "echo", 1, echoArguments);
 }
