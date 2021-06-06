@@ -53,10 +53,129 @@ void PrintInstruction(Instruction &instruction) {
 			break;
 		}
 
-		case instruction::MATHEMATICS: {
-			printf("MATHEMATICS {\n");
-			printf("   operator type: %d,\n", instruction.mathematics.operation);
-			
+		case instruction::MATH_ADDITION:
+		case instruction::MATH_SUBTRACT:
+		case instruction::MATH_MULTIPLY:
+		case instruction::MATH_DIVISION:
+		case instruction::MATH_MODULUS:
+		case instruction::MATH_SHIFT_LEFT:
+		case instruction::MATH_SHIFT_RIGHT:
+		case instruction::MATH_EQUAL:
+		case instruction::MATH_NOT_EQUAL:
+		case instruction::MATH_LESS_THAN_EQUAL:
+		case instruction::MATH_GREATER_THAN_EQUAL:
+		case instruction::MATH_LESS_THAN:
+		case instruction::MATH_GREATER_THAN:
+		case instruction::MATH_BITWISE_AND:
+		case instruction::MATH_BITWISE_OR:
+		case instruction::MATH_BITWISE_XOR:
+		case instruction::MATH_STRING_EQUAL:
+		case instruction::MATH_STRING_NOT_EQUAL:
+		case instruction::MATH_APPEND:
+		case instruction::MATH_SPC:
+		case instruction::MATH_TAB: {
+			switch(instruction.type) {
+				case instruction::MATH_ADDITION: {
+					printf("MATH_ADDITION {\n");
+					break;
+				}
+				case instruction::MATH_SUBTRACT: {
+					printf("MATH_SUBTRACT {\n");
+					break;
+				}
+				case instruction::MATH_MULTIPLY: {
+					printf("MATH_MULTIPLY {\n");
+					break;
+				}
+				case instruction::MATH_DIVISION: {
+					printf("MATH_DIVISION {\n");
+					break;
+				}
+				case instruction::MATH_MODULUS: {
+					printf("MATH_MODULUS {\n");
+					break;
+				}
+				case instruction::MATH_SHIFT_LEFT: {
+					printf("MATH_SHIFT_LEFT {\n");
+					break;
+				}
+
+				case instruction::MATH_SHIFT_RIGHT: {
+					printf("MATH_SHIFT_RIGHT {\n");
+					break;
+				}
+				
+				case instruction::MATH_EQUAL: {
+					printf("MATH_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_NOT_EQUAL: {
+					printf("MATH_NOT_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_LESS_THAN_EQUAL: {
+					printf("MATH_LESS_THAN_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_GREATER_THAN_EQUAL: {
+					printf("MATH_GREATER_THAN_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_LESS_THAN: {
+					printf("MATH_LESS_THAN {\n");
+					break;
+				}
+				
+				case instruction::MATH_GREATER_THAN: {
+					printf("MATH_GREATER_THAN {\n");
+					break;
+				}
+				
+				case instruction::MATH_BITWISE_AND: {
+					printf("MATH_BITWISE_AND {\n");
+					break;
+				}
+				
+				case instruction::MATH_BITWISE_OR: {
+					printf("MATH_BITWISE_OR {\n");
+					break;
+				}
+				
+				case instruction::MATH_BITWISE_XOR: {
+					printf("MATH_BITWISE_XOR {\n");
+					break;
+				}
+				
+				case instruction::MATH_STRING_EQUAL: {
+					printf("MATH_STRING_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_STRING_NOT_EQUAL: {
+					printf("MATH_STRING_NOT_EQUAL {\n");
+					break;
+				}
+				
+				case instruction::MATH_APPEND: {
+					printf("MATH_APPEND {\n");
+					break;
+				}
+				
+				case instruction::MATH_SPC: {
+					printf("MATH_SPC {\n");
+					break;
+				}
+				
+				case instruction::MATH_TAB: {
+					printf("MATH_TAB {\n");
+					break;
+				}
+			}
+
 			if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
 				printf("   lvalue type: %d,\n", instruction.mathematics.lvalueEntry.type);
 	
@@ -66,6 +185,9 @@ void PrintInstruction(Instruction &instruction) {
 				else {
 					printf("   lvalue data: %f,\n", instruction.mathematics.lvalueEntry.numberData);
 				}
+			}
+			else {
+				printf("   lvalue: from stack,\n");
 			}
 
 			if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
@@ -77,6 +199,9 @@ void PrintInstruction(Instruction &instruction) {
 				else {
 					printf("   rvalue data: %f,\n", instruction.mathematics.rvalueEntry.numberData);
 				}
+			}
+			else {
+				printf("   rvalue: from stack,\n");
 			}
 
 			printf("}\n");

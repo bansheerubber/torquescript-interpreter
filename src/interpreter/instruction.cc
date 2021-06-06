@@ -26,11 +26,29 @@ void ts::copyInstruction(Instruction &source, Instruction &destination) {
 			break;
 		}
 
-		case instruction::MATHEMATICS: {
+		case instruction::MATH_ADDITION:
+		case instruction::MATH_SUBTRACT:
+		case instruction::MATH_MULTIPLY:
+		case instruction::MATH_DIVISION:
+		case instruction::MATH_MODULUS:
+		case instruction::MATH_SHIFT_LEFT:
+		case instruction::MATH_SHIFT_RIGHT:
+		case instruction::MATH_EQUAL:
+		case instruction::MATH_NOT_EQUAL:
+		case instruction::MATH_LESS_THAN_EQUAL:
+		case instruction::MATH_GREATER_THAN_EQUAL:
+		case instruction::MATH_LESS_THAN:
+		case instruction::MATH_GREATER_THAN:
+		case instruction::MATH_BITWISE_AND:
+		case instruction::MATH_BITWISE_OR:
+		case instruction::MATH_BITWISE_XOR:
+		case instruction::MATH_STRING_EQUAL:
+		case instruction::MATH_STRING_NOT_EQUAL:
+		case instruction::MATH_APPEND:
+		case instruction::MATH_SPC:
+		case instruction::MATH_TAB: {
 			copyEntry(source.mathematics.lvalueEntry, destination.mathematics.lvalueEntry);
 			copyEntry(source.mathematics.rvalueEntry, destination.mathematics.rvalueEntry);
-
-			destination.mathematics.operation = source.mathematics.operation;
 			break;
 		}
 

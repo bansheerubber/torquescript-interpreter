@@ -237,53 +237,53 @@ map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	return output;
 }
 
-ts::instruction::MathematicsOperator MathExpression::TypeToOperator(TokenType type) {
+ts::instruction::InstructionType MathExpression::TypeToOperator(TokenType type) {
 	switch(type) {
 		case PLUS:
-			return ts::instruction::ADDITION;
+			return ts::instruction::MATH_ADDITION;
 		case MINUS:
-			return ts::instruction::SUBTRACT;
+			return ts::instruction::MATH_SUBTRACT;
 		case ASTERISK:
-			return ts::instruction::MULTIPLY;
+			return ts::instruction::MATH_MULTIPLY;
 		case SLASH:
-			return ts::instruction::DIVISION;
+			return ts::instruction::MATH_DIVISION;
 		case MODULUS:
-			return ts::instruction::MODULUS;
+			return ts::instruction::MATH_MODULUS;
 		case EQUAL:
-			return ts::instruction::EQUAL;
+			return ts::instruction::MATH_EQUAL;
 		case NOT_EQUAL:
-			return ts::instruction::NOT_EQUAL;
+			return ts::instruction::MATH_NOT_EQUAL;
 		case STRING_EQUAL:
-			return ts::instruction::STRING_EQUAL;
+			return ts::instruction::MATH_STRING_EQUAL;
 		case STRING_NOT_EQUAL:
-			return ts::instruction::STRING_NOT_EQUAL;
+			return ts::instruction::MATH_STRING_NOT_EQUAL;
 		case LESS_THAN_EQUAL:
-			return ts::instruction::LESS_THAN_EQUAL;
+			return ts::instruction::MATH_LESS_THAN_EQUAL;
 		case GREATER_THAN_EQUAL:
-			return ts::instruction::GREATER_THAN_EQUAL;
+			return ts::instruction::MATH_GREATER_THAN_EQUAL;
 		case LESS_THAN:
-			return ts::instruction::LESS_THAN;
+			return ts::instruction::MATH_LESS_THAN;
 		case GREATER_THAN:
-			return ts::instruction::GREATER_THAN;
+			return ts::instruction::MATH_GREATER_THAN;
 		case BITWISE_AND:
-			return ts::instruction::BITWISE_AND;
+			return ts::instruction::MATH_BITWISE_AND;
 		case BITWISE_OR:
-			return ts::instruction::BITWISE_OR;
+			return ts::instruction::MATH_BITWISE_OR;
 		case BITWISE_XOR:
-			return ts::instruction::BITWISE_XOR;
+			return ts::instruction::MATH_BITWISE_XOR;
 		case SHIFT_LEFT:
-			return ts::instruction::SHIFT_LEFT;
+			return ts::instruction::MATH_SHIFT_LEFT;
 		case SHIFT_RIGHT:
-			return ts::instruction::SHIFT_RIGHT;
+			return ts::instruction::MATH_SHIFT_RIGHT;
 		case APPEND:
-			return ts::instruction::APPEND;
+			return ts::instruction::MATH_APPEND;
 		case SPC:
-			return ts::instruction::SPC;
+			return ts::instruction::MATH_SPC;
 		case TAB:
-			return ts::instruction::TAB;
+			return ts::instruction::MATH_TAB;
 
 		default:
-			return ts::instruction::INVALID_OPERATOR;
+			return ts::instruction::INVALID_INSTRUCTION;
 	}
 }
 
@@ -401,12 +401,11 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	for(PostfixElement &element: postfix) {
 		if(element.element->component == nullptr) { // handle an operator
 			ts::Instruction* instruction = new ts::Instruction();
-			instruction->type = ts::instruction::MATHEMATICS;
+			instruction->type = MathExpression::TypeToOperator(element.element->op.type);
 			instruction->mathematics.lvalueEntry = ts::Entry();
 			instruction->mathematics.lvalueEntry.type = ts::entry::INVALID;
 			instruction->mathematics.rvalueEntry = ts::Entry();
 			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
-			instruction->mathematics.operation = MathExpression::TypeToOperator(element.element->op.type);
 
 			instructionList.push_back(new Value(nullptr, instruction)); // push empty value as dummy for our result
 		}

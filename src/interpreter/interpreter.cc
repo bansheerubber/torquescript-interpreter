@@ -167,204 +167,179 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		case instruction::MATHEMATICS: { // do the math
-			Entry* lvalue;
-			Entry* rvalue;
-
-			// do this at compile time so we for sure remove the conditional from runtime
-			#if(TS_INTERPRETER_PREFIX == 1)
-			{
-				// we have to define lvalue first when working with prefix
-				if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-					lvalue = &instruction.mathematics.lvalueEntry;
-				}
-				else {
-					lvalue = &this->stack[this->stackPointer - 1];
-					this->pop();
-				}
-				
-				// set rvalue
-				if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
-					rvalue = &instruction.mathematics.rvalueEntry;
-				}
-				else {
-					rvalue = &this->stack[this->stackPointer - 1];
-					this->pop();
-				}
-			}
+		case instruction::MATH_ADDITION: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
 			#else
-			{
-				// we have to define rvalue first when working with postfix
-				if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
-					rvalue = &instruction.mathematics.rvalueEntry;
-				}
-				else {
-					rvalue = &this->stack[this->stackPointer - 1];
-					this->pop();
-				}
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber + rvalueNumber);
+			break;
+		}
 
-				// set lvalue
-				if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-					lvalue = &instruction.mathematics.lvalueEntry;
-				}
-				else {
-					lvalue = &this->stack[this->stackPointer - 1];
-					this->pop();
-				}
-			}
+		case instruction::MATH_SUBTRACT: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber - rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_MULTIPLY: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber * rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_DIVISION: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber / rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_MODULUS: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push((int)lvalueNumber % (int)rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_SHIFT_LEFT: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push((int)lvalueNumber << (int)rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_SHIFT_RIGHT: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push((int)lvalueNumber >> (int)rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_EQUAL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber == rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_LESS_THAN_EQUAL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber <= rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_GREATER_THAN_EQUAL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber >= rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_LESS_THAN: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber < rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_GREATER_THAN: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push(lvalueNumber > rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_BITWISE_AND: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push((int)lvalueNumber & (int)rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_BITWISE_OR: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
+			#endif
+			
+			this->push((int)lvalueNumber | (int)rvalueNumber);
+			break;
+		}
+
+		case instruction::MATH_BITWISE_XOR: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_NUMBER_VALUES_POSTFIX();
 			#endif
 
-			// start the hell that is dynamic typing
-			double lvalueNumber = 0;
-			double rvalueNumber = 0;
-			string* lvalueString = nullptr;
-			string* rvalueString = nullptr;
-			bool deleteLValueString = false; // if we need to delete the string if we converted from number to string
-			bool deleteRValueString = false;
-			if(instruction.mathematics.operation < instruction::STRING_EQUAL) { // if we're dealing with numerical operation
-				if(lvalue->type == entry::NUMBER) { // typecheck lvalue
-					lvalueNumber = lvalue->numberData;
-				}
-				else {
-					lvalueNumber = stringToNumber(*lvalue->stringData);
-				}
+			this->push((int)lvalueNumber ^ (int)rvalueNumber);
+			break;
+		}
 
-				if(rvalue->type == entry::NUMBER) { // typecheck rvalue
-					rvalueNumber = rvalue->numberData;
-				}
-				else {
-					rvalueNumber = stringToNumber(*rvalue->stringData);
-				}
-			}
-			else { // if we're dealing with a string operation
-				if(lvalue->type == entry::STRING) { // typecheck lvalue
-					lvalueString = lvalue->stringData;
-				}
-				else {
-					lvalueString = numberToString(lvalue->numberData);
-					deleteLValueString = true;
-				}
+		case instruction::MATH_STRING_EQUAL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
 
-				if(rvalue->type == entry::STRING) { // typecheck rvalue
-					rvalueString = rvalue->stringData;
-				}
-				else {
-					rvalueString = numberToString(rvalue->numberData);
-					deleteRValueString = true;
-				}
-			}
-
-			double numberResult = 0.0;
-			string* stringResult = nullptr;
-			bool evaluated = true;
-			switch(instruction.mathematics.operation) {
-				case instruction::ADDITION: {
-					numberResult = lvalueNumber + rvalueNumber;
-					break;
-				}
-
-				case instruction::SUBTRACT: {
-					numberResult = lvalueNumber - rvalueNumber;
-					break;
-				}
-
-				case instruction::DIVISION: {
-					numberResult = lvalueNumber / rvalueNumber;
-					break;
-				}
-
-				case instruction::MULTIPLY: {
-					numberResult = lvalueNumber * rvalueNumber;
-					break;
-				}
-
-				case instruction::MODULUS: {
-					numberResult = (int)lvalueNumber % (int)rvalueNumber;
-					break;
-				}
-
-				case instruction::EQUAL: {
-					numberResult = lvalueNumber == rvalueNumber;
-					break;
-				}
-
-				case instruction::NOT_EQUAL: {
-					numberResult = lvalueNumber != rvalueNumber;
-					break;
-				}
-
-				case instruction::LESS_THAN_EQUAL: {
-					numberResult = lvalueNumber <= rvalueNumber;
-					break;
-				}
-
-				case instruction::GREATER_THAN_EQUAL: {
-					numberResult = lvalueNumber >= rvalueNumber;
-					break;
-				}
-
-				case instruction::LESS_THAN: {
-					numberResult = lvalueNumber < rvalueNumber;
-					break;
-				}
-
-				case instruction::GREATER_THAN: {
-					numberResult = lvalueNumber > rvalueNumber;
-					break;
-				}
-
-				case instruction::BITWISE_AND: {
-					numberResult = (int)lvalueNumber & (int)rvalueNumber;
-					break;
-				}
-
-				case instruction::BITWISE_OR: {
-					numberResult = (int)lvalueNumber | (int)rvalueNumber;
-					break;
-				}
-
-				case instruction::BITWISE_XOR: {
-					numberResult = (int)lvalueNumber ^ (int)rvalueNumber;
-					break;
-				}
-
-				case instruction::STRING_EQUAL: {
-					numberResult = toLower(*lvalueString).compare(toLower(*rvalueString)) == 0;
-					break;
-				}
-
-				case instruction::STRING_NOT_EQUAL: {
-					numberResult = toLower(*lvalueString).compare(toLower(*rvalueString)) != 0;
-					break;
-				}
-
-				case instruction::SHIFT_LEFT: {
-					numberResult = (int)lvalueNumber <<	(int)rvalueNumber;
-					break;
-				}
-
-				case instruction::SHIFT_RIGHT: {
-					numberResult = (int)lvalueNumber >> (int)rvalueNumber;
-					break;
-				}
-
-				case instruction::APPEND: { // append data to lvalue
-					stringResult = new string(*lvalueString);
-					*stringResult += *rvalueString;
-					break;
-				}
-
-				case instruction::SPC: { // append data to lvalue
-					stringResult = new string(*lvalueString);
-					*stringResult += ' ' + *rvalueString;
-					break;
-				}
-
-				default: {
-					evaluated = false;
-					break;
-				}
-			}
+			this->push(toLower(*lvalueString).compare(toLower(*rvalueString)) == 0);
 
 			// delete lvalue string if we converted it from a number
 			if(deleteLValueString) {
@@ -376,18 +351,98 @@ void Interpreter::interpret() {
 				delete rvalueString;
 			}
 
-			// push the results to the stack			
-			if(evaluated) {
-				if(stringResult == nullptr) {
-					this->push(numberResult);
-				}
-				else {
-					this->push(stringResult);
-				}
+			break;
+		}
+
+		case instruction::MATH_STRING_NOT_EQUAL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
+
+			this->push(toLower(*lvalueString).compare(toLower(*rvalueString)) != 0);
+
+			// delete lvalue string if we converted it from a number
+			if(deleteLValueString) {
+				delete lvalueString;
 			}
-			else {
-				printError("could not evaluate math instruction\n");
-				exit(1);
+
+			// delete rvalue string if we converted it from a number
+			if(deleteRValueString) {
+				delete rvalueString;
+			}
+
+			break;
+		}
+
+		case instruction::MATH_APPEND: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
+
+			string* stringResult = new string(*lvalueString);
+			*stringResult += *rvalueString;
+			this->push(stringResult);
+
+			// delete lvalue string if we converted it from a number
+			if(deleteLValueString) {
+				delete lvalueString;
+			}
+
+			// delete rvalue string if we converted it from a number
+			if(deleteRValueString) {
+				delete rvalueString;
+			}
+
+			break;
+		}
+
+		case instruction::MATH_SPC: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
+
+			string* stringResult = new string(*lvalueString);
+			*stringResult += ' ' + *rvalueString;
+			this->push(stringResult);
+
+			// delete lvalue string if we converted it from a number
+			if(deleteLValueString) {
+				delete lvalueString;
+			}
+
+			// delete rvalue string if we converted it from a number
+			if(deleteRValueString) {
+				delete rvalueString;
+			}
+
+			break;
+		}
+
+		case instruction::MATH_TAB: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
+
+			string* stringResult = new string(*lvalueString);
+			*stringResult += '\t' + *rvalueString;
+			this->push(stringResult);
+
+			// delete lvalue string if we converted it from a number
+			if(deleteLValueString) {
+				delete lvalueString;
+			}
+
+			// delete rvalue string if we converted it from a number
+			if(deleteRValueString) {
+				delete rvalueString;
 			}
 
 			break;

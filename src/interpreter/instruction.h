@@ -12,7 +12,27 @@ namespace ts {
 			JUMP, // jump to a particular instruction
 			JUMP_IF_TRUE, // jump to particular insturction if top element on stack is true, pops the element
 			JUMP_IF_FALSE, // jump to particular insturction if top element on stack is false, pops the element
-			MATHEMATICS, // do a mathematical operation on two values on the stack, and assign result to place on the stack
+			MATH_ADDITION,
+			MATH_SUBTRACT,
+			MATH_MULTIPLY,
+			MATH_DIVISION,
+			MATH_MODULUS,
+			MATH_SHIFT_LEFT,
+			MATH_SHIFT_RIGHT,
+			MATH_EQUAL,
+			MATH_NOT_EQUAL,
+			MATH_LESS_THAN_EQUAL,
+			MATH_GREATER_THAN_EQUAL,
+			MATH_LESS_THAN,
+			MATH_GREATER_THAN,
+			MATH_BITWISE_AND,
+			MATH_BITWISE_OR,
+			MATH_BITWISE_XOR,
+			MATH_STRING_EQUAL,
+			MATH_STRING_NOT_EQUAL,
+			MATH_APPEND,
+			MATH_SPC,
+			MATH_TAB,
 			UNARY_MATHEMATICS, // apply a unary operator
 			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
@@ -37,31 +57,6 @@ namespace ts {
 			BITWISE_AND_EQUALS,
 			BITWISE_XOR_EQUALS,
 			BITWISE_OR_EQUALS,
-		};
-
-		enum MathematicsOperator {
-			INVALID_OPERATOR,
-			ADDITION,
-			SUBTRACT,
-			MULTIPLY,
-			DIVISION,
-			MODULUS,
-			SHIFT_LEFT,
-			SHIFT_RIGHT,
-			EQUAL,
-			NOT_EQUAL,
-			LESS_THAN_EQUAL,
-			GREATER_THAN_EQUAL,
-			LESS_THAN,
-			GREATER_THAN,
-			BITWISE_AND,
-			BITWISE_OR,
-			BITWISE_XOR,
-			STRING_EQUAL,
-			STRING_NOT_EQUAL,
-			APPEND,
-			SPC,
-			TAB,
 		};
 
 		enum UnaryOperator {
@@ -109,7 +104,6 @@ namespace ts {
 			struct {
 				Entry lvalueEntry;
 				Entry rvalueEntry;
-				instruction::MathematicsOperator operation; // the operator this instruction will perform
 			} mathematics;
 
 			struct {

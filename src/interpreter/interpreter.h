@@ -12,10 +12,9 @@
 #include "instructionContainer.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
 #include "../tssl/define.h"
+#include "interpreterMacros.h"
 
 using namespace std;
-
-#define TS_INTERPRETER_PREFIX true
 
 namespace ts {
 	class Interpreter {
