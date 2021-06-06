@@ -33,6 +33,7 @@ namespace ts {
 			MATH_APPEND,
 			MATH_SPC,
 			MATH_TAB,
+			MATH_NL,
 			UNARY_MATHEMATICS, // apply a unary operator
 			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
 			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable

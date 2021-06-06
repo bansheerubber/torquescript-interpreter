@@ -281,6 +281,8 @@ ts::instruction::InstructionType MathExpression::TypeToOperator(TokenType type) 
 			return ts::instruction::MATH_SPC;
 		case TAB:
 			return ts::instruction::MATH_TAB;
+		case NL:
+			return ts::instruction::MATH_NL;
 
 		default:
 			return ts::instruction::INVALID_INSTRUCTION;

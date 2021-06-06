@@ -449,6 +449,30 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::MATH_NL: {
+			#if TS_INTERPRETER_PREFIX
+				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
+			#else
+				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
+			#endif
+
+			string* stringResult = new string(*lvalueString);
+			*stringResult += '\n' + *rvalueString;
+			this->push(stringResult);
+
+			// delete lvalue string if we converted it from a number
+			if(deleteLValueString) {
+				delete lvalueString;
+			}
+
+			// delete rvalue string if we converted it from a number
+			if(deleteRValueString) {
+				delete rvalueString;
+			}
+
+			break;
+		}
+
 		case instruction::UNARY_MATHEMATICS: {
 			Entry &value = this->stack[this->stackPointer - 1];
 			double valueNumber = 0;

@@ -73,7 +73,8 @@ void PrintInstruction(Instruction &instruction) {
 		case instruction::MATH_STRING_NOT_EQUAL:
 		case instruction::MATH_APPEND:
 		case instruction::MATH_SPC:
-		case instruction::MATH_TAB: {
+		case instruction::MATH_TAB:
+		case instruction::MATH_NL: {
 			switch(instruction.type) {
 				case instruction::MATH_ADDITION: {
 					printf("MATH_ADDITION {\n");
@@ -172,6 +173,11 @@ void PrintInstruction(Instruction &instruction) {
 				
 				case instruction::MATH_TAB: {
 					printf("MATH_TAB {\n");
+					break;
+				}
+
+				case instruction::MATH_NL: {
+					printf("MATH_NL {\n");
 					break;
 				}
 			}
