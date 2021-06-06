@@ -691,8 +691,7 @@ void Interpreter::interpret() {
 				int count = 1;
 				for(int i = function->argumentCount; i >= 1; i--) { // load arguments array backwards
 					if(count <= delta) { // TODO better error handling
-						printError("incorrect amount of arguments\n");
-						exit(0);
+						break;
 					}
 					else {
 						relative_stack_location location = this->stackPointer - 1 - i + delta;
@@ -738,7 +737,7 @@ void Interpreter::interpret() {
 					this->push(this->emptyEntry);
 				}
 
-				for(int i = 0; i < TS_ARG_COUNT; i++) {
+				for(int i = 0; i < count - 1; i++) {
 					if(deleteArguments[i]) {
 						delete arguments[i];
 					}
