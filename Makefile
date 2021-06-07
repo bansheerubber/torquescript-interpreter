@@ -1,5 +1,5 @@
 target = dist/eggscript
-cclibs = -lpthread
+cclibs = -lpthread -lfmt
 cc = g++
 ccflags = -O2 -Wall -Wno-switch -std=c++17
 

@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "../util/stringToNumber.h"
 #include "../util/numberToString.h"
-#include "../util/toLower.h"
 
 using namespace ts;
 
@@ -684,14 +683,14 @@ void Interpreter::interpret() {
 		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
 				bool found = false;
-				if(this->nameToIndex.find(instruction.callFunction.name) != this->nameToIndex.end()) {
-					instruction.callFunction.cachedIndex = this->nameToIndex[instruction.callFunction.name];
+				if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
+					instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
 					instruction.callFunction.isCached = true;
 					found = true;
 				}
 
-				if(functions::nameToIndex.find(instruction.callFunction.name) != functions::nameToIndex.end()) {
-					instruction.callFunction.cachedIndex = functions::nameToIndex[instruction.callFunction.name];
+				if(functions::nameToIndex.find(toLower(instruction.callFunction.name)) != functions::nameToIndex.end()) {
+					instruction.callFunction.cachedIndex = functions::nameToIndex[toLower(instruction.callFunction.name)];
 					instruction.callFunction.isCached = true;
 					instruction.callFunction.isTSSL = true;
 					found = true;
@@ -822,6 +821,6 @@ void Interpreter::printStack() {
 void Interpreter::addFunction(string &name, InstructionReturn output) {
 	auto index = this->functionCount;
 	InstructionContainer* container = new InstructionContainer(output.first);
-	this->nameToIndex[string(name)] = index;
+	this->nameToIndex[toLower(name)] = index;
 	this->indexToFunction[index] = container;
 }

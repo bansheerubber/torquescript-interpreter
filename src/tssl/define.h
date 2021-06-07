@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "../util/toLower.h"
+
 using namespace std;
 
 #define TS_FUNC(name)		void* (*name)(int argc, void** args)

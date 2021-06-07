@@ -13,6 +13,7 @@
 #include "../include/robin-map/include/tsl/robin_map.h"
 #include "../tssl/define.h"
 #include "interpreterMacros.h"
+#include "../util/toLower.h"
 
 using namespace std;
 
