@@ -823,4 +823,5 @@ void Interpreter::addFunction(string &name, InstructionReturn output) {
 	InstructionContainer* container = new InstructionContainer(output.first);
 	this->nameToIndex[toLower(name)] = index;
 	this->indexToFunction[index] = container;
+	this->functionCount++;
 }
