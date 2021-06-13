@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "object.h"
 #include "stack.h"
 
 using namespace std;
@@ -12,6 +13,7 @@ namespace ts {
 			INVALID,
 			NUMBER,
 			STRING,
+			OBJECT,
 		};
 	}
 	
@@ -19,7 +21,8 @@ namespace ts {
 		entry::EntryType type;
 		union {
 			double numberData;
-			string* stringData;	
+			string* stringData;
+			Object* objectData;
 		};
 
 		Entry();
@@ -28,6 +31,7 @@ namespace ts {
 		void setNumber(double value);
 		void setString(string &value);
 		void setString(string* value);
+		void setObject(Object* value);
 		void print() const;
 	};
 

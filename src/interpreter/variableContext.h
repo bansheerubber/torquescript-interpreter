@@ -11,7 +11,7 @@ using namespace tsl;
 namespace ts {
 	namespace variable {
 		struct Array {
-			Entry* entry;
+			struct Entry* entry;
 			Array* next;
 
 			Array() {
@@ -30,7 +30,7 @@ namespace ts {
 		public:
 			~VariableContext();
 			
-			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
+			struct Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void print();

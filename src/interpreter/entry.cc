@@ -54,6 +54,11 @@ void Entry::setString(string* value) {
 	this->stringData = value;
 }
 
+void Entry::setObject(Object* object) {
+	this->type = entry::OBJECT;
+	this->objectData = object;
+}
+
 void Entry::print() const {
 	printf("ENTRY {\n");
 
@@ -62,8 +67,11 @@ void Entry::print() const {
 	if(this->type == entry::STRING) {
 		printf("   data: \"%s\",\n", this->stringData->c_str());
 	}
-	else {
+	else if(this->type == entry::NUMBER) {
 		printf("   data: %f,\n", this->numberData);
+	}
+	else {
+		printf("   data: %ld,\n", (long)this->objectData);
 	}
 
 	printf("};\n");
@@ -83,6 +91,11 @@ void ts::copyEntry(Entry &source, Entry &destination) {
 
 		case entry::STRING: {
 			destination.stringData = new string(*source.stringData);
+			break;
+		}
+
+		case entry::OBJECT: {
+			destination.objectData = source.objectData;
 			break;
 		}
 	}
