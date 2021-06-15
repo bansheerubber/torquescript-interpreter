@@ -36,6 +36,16 @@ vector<Argument> createArguments() {
 		help: "Do not print warnings"
 	});
 
+	output.push_back((Argument){
+		name: "test",
+		hide: true
+	});
+
+	output.push_back((Argument){
+		name: "overwrite-results",
+		hide: true
+	});
+
 	return output;
 }
 

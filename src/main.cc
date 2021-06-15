@@ -20,6 +20,7 @@
 #include "./interpreter/compiler.h"
 #include "./interpreter/interpreter.h"
 #include "./tssl/define.h"
+#include "tests.h"
 
 using namespace std;
 
@@ -62,6 +63,11 @@ int main(int argc, char* argv[]) {
 	if(args.arguments["help"] != "") {
 		printHelp(arguments);
 		return 0;
+	}
+
+	// run tests if we want to
+	if(args.arguments["test"] != "") {
+		return runTests(args.arguments["overwrite-results"] != "");
 	}
 
 	if(args.argumentError) {

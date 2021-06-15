@@ -20,6 +20,12 @@ $(target): $(cpp_objects)
 	mkdir -p $(dir $(target))
 	$(cc) $(cpp_objects) -Wall $(cclibs) -o $@
 
+test: $(target)
+	cd ./dist/ && ./eggscript --test
+
+build-tests: $(target)
+	cd ./dist/ && ./eggscript --test --overwrite-results
+
 clean:
 	rm -f $(cpp_objects)
 	rm -f $(target)

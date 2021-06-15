@@ -14,6 +14,7 @@ struct Argument {
 	string helpVariable;
 	string help;
 	bool needsInput;
+	bool hide;
 };
 
 struct ParsedArguments {

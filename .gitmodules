@@ -1,3 +1,12 @@
 [submodule "src/include/robin-map"]
 	path = src/include/robin-map
 	url = https://github.com/bansheerubber/robin-map
+[submodule "tests/sources/bl-decompiled"]
+	path = tests/sources/bl-decompiled
+	url = https://github.com/Electrk/bl-decompiled
+[submodule "tests/sources/Server_MiniDungeons"]
+	path = tests/sources/Server_MiniDungeons
+	url = https://github.com/bansheerubber/Server_MiniDungeons
+[submodule "tests/sources/Brick_LuaLogic"]
+	path = tests/sources/Brick_LuaLogic
+	url = https://gitlab.com/Redo0/Brick_LuaLogic
