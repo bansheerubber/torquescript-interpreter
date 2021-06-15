@@ -18,6 +18,10 @@ string NumberLiteral::print() {
 	return this->number;
 }
 
+string NumberLiteral::printJSON() {
+	return "{\"type\":\"NUMBER_LITERAL\",\"value\":\"" + this->number + "\"}";
+}
+
 InstructionReturn NumberLiteral::compile(ts::Interpreter* interpreter) {
 	Instruction* instruction = new Instruction();
 	instruction->type = instruction::PUSH;

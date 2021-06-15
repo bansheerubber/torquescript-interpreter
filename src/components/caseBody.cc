@@ -60,6 +60,23 @@ string CaseBody::print() {
 	return output;
 }
 
+string CaseBody::printJSON() {
+	string output = "{\"type\":\"CASE_STATEMENT\",\"conditionals\":";
+	string comma = this->conditionals.size() != 1 ? "," : "";
+	for(CaseElement element: this->conditionals) {
+		if(element.component != nullptr) {
+			output += element.component->printJSON() + comma;
+		}
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += ",\"body\":" + this->printJSONBody() + "}";
+	return output;
+}
+
 ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

@@ -67,6 +67,10 @@ string DatablockDeclaration::print() {
 	return output;
 }
 
+string DatablockDeclaration::printJSON() {
+	return "{\"type\":\"DATABLOCK_DECLARATION\",\"typeName\":" + this->typeName->printJSON() + ",\"className\":" + this->className->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn DatablockDeclaration::compile(ts::Interpreter* interpreter) {
 	return {};
 }

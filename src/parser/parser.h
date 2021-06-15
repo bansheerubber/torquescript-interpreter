@@ -25,6 +25,8 @@ class Parser {
 
 		SourceFile* getSourceFile();
 
+		string printJSON();
+
 		string newLine;
 		string tab;
 		string space;

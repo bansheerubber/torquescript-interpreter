@@ -33,6 +33,10 @@ string ElseBody::print() {
 	return output;
 }
 
+string ElseBody::printJSON() {
+	return "{\"type\":\"ELSE_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	if(this->children.size() == 0) {

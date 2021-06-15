@@ -51,6 +51,7 @@ class ElseIfBody : public Body {
 		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
 		static ElseIfBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 

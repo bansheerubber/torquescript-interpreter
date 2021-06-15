@@ -2,6 +2,8 @@
 #include "instruction.h"
 #include "interpreter.h"
 
+#include "entry.h"
+
 using namespace ts;
 
 VariableContext::~VariableContext() {

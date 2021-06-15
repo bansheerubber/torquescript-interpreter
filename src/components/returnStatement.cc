@@ -35,6 +35,15 @@ string ReturnStatement::print() {
 	}
 }
 
+string ReturnStatement::printJSON() {
+	if(this->operation != nullptr) {
+		return "{\"type\":\"RETURN_STATEMENT\",\"operation\":" + this->operation->printJSON() + "}";
+	}
+	else {
+		return "{\"type\":\"RETURN_STATEMENT\"}";
+	}
+}
+
 ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	output.add(this->operation->compile(interpreter));

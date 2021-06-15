@@ -41,6 +41,10 @@ string WhileBody::print() {
 	return output;
 }
 
+string WhileBody::printJSON() {
+	return "{\"type\":\"WHILE_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 	

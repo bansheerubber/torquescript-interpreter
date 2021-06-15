@@ -31,6 +31,7 @@ class NumberLiteral : public Component {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static NumberLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 

@@ -54,6 +54,10 @@ string AssignStatement::print() {
 	return output;
 }
 
+string AssignStatement::printJSON() {
+	return "{\"type\":\"ASSIGN_STATEMENT\",\"assignmentToken\":\"" + this->assignmentToken.lexeme + "\",\"lvalue\":" + this->lvalue->printJSON() + ",\"rvalue\":" + this->rvalue->printJSON() + "}";
+}
+
 ts::instruction::AssignOperations AssignStatement::TypeToOperator(TokenType type) {
 	switch(type) {
 		case PLUS_ASSIGN:

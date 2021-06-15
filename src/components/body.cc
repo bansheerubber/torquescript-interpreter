@@ -21,6 +21,21 @@ string Body::printBody() {
 	return output;
 }
 
+string Body::printJSONBody() {
+	string output = "[";
+	string comma = this->children.size() != 1 ? "," : "";
+	for(Component* child: this->children) {
+		output += child->printJSON() + comma;
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]";
+	return output;
+}
+
 void Body::addChild(Component* child) {
 	this->children.push_back(child);
 }

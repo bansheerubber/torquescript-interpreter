@@ -12,6 +12,21 @@ string SourceFile::print() {
 	return output;
 }
 
+string SourceFile::printJSON() {
+	string output = "[";
+	string comma = this->children.size() != 1 ? "," : "";
+	for(Component* child: this->children) {
+		output += child->printJSON() + comma;
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]";
+	return output;
+}
+
 ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 

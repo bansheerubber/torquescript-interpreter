@@ -21,6 +21,15 @@ string BooleanLiteral::print() {
 	}
 }
 
+string BooleanLiteral::printJSON() {
+	if(this->value.type == TRUE) {
+		return "{\"type\":\"BOOLEAN_LITERAL\",\"value\":\"true\"}";
+	}
+	else {
+		return "{\"type\":\"BOOLEAN_LITERAL\",\"value\":\"false\"}";
+	}
+}
+
 ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;

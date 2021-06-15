@@ -70,6 +70,7 @@ class MathExpression : public Component {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser);
 		static MathExpression* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 		static bool IsOperator(TokenType type);

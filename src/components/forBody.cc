@@ -58,6 +58,10 @@ string ForBody::print() {
 	return output;
 }
 
+string ForBody::printJSON() {
+	return "{\"type\":\"FOR_STATEMENT\",\"initialization\":" + this->initialization->printJSON() + ",\"conditional\":" + this->conditional->printJSON() + ",\"increment\":" + this->increment->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 

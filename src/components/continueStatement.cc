@@ -17,6 +17,10 @@ string ContinueStatement::print() {
 	return "continue;";
 }
 
+string ContinueStatement::printJSON() {
+	return "{\"type\":\"CONTINUE_STATEMENT\"}";
+}
+
 ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

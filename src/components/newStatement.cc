@@ -89,7 +89,7 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 string NewStatement::print() {
 	string output = "new " + this->className->print() + this->arguments->print();
 	if(this->children.size() != 0) {
-		output += " {" + this->parser->newLine;
+		output += this->parser->space + "{" + this->parser->newLine;
 		output += this->printBody();
 		output += "}";
 	}
@@ -98,6 +98,15 @@ string NewStatement::print() {
 		output += ";";
 	}
 	return output;
+}
+
+string NewStatement::printJSON() {
+	if(this->children.size() == 0) {
+		return "{\"type\":\"NEW_STATEMENT\",\"className\":" + this->className->printJSON() + ",\"arguments\":" + this->arguments->printJSON() + "}";
+	}
+	else {
+		return "{\"type\":\"NEW_STATEMENT\",\"className\":" + this->className->printJSON() + ",\"arguments\":" + this->arguments->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+	}
 }
 
 ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {

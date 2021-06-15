@@ -33,6 +33,7 @@ class AssignStatement : public Component {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 		static AssignStatement* Parse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 

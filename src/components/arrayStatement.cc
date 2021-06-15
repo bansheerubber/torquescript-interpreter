@@ -65,6 +65,25 @@ string ArrayStatement::print() {
 	return output;
 }
 
+string ArrayStatement::printJSON() {
+	string output = "{\"type\":\"ARRAY_STATEMENT\",\"dimensions\":[";
+	for(ArrayElement element: this->elements) {
+		if(element.component != nullptr) {
+			output += element.component->printJSON();
+		}
+		else if(element.isComma) {
+			output += ",";
+		}
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]}";
+	return output;
+}
+
 ts::InstructionReturn ArrayStatement::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 

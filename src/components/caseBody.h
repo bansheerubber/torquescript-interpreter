@@ -25,7 +25,7 @@ class CaseBody : public Body {
 		using Body::Body;
 		
 		ComponentType getType() {
-			return IF_STATEMENT;
+			return CASE_STATEMENT;
 		}
 
 		bool requiresSemicolon(Component* child) {
@@ -44,6 +44,7 @@ class CaseBody : public Body {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
 		static CaseBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
 	

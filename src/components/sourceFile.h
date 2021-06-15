@@ -31,4 +31,5 @@ class SourceFile : public Body {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 };

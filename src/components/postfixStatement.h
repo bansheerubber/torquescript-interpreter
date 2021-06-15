@@ -30,6 +30,7 @@ class PostfixStatement : public Component {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static PostfixStatement* Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

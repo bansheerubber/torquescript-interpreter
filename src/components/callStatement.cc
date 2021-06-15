@@ -59,6 +59,21 @@ string CallStatement::print() {
 	return output;
 }
 
+string CallStatement::printJSON() {
+	string output = "{\"type\":\"CALL_STATEMENT\",\"arguments\":[";
+	for(CallElement element: this->elements) {
+		if(element.component != nullptr) {
+			output += element.component->printJSON();
+		}
+		else if(element.isComma) {
+			output += ",";
+		}
+	}
+
+	output += "]}";
+	return output;
+}
+
 pair<
 	vector<CallElement>::iterator,
 	vector<CallElement>::iterator

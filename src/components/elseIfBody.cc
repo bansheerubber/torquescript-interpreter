@@ -42,6 +42,10 @@ string ElseIfBody::print() {
 	return output;
 }
 
+string ElseIfBody::printJSON() {
+	return "{\"type\":\"ELSE_IF_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn ElseIfBody::compile(ts::Interpreter* interpreter) {
 	return this->compileElseIf(interpreter).output;
 }

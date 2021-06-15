@@ -56,6 +56,15 @@ string NamespaceStatement::print() {
 	return output;
 }
 
+string NamespaceStatement::printJSON() {
+	if(this->name != nullptr) {
+		return "{\"type\":\"NAMESPACE_STATEMENT\",\"name\":" + this->name->printJSON() + ",\"operation\":" + this->operation->printJSON() + ",\"call\":" + this->call->printJSON() + "}";
+	}
+	else {
+		return "{\"type\":\"NAMESPACE_STATEMENT\",\"name\":\"Parent\",\"operation\":" + this->operation->printJSON() + ",\"call\":" + this->call->printJSON() + "}";
+	}
+}
+
 ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

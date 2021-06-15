@@ -16,6 +16,10 @@ string Symbol::print() {
 	return this->value;
 }
 
+string Symbol::printJSON() {
+	return "{\"type\":\"SYMBOL_STATEMENT\",\"value\":\"" + this->value + "\"}";
+}
+
 ts::InstructionReturn Symbol::compile(ts::Interpreter* interpreter) {
 	return {};
 }

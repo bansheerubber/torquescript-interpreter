@@ -107,6 +107,40 @@ string AccessStatement::print() {
 	return output;
 }
 
+string AccessStatement::printJSON() {
+	string output = "{\"type\":\"ACCESS_STATEMENT\",";
+	if(this->elements[0].token.type == LOCAL_VARIABLE) {
+		output += "\"variableType\":\"LOCAL_VARIABLE\",";
+	}
+	else if(this->elements[0].token.type == GLOBAL_VARIABLE) {
+		output += "\"variableType\":\"GLOBAL_VARIABLE\",";
+	}
+	else if(this->elements[0].token.type) {
+		output += "\"variableType\":\"SYMBOL\",";
+	}
+	else if(this->elements[0].component != nullptr) {
+		output += "\"variableType\":\"NONE\",";
+	}
+
+	output += "\"chain\":[";
+	string comma = this->elements.size() != 1 ? "," : "";
+	for(AccessElement &element: this->elements) {
+		if(element.component != nullptr) {
+			output += element.component->printJSON() + comma;
+		}
+		else if(element.token.type) {
+			output += "\"" + element.token.lexeme + "\"" + comma;
+		}
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]}";
+	return output;
+}
+
 bool AccessStatement::isLocalVariable() {
 	return this->elements.front().token.type == LOCAL_VARIABLE;
 }

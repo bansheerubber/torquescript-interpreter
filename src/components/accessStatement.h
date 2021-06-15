@@ -54,6 +54,7 @@ class AccessStatement : public Component {
 		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword = false);
 		static AccessStatement* Parse(
 			Component* firstValue,

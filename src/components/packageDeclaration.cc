@@ -40,6 +40,10 @@ string PackageDeclaration::print() {
 	return output;
 }
 
+string PackageDeclaration::printJSON() {
+	return "{\"type\":\"PACKAGE_DECLARATION\",\"name\":" + this->packageName->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter) {
 	return {};
 }

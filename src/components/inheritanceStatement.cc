@@ -58,6 +58,16 @@ string InheritanceStatement::print() {
 	return "(" + this->className->print() + ")";
 }
 
+string InheritanceStatement::printJSON() {
+	if(this->className == nullptr && this->parentClass != nullptr) {
+		return "{\"type\":\"INHERITANCE_STATEMENT\",\"parentClass\":" + this->parentClass->printJSON() + "}";
+	}
+	else if(this->parentClass != nullptr) {
+		return "{\"type\":\"INHERITANCE_STATEMENT\",\"className\":" + this->className->printJSON() + ",\"parentClass\":" + this->parentClass->printJSON() + "}";
+	}
+	return "{\"type\":\"INHERITANCE_STATEMENT\",\"className\":" + this->className->printJSON() + "}";
+}
+
 ts::InstructionReturn InheritanceStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

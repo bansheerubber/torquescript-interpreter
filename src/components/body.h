@@ -35,7 +35,12 @@ class Body : public Component {
 			return "";
 		}
 
+		string printJSON() {
+			return "";
+		}
+
 		string printBody();
+		string printJSONBody();
 
 		void addChild(Component* component);
 		Component* getLastChild();

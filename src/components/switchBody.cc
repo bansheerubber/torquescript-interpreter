@@ -49,6 +49,10 @@ string SwitchBody::print() {
 	return output;
 }
 
+string SwitchBody::printJSON() {
+	return "{\"type\":\"SWITCH_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

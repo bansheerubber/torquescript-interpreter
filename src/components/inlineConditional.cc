@@ -34,6 +34,10 @@ string InlineConditional::print() {
 	return this->leftHandSide->print() + this->parser->space + "?" + this->parser->space + this->ifTrue->print() + " : " + this->ifFalse->print();
 }
 
+string InlineConditional::printJSON() {
+	return "{\"type\":\"INLINE_CONDITIONAL\",\"conditional\":" + this->leftHandSide->printJSON() + ",\"ifTrue\":" + this->ifTrue->printJSON() + ",\"ifFalse\":" + this->ifFalse->printJSON() + "}";
+}
+
 ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter) {
 	return {};
 }

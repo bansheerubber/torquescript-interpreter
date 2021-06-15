@@ -17,6 +17,10 @@ string BreakStatement::print() {
 	return "break;";
 }
 
+string BreakStatement::printJSON() {
+	return "{\"type\":\"BREAK_STATEMENT\"}";
+}
+
 ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter) {
 	return {};
 }

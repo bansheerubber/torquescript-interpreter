@@ -89,6 +89,28 @@ string IfBody::print() {
 	return output;
 }
 
+string IfBody::printJSON() {
+	string output = "{\"type\":\"IF_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + ",\"followers\":[";
+	Body* next = this->next;
+	while(next != nullptr) {
+		output += next->printJSON();
+		if(next->getType() == ELSE_IF_STATEMENT) {
+			output += ",";
+			next = ((ElseIfBody*)next)->next;
+		}
+		else {
+			next = nullptr;
+		}
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]}";
+	return output;
+}
+
 ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 

@@ -23,6 +23,10 @@ string DefaultBody::print() {
 	return output;
 }
 
+string DefaultBody::printJSON() {
+	return "{\"type\":\"DEFAULT_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
+}
+
 ts::InstructionReturn DefaultBody::compile(ts::Interpreter* interpreter) {
 	return {};
 }

@@ -208,6 +208,40 @@ string MathExpression::print() {
 	return output;
 }
 
+string MathExpression::printJSON() {
+	string output = "{\"type\":\"MATH_EXPRESSION\",\"expression\":[";
+	for(MathElement element: this->elements) {
+		if(element.component != nullptr) {
+			output += element.component->printJSON() + ",";
+		}
+		else if(element.specialOp == LEFT_PARENTHESIS_OPERATOR) {
+			output += "\"(\",";
+		}
+		else if(element.specialOp == RIGHT_PARENTHESIS_OPERATOR) {
+			output += "\")\",";
+		}
+		else if(element.specialOp == LOGICAL_NOT_OPERATOR) {
+			output += "\"!\",";
+		}
+		else if(element.specialOp == BITWISE_NOT_OPERATOR) {
+			output += "\"~\",";
+		}
+		else if(element.specialOp == MINUS_OPERATOR) {
+			output += "\"-\",";
+		}
+		else {
+			output += "\"" + element.op.lexeme + "\",";
+		}
+	}
+
+	if(output.back() == ',') {
+		output.pop_back();
+	}
+
+	output += "]}";
+	return output;
+}
+
 map<TokenType, int> MathExpression::CreatePrecedenceMap() {
 	map<TokenType, int> output;
 	// use the precedence map for logical operators, even though they aren't

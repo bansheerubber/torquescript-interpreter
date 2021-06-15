@@ -41,6 +41,7 @@ class NewStatement : public Body {
 		ts::InstructionReturn compile(ts::Interpreter* interpreter);
 
 		string print();
+		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static NewStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	

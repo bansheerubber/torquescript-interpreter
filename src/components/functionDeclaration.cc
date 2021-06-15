@@ -73,6 +73,15 @@ string FunctionDeclaration::print() {
 	return output;
 }
 
+string FunctionDeclaration::printJSON() {
+	if(this->name2 == nullptr) {
+		return "{\"type\":\"FUNCTIONAL_DECLARATION\",\"name1\":" + this->name1->printJSON() + ",\"arguments\":" + this->args->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+	}
+	else {
+		return "{\"type\":\"FUNCTIONAL_DECLARATION\",\"name1\":" + this->name1->printJSON() + ",\"name2\":" + this->name2->printJSON() + ",\"arguments\":" + this->args->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+	}
+}
+
 ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
 	ts::InstructionReturn output;
 
