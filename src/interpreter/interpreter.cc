@@ -167,6 +167,8 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		## math_instructions.py
+
 		case instruction::MATH_ADDITION: {
 			#if TS_INTERPRETER_PREFIX
 				TS_MATH_DEFINE_NUMBER_VALUES_PREFIX();

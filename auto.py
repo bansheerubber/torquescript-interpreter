@@ -4,7 +4,7 @@ import sys
 import pyinotify
 import subprocess
 import os
-from time import time
+from time import time, sleep
 
 class EventHandler(pyinotify.ProcessEvent):
 	def process_IN_CREATE(self, event):

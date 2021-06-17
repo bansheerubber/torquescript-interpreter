@@ -1,4 +1,4 @@
-#include "tests.h"
+#include "test.h"
 #include "io.h"
 #include "tokenizer/tokenizer.h"
 #include "parser/parser.h"

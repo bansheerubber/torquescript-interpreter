@@ -20,7 +20,7 @@
 #include "./interpreter/compiler.h"
 #include "./interpreter/interpreter.h"
 #include "./tssl/define.h"
-#include "tests.h"
+#include "test.h"
 
 using namespace std;
 
