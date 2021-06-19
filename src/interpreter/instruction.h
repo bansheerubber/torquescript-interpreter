@@ -41,6 +41,7 @@ namespace ts {
 			CALL_FUNCTION, // call a globally scoped function
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
+			CREATE_OBJECT, // create an object
 		};
 
 		enum AssignOperations {
@@ -143,6 +144,10 @@ namespace ts {
 				bool isCached;
 				bool isTSSL;
 			} callFunction;
+
+			struct {
+				
+			}	createObject;
 		};
 
 		Instruction() {

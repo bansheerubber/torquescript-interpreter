@@ -70,6 +70,12 @@ void Interpreter::push(string* value) {
 	this->stackPointer++;
 }
 
+// push an object onto the stack
+void Interpreter::push(Object* value) {
+	this->stack[this->stackPointer].setObject(value);
+	this->stackPointer++;
+}
+
 void Interpreter::pop() {
 	if(this->stackPointer == 0) { // protect against empty stack
 		printError("empty stack\n");
@@ -625,6 +631,11 @@ void Interpreter::interpret() {
 				this->pop();
 			}
 
+			break;
+		}
+
+		case instruction::CREATE_OBJECT: {
+			this->push(new Object());
 			break;
 		}
 	}

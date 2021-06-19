@@ -14,6 +14,7 @@
 #include "../tssl/define.h"
 #include "interpreterMacros.h"
 #include "../util/toLower.h"
+#include "object.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ namespace ts {
 			void push(Entry &entry);
 			void push(double number);
 			void push(string* data);
+			void push(Object* data);
 			void pop();
 
 			int ranInstructions = 0;

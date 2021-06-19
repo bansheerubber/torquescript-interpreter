@@ -88,7 +88,7 @@ elif sys.argv[1] == "debug.cc":
 		print(f"case instruction::{instruction}: {{")
 
 		if instruction not in instruction_to_struct:
-			print(f'	printf("{instruction};");')
+			print(f'	printf("{instruction};\\n");')
 			print("	break;")
 			print("}\n")
 			continue
@@ -98,6 +98,13 @@ elif sys.argv[1] == "debug.cc":
 		for variable_type, variable_name in struct_to_types[struct]:
 			if "Instruction*" in variable_type: # handle things we don't want to print
 				pass
+			elif variable_type == "bool": # handle booleans
+				print(f"""	if(instruction.{struct}.{variable_name}) {{
+		printf("   {variable_name}: true;\\n");
+	}}
+	else {{
+		printf("   {variable_name}: false;\\n");
+	}}""")
 			elif variable_type == "string": # handle strings
 				print(f'	printf("   {variable_name}: %s,\\n", instruction.{struct}.{variable_name}.c_str());')
 			elif "long" in variable_type or "size_t" in variable_type: # handle longs

@@ -1,6 +1,7 @@
 #include "variableContext.h"
 #include "instruction.h"
 #include "interpreter.h"
+#include "entry.h"
 
 #include "entry.h"
 

@@ -114,6 +114,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		this->rvalue->getType() == MATH_EXPRESSION
 		|| this->rvalue->getType() == ACCESS_STATEMENT
 		|| this->rvalue->getType() == ASSIGN_STATEMENT
+		|| this->rvalue->getType() == NEW_STATEMENT
 	) {
 		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;

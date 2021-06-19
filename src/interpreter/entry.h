@@ -33,6 +33,7 @@ namespace ts {
 		void setString(string* value);
 		void setObject(Object* value);
 		void print() const;
+		const char* typeToString() const;
 	};
 
 	void copyEntry(Entry &source, Entry &destination);

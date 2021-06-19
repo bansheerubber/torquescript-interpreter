@@ -110,5 +110,7 @@ string NewStatement::printJSON() {
 }
 
 ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::CREATE_OBJECT;
+	return ts::InstructionReturn(instruction, instruction);
 }

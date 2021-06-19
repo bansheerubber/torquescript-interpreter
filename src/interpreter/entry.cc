@@ -59,10 +59,16 @@ void Entry::setObject(Object* object) {
 	this->objectData = object;
 }
 
+## entry_debug.py
+
+const char* Entry::typeToString() const {
+	return EntryTypeDebug[this->type];
+}
+
 void Entry::print() const {
 	printf("ENTRY {\n");
 
-	printf("   type: %d,\n", this->type);
+	printf("   type: %s,\n", this->typeToString());
 
 	if(this->type == entry::STRING) {
 		printf("   data: \"%s\",\n", this->stringData->c_str());
@@ -70,8 +76,11 @@ void Entry::print() const {
 	else if(this->type == entry::NUMBER) {
 		printf("   data: %f,\n", this->numberData);
 	}
+	else if(this->type == entry::OBJECT) {
+		printf("   data 0x%lX,\n", (long)this->objectData);
+	}
 	else {
-		printf("   data: %ld,\n", (long)this->objectData);
+		printf("   data: no data,\n");
 	}
 
 	printf("};\n");
