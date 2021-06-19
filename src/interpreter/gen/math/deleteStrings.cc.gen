@@ -1,0 +1,9 @@
+// delete lvalue string if we converted it from a number
+if(deleteLValueString) {
+	delete lvalueString;
+}
+
+// delete rvalue string if we converted it from a number
+if(deleteRValueString) {
+	delete rvalueString;
+}

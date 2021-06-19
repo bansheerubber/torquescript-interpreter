@@ -21,14 +21,14 @@ prefixes = {
 }
 
 # get instructions for just the prefix
-def get_instructions(prefix):
+def get_assignment_instructions(prefix):
 	output = []
 	for suffix in suffixes:
 		output.append(f"{prefix}_{suffix}")
 	return output
 
 # get all instructions
-def get_all_instructions():
+def get_all_assignment_instructions():
 	output = []
 	for prefix in prefixes.keys():
 		for suffix in suffixes:

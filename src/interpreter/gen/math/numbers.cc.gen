@@ -1,0 +1,80 @@
+#if TS_INTERPRETER_PREFIX
+	// prefix interpretation
+	Entry* lvalue;
+	Entry* rvalue;
+	// we have to define lvalue first when working with prefix
+	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+		lvalue = &instruction.mathematics.lvalueEntry;
+	}
+	else {
+		lvalue = &this->stack[this->stackPointer - 1];
+		this->pop();
+	}
+	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+		rvalue = &instruction.mathematics.rvalueEntry;
+	}
+	else {
+		rvalue = &this->stack[this->stackPointer - 1];
+		this->pop();
+	}
+
+	// final numbers after converting type
+	double lvalueNumber = 0;
+	double rvalueNumber = 0;
+
+	// typecheck value
+	if(lvalue->type == entry::NUMBER) {
+		lvalueNumber = lvalue->numberData;
+	}
+	else {
+		lvalueNumber = stringToNumber(*lvalue->stringData);
+	}
+
+	// typecheck value
+	if(rvalue->type == entry::NUMBER) {
+		rvalueNumber = rvalue->numberData;
+	}
+	else {
+		rvalueNumber = stringToNumber(*rvalue->stringData);
+	}
+#else
+	// postfix interpretation
+	Entry* lvalue;
+	Entry* rvalue;
+	// we have to define rvalue first when working with postfix
+	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+		rvalue = &instruction.mathematics.rvalueEntry;
+	}
+	else {
+		rvalue = &this->stack[this->stackPointer - 1];
+		this->pop();
+	}
+
+	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+		lvalue = &instruction.mathematics.lvalueEntry;
+	}
+	else {
+		lvalue = &this->stack[this->stackPointer - 1];
+		this->pop();
+	}
+
+	// final numbers after converting type
+	double lvalueNumber = 0;
+	double rvalueNumber = 0;
+
+	// typecheck value
+	if(lvalue->type == entry::NUMBER) {
+		lvalueNumber = lvalue->numberData;
+	}
+	else {
+		lvalueNumber = stringToNumber(*lvalue->stringData);
+	}
+
+	// typecheck value
+	if(rvalue->type == entry::NUMBER) {
+		rvalueNumber = rvalue->numberData;
+	}
+	else {
+		rvalueNumber = stringToNumber(*rvalue->stringData);
+	}
+#endif

@@ -111,6 +111,12 @@ void Interpreter::interpret() {
 			printError("invalid instruction\n");
 			exit(1);
 		}
+
+		// generate code for math instructions
+		## math_generator.py
+
+		// generate code for assignment instructions
+		## assignments_generator.py
 		
 		case instruction::NOOP: {
 			break;
@@ -173,149 +179,6 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		// generate code for number math instructions
-		## math_instructions.py
-
-		case instruction::MATH_STRING_EQUAL: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			this->push(toLower(*lvalueString).compare(toLower(*rvalueString)) == 0);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
-		case instruction::MATH_STRING_NOT_EQUAL: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			this->push(toLower(*lvalueString).compare(toLower(*rvalueString)) != 0);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
-		case instruction::MATH_APPEND: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			string* stringResult = new string(*lvalueString);
-			*stringResult += *rvalueString;
-			this->push(stringResult);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
-		case instruction::MATH_SPC: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			string* stringResult = new string(*lvalueString);
-			*stringResult += ' ' + *rvalueString;
-			this->push(stringResult);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
-		case instruction::MATH_TAB: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			string* stringResult = new string(*lvalueString);
-			*stringResult += '\t' + *rvalueString;
-			this->push(stringResult);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
-		case instruction::MATH_NL: {
-			#if TS_INTERPRETER_PREFIX
-				TS_MATH_DEFINE_STRING_VALUES_PREFIX();
-			#else
-				TS_MATH_DEFINE_STRING_VALUES_POSTFIX();
-			#endif
-
-			string* stringResult = new string(*lvalueString);
-			*stringResult += '\n' + *rvalueString;
-			this->push(stringResult);
-
-			// delete lvalue string if we converted it from a number
-			if(deleteLValueString) {
-				delete lvalueString;
-			}
-
-			// delete rvalue string if we converted it from a number
-			if(deleteRValueString) {
-				delete rvalueString;
-			}
-
-			break;
-		}
-
 		case instruction::UNARY_MATHEMATICS: {
 			Entry &value = this->stack[this->stackPointer - 1];
 			double valueNumber = 0;
@@ -372,8 +235,6 @@ void Interpreter::interpret() {
 			}
 			break;
 		}
-
-		## assignments_generator.py
 		
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
 			Entry &entry = this->topContext->getVariableEntry(
