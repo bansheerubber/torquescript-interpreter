@@ -1,0 +1,12 @@
+// pop the various dimensions we loaded into the stack to handle arrays
+for(int i = 0; i < instruction.localAssign.dimensions; i++) {
+	this->pop(); // pop the dimensions if we have any
+}
+
+if(instruction.localAssign.fromStack) {
+	this->pop(); // pop value from the stack
+}
+
+if(instruction.localAssign.pushResult && entry != nullptr) {
+	this->push(*entry);
+}

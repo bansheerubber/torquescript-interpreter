@@ -58,32 +58,32 @@ string AssignStatement::printJSON() {
 	return "{\"type\":\"ASSIGN_STATEMENT\",\"assignmentToken\":\"" + this->assignmentToken.lexeme + "\",\"lvalue\":" + this->lvalue->printJSON() + ",\"rvalue\":" + this->rvalue->printJSON() + "}";
 }
 
-ts::instruction::AssignOperations AssignStatement::TypeToOperator(TokenType type) {
+ts::instruction::InstructionType AssignStatement::TypeToOperator(TokenType type) {
 	switch(type) {
 		case PLUS_ASSIGN:
-			return ts::instruction::PLUS_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_PLUS;
 		case MINUS_ASSIGN:
-			return ts::instruction::MINUS_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_MINUS;
 		case SLASH_ASSIGN:
-			return ts::instruction::SLASH_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_SLASH;
 		case ASTERISK_ASSIGN:
-			return ts::instruction::ASTERISK_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_ASTERISK;
 		case MODULUS_ASSIGN:
-			return ts::instruction::MODULUS_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_MODULUS;
 		case OR_ASSIGN:
-			return ts::instruction::BITWISE_OR_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_BITWISE_OR;
 		case AND_ASSIGN:
-			return ts::instruction::BITWISE_AND_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_BITWISE_AND;
 		case XOR_ASSIGN:
-			return ts::instruction::BITWISE_XOR_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_BITWISE_XOR;
 		case SHIFT_LEFT_ASSIGN:
-			return ts::instruction::SHIFT_LEFT_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_SHIFT_LEFT;
 		case SHIFT_RIGHT_ASSIGN:
-			return ts::instruction::SHIFT_RIGHT_EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_SHIFT_RIGHT;
 		case ASSIGN:
-			return ts::instruction::EQUALS;
+			return ts::instruction::LOCAL_ASSIGN_EQUAL;
 		default:
-			return ts::instruction::INVALID_ASSIGN;
+			return ts::instruction::INVALID_INSTRUCTION;
 	}
 }
 
@@ -92,7 +92,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 
 	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter);
 	ts::Instruction* instruction = c.lastAccess;
-	instruction->type = ts::instruction::LOCAL_ASSIGN;
+	instruction->type = AssignStatement::TypeToOperator(this->assignmentToken.type);
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
 	// copy access instruction to assign instruction
@@ -101,7 +101,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
-	instruction->localAssign.operation = AssignStatement::TypeToOperator(this->assignmentToken.type);
 
 	if(this->rvalue->getType() == NUMBER_LITERAL) {
 		instruction->localAssign.entry.setNumber(((NumberLiteral*)this->rvalue)->getNumber());

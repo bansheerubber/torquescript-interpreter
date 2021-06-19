@@ -3,3 +3,5 @@ dist
 tmp
 *.o
 tests/results
+*.pyc
+__pycache__

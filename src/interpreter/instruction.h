@@ -36,7 +36,19 @@ namespace ts {
 			MATH_NL,
 			UNARY_MATHEMATICS, // apply a unary operator
 			ARGUMENT_ASSIGN, // assign a value from the stack to a local variable, account for argument size
-			LOCAL_ASSIGN, // assign a value from the stack/instruction to a local variable
+			LOCAL_ASSIGN_EQUAL,
+			LOCAL_ASSIGN_INCREMENT,
+			LOCAL_ASSIGN_DECREMENT,
+			LOCAL_ASSIGN_PLUS,
+			LOCAL_ASSIGN_MINUS,
+			LOCAL_ASSIGN_ASTERISK,
+			LOCAL_ASSIGN_SLASH,
+			LOCAL_ASSIGN_MODULUS,
+			LOCAL_ASSIGN_SHIFT_LEFT,
+			LOCAL_ASSIGN_SHIFT_RIGHT,
+			LOCAL_ASSIGN_BITWISE_AND,
+			LOCAL_ASSIGN_BITWISE_XOR,
+			LOCAL_ASSIGN_BITWISE_OR,
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			CALL_FUNCTION, // call a globally scoped function
 			RETURN, // return from a function without returning a value
@@ -119,7 +131,6 @@ namespace ts {
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
-				instruction::AssignOperations operation;
 			} localAssign;
 
 			struct {

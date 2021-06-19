@@ -32,7 +32,14 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter) {
 	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter);
 
 	ts::Instruction* instruction = compiled.lastAccess;
-	instruction->type = ts::instruction::LOCAL_ASSIGN;
+
+	if(this->op.type == INCREMENT) {
+		instruction->type = ts::instruction::LOCAL_ASSIGN_INCREMENT;
+	}
+	else {
+		instruction->type = ts::instruction::LOCAL_ASSIGN_DECREMENT;
+	}
+
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
 	// copy access instruction to assign instruction
@@ -41,12 +48,5 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter) {
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
-
-	if(this->op.type == INCREMENT) {
-		instruction->localAssign.operation = ts::instruction::INCREMENT;
-	}
-	else {
-		instruction->localAssign.operation = ts::instruction::DECREMENT;
-	}
 	return compiled.output;
 }

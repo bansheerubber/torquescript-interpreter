@@ -104,7 +104,7 @@ void Interpreter::interpret() {
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	(*this->instructionPointer)++;
 
-	PrintInstruction(instruction);
+	// PrintInstruction(instruction);
 	
 	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
@@ -373,141 +373,8 @@ void Interpreter::interpret() {
 			break;
 		}
 
-		// TODO this whole thing probably needs to be optimized
-		case instruction::LOCAL_ASSIGN: {
-			Entry* entry = nullptr;
-			double entryNumber = 0;
-			string* entryString = nullptr;
-			if(instruction.localAssign.operation != instruction::EQUALS) {
-				entry = &this->topContext->getVariableEntry(
-					instruction,
-					instruction.localAssign.destination,
-					instruction.localAssign.hash
-				);
-
-				if(entry->type == entry::NUMBER) {
-					entryNumber = entry->numberData;
-				}
-				else {
-					entryNumber = stringToNumber(*entry->stringData);
-				}
-			}
-
-			Entry* value = nullptr;
-			bool fromStack = instruction.localAssign.fromStack;
-			if(fromStack) {
-				value = &this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions]; // start from top of stack
-			}
-			else {
-				value = &instruction.localAssign.entry;
-			}
-
-			double valueNumber = 0;
-			if(instruction.localAssign.operation >= instruction::PLUS_EQUALS) {
-				if(value->type == entry::NUMBER) {
-					valueNumber = value->numberData;
-				}
-				else {
-					valueNumber = stringToNumber(*value->stringData);
-				}
-			}
-
-			switch(instruction.localAssign.operation) {
-				case instruction::EQUALS: {
-					this->topContext->setVariableEntry(
-						instruction,
-						instruction.localAssign.destination,
-						instruction.localAssign.hash,
-						*value
-					);
-					break;
-				}
-
-				case instruction::INCREMENT: {
-					entry->setNumber(++entryNumber);
-					break;
-				}
-
-				case instruction::DECREMENT: {
-					entry->setNumber(--entryNumber);
-					break;
-				}
-
-				case instruction::PLUS_EQUALS: {
-					entry->setNumber(entryNumber + valueNumber);
-					break;
-				}
-
-				case instruction::MINUS_EQUALS: {
-					entry->setNumber(entryNumber - valueNumber);
-					break;
-				}
-
-				case instruction::ASTERISK_EQUALS: {
-					entry->setNumber(entryNumber * valueNumber);
-					break;
-				}
-
-				case instruction::SLASH_EQUALS: {
-					entry->setNumber(entryNumber / valueNumber);
-					break;
-				}
-
-				case instruction::MODULUS_EQUALS: {
-					entry->setNumber((int)entryNumber % (int)valueNumber);
-					break;
-				}
-
-				case instruction::SHIFT_LEFT_EQUALS: {
-					entry->setNumber((int)entryNumber << (int)valueNumber);
-					break;
-				}
-
-				case instruction::SHIFT_RIGHT_EQUALS: {
-					entry->setNumber((int)entryNumber >> (int)valueNumber);
-					break;
-				}
-
-				case instruction::BITWISE_AND_EQUALS: {
-					entry->setNumber((int)entryNumber & (int)valueNumber);
-					break;
-				}
-
-				case instruction::BITWISE_XOR_EQUALS: {
-					entry->setNumber((int)entryNumber ^ (int)valueNumber);
-					break;
-				}
-
-				case instruction::BITWISE_OR_EQUALS: {
-					entry->setNumber((int)entryNumber | (int)valueNumber);
-					break;
-				}
-
-				default: {
-					break;
-				}
-			}
-
-			for(int i = 0; i < instruction.localAssign.dimensions; i++) {
-				this->pop(); // pop the dimensions if we have any
-			}
-
-			if(instruction.localAssign.fromStack) {
-				this->pop(); // pop value from the stack
-			}
-
-			if(instruction.localAssign.operation != instruction::EQUALS) {
-				if(instruction.localAssign.pushResult && entry != nullptr) {
-					this->push(*entry);
-				}
-			}
-			else if(instruction.localAssign.pushResult) {
-				this->push(*value);
-			}
-
-			break;
-		}
-
+		## assignments_generator.py
+		
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
 			Entry &entry = this->topContext->getVariableEntry(
 				instruction,

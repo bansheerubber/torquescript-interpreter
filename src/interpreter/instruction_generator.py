@@ -1,6 +1,8 @@
 import re
 import sys
 
+from assignment_instructions import get_instructions
+
 structs = {
 	"push": ["PUSH"],
 	"jump": ["JUMP"],
@@ -9,7 +11,7 @@ structs = {
 	"mathematics": ["MATH_ADDITION", "MATH_SUBTRACT", "MATH_MULTIPLY", "MATH_DIVISION", "MATH_MODULUS", "MATH_SHIFT_LEFT", "MATH_SHIFT_RIGHT", "MATH_EQUAL", "MATH_NOT_EQUAL", "MATH_LESS_THAN_EQUAL", "MATH_GREATER_THAN_EQUAL", "MATH_LESS_THAN", "MATH_GREATER_THAN", "MATH_BITWISE_AND", "MATH_BITWISE_OR", "MATH_BITWISE_XOR", "MATH_STRING_EQUAL", "MATH_STRING_NOT_EQUAL", "MATH_APPEND", "MATH_SPC", "MATH_TAB", "MATH_NL"],
 	"unaryMathematics": ["UNARY_MATHEMATICS"],
 	"argumentAssign": ["ARGUMENT_ASSIGN"],
-	"localAssign": ["LOCAL_ASSIGN"],
+	"localAssign": get_instructions("LOCAL_ASSIGN"),
 	"localAccess": ["LOCAL_ACCESS"],
 	"callFunction": ["CALL_FUNCTION"]
 }
