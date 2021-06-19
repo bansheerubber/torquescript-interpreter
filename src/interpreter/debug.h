@@ -5,3 +5,4 @@
 using namespace ts;
 
 void PrintInstruction(Instruction &instruction);
+const char* InstructionTypeToName(instruction::InstructionType type);
