@@ -66,7 +66,7 @@ class AccessStatement : public Component {
 
 		bool isLocalVariable();
 		bool isGlobalVariable();
-		bool isFunction();
+		bool startsWithFunction();
 		bool hasChain();
 		bool hasArray();
 		bool hasCall();

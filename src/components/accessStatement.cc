@@ -149,7 +149,7 @@ bool AccessStatement::isGlobalVariable() {
 	return this->elements.front().token.type == GLOBAL_VARIABLE;
 }
 
-bool AccessStatement::isFunction() {
+bool AccessStatement::startsWithFunction() {
 	if(
 		this->elements.size() < 2
 		|| this->elements.front().token.type != SYMBOL
@@ -212,7 +212,9 @@ ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter) {
 AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter) {
 	AccessStatementCompiled c;
 
-	if(this->isFunction()) { // compile a function call
+	auto iterator = this->elements.begin();
+
+	if(this->startsWithFunction()) { // compile a function call
 		c.output.add(this->elements[1].component->compile(interpreter)); // push arguments
 
 		// push the amount of arguments we just found
@@ -240,12 +242,15 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			c.output.add(pop);
 		}
 
-		return c;
+		++iterator;
+		++iterator;
 	}
 
 	int count = 0;
 	ts::Instruction* lastInstruction = nullptr;
-	for(AccessElement &element: this->elements) {
+	for(; iterator != this->elements.end(); ++iterator) {
+		AccessElement element = *iterator;
+
 		if(element.token.type == LOCAL_VARIABLE) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
