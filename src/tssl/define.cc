@@ -5,6 +5,7 @@
 #include "echo.h"
 #include "getWord.h"
 #include "math.h"
+#include "scriptObject.h"
 
 using namespace ts::sl;
 
@@ -23,6 +24,19 @@ void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nam
 	functions.push_back(function);
 }
 
+void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, int argumentCount, type* argumentTypes) {
+	Function* function = new Function;
+	function->returnType = returnType;
+	function->nameSpace = string(nameSpace);
+	function->name = string(name);
+	function->argumentCount = argumentCount;
+	function->function = functionPointer;
+	function->argumentTypes = argumentTypes;
+	string stringName = string(nameSpace) + "::" + string(name); // TODO improve this lookup table design
+	nameToIndex[toLower(stringName)] = functions.size();
+	functions.push_back(function);
+}
+
 void ts::sl::define() {
 	type* s = new type[TS_ARG_COUNT] { type::STRING };
 	type* n = new type[TS_ARG_COUNT] { type::NUMBER };
@@ -30,6 +44,7 @@ void ts::sl::define() {
 	type* nn = new type[TS_ARG_COUNT] { type::NUMBER, type::NUMBER };
 	type* snn = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::NUMBER };
 	type* sns = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::STRING };
+	type* o = new type[TS_ARG_COUNT] { type::OBJECT };
 
 	FUNC_DEF(type::VOID, &echo, "echo", 1, s);
 
@@ -55,4 +70,6 @@ void ts::sl::define() {
 	FUNC_DEF(type::NUMBER, &mRadToDeg, "mRadToDeg", 1, n);
 	FUNC_DEF(type::NUMBER, &mLog, "mLog", 1, n);
 	FUNC_DEF(type::STRING, &mFloatLength, "mFloatLength", 2, n);
+
+	FUNC_DEF(type::VOID, &ScriptObject__test, "ScriptObject", "test", 1, o);
 }

@@ -3,7 +3,11 @@
 #include "../interpreter/object.h"
 
 namespace ts {
-	class ScriptObject : public Object {
+	namespace sl {
+		class ScriptObject : public Object {
 
-	};
+		};
+
+		void* ScriptObject__test(int argc, void** args);
+	}
 }

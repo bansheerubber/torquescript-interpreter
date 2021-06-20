@@ -18,10 +18,12 @@ namespace ts {
 			VOID,
 			STRING,
 			NUMBER,
+			OBJECT,
 		};
 		
 		struct Function {
 			type returnType;
+			string nameSpace;
 			string name;
 			int argumentCount;
 			TS_FUNC(function);
@@ -31,6 +33,7 @@ namespace ts {
 		extern vector<Function*> functions;
 		extern unordered_map<string, unsigned long> nameToIndex;
 
+		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, int argumentCount, type* argumentTypes);
 		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes);
 		
 		void define();

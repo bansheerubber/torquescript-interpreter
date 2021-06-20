@@ -25,8 +25,29 @@ Interpreter::~Interpreter() {
 
 void Interpreter::addTSSLFunction(sl::Function* function) {
 	Function* container = new Function(function);
-	this->nameToIndex[toLower(function->name)] = this->functions.size();
-	this->functions.push_back(container);
+	
+	if(function->nameSpace.length() == 0) {
+		this->nameToIndex[toLower(function->name)] = this->functions.size();
+		this->functions.push_back(container);
+	}
+	else {
+		if(this->namespaceToIndex.find(toLower(function->nameSpace)) == this->namespaceToIndex.end()) {
+			this->namespaceToIndex[toLower(function->nameSpace)] = this->namespaceFunctions.size();
+
+			// add to function data structure
+			NamespaceFunctions* functions = new NamespaceFunctions();
+			functions->nameToIndex[toLower(function->name)] = functions->functions.size();
+			functions->nameToFunction[toLower(function->name)] = container;
+			functions->functions.push_back(container);
+			this->namespaceFunctions.push_back(functions);
+		}
+		else {
+			NamespaceFunctions* functions = this->namespaceFunctions[this->namespaceToIndex[function->nameSpace]];
+			functions->nameToIndex[toLower(function->name)] = functions->functions.size();
+			functions->nameToFunction[toLower(function->name)] = container;
+			functions->functions.push_back(container);
+		}
+	}
 }
 
 void Interpreter::pushInstructionContainer(InstructionContainer* container) {
@@ -311,7 +332,7 @@ void Interpreter::interpret() {
 					instruction.callFunction.nameSpace.length() != 0
 					&& this->namespaceToIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToIndex.end()
 				) {
-					int namespaceIndex = this->namespaceToIndex[instruction.callFunction.nameSpace];
+					int namespaceIndex = this->namespaceToIndex[toLower(instruction.callFunction.nameSpace)];
 					if(
 						this->namespaceFunctions[namespaceIndex]->nameToIndex.find(toLower(instruction.callFunction.name))
 							!= this->namespaceFunctions[namespaceIndex]->nameToIndex.end()
@@ -320,6 +341,11 @@ void Interpreter::interpret() {
 						instruction.callFunction.cachedNamespaceIndex = namespaceIndex;
 						instruction.callFunction.isCached = true;
 						instruction.callFunction.isNamespaceCached = true;
+
+						if(this->namespaceFunctions[namespaceIndex]->functions[instruction.callFunction.cachedIndex]->isTSSL) {
+							instruction.callFunction.isTSSL = true;
+						}
+
 						found = true;
 					}
 				}
@@ -354,7 +380,13 @@ void Interpreter::interpret() {
 			}
 
 			if(instruction.callFunction.isTSSL) { // call a standard library function if this instruction is defined as such
-				sl::Function* function = this->functions[instruction.callFunction.cachedIndex]->function;
+				sl::Function* function;
+				if(instruction.callFunction.isNamespaceCached) {
+					function = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex]->function;
+				}
+				else {
+					function = this->functions[instruction.callFunction.cachedIndex]->function;
+				}
 
 				void* arguments[TS_ARG_COUNT];
 				bool deleteArguments[TS_ARG_COUNT];
