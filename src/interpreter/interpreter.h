@@ -72,7 +72,6 @@ namespace ts {
 			void popInstructionContainer();
 
 			robin_map<string, int> nameToIndex;
-			robin_map<int, InstructionContainer*> indexToFunction;
-			unsigned long functionCount = 0;
+			vector<InstructionContainer*> functions;
 	};
 }

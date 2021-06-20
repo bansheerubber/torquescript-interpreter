@@ -415,7 +415,7 @@ void Interpreter::interpret() {
 				}
 			}
 			else {
-				this->pushInstructionContainer(this->indexToFunction[instruction.callFunction.cachedIndex]);
+				this->pushInstructionContainer(this->functions[instruction.callFunction.cachedIndex]);
 				this->pushVariableContext();
 			}
 			break;
@@ -468,9 +468,7 @@ void Interpreter::printStack() {
 }
 
 void Interpreter::addFunction(string &name, InstructionReturn output) {
-	auto index = this->functionCount;
 	InstructionContainer* container = new InstructionContainer(output.first);
-	this->nameToIndex[toLower(name)] = index;
-	this->indexToFunction[index] = container;
-	this->functionCount++;
+	this->nameToIndex[toLower(name)] = this->functions.size();
+	this->functions.push_back(container);
 }
