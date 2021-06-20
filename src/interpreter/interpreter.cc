@@ -379,111 +379,16 @@ void Interpreter::interpret() {
 				}
 			}
 
-			if(instruction.callFunction.isTSSL) { // call a standard library function if this instruction is defined as such
-				sl::Function* function;
-				if(instruction.callFunction.isNamespaceCached) {
-					function = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex]->function;
-				}
-				else {
-					function = this->functions[instruction.callFunction.cachedIndex]->function;
-				}
-
-				void* arguments[TS_ARG_COUNT];
-				bool deleteArguments[TS_ARG_COUNT];
-				// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
-				int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used in the program
-				int delta = function->argumentCount - actualArgumentCount;
-
-				int count = 1;
-				for(int i = function->argumentCount; i >= 1; i--) { // load arguments array backwards
-					if(count <= delta) { // TODO better error handling
-						break;
-					}
-					else {
-						relative_stack_location location = this->stackPointer - 1 - i + delta;
-						Entry &entry = this->stack[location];
-						if(function->argumentTypes[count - 1] == sl::STRING) {
-							if(entry.type == entry::NUMBER) {
-								arguments[count - 1] = numberToString(entry.numberData);
-								deleteArguments[count - 1] = true;
-							}
-							else if(entry.type == entry::OBJECT) {
-								if(entry.objectData->object == nullptr) {
-									arguments[count - 1] = new string();
-
-									this->warning("trying to access deleted object\n");
-								}
-								else {
-									arguments[count - 1] = numberToString(entry.objectData->object->id);	
-								}
-
-								deleteArguments[count - 1] = true;
-							}
-							else {
-								arguments[count - 1] = entry.stringData;
-								deleteArguments[count - 1] = false;
-							}
-						}
-						else {
-							if(entry.type == entry::NUMBER) {
-								arguments[count - 1] = &entry.numberData;
-								deleteArguments[count - 1] = false;
-							}
-							else if(entry.type == entry::OBJECT) {
-								if(entry.objectData->object == nullptr) {
-									arguments[count - 1] = new double(0);
-									deleteArguments[count - 1] = true;
-
-									this->warning("trying to access deleted object\n");
-								}
-								else {
-									arguments[count - 1] = &entry.objectData->object->id;
-									deleteArguments[count - 1] = false;
-								}
-							}
-							else {
-								arguments[count - 1] = new double(stringToNumber(*entry.stringData));
-								deleteArguments[count - 1] = true;
-							}
-						}
-					}
-					count++;
-				}
-
-				// pop the data
-				for(int i = 0; i < actualArgumentCount + 1; i++) {
-					this->pop();
-				}
-
-				void* returnValue = function->function(actualArgumentCount, arguments);
-				if(function->returnType == sl::type::STRING) {
-					this->push((string*)returnValue);
-				}
-				else if(function->returnType == sl::type::NUMBER) {
-					this->push(*((double*)returnValue));
-					delete (double*)returnValue;
-				}
-				else { // push void return value
-					this->push(this->emptyEntry);
-				}
-
-				for(int i = 0; i < count - 1; i++) {
-					if(deleteArguments[i]) {
-						delete arguments[i];
-					}
-				}
+			Function* foundFunction;
+			if(instruction.callFunction.isNamespaceCached) {
+				foundFunction = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex];
 			}
 			else {
-				if(instruction.callFunction.isNamespaceCached) {
-					this->pushInstructionContainer(
-						this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex]
-					);
-				}
-				else {
-					this->pushInstructionContainer(this->functions[instruction.callFunction.cachedIndex]);
-				}
-				this->pushVariableContext();
+				foundFunction = this->functions[instruction.callFunction.cachedIndex];
 			}
+
+			## call_generator.py
+
 			break;
 		}
 
@@ -505,8 +410,37 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			Object* object = new Object(this);
+			if(
+				!instruction.createObject.isCached
+				&& this->namespaceToIndex.find(instruction.createObject.type) != this->namespaceToIndex.end()
+			) {
+				instruction.createObject.namespaceIndex = this->namespaceToIndex[instruction.createObject.type];
+				instruction.createObject.isCached = true;
+			}
+			
+			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.namespaceIndex);
 			this->push(new ObjectReference(object));
+			break;
+		}
+
+		case instruction::CALL_OBJECT: {
+			Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+			int argumentCount = (int)numberOfArguments.numberData;
+			
+			// pull the object from the stack
+			Entry &objectEntry = this->stack[this->stackPointer - 1 - argumentCount];
+			ObjectReference* object = objectEntry.objectData;
+
+			auto search = this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.find(toLower(instruction.callObject.name));
+			if(search != this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.end()) {
+				this->printStack();
+				Function* foundFunction = search->second;
+				## call_generator.py
+			}
+			else {
+				this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
+			}
+			
 			break;
 		}
 

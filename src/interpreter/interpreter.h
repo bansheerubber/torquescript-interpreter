@@ -54,7 +54,7 @@ namespace ts {
 		private:
 			void interpret(); // interprets the next instruction
 
-			bool warnings = false;
+			bool warnings = true;
 			
 			void push(Entry &entry);
 			void push(double number);

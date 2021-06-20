@@ -14,7 +14,9 @@ structs = {
 	"argumentAssign": ["ARGUMENT_ASSIGN"],
 	"localAssign": get_assignment_instructions("LOCAL_ASSIGN"),
 	"localAccess": ["LOCAL_ACCESS"],
+	"createObject": ["CREATE_OBJECT"],
 	"callFunction": ["CALL_FUNCTION"],
+	"callObject": ["CALL_OBJECT"],
 	"objectAssign": get_assignment_instructions("OBJECT_ASSIGN"),
 	"objectAccess": ["OBJECT_ACCESS"]
 }

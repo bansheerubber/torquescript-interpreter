@@ -54,6 +54,7 @@ namespace ts {
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
 			CREATE_OBJECT, // create an object
+			CALL_OBJECT, // call a function on an object
 			OBJECT_ASSIGN_EQUAL,
 			OBJECT_ASSIGN_INCREMENT,
 			OBJECT_ASSIGN_DECREMENT,
@@ -190,7 +191,13 @@ namespace ts {
 			} callFunction;
 
 			struct {
-				
+				string name;
+			} callObject;
+
+			struct {
+				string type;
+				unsigned long namespaceIndex;
+				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
 		};
 

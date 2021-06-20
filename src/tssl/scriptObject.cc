@@ -3,6 +3,8 @@
 using namespace ts;
 
 void* sl::ScriptObject__test(int argc, void** args) {
-	printf("called on script object\n");
+	if(argc >= 1) {
+		printf("script object says: %s\n", ((string*)args[1])->c_str());
+	}
 	return nullptr;
 }

@@ -44,7 +44,7 @@ void ts::sl::define() {
 	type* nn = new type[TS_ARG_COUNT] { type::NUMBER, type::NUMBER };
 	type* snn = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::NUMBER };
 	type* sns = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::STRING };
-	type* o = new type[TS_ARG_COUNT] { type::OBJECT };
+	type* os = new type[TS_ARG_COUNT] { type::OBJECT, type::STRING };
 
 	FUNC_DEF(type::VOID, &echo, "echo", 1, s);
 
@@ -71,5 +71,5 @@ void ts::sl::define() {
 	FUNC_DEF(type::NUMBER, &mLog, "mLog", 1, n);
 	FUNC_DEF(type::STRING, &mFloatLength, "mFloatLength", 2, n);
 
-	FUNC_DEF(type::VOID, &ScriptObject__test, "ScriptObject", "test", 1, o);
+	FUNC_DEF(type::VOID, &ScriptObject__test, "ScriptObject", "test", 2, os);
 }

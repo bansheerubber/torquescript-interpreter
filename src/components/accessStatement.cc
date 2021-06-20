@@ -291,6 +291,33 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			c.output.add(element.component->compile(interpreter));
 			lastInstruction = nullptr;
 		}
+		else if(element.component != nullptr && element.component->getType() == CALL_STATEMENT) {
+			// at this point, the object should already be on the stack. no need to push it. push the args
+			c.output.add(element.component->compile(interpreter));
+
+			// push the amount of arguments we just found
+			ts::Instruction* pushArgumentCount = new ts::Instruction();
+			pushArgumentCount->type = ts::instruction::PUSH;
+			pushArgumentCount->push.entry.type = ts::entry::NUMBER;
+			pushArgumentCount->push.entry.setNumber(((CallStatement*)element.component)->getElementCount() + 1);
+			c.output.add(pushArgumentCount);
+
+			// compile the call instruction
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::CALL_OBJECT;
+			new((void*)&instruction->callObject.name) string(lastInstruction->objectAccess.source); // TODO move this initialization elsewhere
+
+			c.output.add(instruction);
+
+			if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
+				ts::Instruction* pop = new ts::Instruction();
+				pop->type = ts::instruction::POP;
+				c.output.add(pop);
+			}
+			
+			delete lastInstruction; // this is a bit hacky, but whatever. forget about our last instruction
+			lastInstruction = nullptr;
+		}
 		count++;
 	}
 
