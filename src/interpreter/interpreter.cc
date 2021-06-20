@@ -374,7 +374,6 @@ void Interpreter::interpret() {
 					}
 
 					this->push(this->emptyEntry);
-
 					break;
 				}
 			}
@@ -431,6 +430,20 @@ void Interpreter::interpret() {
 			Entry &objectEntry = this->stack[this->stackPointer - 1 - argumentCount];
 			ObjectReference* object = objectEntry.objectData;
 
+			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+				this->warning("trying to call a deleted object\n");
+				
+				// pop arguments that we didn't use
+				Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+				int number = (int)numberOfArguments.numberData;
+				for(int i = 0; i < number + 1; i++) {
+					this->pop();
+				}
+
+				this->push(this->emptyEntry);
+				break;
+			}
+
 			auto search = this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.find(toLower(instruction.callObject.name));
 			if(search != this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.end()) {
 				this->printStack();
@@ -439,6 +452,15 @@ void Interpreter::interpret() {
 			}
 			else {
 				this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
+
+				// pop arguments that we didn't use
+				Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+				int number = (int)numberOfArguments.numberData;
+				for(int i = 0; i < number + 1; i++) {
+					this->pop();
+				}
+
+				this->push(this->emptyEntry);
 			}
 			
 			break;
