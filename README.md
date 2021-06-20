@@ -5,6 +5,9 @@ Torquescript is an older programming language which was used for video game deve
 ---
 ## Compilation:
 Requires C++17 and `libfmt`.
+```
+$ git clone --recurse-submodules https://github.com/bansheerubber/torquescript-interpreter
+```
 
 **Linux:**
 ```
