@@ -32,7 +32,7 @@ namespace ts {
 		void setString(string &value);
 		void setString(string* value);
 		void setObject(Object* value);
-		void print() const;
+		void print(int tabs = 0) const;
 		const char* typeToString() const;
 	};
 

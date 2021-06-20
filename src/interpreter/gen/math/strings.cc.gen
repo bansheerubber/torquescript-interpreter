@@ -30,6 +30,10 @@
 	if(lvalue->type == entry::STRING) {
 		lvalueString = lvalue->stringData;
 	}
+	else if(lvalue->type == entry::OBJECT) {
+		lvalueString = numberToString(lvalue->objectData->id);
+		deleteLValueString = true;
+	}
 	else {
 		lvalueString = numberToString(lvalue->numberData);
 		deleteLValueString = true;
@@ -38,6 +42,10 @@
 	// typecheck value
 	if(rvalue->type == entry::STRING) {
 		rvalueString = rvalue->stringData;
+	}
+	else if(rvalue->type == entry::OBJECT) {
+		rvalueString = numberToString(rvalue->objectData->id);
+		deleteLValueString = true;
 	}
 	else {
 		rvalueString = numberToString(rvalue->numberData);
@@ -75,6 +83,10 @@
 	if(lvalue->type == entry::STRING) {
 		lvalueString = lvalue->stringData;
 	}
+	else if(lvalue->type == entry::OBJECT) {
+		lvalueString = numberToString(lvalue->objectData->id);
+		deleteLValueString = true;
+	}
 	else {
 		lvalueString = numberToString(lvalue->numberData);
 		deleteLValueString = true;
@@ -83,6 +95,10 @@
 	// typecheck value
 	if(rvalue->type == entry::STRING) {
 		rvalueString = rvalue->stringData;
+	}
+	else if(rvalue->type == entry::OBJECT) {
+		rvalueString = numberToString(rvalue->objectData->id);
+		deleteLValueString = true;
 	}
 	else {
 		rvalueString = numberToString(rvalue->numberData);

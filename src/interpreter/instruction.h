@@ -54,6 +54,20 @@ namespace ts {
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
 			CREATE_OBJECT, // create an object
+			OBJECT_ASSIGN_EQUAL,
+			OBJECT_ASSIGN_INCREMENT,
+			OBJECT_ASSIGN_DECREMENT,
+			OBJECT_ASSIGN_PLUS,
+			OBJECT_ASSIGN_MINUS,
+			OBJECT_ASSIGN_ASTERISK,
+			OBJECT_ASSIGN_SLASH,
+			OBJECT_ASSIGN_MODULUS,
+			OBJECT_ASSIGN_SHIFT_LEFT,
+			OBJECT_ASSIGN_SHIFT_RIGHT,
+			OBJECT_ASSIGN_BITWISE_AND,
+			OBJECT_ASSIGN_BITWISE_XOR,
+			OBJECT_ASSIGN_BITWISE_OR,
+			OBJECT_ACCESS,
 		};
 
 		enum AssignOperations {
@@ -135,6 +149,16 @@ namespace ts {
 
 			struct {
 				int dimensions;
+				string destination;
+				size_t hash;
+				bool fromStack;
+				bool pushResult;
+				Entry entry;
+				bool popObject;
+			} objectAssign;
+
+			struct {
+				int dimensions;
 				relative_stack_location offset; // subtracted from top of stack
 				unsigned int argc; // expected amount of arguments
 				string destination;
@@ -146,6 +170,12 @@ namespace ts {
 				string source;
 				size_t hash;
 			} localAccess;
+
+			struct {
+				int dimensions;
+				string source;
+				size_t hash;
+			} objectAccess;
 
 			struct {
 				string name;

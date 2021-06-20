@@ -26,6 +26,9 @@
 	if(lvalue->type == entry::NUMBER) {
 		lvalueNumber = lvalue->numberData;
 	}
+	else if(lvalue->type == entry::OBJECT) {
+		lvalueNumber = lvalue->objectData->id;
+	}
 	else {
 		lvalueNumber = stringToNumber(*lvalue->stringData);
 	}
@@ -33,6 +36,9 @@
 	// typecheck value
 	if(rvalue->type == entry::NUMBER) {
 		rvalueNumber = rvalue->numberData;
+	}
+	else if(rvalue->type == entry::OBJECT) {
+		rvalueNumber = rvalue->objectData->id;
 	}
 	else {
 		rvalueNumber = stringToNumber(*rvalue->stringData);
@@ -66,6 +72,9 @@
 	if(lvalue->type == entry::NUMBER) {
 		lvalueNumber = lvalue->numberData;
 	}
+	else if(lvalue->type == entry::OBJECT) {
+		lvalueNumber = lvalue->objectData->id;
+	}
 	else {
 		lvalueNumber = stringToNumber(*lvalue->stringData);
 	}
@@ -73,6 +82,9 @@
 	// typecheck value
 	if(rvalue->type == entry::NUMBER) {
 		rvalueNumber = rvalue->numberData;
+	}
+	else if(rvalue->type == entry::OBJECT) {
+		rvalueNumber = rvalue->objectData->id;
 	}
 	else {
 		rvalueNumber = stringToNumber(*rvalue->stringData);

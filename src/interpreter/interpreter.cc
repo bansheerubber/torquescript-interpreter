@@ -148,6 +148,9 @@ void Interpreter::interpret() {
 					entry.type == entry::STRING
 					&& entry.stringData->length() != 0
 				)
+				|| (
+					entry.type == entry::OBJECT
+				)
 			) {
 				*this->instructionPointer = instruction.jumpIfTrue.index;
 			}
@@ -252,6 +255,26 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::OBJECT_ACCESS: { // push object property to stack
+			Object* object = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions].objectData;
+			
+			Entry &entry = object->properties.getVariableEntry(
+				instruction,
+				instruction.localAccess.source,
+				instruction.localAssign.hash
+			);
+
+			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
+				this->pop(); // pop the dimensions if we have any
+			}
+
+			this->pop(); // pop the object
+
+			this->push(entry);
+
+			break;
+		}
+
 		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
 				bool found = false;
@@ -296,6 +319,10 @@ void Interpreter::interpret() {
 								arguments[count - 1] = numberToString(entry.numberData);
 								deleteArguments[count - 1] = true;
 							}
+							else if(entry.type == entry::OBJECT) {
+								arguments[count - 1] = numberToString(entry.objectData->id);
+								deleteArguments[count - 1] = true;
+							}
 							else {
 								arguments[count - 1] = entry.stringData;
 								deleteArguments[count - 1] = false;
@@ -304,6 +331,10 @@ void Interpreter::interpret() {
 						else {
 							if(entry.type == entry::NUMBER) {
 								arguments[count - 1] = &entry.numberData;
+								deleteArguments[count - 1] = false;
+							}
+							else if(entry.type == entry::OBJECT) {
+								arguments[count - 1] = &entry.objectData->id;
 								deleteArguments[count - 1] = false;
 							}
 							else {
@@ -363,8 +394,12 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			this->push(new Object());
+			this->push(new Object(this));
 			break;
+		}
+
+		default: {
+			printf("DID NOT EXECUTE INSTRUCTION.\n");
 		}
 	}
 
@@ -379,18 +414,9 @@ void Interpreter::printStack() {
 	printf("\nSTACK: %d\n", this->stackPointer);
 	for(unsigned int i = 0; i < this->stackPointer; i++) {
 		Entry &entry = this->stack[i];
-		
-		printf("ENTRY #%d {\n", i);
-		printf("   type: %d,\n", entry.type);
 
-		if(entry.type == entry::STRING) {
-			printf("   data: \"%s\",\n", entry.stringData->c_str());
-		}
-		if(entry.type == entry::NUMBER) {
-			printf("   data: %f,\n", entry.numberData);
-		}
-
-		printf("};\n");
+		printf("#%d ", i);
+		entry.print();
 	}
 	printf("\n");
 }

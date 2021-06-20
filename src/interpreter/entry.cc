@@ -65,25 +65,31 @@ const char* Entry::typeToString() const {
 	return EntryTypeDebug[this->type];
 }
 
-void Entry::print() const {
-	printf("ENTRY {\n");
+void Entry::print(int tabs) const {
+	string space;
+	for(int i = 0; i < tabs; i++) {
+		space += "   ";
+	}
+	printf("%sENTRY {\n", space.c_str());
 
-	printf("   type: %s,\n", this->typeToString());
+	printf("%s   type: %s,\n", space.c_str(), this->typeToString());
 
 	if(this->type == entry::STRING) {
-		printf("   data: \"%s\",\n", this->stringData->c_str());
+		printf("%s   data: \"%s\",\n", space.c_str(), this->stringData->c_str());
 	}
 	else if(this->type == entry::NUMBER) {
-		printf("   data: %f,\n", this->numberData);
+		printf("%s   data: %f,\n", space.c_str(), this->numberData);
 	}
 	else if(this->type == entry::OBJECT) {
-		printf("   data 0x%lX,\n", (long)this->objectData);
+		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData);
+		printf("%s   variables:\n", space.c_str());
+		this->objectData->properties.printWithTab(2 + tabs);
 	}
 	else {
-		printf("   data: no data,\n");
+		printf("%s   data: no data,\n", space.c_str());
 	}
 
-	printf("};\n");
+	printf("%s};\n", space.c_str());
 }
 
 void ts::copyEntry(Entry &source, Entry &destination) {

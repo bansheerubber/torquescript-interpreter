@@ -30,13 +30,16 @@ namespace ts {
 			
 			struct Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
+			void setVariableEntry(string &name, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void print();
+			void printWithTab(int tabs);
 			void clear();
 		
 		private:
 			class Interpreter* interpreter;
 			friend class Interpreter;
+			friend class Object;
 			robin_map<string, Entry*> variableMap;
 	};
 }

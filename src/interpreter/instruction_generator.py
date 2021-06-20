@@ -14,7 +14,9 @@ structs = {
 	"argumentAssign": ["ARGUMENT_ASSIGN"],
 	"localAssign": get_assignment_instructions("LOCAL_ASSIGN"),
 	"localAccess": ["LOCAL_ACCESS"],
-	"callFunction": ["CALL_FUNCTION"]
+	"callFunction": ["CALL_FUNCTION"],
+	"objectAssign": get_assignment_instructions("OBJECT_ASSIGN"),
+	"objectAccess": ["OBJECT_ACCESS"]
 }
 
 instruction_to_struct = {instruction: struct for struct in structs.keys() for instruction in structs[struct]}
@@ -118,6 +120,9 @@ elif sys.argv[1] == "debug.cc":
 
 		if(instruction.{struct}.{variable_name}.type == entry::STRING) {{
 			printf("   {variable_name} data: \\"%s\\",\\n", instruction.{struct}.{variable_name}.stringData->c_str());
+		}}
+		else if(instruction.{struct}.{variable_name}.type == entry::OBJECT) {{
+			printf("   {variable_name} data: %d,\\n", instruction.{struct}.{variable_name}.objectData->id);
 		}}
 		else {{
 			printf("   {variable_name} data: %f,\\n", instruction.{struct}.{variable_name}.numberData);

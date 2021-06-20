@@ -17,7 +17,8 @@ suffixes = [
 ]
 
 prefixes = {
-	"LOCAL_ASSIGN": "localAssign"
+	"LOCAL_ASSIGN": "localAssign",
+	"OBJECT_ASSIGN": "objectAssign",
 }
 
 # get instructions for just the prefix

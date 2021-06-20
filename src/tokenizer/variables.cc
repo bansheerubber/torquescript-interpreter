@@ -130,7 +130,7 @@ Token Tokenizer::readGlobalVariable() {
 
 Token Tokenizer::readMemberChain() {
 	Token token = {
-		lexeme: ".",
+		lexeme: "",
 		type: MEMBER_CHAIN,
 		lineNumber: this->lineNumber,
 		characterNumber: this->characterNumber,

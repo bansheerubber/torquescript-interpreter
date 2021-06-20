@@ -89,11 +89,35 @@ void VariableContext::setVariableEntry(Instruction &instruction, string &name, s
 	}
 }
 
+void VariableContext::setVariableEntry(string &name, Entry &entry) {
+	auto value = this->variableMap.find(name);
+	if(value == this->variableMap.end()) { // create the entry
+		Entry* variableEntry = new Entry();
+		this->variableMap[name] = variableEntry;
+		copyEntry(entry, *variableEntry);
+	}
+	else {
+		copyEntry(entry, *value->second);
+	}
+}
+
 void VariableContext::print() {
 	printf("-------------------------------\n");
 	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
-		printf("%s:\n", it->first.c_str());
-		it->second->print();
+		printf("\"%s\":\n", it->first.c_str());
+		it->second->print(1);
 		printf("-------------------------------\n");
+	}
+}
+
+void VariableContext::printWithTab(int tabs) {
+	string space;
+	for(int i = 0; i < tabs; i++) {
+		space += "   ";
+	}
+	
+	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
+		printf("%s\"%s\":\n", space.c_str(), it->first.c_str());
+		it->second->print(tabs + 1);
 	}
 }

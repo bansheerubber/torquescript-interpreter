@@ -1,0 +1,3 @@
+// what the stack looks like:
+// {lvalue, object we're assigning to, dimensions...}
+Object* object = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions].objectData;

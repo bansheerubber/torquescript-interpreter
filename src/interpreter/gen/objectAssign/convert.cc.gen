@@ -1,0 +1,11 @@
+// convert the value we read from stack to a number if necessary
+double valueNumber = 0;
+if(value->type == entry::NUMBER) {
+	valueNumber = value->numberData;
+}
+else if(value->type == entry::OBJECT) {
+	valueNumber = value->objectData->id;
+}
+else {
+	valueNumber = stringToNumber(*value->stringData);
+}

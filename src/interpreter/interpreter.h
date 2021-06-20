@@ -31,6 +31,8 @@ namespace ts {
 			void addFunction(string &name, InstructionReturn output);
 
 			Entry emptyEntry;
+
+			unsigned int highestObjectId = 0;
 		
 		private:
 			void interpret(); // interprets the next instruction

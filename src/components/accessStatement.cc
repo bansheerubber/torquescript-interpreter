@@ -262,8 +262,16 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			if(lastInstruction != nullptr) {
 				c.output.add(lastInstruction);
 			}
-			
-			continue;
+
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::OBJECT_ACCESS;
+			instruction->objectAccess.dimensions = 0;
+			instruction->objectAccess.hash = hash<string>{}(element.token.lexeme);
+			new((void*)&instruction->objectAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+
+			c.lastAccess = instruction;
+
+			lastInstruction = instruction;
 		}
 		count++;
 	}
