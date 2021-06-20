@@ -254,6 +254,17 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 
 			lastInstruction = instruction;
 		}
+		else if(element.token.type == SYMBOL) {
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::INVALID_INSTRUCTION; // TODO figure out a better way to do this
+			instruction->localAccess.dimensions = 0;
+			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
+			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+
+			c.lastAccess = instruction;
+
+			lastInstruction = instruction;
+		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
 			c.output.add(element.component->compile(interpreter));

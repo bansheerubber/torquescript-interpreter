@@ -37,7 +37,7 @@ class AssignStatement : public Component {
 		static bool ShouldParse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 		static AssignStatement* Parse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 
-		class AccessStatement* getLvalue() {
+		class AccessStatement* getLValue() {
 			return this->lvalue;
 		}
 

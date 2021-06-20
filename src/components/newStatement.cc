@@ -110,7 +110,52 @@ string NewStatement::printJSON() {
 }
 
 ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
-	ts::Instruction* instruction = new ts::Instruction();
-	instruction->type = ts::instruction::CREATE_OBJECT;
-	return ts::InstructionReturn(instruction, instruction);
+	ts::InstructionReturn output;
+	
+	ts::Instruction* createObject = new ts::Instruction();
+	createObject->type = ts::instruction::CREATE_OBJECT;
+	output.add(createObject);
+
+	for(Component* component: this->children) {
+		if(component->getType() == ASSIGN_STATEMENT) {
+			AssignStatement* assignStatement = (AssignStatement*)component;
+
+			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter);
+			ts::Instruction* instruction = c.lastAccess;
+			
+			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
+			instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
+
+			new((void*)&instruction->objectAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+			instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
+			instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
+			instruction->objectAssign.fromStack = false;
+			instruction->objectAssign.pushResult = false;
+			instruction->objectAssign.popObject = false;
+
+			if(assignStatement->getRValue()->getType() == NUMBER_LITERAL) {
+				instruction->localAssign.entry.setNumber(((NumberLiteral*)assignStatement->getRValue())->getNumber());
+			}
+			else if(assignStatement->getRValue()->getType() == BOOLEAN_LITERAL) {
+				instruction->localAssign.entry.setNumber(((BooleanLiteral*)assignStatement->getRValue())->getBoolean());
+			}
+			else if(assignStatement->getRValue()->getType() == STRING_LITERAL) {
+				string literal = ((StringLiteral*)assignStatement->getRValue())->getString();
+				instruction->localAssign.entry.setString(literal);
+			}
+			else if(
+				assignStatement->getRValue()->getType() == MATH_EXPRESSION
+				|| assignStatement->getRValue()->getType() == ACCESS_STATEMENT
+				|| assignStatement->getRValue()->getType() == ASSIGN_STATEMENT
+				|| assignStatement->getRValue()->getType() == NEW_STATEMENT
+			) {
+				output.add(assignStatement->getRValue()->compile(interpreter));
+				instruction->localAssign.fromStack = true;
+			}
+
+			output.add(c.output);
+		}
+	}
+
+	return output;
 }
