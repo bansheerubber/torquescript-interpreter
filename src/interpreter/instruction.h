@@ -182,7 +182,10 @@ namespace ts {
 				// cache the index when we lookup the name of the function at runtime
 				// (hashing an int during runtime is probably faster than hashing a string)
 				unsigned long cachedIndex;
+				string nameSpace;
+				unsigned long cachedNamespaceIndex;
 				bool isCached;
+				bool isNamespaceCached;
 				bool isTSSL;
 			} callFunction;
 

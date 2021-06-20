@@ -297,19 +297,38 @@ void Interpreter::interpret() {
 		case instruction::CALL_FUNCTION: { // jump to a new instruction container
 			if(!instruction.callFunction.isCached) {
 				bool found = false;
-				if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
-					instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
-					instruction.callFunction.isCached = true;
-					found = true;
+				if(
+					instruction.callFunction.nameSpace.length() != 0
+					&& this->namespaceToIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToIndex.end()
+				) {
+					int namespaceIndex = this->namespaceToIndex[instruction.callFunction.nameSpace];
+					if(
+						this->namespaceFunctions[namespaceIndex]->nameToIndex.find(toLower(instruction.callFunction.name))
+							!= this->namespaceFunctions[namespaceIndex]->nameToIndex.end()
+					) {
+						instruction.callFunction.cachedIndex = this->namespaceFunctions[namespaceIndex]->nameToIndex[toLower(instruction.callFunction.name)];
+						instruction.callFunction.cachedNamespaceIndex = namespaceIndex;
+						instruction.callFunction.isCached = true;
+						instruction.callFunction.isNamespaceCached = true;
+						found = true;
+					}
+				}
+				else { // find non-namespace function
+					if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
+						instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
+						instruction.callFunction.isCached = true;
+						found = true;
+					}
+
+					if(functions::nameToIndex.find(toLower(instruction.callFunction.name)) != functions::nameToIndex.end()) {
+						instruction.callFunction.cachedIndex = functions::nameToIndex[toLower(instruction.callFunction.name)];
+						instruction.callFunction.isCached = true;
+						instruction.callFunction.isTSSL = true;
+						found = true;
+					}
 				}
 
-				if(functions::nameToIndex.find(toLower(instruction.callFunction.name)) != functions::nameToIndex.end()) {
-					instruction.callFunction.cachedIndex = functions::nameToIndex[toLower(instruction.callFunction.name)];
-					instruction.callFunction.isCached = true;
-					instruction.callFunction.isTSSL = true;
-					found = true;
-				}
-
+				// print warning if function was not defined
 				if(found == false) {
 					this->warning("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
 				
@@ -415,7 +434,14 @@ void Interpreter::interpret() {
 				}
 			}
 			else {
-				this->pushInstructionContainer(this->functions[instruction.callFunction.cachedIndex]);
+				if(instruction.callFunction.isNamespaceCached) {
+					this->pushInstructionContainer(
+						this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex]
+					);
+				}
+				else {
+					this->pushInstructionContainer(this->functions[instruction.callFunction.cachedIndex]);
+				}
 				this->pushVariableContext();
 			}
 			break;
@@ -471,4 +497,25 @@ void Interpreter::addFunction(string &name, InstructionReturn output) {
 	InstructionContainer* container = new InstructionContainer(output.first);
 	this->nameToIndex[toLower(name)] = this->functions.size();
 	this->functions.push_back(container);
+}
+
+void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output) {
+	InstructionContainer* container = new InstructionContainer(output.first);
+
+	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
+		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();
+
+		// add to function data structure
+		NamespaceFunctions* functions = new NamespaceFunctions();
+		functions->nameToIndex[toLower(name)] = functions->functions.size();
+		functions->nameToFunction[toLower(name)] = container;
+		functions->functions.push_back(container);
+		this->namespaceFunctions.push_back(functions);
+	}
+	else {
+		NamespaceFunctions* functions = this->namespaceFunctions[this->namespaceToIndex[nameSpace]];
+		functions->nameToIndex[toLower(name)] = functions->functions.size();
+		functions->nameToFunction[toLower(name)] = container;
+		functions->functions.push_back(container);
+	}
 }

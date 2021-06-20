@@ -20,6 +20,18 @@
 using namespace std;
 
 namespace ts {
+	struct NamespaceFunctions {
+		robin_map<string, int> nameToIndex;
+		robin_map<string, InstructionContainer*> nameToFunction;
+		vector<InstructionContainer*> functions;
+
+		NamespaceFunctions() {
+			this->nameToIndex = robin_map<string, int>();
+			this->nameToFunction = robin_map<string, InstructionContainer*>();
+			this->functions = vector<InstructionContainer*>();
+		}
+	};
+	
 	class Interpreter {
 		public:
 			Interpreter();
@@ -31,6 +43,7 @@ namespace ts {
 			void warning(const char* format, ...);
 
 			void addFunction(string &name, InstructionReturn output);
+			void addFunction(string &nameSpace, string &name, InstructionReturn output);
 
 			Entry emptyEntry;
 
@@ -71,7 +84,12 @@ namespace ts {
 			void pushInstructionContainer(InstructionContainer* container);
 			void popInstructionContainer();
 
+		public:
+			// function datastructures
 			robin_map<string, int> nameToIndex;
 			vector<InstructionContainer*> functions;
+
+			robin_map<string, int> namespaceToIndex;
+			vector<NamespaceFunctions*> namespaceFunctions;
 	};
 }

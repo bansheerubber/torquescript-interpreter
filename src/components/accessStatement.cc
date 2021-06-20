@@ -226,8 +226,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		new((void*)&callFunction->callFunction.name) string(this->elements[0].token.lexeme); // TODO move this initialization elsewhere
+		new((void*)&callFunction->callFunction.nameSpace) string(""); // TODO move this initialization elsewhere
 		callFunction->callFunction.cachedIndex = 0;
+		callFunction->callFunction.cachedNamespaceIndex = 0;
 		callFunction->callFunction.isCached = false;
+		callFunction->callFunction.isNamespaceCached = false;
 		callFunction->callFunction.isTSSL = false;
 		c.output.add(callFunction);
 

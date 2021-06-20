@@ -81,9 +81,12 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter) 
 		// build call instruction
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
-		new((void*)&callFunction->callFunction.name) string(this->name->print() + "::" + this->operation->print()); // TODO move this initialization elsewhere
+		new((void*)&callFunction->callFunction.name) string(this->operation->print()); // TODO move this initialization elsewhere
+		new((void*)&callFunction->callFunction.nameSpace) string(this->name->print()); // TODO move this initialization elsewhere
 		callFunction->callFunction.cachedIndex = 0;
+		callFunction->callFunction.cachedNamespaceIndex = 0;
 		callFunction->callFunction.isCached = false;
+		callFunction->callFunction.isNamespaceCached = false;
 		callFunction->callFunction.isTSSL = false;
 		output.add(callFunction);
 

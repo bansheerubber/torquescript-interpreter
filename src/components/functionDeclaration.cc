@@ -127,8 +127,9 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 	output.add(returnInstruction);
 
 	if(this->name2 != nullptr) {
-		string name = this->name1->print() + "::" + this->name2->print();
-		interpreter->addFunction(name, output);
+		string nameSpace = this->name1->print();
+		string name = this->name2->print();
+		interpreter->addFunction(nameSpace, name, output);
 	}
 	else {
 		string name = this->name1->print();
