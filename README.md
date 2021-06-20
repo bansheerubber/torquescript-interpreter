@@ -1,16 +1,10 @@
-# eggscript-interpreter
-## What is eggscript?
-Eggscript is an extension of an older programming language called Torquescript. Programmers familiar with Torquescript are also familiar with its numerous flaws that make it difficult to develop for. Eggscript fixes some of these flaws, and provides developers with a similar syntax to Torquescript.
-
-Eggscript will introduce compatibility breaking changes with Torquescript. Some of the breaking changes will not be interpretable by Torquescript. Instead, the eggscript interpreter will be needed to interpret the code.
-
-This repo will offer two interpreters: one for Torquescript and one for eggscript. The Torquescript interpreter will keep compatibility with TGE's interpreter, for better or for worse. The eggscript interpreter, on the other hand, will be optimized for performance so it will not suffer from the flaws of Torquescript.
-
-The interpreters will also eventually be designed to easily include in your own projects. Adding Torquescript or eggscript support to your own program should be as simple as including some libraries.
+# torquescript-interpreter
+## What is Torquescript?
+Torquescript is an older programming language which was used for video game development in an older version of the Torque Game Engine. Programmers familiar with Torquescript are also familiar with its many flaws making it difficult to develop for. However, Torquescript has some neat ideas that make some parts of game development effortless, even with its flaws. Torquescript was the first programming language I learned and I carry a sort of fascination for it to this day. I want to make my own programming language borrowing some of Torquescript's better ideas, but first I wanted to familiarize myself with building an interpreter since I have never made one before.
 
 ---
 ## Compilation:
-Requires C++17.
+Requires C++17 and `libfmt`.
 
 **Linux:**
 ```
@@ -25,7 +19,16 @@ Depending on what GCC compiler you use, it may not work. I used the latest versi
 
 ---
 
+## Running Code
+Right now the only way to run code is to pipe it in. This is still very much a work in progres, so many Torquescript features do not work yet.
+```
+$ ./torquescript < code.cs
+```
+
+---
+
 ## Testing:
+There aren't a whole lot of tests at the moment. I'm mostly regression testing the parser and tokenizer. Testing for the interpreter will come later
 **To build tests:**
 ```
 $ make build-tests

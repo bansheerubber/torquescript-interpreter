@@ -1,4 +1,4 @@
-target = dist/eggscript
+target = dist/torquescript
 cclibs = -lpthread -lfmt
 cc = g++
 ccflags = -O2 -Wall -Wno-switch -Bsymbolic -fno-semantic-interposition -std=c++17
@@ -34,10 +34,10 @@ $(target): $(cpp_objects_tmp)
 	$(cc) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
 
 test: $(target)
-	cd ./dist/ && ./eggscript --test
+	cd ./dist/ && ./$(target) --test
 
 build-tests: $(target)
-	cd ./dist/ && ./eggscript --test --overwrite-results
+	cd ./dist/ && ./$(target) --test --overwrite-results
 
 clean:
 	rm -Rf tmp
