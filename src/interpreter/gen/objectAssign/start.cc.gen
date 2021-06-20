@@ -1,3 +1,20 @@
 // what the stack looks like:
 // {lvalue, object we're assigning to, dimensions...}
-Object* object = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions].objectData;
+Entry &objectEntry = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions];
+ObjectReference* object = objectEntry.objectData;
+
+// don't do anything if our reference is dead
+if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+	if(instruction.objectAssign.popObject) {
+		this->pop(); // pop object from the stack
+	}
+
+	if(instruction.objectAssign.fromStack) {
+		this->pop(); // pop value from the stack
+	}
+	
+	if(instruction.objectAssign.pushResult) {
+		this->push(this->emptyEntry);
+	}
+	break;
+}

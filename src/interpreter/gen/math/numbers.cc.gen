@@ -27,7 +27,12 @@
 		lvalueNumber = lvalue->numberData;
 	}
 	else if(lvalue->type == entry::OBJECT) {
-		lvalueNumber = lvalue->objectData->id;
+		if(lvalue->objectData->object == nullptr) {
+			lvalueNumber = 0.0;
+		}
+		else {
+			lvalueNumber = lvalue->objectData->object->id;
+		}
 	}
 	else {
 		lvalueNumber = stringToNumber(*lvalue->stringData);
@@ -38,7 +43,12 @@
 		rvalueNumber = rvalue->numberData;
 	}
 	else if(rvalue->type == entry::OBJECT) {
-		rvalueNumber = rvalue->objectData->id;
+		if(rvalue->objectData->object == nullptr) {
+			rvalueNumber = 0.0;
+		}
+		else {
+			rvalueNumber = rvalue->objectData->object->id;
+		}
 	}
 	else {
 		rvalueNumber = stringToNumber(*rvalue->stringData);
@@ -73,7 +83,12 @@
 		lvalueNumber = lvalue->numberData;
 	}
 	else if(lvalue->type == entry::OBJECT) {
-		lvalueNumber = lvalue->objectData->id;
+		if(lvalue->objectData->object == nullptr) {
+			lvalueNumber = 0.0;
+		}
+		else {
+			lvalueNumber = lvalue->objectData->object->id;
+		}
 	}
 	else {
 		lvalueNumber = stringToNumber(*lvalue->stringData);
@@ -84,7 +99,12 @@
 		rvalueNumber = rvalue->numberData;
 	}
 	else if(rvalue->type == entry::OBJECT) {
-		rvalueNumber = rvalue->objectData->id;
+		if(rvalue->objectData->object == nullptr) {
+			rvalueNumber = 0.0;
+		}
+		else {
+			rvalueNumber = rvalue->objectData->object->id;
+		}
 	}
 	else {
 		rvalueNumber = stringToNumber(*rvalue->stringData);

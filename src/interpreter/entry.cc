@@ -1,4 +1,5 @@
 #include "entry.h"
+#include "object.h"
 
 using namespace ts;
 
@@ -54,7 +55,7 @@ void Entry::setString(string* value) {
 	this->stringData = value;
 }
 
-void Entry::setObject(Object* object) {
+void Entry::setObject(ObjectReference* object) {
 	this->type = entry::OBJECT;
 	this->objectData = object;
 }
@@ -81,9 +82,11 @@ void Entry::print(int tabs) const {
 		printf("%s   data: %f,\n", space.c_str(), this->numberData);
 	}
 	else if(this->type == entry::OBJECT) {
-		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData);
-		printf("%s   variables:\n", space.c_str());
-		this->objectData->properties.printWithTab(2 + tabs);
+		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData->object);
+		if(this->objectData->object != nullptr) {
+			printf("%s   variables:\n", space.c_str());
+			this->objectData->object->properties.printWithTab(2 + tabs);
+		}
 	}
 	else {
 		printf("%s   data: no data,\n", space.c_str());

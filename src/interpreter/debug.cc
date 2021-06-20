@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "object.h"
 
 void PrintInstruction(Instruction &instruction) {
 	switch(instruction.type) {

@@ -25,7 +25,7 @@ specific_operations = {
 				instruction.localAssign.hash,
 				*entry
 			);""",
-	"OBJECT_ASSIGN_EQUAL": """object->properties.setVariableEntry(
+	"OBJECT_ASSIGN_EQUAL": """object->object->properties.setVariableEntry(
 				instruction,
 				instruction.localAssign.destination,
 				instruction.localAssign.hash,

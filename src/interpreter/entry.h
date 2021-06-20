@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "object.h"
+#include "objectReference.h"
 #include "stack.h"
 
 using namespace std;
@@ -22,7 +22,7 @@ namespace ts {
 		union {
 			double numberData;
 			string* stringData;
-			Object* objectData;
+			ObjectReference* objectData;
 		};
 
 		Entry();
@@ -31,7 +31,7 @@ namespace ts {
 		void setNumber(double value);
 		void setString(string &value);
 		void setString(string* value);
-		void setObject(Object* value);
+		void setObject(ObjectReference* value);
 		void print(int tabs = 0) const;
 		const char* typeToString() const;
 	};

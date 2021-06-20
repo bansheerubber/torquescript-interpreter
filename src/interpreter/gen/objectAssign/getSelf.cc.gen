@@ -1,7 +1,7 @@
 // get the value of the variable contained in the instruction
 Entry* entry = nullptr;
 double entryNumber = 0;
-entry = &object->properties.getVariableEntry(
+entry = &object->object->properties.getVariableEntry(
 	instruction,
 	instruction.objectAssign.destination,
 	instruction.objectAssign.hash

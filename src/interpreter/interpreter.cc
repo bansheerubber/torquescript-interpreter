@@ -71,7 +71,7 @@ void Interpreter::push(string* value) {
 }
 
 // push an object onto the stack
-void Interpreter::push(Object* value) {
+void Interpreter::push(ObjectReference* value) {
 	this->stack[this->stackPointer].setObject(value);
 	this->stackPointer++;
 }
@@ -256,9 +256,17 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::OBJECT_ACCESS: { // push object property to stack
-			Object* object = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions].objectData;
+			Entry &objectEntry = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions];
+			ObjectReference* object = objectEntry.objectData;
+
+			// if the object is not alive anymore, push nothing to the stack
+			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+				this->push(this->emptyEntry);
+				this->pop(); // pop the object
+				break;
+			}
 			
-			Entry &entry = object->properties.getVariableEntry(
+			Entry &entry = object->object->properties.getVariableEntry(
 				instruction,
 				instruction.localAccess.source,
 				instruction.localAssign.hash
@@ -320,7 +328,13 @@ void Interpreter::interpret() {
 								deleteArguments[count - 1] = true;
 							}
 							else if(entry.type == entry::OBJECT) {
-								arguments[count - 1] = numberToString(entry.objectData->id);
+								if(entry.objectData->object == nullptr) {
+									arguments[count - 1] = new string();
+								}
+								else {
+									arguments[count - 1] = numberToString(entry.objectData->object->id);	
+								}
+
 								deleteArguments[count - 1] = true;
 							}
 							else {
@@ -334,8 +348,14 @@ void Interpreter::interpret() {
 								deleteArguments[count - 1] = false;
 							}
 							else if(entry.type == entry::OBJECT) {
-								arguments[count - 1] = &entry.objectData->id;
-								deleteArguments[count - 1] = false;
+								if(entry.objectData->object == nullptr) {
+									arguments[count - 1] = new double(0);
+									deleteArguments[count - 1] = true;
+								}
+								else {
+									arguments[count - 1] = &entry.objectData->object->id;
+									deleteArguments[count - 1] = false;
+								}
 							}
 							else {
 								arguments[count - 1] = new double(stringToNumber(*entry.stringData));
@@ -394,7 +414,8 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			this->push(new Object(this));
+			Object* object = new Object(this);
+			this->push(new ObjectReference(object));
 			break;
 		}
 

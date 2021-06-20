@@ -4,7 +4,12 @@ if(value->type == entry::NUMBER) {
 	valueNumber = value->numberData;
 }
 else if(value->type == entry::OBJECT) {
-	valueNumber = value->objectData->id;
+	if(value->objectData->object == nullptr) {
+		valueNumber = 0.0;
+	}
+	else {
+		valueNumber = value->objectData->object->id;
+	}
 }
 else {
 	valueNumber = stringToNumber(*value->stringData);

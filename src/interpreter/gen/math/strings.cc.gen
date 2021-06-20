@@ -31,7 +31,12 @@
 		lvalueString = lvalue->stringData;
 	}
 	else if(lvalue->type == entry::OBJECT) {
-		lvalueString = numberToString(lvalue->objectData->id);
+		if(lvalue->objectData->object == nullptr) {
+			lvalueString = new string();
+		}
+		else {
+			lvalueString = numberToString(lvalue->objectData->object->id);
+		}
 		deleteLValueString = true;
 	}
 	else {
@@ -44,8 +49,13 @@
 		rvalueString = rvalue->stringData;
 	}
 	else if(rvalue->type == entry::OBJECT) {
-		rvalueString = numberToString(rvalue->objectData->id);
-		deleteLValueString = true;
+		if(rvalue->objectData->object == nullptr) {
+			rvalueString = new string();
+		}
+		else {
+			rvalueString = numberToString(rvalue->objectData->object->id);
+		}
+		deleteRValueString = true;
 	}
 	else {
 		rvalueString = numberToString(rvalue->numberData);
@@ -84,7 +94,12 @@
 		lvalueString = lvalue->stringData;
 	}
 	else if(lvalue->type == entry::OBJECT) {
-		lvalueString = numberToString(lvalue->objectData->id);
+		if(lvalue->objectData->object == nullptr) {
+			lvalueString = new string();
+		}
+		else {
+			lvalueString = numberToString(lvalue->objectData->object->id);
+		}
 		deleteLValueString = true;
 	}
 	else {
@@ -97,8 +112,13 @@
 		rvalueString = rvalue->stringData;
 	}
 	else if(rvalue->type == entry::OBJECT) {
-		rvalueString = numberToString(rvalue->objectData->id);
-		deleteLValueString = true;
+		if(rvalue->objectData->object == nullptr) {
+			rvalueString = new string();
+		}
+		else {
+			rvalueString = numberToString(rvalue->objectData->object->id);
+		}
+		deleteRValueString = true;
 	}
 	else {
 		rvalueString = numberToString(rvalue->numberData);

@@ -11,6 +11,14 @@ entry = &this->topContext->getVariableEntry(
 if(entry->type == entry::NUMBER) {
 	entryNumber = entry->numberData;
 }
+else if(entry->type == entry::OBJECT) {
+	if(entry->objectData->object == nullptr) {
+		entryNumber = 0.0;
+	}
+	else {
+		entryNumber = entry->objectData->object->id;
+	}
+}
 else {
 	entryNumber = stringToNumber(*entry->stringData);
 }
