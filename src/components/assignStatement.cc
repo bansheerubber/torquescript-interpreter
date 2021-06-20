@@ -161,6 +161,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		|| this->rvalue->getType() == ACCESS_STATEMENT
 		|| this->rvalue->getType() == ASSIGN_STATEMENT
 		|| this->rvalue->getType() == NEW_STATEMENT
+		|| this->rvalue->getType() == PARENT_STATEMENT
 	) {
 		output.add(this->rvalue->compile(interpreter));
 		instruction->localAssign.fromStack = true;

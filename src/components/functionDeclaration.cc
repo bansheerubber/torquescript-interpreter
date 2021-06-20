@@ -126,8 +126,14 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 	returnInstruction->type = ts::instruction::RETURN;	
 	output.add(returnInstruction);
 
-	string name = this->name1->print();
-	interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
+	if(this->name2 != nullptr) {
+		string name = this->name1->print() + "::" + this->name2->print();
+		interpreter->addFunction(name, output);
+	}
+	else {
+		string name = this->name1->print();
+		interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
+	}
 
 	return {}; // do not output anything to the body, functions are stored elsewhere
 }

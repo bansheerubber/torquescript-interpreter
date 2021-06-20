@@ -270,8 +270,8 @@ void Interpreter::interpret() {
 
 			// if the object is not alive anymore, push nothing to the stack
 			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
-				this->push(this->emptyEntry);
 				this->pop(); // pop the object
+				this->push(this->emptyEntry);
 
 				this->warning("trying to access deleted object\n");
 				break;

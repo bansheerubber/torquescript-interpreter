@@ -284,6 +284,10 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 
 			lastInstruction = instruction;
 		}
+		else if(element.component != nullptr && element.component->getType() == PARENT_STATEMENT) {
+			c.output.add(element.component->compile(interpreter));
+			lastInstruction = nullptr;
+		}
 		count++;
 	}
 

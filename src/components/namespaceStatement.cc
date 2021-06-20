@@ -66,5 +66,37 @@ string NamespaceStatement::printJSON() {
 }
 
 ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter) {
-	return {};
+	ts::InstructionReturn output;
+	
+	if(this->name != nullptr) {
+		output.add(this->call->compile(interpreter)); // push arguments
+
+		// push the amount of arguments we just found
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::PUSH;
+		instruction->push.entry.type = ts::entry::NUMBER;
+		instruction->push.entry.setNumber(((CallStatement*)this->call)->getElementCount());
+		output.add(instruction);
+
+		// build call instruction
+		ts::Instruction* callFunction = new ts::Instruction();
+		callFunction->type = ts::instruction::CALL_FUNCTION;
+		new((void*)&callFunction->callFunction.name) string(this->name->print() + "::" + this->operation->print()); // TODO move this initialization elsewhere
+		callFunction->callFunction.cachedIndex = 0;
+		callFunction->callFunction.isCached = false;
+		callFunction->callFunction.isTSSL = false;
+		output.add(callFunction);
+
+		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
+			ts::Instruction* pop = new ts::Instruction();
+			pop->type = ts::instruction::POP;
+			output.add(pop);
+		}
+	}
+	else {
+		printf("parent not supported\n");
+		exit(1);
+	}
+	
+	return output;
 }
