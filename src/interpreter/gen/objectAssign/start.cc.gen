@@ -16,5 +16,7 @@ if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
 	if(instruction.objectAssign.pushResult) {
 		this->push(this->emptyEntry);
 	}
+
+	this->warning("trying to assign to deleted object\n");
 	break;
 }

@@ -47,6 +47,8 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 			variableEntry = new Entry();
 			this->variableMap[computedString] = variableEntry;
 			copyEntry(this->interpreter->emptyEntry, *variableEntry);
+
+			this->interpreter->warning("trying to access unassigned variable/property '%s'\n", computedString.c_str());
 		}
 		printf("%f\n", variableEntry->numberData);
 		return *variableEntry;
@@ -57,6 +59,9 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 			Entry* variableEntry = new Entry();
 			this->variableMap[name] = variableEntry;
 			copyEntry(this->interpreter->emptyEntry, *variableEntry);
+
+			this->interpreter->warning("trying to access unassigned variable/property '%s'\n", name.c_str());
+
 			return *variableEntry;
 		}
 		else {

@@ -29,6 +29,7 @@
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
 			lvalueNumber = 0.0;
+			this->warning("trying to access deleted object\n");
 		}
 		else {
 			lvalueNumber = lvalue->objectData->object->id;
@@ -45,6 +46,7 @@
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
 			rvalueNumber = 0.0;
+			this->warning("trying to access deleted object\n");
 		}
 		else {
 			rvalueNumber = rvalue->objectData->object->id;
@@ -85,6 +87,7 @@
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
 			lvalueNumber = 0.0;
+			this->warning("trying to access deleted object\n");
 		}
 		else {
 			lvalueNumber = lvalue->objectData->object->id;
@@ -101,6 +104,7 @@
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
 			rvalueNumber = 0.0;
+			this->warning("trying to access deleted object\n");
 		}
 		else {
 			rvalueNumber = rvalue->objectData->object->id;

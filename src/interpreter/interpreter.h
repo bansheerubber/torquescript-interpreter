@@ -28,6 +28,7 @@ namespace ts {
 			void startInterpretation(Instruction* head);
 			
 			void printStack();
+			void warning(const char* format, ...);
 
 			void addFunction(string &name, InstructionReturn output);
 
@@ -37,6 +38,8 @@ namespace ts {
 		
 		private:
 			void interpret(); // interprets the next instruction
+
+			bool warnings = false;
 			
 			void push(Entry &entry);
 			void push(double number);

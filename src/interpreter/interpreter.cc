@@ -92,6 +92,15 @@ void Interpreter::startInterpretation(Instruction* head) {
 	this->interpret();
 }
 
+void Interpreter::warning(const char* format, ...) {
+	if(this->warnings) {
+		va_list argptr;
+		va_start(argptr, format);
+		printWarning(format, argptr);
+		va_end(argptr);
+	}
+}
+
 void Interpreter::interpret() {
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
@@ -263,6 +272,8 @@ void Interpreter::interpret() {
 			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
 				this->push(this->emptyEntry);
 				this->pop(); // pop the object
+
+				this->warning("trying to access deleted object\n");
 				break;
 			}
 			
@@ -300,8 +311,18 @@ void Interpreter::interpret() {
 				}
 
 				if(found == false) {
-					printError("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
-					exit(1);
+					this->warning("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
+				
+					// pop arguments that we didn't use
+					Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+					int number = (int)numberOfArguments.numberData;
+					for(int i = 0; i < number + 1; i++) {
+						this->pop();
+					}
+
+					this->push(this->emptyEntry);
+
+					break;
 				}
 			}
 
@@ -330,6 +351,8 @@ void Interpreter::interpret() {
 							else if(entry.type == entry::OBJECT) {
 								if(entry.objectData->object == nullptr) {
 									arguments[count - 1] = new string();
+
+									this->warning("trying to access deleted object\n");
 								}
 								else {
 									arguments[count - 1] = numberToString(entry.objectData->object->id);	
@@ -351,6 +374,8 @@ void Interpreter::interpret() {
 								if(entry.objectData->object == nullptr) {
 									arguments[count - 1] = new double(0);
 									deleteArguments[count - 1] = true;
+
+									this->warning("trying to access deleted object\n");
 								}
 								else {
 									arguments[count - 1] = &entry.objectData->object->id;

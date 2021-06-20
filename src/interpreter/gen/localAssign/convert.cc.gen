@@ -6,6 +6,7 @@ if(value->type == entry::NUMBER) {
 else if(value->type == entry::OBJECT) {
 	if(value->objectData->object == nullptr) {
 		entryNumber = 0.0;
+		this->warning("trying to access deleted object\n");
 	}
 	else {
 		entryNumber = value->objectData->object->id;
