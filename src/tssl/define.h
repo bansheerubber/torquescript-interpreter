@@ -12,7 +12,7 @@ using namespace std;
 #define TS_ARG_COUNT		16
 
 namespace ts {
-	namespace functions {
+	namespace sl {
 		// types for working with the C++ <-> TS interface
 		enum type {
 			VOID,

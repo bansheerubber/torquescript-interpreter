@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
 	bool isPiped = isPipe();
 
-	ts::functions::define(); // define torquescript standard library
+	ts::sl::define(); // define torquescript standard library
 
 	// parse arguments
 	ParsedArguments args = parseArguments(arguments, argc, argv);

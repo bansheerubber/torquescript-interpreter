@@ -6,12 +6,12 @@
 #include "getWord.h"
 #include "math.h"
 
-using namespace ts::functions;
+using namespace ts::sl;
 
-vector<Function*> ts::functions::functions;
-unordered_map<string, unsigned long> ts::functions::nameToIndex;
+vector<Function*> ts::sl::functions;
+unordered_map<string, unsigned long> ts::sl::nameToIndex;
 
-void ts::functions::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes) {
+void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes) {
 	Function* function = new Function;
 	function->returnType = returnType;
 	function->name = string(name);
@@ -23,7 +23,7 @@ void ts::functions::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const ch
 	functions.push_back(function);
 }
 
-void ts::functions::define() {
+void ts::sl::define() {
 	type* s = new type[TS_ARG_COUNT] { type::STRING };
 	type* n = new type[TS_ARG_COUNT] { type::NUMBER };
 	type* sn = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER };

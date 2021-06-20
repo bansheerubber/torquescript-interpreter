@@ -6,7 +6,7 @@ using namespace std;
 
 // *Word(s) function implementations
 namespace ts {
-	namespace functions {
+	namespace sl {
 		void* firstWord(int argc, void** args) {
 			if(argc >= 1) {
 				string* words = (string*)args[0];

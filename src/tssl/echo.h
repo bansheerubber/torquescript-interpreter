@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace ts {
-	namespace functions {
+	namespace sl {
 		void* echo(int argc, void** args) {
 			if(argc >= 1) {
 				printf("%s\n", ((string*)args[0])->c_str());

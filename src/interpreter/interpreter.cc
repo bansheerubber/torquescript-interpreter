@@ -13,10 +13,20 @@ Interpreter::Interpreter() {
 	
 	this->pushVariableContext();
 	this->emptyEntry.setString(new string(""));
+
+	for(sl::Function* function: sl::functions) {
+		this->addTSSLFunction(function);
+	}
 }
 
 Interpreter::~Interpreter() {
 	
+}
+
+void Interpreter::addTSSLFunction(sl::Function* function) {
+	Function* container = new Function(function);
+	this->nameToIndex[toLower(function->name)] = this->functions.size();
+	this->functions.push_back(container);
 }
 
 void Interpreter::pushInstructionContainer(InstructionContainer* container) {
@@ -317,13 +327,11 @@ void Interpreter::interpret() {
 					if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
 						instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
 						instruction.callFunction.isCached = true;
-						found = true;
-					}
 
-					if(functions::nameToIndex.find(toLower(instruction.callFunction.name)) != functions::nameToIndex.end()) {
-						instruction.callFunction.cachedIndex = functions::nameToIndex[toLower(instruction.callFunction.name)];
-						instruction.callFunction.isCached = true;
-						instruction.callFunction.isTSSL = true;
+						if(this->functions[instruction.callFunction.cachedIndex]->isTSSL) {
+							instruction.callFunction.isTSSL = true;
+						}
+
 						found = true;
 					}
 				}
@@ -346,7 +354,7 @@ void Interpreter::interpret() {
 			}
 
 			if(instruction.callFunction.isTSSL) { // call a standard library function if this instruction is defined as such
-				functions::Function* function = functions::functions[instruction.callFunction.cachedIndex];
+				sl::Function* function = this->functions[instruction.callFunction.cachedIndex]->function;
 
 				void* arguments[TS_ARG_COUNT];
 				bool deleteArguments[TS_ARG_COUNT];
@@ -362,7 +370,7 @@ void Interpreter::interpret() {
 					else {
 						relative_stack_location location = this->stackPointer - 1 - i + delta;
 						Entry &entry = this->stack[location];
-						if(function->argumentTypes[count - 1] == functions::STRING) {
+						if(function->argumentTypes[count - 1] == sl::STRING) {
 							if(entry.type == entry::NUMBER) {
 								arguments[count - 1] = numberToString(entry.numberData);
 								deleteArguments[count - 1] = true;
@@ -416,10 +424,10 @@ void Interpreter::interpret() {
 				}
 
 				void* returnValue = function->function(actualArgumentCount, arguments);
-				if(function->returnType == functions::type::STRING) {
+				if(function->returnType == sl::type::STRING) {
 					this->push((string*)returnValue);
 				}
-				else if(function->returnType == functions::type::NUMBER) {
+				else if(function->returnType == sl::type::NUMBER) {
 					this->push(*((double*)returnValue));
 					delete (double*)returnValue;
 				}
@@ -494,13 +502,13 @@ void Interpreter::printStack() {
 }
 
 void Interpreter::addFunction(string &name, InstructionReturn output) {
-	InstructionContainer* container = new InstructionContainer(output.first);
+	Function* container = new Function(output.first, name);
 	this->nameToIndex[toLower(name)] = this->functions.size();
 	this->functions.push_back(container);
 }
 
 void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output) {
-	InstructionContainer* container = new InstructionContainer(output.first);
+	Function* container = new Function(output.first, name, nameSpace);
 
 	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
 		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();

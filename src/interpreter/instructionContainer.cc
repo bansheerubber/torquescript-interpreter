@@ -3,6 +3,10 @@
 
 using namespace ts;
 
+InstructionContainer::InstructionContainer() {
+	
+}
+
 InstructionContainer::InstructionContainer(Instruction* head) {
 	// flatten instructions into array so CPU can cache instruction data types (improves performance by 20%)
 	int count = 0;

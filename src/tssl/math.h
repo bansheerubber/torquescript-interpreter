@@ -6,7 +6,7 @@
 using namespace std;
 
 namespace ts {
-	namespace functions {
+	namespace sl {
 		void* mAbs(int argc, void** args) {
 			if(argc == 1) {
 				double number = *((double*)args[0]);

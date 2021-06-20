@@ -10,6 +10,7 @@
 #include "stack.h"
 #include "variableContext.h"
 #include "instructionContainer.h"
+#include "function.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
 #include "../tssl/define.h"
 #include "interpreterMacros.h"
@@ -22,13 +23,13 @@ using namespace std;
 namespace ts {
 	struct NamespaceFunctions {
 		robin_map<string, int> nameToIndex;
-		robin_map<string, InstructionContainer*> nameToFunction;
-		vector<InstructionContainer*> functions;
+		robin_map<string, Function*> nameToFunction;
+		vector<Function*> functions;
 
 		NamespaceFunctions() {
 			this->nameToIndex = robin_map<string, int>();
-			this->nameToFunction = robin_map<string, InstructionContainer*>();
-			this->functions = vector<InstructionContainer*>();
+			this->nameToFunction = robin_map<string, Function*>();
+			this->functions = vector<Function*>();
 		}
 	};
 	
@@ -44,6 +45,7 @@ namespace ts {
 
 			void addFunction(string &name, InstructionReturn output);
 			void addFunction(string &nameSpace, string &name, InstructionReturn output);
+			void addTSSLFunction(sl::Function* function);
 
 			Entry emptyEntry;
 
@@ -84,10 +86,9 @@ namespace ts {
 			void pushInstructionContainer(InstructionContainer* container);
 			void popInstructionContainer();
 
-		public:
 			// function datastructures
 			robin_map<string, int> nameToIndex;
-			vector<InstructionContainer*> functions;
+			vector<Function*> functions;
 
 			robin_map<string, int> namespaceToIndex;
 			vector<NamespaceFunctions*> namespaceFunctions;
