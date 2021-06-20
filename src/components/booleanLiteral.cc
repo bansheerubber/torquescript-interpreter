@@ -37,3 +37,7 @@ ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter) {
 	instruction->push.entry.setNumber(this->value.type == TRUE);
 	return ts::InstructionReturn(instruction, instruction);
 }
+
+bool BooleanLiteral::getBoolean() {
+	return this->value.type == TRUE;
+}

@@ -34,6 +34,8 @@ class BooleanLiteral : public Component {
 		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
 		static BooleanLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+
+		bool getBoolean();
 	
 	private:
 		Token value;
