@@ -10,28 +10,6 @@ vector<Argument> createArguments() {
 	});
 
 	output.push_back((Argument){
-		name: "output",
-		shortcut: "o",
-		helpVariable: "directory",
-		help: "Output transpiled Torquescript file(s) to the specified directory",
-		needsInput: true,
-	});
-
-	output.push_back((Argument){
-		name: "threads",
-		shortcut: "t",
-		helpVariable: "number",
-		help: "Number of threads used during parsing. Defaults to amount of logical cores on your computer.",
-		needsInput: true,
-	});
-
-	output.push_back((Argument){
-		name: "minify",
-		shortcut: "m",
-		help: "Minify the output files"
-	});
-
-	output.push_back((Argument){
 		name: "no-warnings",
 		help: "Do not print warnings"
 	});

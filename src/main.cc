@@ -41,16 +41,6 @@ bool isPipe() {
 	return false;
 }
 
-void parseThread(vector<string> paths, ParsedArguments args, promise<int> &&p) {
-	int total = 0;
-	for(string path: paths) {
-		Tokenizer* tokenizer = new Tokenizer(path, args);
-		Parser* parser = new Parser(tokenizer, args);
-		total += tokenizer->getTotalLineCount();
-	}
-	p.set_value(total);
-}
-
 int main(int argc, char* argv[]) {
 	vector<Argument> arguments = createArguments();
 
@@ -77,27 +67,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(args.files.size() == 0 && !isPiped) {
-		printError("error: expected files/directories\n\n");
+		printError("error: expected files\n\n");
 		printHelp(arguments);
 		return 1;
 	}
 
-	ts::Interpreter* interpreter = new ts::Interpreter();
-
-	unsigned int maxThreadCount = thread::hardware_concurrency();
-	if(args.arguments["threads"] != "") {
-		try {
-			maxThreadCount = stoi(args.arguments["threads"]);
-			if(maxThreadCount == 0) {
-				maxThreadCount = 1;
-			}
-		}
-		catch(...) {
-			printError("error: expected integer for max thread count\n\n");
-			printHelp(arguments);
-			return 1;
-		}
-	}
+	ts::Interpreter* interpreter = new ts::Interpreter(args);
 	
 	if(isPiped) {
 		string file;
@@ -117,58 +92,18 @@ int main(int argc, char* argv[]) {
 		for(string fileName: args.files) {
 			filesystem::path path(fileName);
 			error_code error;
-
-			if(filesystem::is_directory(path, error)) {
-				auto start = chrono::high_resolution_clock::now();
-
-				vector<string> paths;
-				vector<thread> threads;
-				vector<future<int>> futures;
-
-				for(const auto &entry: filesystem::recursive_directory_iterator(path)) {
-					string candidateFile = entry.path().string();
-					if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-						paths.push_back(candidateFile);
-					}
-				}
-
-				unsigned int increment = paths.size() / maxThreadCount + paths.size() % maxThreadCount;
-				for(unsigned int i = 0; i < paths.size(); i += increment) {
-					vector<string> pathsForThread;
-					for(unsigned int j = 0; j < increment && j + i < paths.size(); j++) {
-						pathsForThread.push_back(paths[i + j]);
-					}
-
-					promise<int> p;
-					futures.push_back(move(p.get_future()));
-					threads.push_back(thread(parseThread, pathsForThread, args, move(p)));
-				}
-
-				int totalLines = 0;
-				for(unsigned int i = 0; i < threads.size(); i++) {
-					thread &t = threads[i];
-					t.join();
-
-					future<int> &f = futures[i];
-					totalLines += f.get();
-				}
-
-				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				cout << "completed parsing " << totalLines << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
-			}
-			else if(filesystem::is_regular_file(path, error)) {
-				auto start = chrono::high_resolution_clock::now();
-				
+			
+			if(filesystem::is_regular_file(path, error)) {
 				Tokenizer* tokenizer = new Tokenizer(fileName, args);
 				Parser* parser = new Parser(tokenizer, args);
-
-				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				cout << "completed parsing " << tokenizer->getTotalLineCount() << " lines from " << path.string() << " in " << fixed << setprecision(2) << time << "s" << endl;
+				interpreter->startInterpretation(ts::Compile(parser, interpreter));
 			}
 			else {
-				printError("error opening file or directory %s\n", fileName.c_str());
+				printError("error opening file %s\n", fileName.c_str());
 			}
 		}
+
+		delete interpreter;
 	}
 	
 	return 0;

@@ -17,6 +17,7 @@
 #include "../util/toLower.h"
 #include "object.h"
 #include "objectReference.h"
+#include "../args.h"
 
 using namespace std;
 
@@ -36,6 +37,7 @@ namespace ts {
 	class Interpreter {
 		public:
 			Interpreter();
+			Interpreter(ParsedArguments args);
 			~Interpreter();
 
 			void startInterpretation(Instruction* head);

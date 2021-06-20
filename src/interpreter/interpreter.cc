@@ -6,7 +6,7 @@
 
 using namespace ts;
 
-Interpreter::Interpreter() {
+Interpreter::Interpreter(ParsedArguments args) {
 	for(int i = 0; i < 256; i++) {
 		this->contexts[i].interpreter = this;
 	}
@@ -16,6 +16,10 @@ Interpreter::Interpreter() {
 
 	for(sl::Function* function: sl::functions) {
 		this->addTSSLFunction(function);
+	}
+
+	if(args.arguments["no-warnings"] != "") {
+		this->warnings = false;
 	}
 }
 
