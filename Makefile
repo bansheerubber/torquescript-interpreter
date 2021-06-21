@@ -3,11 +3,11 @@ cclibs = -lpthread
 cc = g++
 ccflags = -O2 -Wall -Wno-switch -Bsymbolic -fno-semantic-interposition -std=c++17
 
-cpp_source = $(shell find src -name "*.cc")
+cpp_source = $(shell find src -type f -name "*.cc" ! -path "src/include*")
 cpp_source_tmp = $(subst src, tmp, $(cpp_source))
 cpp_source_without = $(subst src\/, , $(cpp_source))
 
-cpp_headers = $(shell find src -name "*.h")
+cpp_headers = $(shell find src -type f -name "*.h" ! -path "src/include*")
 cpp_headers_tmp = $(subst src, tmp, $(cpp_headers))
 
 cpp_objects = $(patsubst %.cc, %.o, $(cpp_source))

@@ -10,3 +10,6 @@
 [submodule "tests/sources/Brick_LuaLogic"]
 	path = tests/sources/Brick_LuaLogic
 	url = https://gitlab.com/Redo0/Brick_LuaLogic
+[submodule "src/include/fmt"]
+	path = src/include/fmt
+	url = https://github.com/fmtlib/fmt
