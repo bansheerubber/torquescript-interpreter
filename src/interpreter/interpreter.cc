@@ -450,7 +450,6 @@ void Interpreter::interpret() {
 
 			auto search = this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.find(toLower(instruction.callObject.name));
 			if(search != this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.end()) {
-				this->printStack();
 				Function* foundFunction = search->second;
 				## call_generator.py
 			}
