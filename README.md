@@ -23,15 +23,15 @@ Depending on what GCC compiler you use, it may not work. I used the latest versi
 ---
 
 ## Running Code
-Right now the only way to run code is to pipe it in. This is still very much a work in progres, so many Torquescript features do not work yet.
 ```
-$ ./torquescript < code.cs
+$ ./torquescript code.cs
 ```
 
 ---
 
 ## Testing:
-There aren't a whole lot of tests at the moment. I'm mostly regression testing the parser and tokenizer. Testing for the interpreter will come later
+There aren't a whole lot of tests at the moment. I'm mostly regression testing the parser and tokenizer. Testing for the interpreter will come later.
+
 **To build tests:**
 ```
 $ make build-tests
