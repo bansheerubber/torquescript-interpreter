@@ -15,7 +15,7 @@ ArrayStatement* ArrayStatement::Parse(Component* parent, Tokenizer* tokenizer, P
 	while(!tokenizer->eof()) {
 		if(!expectingComma) {
 			if(Component::ShouldParse(output, tokenizer, parser)) {
-				output->elements.push_back({
+				output->elements.push_back((ArrayElement){
 					component: Component::Parse(output, tokenizer, parser),
 				});
 				expectingComma = true;
@@ -27,7 +27,7 @@ ArrayStatement* ArrayStatement::Parse(Component* parent, Tokenizer* tokenizer, P
 		else {
 			Token token = parser->expectToken(COMMA, RIGHT_BRACE);
 			if(token.type == COMMA) {
-				output->elements.push_back({
+				output->elements.push_back((ArrayElement){
 					isComma: true,
 				});
 				expectingComma = false;

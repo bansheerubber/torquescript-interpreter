@@ -26,7 +26,7 @@ AccessStatement* AccessStatement::Parse(
 
 	Token token = tokenizer->peekToken();
 	if(firstValue != nullptr) {
-		output->elements.push_back({
+		output->elements.push_back((AccessElement){
 			component: firstValue,
 		});
 		firstValue->setParent(output);
@@ -37,7 +37,7 @@ AccessStatement* AccessStatement::Parse(
 		|| token.type == SYMBOL
 		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	) { // we read in a single variable at the start of the chain
-		output->elements.push_back({
+		output->elements.push_back((AccessElement){
 			token: tokenizer->getToken(),
 		});
 	}
@@ -47,7 +47,7 @@ AccessStatement* AccessStatement::Parse(
 		token = tokenizer->peekToken();
 		if(token.type == LEFT_BRACE) {
 			if(expectingArrayOrCall) {
-				output->elements.push_back({
+				output->elements.push_back((AccessElement){
 					isArray: true,
 					component: ArrayStatement::Parse(output, tokenizer, parser),
 				});
@@ -59,7 +59,7 @@ AccessStatement* AccessStatement::Parse(
 		}
 		else if(token.type == LEFT_PARENTHESIS) {
 			if(expectingArrayOrCall) {
-				output->elements.push_back({
+				output->elements.push_back((AccessElement){
 					isCall: true,
 					component: CallStatement::Parse(output, tokenizer, parser),
 				});
@@ -71,7 +71,7 @@ AccessStatement* AccessStatement::Parse(
 		}
 		else if(token.type == MEMBER_CHAIN) {
 			tokenizer->getToken(); // absorb the token we peeked
-			output->elements.push_back({
+			output->elements.push_back((AccessElement){
 				token: token,
 			});
 			expectingArrayOrCall = true;

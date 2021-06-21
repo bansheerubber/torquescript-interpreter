@@ -1,5 +1,5 @@
 target = torquescript
-cclibs = -lpthread
+cclibs = -lpthread -lstdc++fs
 cc = g++
 ccflags = -O2 -Wall -Wno-switch -Bsymbolic -fno-semantic-interposition -std=c++17
 

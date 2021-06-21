@@ -15,7 +15,7 @@ CallStatement* CallStatement::Parse(Component* parent, Tokenizer* tokenizer, Par
 	while(!tokenizer->eof()) {
 		if(!expectingComma) {
 			if(Component::ShouldParse(output, tokenizer, parser)) {
-				output->elements.push_back({
+				output->elements.push_back((CallElement){
 					component: Component::Parse(output, tokenizer, parser),
 				});
 				expectingComma = true;
@@ -31,7 +31,7 @@ CallStatement* CallStatement::Parse(Component* parent, Tokenizer* tokenizer, Par
 		else {
 			Token token = parser->expectToken(COMMA, RIGHT_PARENTHESIS);
 			if(token.type == COMMA) {
-				output->elements.push_back({
+				output->elements.push_back((CallElement){
 					isComma: true,
 				});
 				expectingComma = false;

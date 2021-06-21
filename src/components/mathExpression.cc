@@ -58,7 +58,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	output->parent = parent;
 	
 	if(lvalue != nullptr) {
-		output->elements.push_back({
+		output->elements.push_back((MathElement){
 			component: lvalue,
 		});
 		lvalue->setParent(output);
@@ -68,7 +68,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	bool parenthesis = false;
 	if(tokenizer->peekToken().type == LEFT_PARENTHESIS) {
 		tokenizer->getToken(); // absorb parenthesis
-		output->elements.push_back({
+		output->elements.push_back((MathElement){
 			component: nullptr,
 			specialOp: LEFT_PARENTHESIS_OPERATOR,
 		});
@@ -80,14 +80,14 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 		if(expectingOperator) {
 			Token token = tokenizer->getToken();
 			if(MathExpression::IsOperator(token.type)) {
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: nullptr,
 					op: token,
 				});
 				expectingOperator = false;
 			}
 			else if(parenthesis && token.type == RIGHT_PARENTHESIS) {
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: RIGHT_PARENTHESIS_OPERATOR,
 				});
@@ -100,7 +100,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 		}
 		else {
 			if(tokenizer->peekToken().type == LEFT_PARENTHESIS) { // nested math expression
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: Component::AfterParse(
 						MathExpression::Parse(nullptr, output, tokenizer, parser),
 						output,
@@ -112,7 +112,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			}
 			else if(tokenizer->peekToken().type == LOGICAL_NOT) {
 				tokenizer->getToken(); // absorb token
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: LOGICAL_NOT_OPERATOR,
 				});
@@ -120,7 +120,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			}
 			else if(tokenizer->peekToken().type == BITWISE_NOT) {
 				tokenizer->getToken(); // absorb token
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: BITWISE_NOT_OPERATOR,
 				});
@@ -128,7 +128,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			}
 			else if(tokenizer->peekToken().type == MINUS) {
 				tokenizer->getToken(); // absorb token
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: MINUS_OPERATOR,
 				});
@@ -136,7 +136,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			}
 			// handles literals, accesses, calls, etc
 			else if(Component::ShouldParse(output, tokenizer, parser)) {
-				output->elements.push_back({
+				output->elements.push_back((MathElement){
 					component: Component::Parse(output, tokenizer, parser),
 				});
 				expectingOperator = true;

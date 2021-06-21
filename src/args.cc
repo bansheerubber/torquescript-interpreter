@@ -85,7 +85,7 @@ ParsedArguments parseArguments(vector<Argument> &arguments, int argc, char* argv
 			// push argument
 			if(foundArgument.name != "") {
 				if(foundArgument.needsInput) { // fail if we got no input when we need it
-					output = {
+					output = (ParsedArguments){
 						argumentError: true,
 					};
 					return output;
@@ -94,7 +94,7 @@ ParsedArguments parseArguments(vector<Argument> &arguments, int argc, char* argv
 				output.arguments.insert(pair<string, string>(foundArgument.name, "true"));
 			}
 			
-			foundArgument = {};
+			foundArgument = (Argument){};
 			for(Argument argument: arguments) {
 				if("--" + argument.name == cliArgument || (argument.shortcut != "" && "-" + argument.shortcut == cliArgument)) {
 					foundArgument = argument;
@@ -103,7 +103,7 @@ ParsedArguments parseArguments(vector<Argument> &arguments, int argc, char* argv
 
 			// fail if we got an unknown argument
 			if(foundArgument.name == "") {
-				output = {
+				output = (ParsedArguments){
 					argumentError: true,
 				};
 				return output;
@@ -112,18 +112,18 @@ ParsedArguments parseArguments(vector<Argument> &arguments, int argc, char* argv
 		// if we have a random string that isn't associated with an argument, treat it as an input file
 		else if(foundArgument.name == "" || !foundArgument.needsInput) {
 			output.files.push_back(cliArgument);
-			foundArgument = {};
+			foundArgument = (Argument){};
 		}
 		else {
 			output.arguments.insert(pair<string, string>(foundArgument.name, cliArgument));
-			foundArgument = {};
+			foundArgument = (Argument){};
 		}
 	}
 
 	// push argument
 	if(foundArgument.name != "") {
 		if(foundArgument.needsInput) { // fail if we got no input when we need it
-			output = {
+			output = (ParsedArguments){
 				argumentError: true,
 			};
 			return output;

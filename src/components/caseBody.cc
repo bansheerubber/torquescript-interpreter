@@ -19,14 +19,14 @@ CaseBody* CaseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 				parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'case' conditional");
 			}
 			
-			output->conditionals.push_back({
+			output->conditionals.push_back((CaseElement){
 				component: Component::Parse(output, tokenizer, parser),
 			});
 			expectingOr = true;
 		}
 		else if(token.type == OR) {
 			tokenizer->getToken(); // absorb or
-			output->conditionals.push_back({
+			output->conditionals.push_back((CaseElement){
 				isOr: true,
 			});
 			expectingOr = false;
