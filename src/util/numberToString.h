@@ -1,6 +1,7 @@
 #pragma once
 
-#include <fmt/core.h>
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 #include <string>
 
 using namespace std;

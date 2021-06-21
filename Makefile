@@ -1,5 +1,5 @@
 target = torquescript
-cclibs = -lpthread -lfmt
+cclibs = -lpthread
 cc = g++
 ccflags = -O2 -Wall -Wno-switch -Bsymbolic -fno-semantic-interposition -std=c++17
 
@@ -18,8 +18,8 @@ cpp_objects_without = $(patsubst src\/, , $(cpp_source))
 
 # force synchronization for preprocessor
 default:
-	$(MAKE) preprocessor
-	$(MAKE) dist/$(target)
+	"$(MAKE)" preprocessor
+	"$(MAKE)" dist/$(target)
 
 preprocessor:
 	python3 tools/preprocessor.py
@@ -33,10 +33,10 @@ dist/$(target): $(cpp_objects_tmp)
 	@mkdir -p $(dir dist/$(target))
 	$(cc) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
 
-test: $(target)
+test: dist/$(target)
 	cd dist && ./$(target) --test
 
-build-tests: $(target)
+build-tests: dist/$(target)
 	cd dist && ./$(target) --test --overwrite-results
 
 clean:

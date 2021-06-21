@@ -39,6 +39,7 @@ def preprocess(filename, contents):
 for root, subdirs, files in os.walk("./src"):
 	files = [f"{root}/{file}" for file in files]
 	for file in files:
+		file = file.replace("\\", "/")
 		file_object = pathlib.Path(file)
 		tmp_file = file.replace("./src/", "./tmp/")
 		tmp_file_object = pathlib.Path(tmp_file)

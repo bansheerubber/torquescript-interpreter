@@ -1,6 +1,12 @@
 #pragma once
 
-#include <fmt/core.h>
+// some windows horseshit
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
+
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 #include <string>
 
 using namespace std;
