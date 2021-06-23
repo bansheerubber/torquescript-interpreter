@@ -106,6 +106,22 @@ void VariableContext::setVariableEntry(string &name, Entry &entry) {
 	}
 }
 
+Entry& VariableContext::getVariableEntry(string &name) {
+	auto value = this->variableMap.find(name);
+	if(value == this->variableMap.end()) { // initialize empty string
+		Entry* variableEntry = new Entry();
+		this->variableMap[name] = variableEntry;
+		copyEntry(this->interpreter->emptyEntry, *variableEntry);
+
+		this->interpreter->warning("trying to access unassigned variable/property '%s'\n", name.c_str());
+
+		return *variableEntry;
+	}
+	else {
+		return *value->second;
+	}
+}
+
 void VariableContext::print() {
 	printf("-------------------------------\n");
 	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {

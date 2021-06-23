@@ -124,6 +124,7 @@ void Interpreter::startInterpretation(Instruction* head) {
 	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
 	// this->topContainer->print();
 	this->startTime = chrono::high_resolution_clock::now();
+
 	this->interpret();
 }
 
@@ -137,12 +138,13 @@ void Interpreter::warning(const char* format, ...) {
 }
 
 void Interpreter::interpret() {
+	start:
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->topContext->print();
 		this->printStack();
-		return;
+		exit(1);
 	}
 
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
@@ -478,7 +480,7 @@ void Interpreter::interpret() {
 
 	this->ranInstructions++;
 
-	this->interpret();
+	goto start;
 }
 
 void Interpreter::printStack() {
