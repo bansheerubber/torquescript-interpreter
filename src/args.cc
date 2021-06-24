@@ -24,6 +24,11 @@ vector<Argument> createArguments() {
 		hide: true
 	});
 
+	output.push_back((Argument){
+		name: "json",
+		hide: true
+	});
+
 	return output;
 }
 

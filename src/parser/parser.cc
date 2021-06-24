@@ -8,6 +8,10 @@ Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
 	this->tokenizer = tokenizer;
 	this->sourceFile = new SourceFile(this);
 	Component::ParseBody(this->sourceFile, this->tokenizer, this);
+
+	if(args.arguments["json"] != "") {
+		cout << this->printJSON() << endl;
+	}
 }
 
 Token Parser::expectToken(TokenType type1, TokenType type2, TokenType type3, TokenType type4, TokenType type5) {
