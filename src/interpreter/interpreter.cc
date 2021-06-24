@@ -147,6 +147,16 @@ void Interpreter::interpret() {
 		exit(1);
 	}
 
+	if(
+		this->pointerStackPointer >= 1024
+		|| this->contextPointer >= 256
+		|| this->pointerStackPointer >= 1024
+		|| this->stackPointer >= 1024
+	) {
+		printError("stack overflow\n");
+		exit(1);
+	}
+
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	(*this->instructionPointer)++;
 
