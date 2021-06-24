@@ -323,6 +323,10 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			delete lastInstruction; // this is a bit hacky, but whatever. forget about our last instruction
 			lastInstruction = nullptr;
 		}
+		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
+			c.output.add(element.component->compile(interpreter));
+			lastInstruction = nullptr;
+		}
 		count++;
 	}
 
