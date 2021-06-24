@@ -160,5 +160,12 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 		}
 	}
 
+	// pop from stack if needed
+	if(!this->parent->shouldPushToStack(this)) {
+		ts::Instruction* pop = new ts::Instruction();
+		pop->type = ts::instruction::POP;
+		output.add(pop);
+	}
+
 	return output;
 }
