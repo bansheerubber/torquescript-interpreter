@@ -69,5 +69,6 @@ string InheritanceStatement::printJSON() {
 }
 
 ts::InstructionReturn InheritanceStatement::compile(ts::Interpreter* interpreter) {
+	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

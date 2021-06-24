@@ -262,6 +262,9 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 
 			lastInstruction = instruction;
 		}
+		else if(element.token.type == GLOBAL_VARIABLE) {
+			this->parser->error("global variables not supported");
+		}
 		else if(element.token.type == SYMBOL) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::INVALID_INSTRUCTION; // TODO figure out a better way to do this

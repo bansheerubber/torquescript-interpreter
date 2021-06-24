@@ -22,5 +22,6 @@ string ContinueStatement::printJSON() {
 }
 
 ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter) {
+	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }
