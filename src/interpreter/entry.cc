@@ -8,6 +8,10 @@ Entry::Entry() {
 	this->numberData = 0.0;
 }
 
+Entry::Entry(const Entry &entry) {
+	copyEntry(entry, *this);
+}
+
 Entry::Entry(Entry* copy) {
 	this->type = copy->type;
 	switch(this->type) {
@@ -95,7 +99,7 @@ void Entry::print(int tabs) const {
 	printf("%s};\n", space.c_str());
 }
 
-void ts::copyEntry(Entry &source, Entry &destination) {
+void ts::copyEntry(const Entry &source, Entry &destination) {
 	destination.type = source.type;
 	switch(destination.type) {
 		case entry::INVALID: {

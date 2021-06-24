@@ -41,31 +41,29 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name, size_t hash) {
 	if(instruction.localAssign.dimensions > 0) {
 		string computedString = computeVariableString(instruction, name);
-
-		Entry* variableEntry = this->variableMap[computedString];
-		if(variableEntry == nullptr) { // initialize empty string
-			variableEntry = new Entry();
-			this->variableMap[computedString] = variableEntry;
-			copyEntry(this->interpreter->emptyEntry, *variableEntry);
-
+		auto value = this->variableMap.find(computedString);
+		if(value == this->variableMap.end()) { // initialize empty string
 			this->interpreter->warning("trying to access unassigned variable/property '%s'\n", computedString.c_str());
+			
+			Entry &entry = this->variableMap[computedString];
+			copyEntry(this->interpreter->emptyEntry, entry);
+			return entry;
 		}
-		printf("%f\n", variableEntry->numberData);
-		return *variableEntry;
+		else {
+			return value.value();
+		}
 	}
 	else {
 		auto value = this->variableMap.find(name, hash);
 		if(value == this->variableMap.end()) { // initialize empty string
-			Entry* variableEntry = new Entry();
-			this->variableMap[name] = variableEntry;
-			copyEntry(this->interpreter->emptyEntry, *variableEntry);
-
 			this->interpreter->warning("trying to access unassigned variable/property '%s'\n", name.c_str());
-
-			return *variableEntry;
+			
+			Entry &entry = this->variableMap[name];
+			copyEntry(this->interpreter->emptyEntry, entry);
+			return entry;
 		}
 		else {
-			return *value->second;
+			return value.value();
 		}
 	}
 }
@@ -73,52 +71,46 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 void VariableContext::setVariableEntry(Instruction &instruction, string &name, size_t hash, Entry &entry) {
 	if(instruction.localAssign.dimensions > 0) {
 		string computedString = computeVariableString(instruction, name);
-
-		Entry* variableEntry = this->variableMap[computedString];
-		if(variableEntry == nullptr) {
-			variableEntry = new Entry();
-			this->variableMap[computedString] = variableEntry;
+		auto value = this->variableMap.find(computedString);
+		if(value == this->variableMap.end()) {
+			copyEntry(entry, this->variableMap[computedString]);
 		}
-		copyEntry(entry, *variableEntry);
+		else {
+			copyEntry(entry, value.value());
+		}
 	}
 	else {
 		auto value = this->variableMap.find(name, hash);
-		if(value == this->variableMap.end()) { // create the entry
-			Entry* variableEntry = new Entry();
-			this->variableMap[name] = variableEntry;
-			copyEntry(entry, *variableEntry);
+		if(value == this->variableMap.end()) {
+			copyEntry(entry, this->variableMap[name]);
 		}
 		else {
-			copyEntry(entry, *value->second);
+			copyEntry(entry, value.value());
 		}
 	}
 }
 
 void VariableContext::setVariableEntry(string &name, Entry &entry) {
 	auto value = this->variableMap.find(name);
-	if(value == this->variableMap.end()) { // create the entry
-		Entry* variableEntry = new Entry();
-		this->variableMap[name] = variableEntry;
-		copyEntry(entry, *variableEntry);
+	if(value == this->variableMap.end()) {
+		copyEntry(entry, this->variableMap[name]);
 	}
 	else {
-		copyEntry(entry, *value->second);
+		copyEntry(entry, value.value());
 	}
 }
 
 Entry& VariableContext::getVariableEntry(string &name) {
 	auto value = this->variableMap.find(name);
 	if(value == this->variableMap.end()) { // initialize empty string
-		Entry* variableEntry = new Entry();
-		this->variableMap[name] = variableEntry;
-		copyEntry(this->interpreter->emptyEntry, *variableEntry);
-
 		this->interpreter->warning("trying to access unassigned variable/property '%s'\n", name.c_str());
-
-		return *variableEntry;
+		
+		Entry &entry = this->variableMap[name];
+		copyEntry(this->interpreter->emptyEntry, entry);
+		return entry;
 	}
 	else {
-		return *value->second;
+		return value.value();
 	}
 }
 
@@ -126,7 +118,7 @@ void VariableContext::print() {
 	printf("-------------------------------\n");
 	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
 		printf("\"%s\":\n", it->first.c_str());
-		it->second->print(1);
+		it->second.print(1);
 		printf("-------------------------------\n");
 	}
 }
@@ -139,6 +131,6 @@ void VariableContext::printWithTab(int tabs) {
 	
 	for(auto it = this->variableMap.begin(); it != this->variableMap.end(); it++) {
 		printf("%s\"%s\":\n", space.c_str(), it->first.c_str());
-		it->second->print(tabs + 1);
+		it->second.print(tabs + 1);
 	}
 }

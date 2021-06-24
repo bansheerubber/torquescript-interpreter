@@ -26,6 +26,7 @@ namespace ts {
 		};
 
 		Entry();
+		Entry(const Entry &entry);
 		Entry(Entry* copy);
 		~Entry();
 		void setNumber(double value);
@@ -36,5 +37,5 @@ namespace ts {
 		const char* typeToString() const;
 	};
 
-	void copyEntry(Entry &source, Entry &destination);
+	void copyEntry(const Entry &source, Entry &destination);
 }

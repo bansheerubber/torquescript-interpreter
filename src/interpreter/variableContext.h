@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include "../include/robin-map/include/tsl/robin_map.h"
+#include "entry.h"
 
 using namespace std;
 using namespace tsl;
@@ -9,7 +10,7 @@ using namespace tsl;
 namespace ts {
 	namespace variable {
 		struct Array {
-			struct Entry* entry;
+			Entry* entry;
 			Array* next;
 
 			Array() {
@@ -28,7 +29,7 @@ namespace ts {
 		public:
 			~VariableContext();
 			
-			struct Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
+			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			Entry& getVariableEntry(string &name);
 			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
 			void setVariableEntry(string &name, Entry &entry);
@@ -41,6 +42,6 @@ namespace ts {
 			class Interpreter* interpreter;
 			friend class Interpreter;
 			friend class Object;
-			robin_map<string, Entry*> variableMap;
+			robin_map<string, Entry> variableMap;
 	};
 }
