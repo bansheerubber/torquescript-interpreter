@@ -1,7 +1,7 @@
 // get a value from the stack if we're doing something like a += operation
 Entry* %% = nullptr;
 if(instruction.localAssign.fromStack) {
-	%% = &this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions]; // start from top of stack
+	%% = &this->stack.array[this->stack.head - 1 - instruction.localAssign.dimensions]; // start from top of stack
 }
 else {
 	%% = &instruction.localAssign.entry;

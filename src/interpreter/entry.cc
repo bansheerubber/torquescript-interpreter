@@ -122,3 +122,7 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 		}
 	}
 }
+
+void ts::initEntry(Entry* location) {;
+	new((void*)location) Entry();
+}

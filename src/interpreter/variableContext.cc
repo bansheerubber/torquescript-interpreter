@@ -24,7 +24,7 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 			newVariable += '_';
 		}
 		
-		Entry &entry = this->interpreter->stack[this->interpreter->stackPointer - 1 - i]; // start from top of stack
+		Entry &entry = this->interpreter->stack.array[this->interpreter->stack.head - 1 - i]; // start from top of stack
 		// convert double to integer
 		if((long)entry.numberData == entry.numberData) {
 			newVariable = newVariable + to_string((long)entry.numberData);

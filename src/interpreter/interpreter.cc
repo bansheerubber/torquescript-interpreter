@@ -89,42 +89,35 @@ void Interpreter::popVariableContext() {
 
 // push an entry onto the stack
 void Interpreter::push(Entry &entry) {
-	copyEntry(entry, this->stack[this->stackPointer]);
-	this->stackPointer++;
+	copyEntry(entry, this->stack.array[this->stack.head]);
+	this->stack.pushed();
 }
 
 // push a number onto the stack
 void Interpreter::push(double number) {
-	this->stack[this->stackPointer].setNumber(number);
-	this->stackPointer++;
+	this->stack.array[this->stack.head].setNumber(number);
+	this->stack.pushed();
 }
 
 // push a string onto the stack
 void Interpreter::push(string* value) {
-	this->stack[this->stackPointer].setString(value);
-	this->stackPointer++;
+	this->stack.array[this->stack.head].setString(value);
+	this->stack.pushed();
 }
 
 // push an object onto the stack
 void Interpreter::push(ObjectReference* value) {
-	this->stack[this->stackPointer].setObject(value);
-	this->stackPointer++;
+	this->stack.array[this->stack.head].setObject(value);
+	this->stack.pushed();
 }
 
 void Interpreter::pop() {
-	if(this->stackPointer == 0) { // protect against empty stack
-		printError("empty stack\n");
-		exit(1);
-	}
-	
-	this->stackPointer--;
+	this->stack.popped();
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
 	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
-	// this->topContainer->print();
 	this->startTime = chrono::high_resolution_clock::now();
-
 	this->interpret();
 }
 
@@ -144,16 +137,6 @@ void Interpreter::interpret() {
 		printf("ran %d instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->topContext->print();
 		this->printStack();
-		exit(1);
-	}
-
-	if(
-		this->pointerStackPointer >= 1024
-		|| this->contextPointer >= 256
-		|| this->pointerStackPointer >= 1024
-		|| this->stackPointer >= 1024
-	) {
-		printError("stack overflow\n");
 		exit(1);
 	}
 
@@ -194,7 +177,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP_IF_TRUE: { // jump to an instruction
-			Entry &entry = this->stack[this->stackPointer - 1];
+			Entry &entry = this->stack.array[this->stack.head - 1];
 			if(
 				(
 					entry.type == entry::NUMBER
@@ -218,7 +201,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::JUMP_IF_FALSE: { // jump to an instruction
-			Entry &entry = this->stack[this->stackPointer - 1];
+			Entry &entry = this->stack.array[this->stack.head - 1];
 			if(
 				(
 					entry.type == entry::NUMBER
@@ -239,7 +222,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::UNARY_MATHEMATICS: {
-			Entry &value = this->stack[this->stackPointer - 1];
+			Entry &value = this->stack.array[this->stack.head - 1];
 			double valueNumber = 0;
 			if(value.type == entry::NUMBER) {
 				valueNumber = value.numberData;
@@ -272,9 +255,9 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::ARGUMENT_ASSIGN: { // assign argument a value from the stack
-			int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used
+			int actualArgumentCount = (int)this->stack.array[this->stack.head - 1].numberData; // get the amount of arguments used
 			int delta = instruction.argumentAssign.argc - actualArgumentCount;
-			relative_stack_location location = this->stackPointer - 1 - instruction.argumentAssign.offset + delta;
+			relative_stack_location location = this->stack.head - 1 - instruction.argumentAssign.offset + delta;
 
 			if((int)instruction.argumentAssign.offset <= delta) {
 				this->topContext->setVariableEntry(
@@ -289,7 +272,7 @@ void Interpreter::interpret() {
 					instruction,
 					instruction.argumentAssign.destination,
 					instruction.argumentAssign.hash,
-					this->stack[location]
+					this->stack.array[location]
 				);
 			}
 			break;
@@ -312,7 +295,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::OBJECT_ACCESS: { // push object property to stack
-			Entry &objectEntry = this->stack[this->stackPointer - 1 - instruction.localAssign.dimensions];
+			Entry &objectEntry = this->stack.array[this->stack.head - 1 - instruction.localAssign.dimensions];
 			ObjectReference* object = objectEntry.objectData;
 
 			// if the object is not alive anymore, push nothing to the stack
@@ -383,7 +366,7 @@ void Interpreter::interpret() {
 					this->warning("could not find function with name '%s'\n", instruction.callFunction.name.c_str());
 				
 					// pop arguments that we didn't use
-					Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+					Entry &numberOfArguments = this->stack.array[this->stack.head - 1];
 					int number = (int)numberOfArguments.numberData;
 					for(int i = 0; i < number + 1; i++) {
 						this->pop();
@@ -414,7 +397,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::POP_ARGUMENTS: {
-			Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+			Entry &numberOfArguments = this->stack.array[this->stack.head - 1];
 
 			int number = (int)numberOfArguments.numberData;
 			for(int i = 0; i < number + 1; i++) {
@@ -439,18 +422,18 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CALL_OBJECT: {
-			Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+			Entry &numberOfArguments = this->stack.array[this->stack.head - 1];
 			int argumentCount = (int)numberOfArguments.numberData;
 			
 			// pull the object from the stack
-			Entry &objectEntry = this->stack[this->stackPointer - 1 - argumentCount];
+			Entry &objectEntry = this->stack.array[this->stack.head - 1 - argumentCount];
 			ObjectReference* object = objectEntry.objectData;
 
 			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
 				this->warning("trying to call a deleted object\n");
 				
 				// pop arguments that we didn't use
-				Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+				Entry &numberOfArguments = this->stack.array[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
 				for(int i = 0; i < number + 1; i++) {
 					this->pop();
@@ -469,7 +452,7 @@ void Interpreter::interpret() {
 				this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
 
 				// pop arguments that we didn't use
-				Entry &numberOfArguments = this->stack[this->stackPointer - 1];
+				Entry &numberOfArguments = this->stack.array[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
 				for(int i = 0; i < number + 1; i++) {
 					this->pop();
@@ -494,9 +477,9 @@ void Interpreter::interpret() {
 }
 
 void Interpreter::printStack() {
-	printf("\nSTACK: %d\n", this->stackPointer);
-	for(unsigned int i = 0; i < this->stackPointer; i++) {
-		Entry &entry = this->stack[i];
+	printf("\nSTACK: %d\n", this->stack.head);
+	for(unsigned int i = 0; i < this->stack.head; i++) {
+		Entry &entry = this->stack.array[i];
 
 		printf("#%d ", i);
 		entry.print();

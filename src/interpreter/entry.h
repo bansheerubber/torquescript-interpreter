@@ -9,7 +9,7 @@ using namespace std;
 
 namespace ts {
 	namespace entry {
-		enum EntryType {
+		enum __attribute__ ((__packed__)) EntryType {
 			INVALID,
 			NUMBER,
 			STRING,
@@ -38,4 +38,5 @@ namespace ts {
 	};
 
 	void copyEntry(const Entry &source, Entry &destination);
+	void initEntry(Entry* location);
 }

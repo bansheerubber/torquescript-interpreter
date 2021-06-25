@@ -7,14 +7,14 @@
 		lvalue = &instruction.mathematics.lvalueEntry;
 	}
 	else {
-		lvalue = &this->stack[this->stackPointer - 1];
+		lvalue = &this->stack.array[this->stack.head - 1];
 		this->pop();
 	}
 	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
 	else {
-		rvalue = &this->stack[this->stackPointer - 1];
+		rvalue = &this->stack.array[this->stack.head - 1];
 		this->pop();
 	}
 
@@ -64,7 +64,7 @@
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
 	else {
-		rvalue = &this->stack[this->stackPointer - 1];
+		rvalue = &this->stack.array[this->stack.head - 1];
 		this->pop();
 	}
 
@@ -72,7 +72,7 @@
 		lvalue = &instruction.mathematics.lvalueEntry;
 	}
 	else {
-		lvalue = &this->stack[this->stackPointer - 1];
+		lvalue = &this->stack.array[this->stack.head - 1];
 		this->pop();
 	}
 

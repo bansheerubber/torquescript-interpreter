@@ -4,7 +4,7 @@ if(foundFunction->isTSSL) {
 	void* arguments[TS_ARG_COUNT];
 	bool deleteArguments[TS_ARG_COUNT];
 	// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
-	int actualArgumentCount = (int)this->stack[this->stackPointer - 1].numberData; // get the amount of arguments used in the program
+	int actualArgumentCount = (int)this->stack.array[this->stack.head - 1].numberData; // get the amount of arguments used in the program
 	int delta = function->argumentCount - actualArgumentCount;
 
 	int count = 1;
@@ -13,8 +13,8 @@ if(foundFunction->isTSSL) {
 			break;
 		}
 		else {
-			relative_stack_location location = this->stackPointer - 1 - i + delta;
-			Entry &entry = this->stack[location];
+			relative_stack_location location = this->stack.head - 1 - i + delta;
+			Entry &entry = this->stack.array[location];
 			if(function->argumentTypes[count - 1] == sl::STRING) {
 				if(entry.type == entry::NUMBER) {
 					arguments[count - 1] = numberToString(entry.numberData);

@@ -18,6 +18,7 @@
 #include "object.h"
 #include "objectReference.h"
 #include "../args.h"
+#include "dynamicArray.h"
 
 using namespace std;
 
@@ -58,17 +59,17 @@ namespace ts {
 
 			bool warnings = true;
 			
-			void push(Entry &entry);
-			void push(double number);
-			void push(string* data);
-			void push(ObjectReference* data);
-			void pop();
+			void push(Entry &entry) __attribute__((always_inline));
+			void push(double number) __attribute__((always_inline));
+			void push(string* data) __attribute__((always_inline));
+			void push(ObjectReference* data) __attribute__((always_inline));
+			void pop() __attribute__((always_inline));
 
 			int ranInstructions = 0;
 			chrono::high_resolution_clock::time_point startTime;
 
-			Entry stack[1024];
-			stack_location stackPointer = 0; // points to the next valid location on the stack (stackPointer - 1 == top of stack)
+			// stack comes allocated with 160kb of memory
+			DynamicArray<Entry> stack = DynamicArray<Entry>(10000, initEntry);
 
 			void pushVariableContext();
 			void popVariableContext();
