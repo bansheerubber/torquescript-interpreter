@@ -1,4 +1,4 @@
 #pragma once
 
-typedef unsigned int stack_location;
-typedef unsigned int relative_stack_location;
+typedef size_t stack_location;
+typedef size_t relative_stack_location;

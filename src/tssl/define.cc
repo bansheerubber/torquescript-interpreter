@@ -10,7 +10,7 @@
 using namespace ts::sl;
 
 vector<Function*> ts::sl::functions;
-unordered_map<string, unsigned long> ts::sl::nameToIndex;
+unordered_map<string, size_t> ts::sl::nameToIndex;
 
 void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes) {
 	Function* function = new Function;

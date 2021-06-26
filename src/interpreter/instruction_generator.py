@@ -124,7 +124,7 @@ elif sys.argv[1] == "debug.cc":
 			printf("   {variable_name} data: \\"%s\\",\\n", instruction.{struct}.{variable_name}.stringData->c_str());
 		}}
 		else if(instruction.{struct}.{variable_name}.type == entry::OBJECT) {{
-			printf("   {variable_name} data: %d,\\n", instruction.{struct}.{variable_name}.objectData->object->id);
+			printf("   {variable_name} data: %ld,\\n", instruction.{struct}.{variable_name}.objectData->object->id);
 		}}
 		else {{
 			printf("   {variable_name} data: %f,\\n", instruction.{struct}.{variable_name}.numberData);
@@ -133,6 +133,8 @@ elif sys.argv[1] == "debug.cc":
 	else {{
 		printf("   {variable_name}: invalid entry,\\n");
 	}}""")
+			elif variable_type == "size_t" or variable_type == "relative_stack_location" or variable_type == "stack_location": # handle size_t
+				print(f'	printf("   {variable_name}: %ld,\\n", instruction.{struct}.{variable_name});')
 			else: # handle everything else
 				print(f'	printf("   {variable_name}: %d,\\n", instruction.{struct}.{variable_name});')
 		

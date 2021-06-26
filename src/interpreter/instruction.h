@@ -161,7 +161,7 @@ namespace ts {
 			struct {
 				int dimensions;
 				relative_stack_location offset; // subtracted from top of stack
-				unsigned int argc; // expected amount of arguments
+				size_t argc; // expected amount of arguments
 				string destination;
 				size_t hash;
 			} argumentAssign;
@@ -182,9 +182,9 @@ namespace ts {
 				string name;
 				// cache the index when we lookup the name of the function at runtime
 				// (hashing an int during runtime is probably faster than hashing a string)
-				unsigned long cachedIndex;
+				size_t cachedIndex;
 				string nameSpace;
-				unsigned long cachedNamespaceIndex;
+				size_t cachedNamespaceIndex;
 				bool isCached;
 				bool isNamespaceCached;
 				bool isTSSL;
@@ -196,7 +196,7 @@ namespace ts {
 
 			struct {
 				string type;
-				unsigned long namespaceIndex;
+				size_t namespaceIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
 		};

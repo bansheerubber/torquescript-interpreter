@@ -38,7 +38,7 @@ namespace ts {
 	struct FunctionFrame {
 		VariableContext context;
 		InstructionContainer* container;
-		unsigned long pointer;
+		size_t pointer;
 	};
 
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
@@ -61,7 +61,7 @@ namespace ts {
 
 			Entry emptyEntry;
 
-			unsigned int highestObjectId = 0;
+			size_t highestObjectId = 0;
 		
 		private:
 			void interpret(); // interprets the next instruction
@@ -74,7 +74,7 @@ namespace ts {
 			void push(ObjectReference* data) __attribute__((always_inline));
 			void pop() __attribute__((always_inline));
 
-			int ranInstructions = 0;
+			size_t ranInstructions = 0;
 			chrono::high_resolution_clock::time_point startTime;
 
 			// stacks
@@ -82,7 +82,7 @@ namespace ts {
 			DynamicArray<FunctionFrame> frames;
 			VariableContext* topContext;
 			InstructionContainer* topContainer; // the current container we're executing code from, taken from frames
-			unsigned long* instructionPointer; // the current instruction pointer, taken from frames
+			size_t* instructionPointer; // the current instruction pointer, taken from frames
 
 			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
@@ -91,10 +91,10 @@ namespace ts {
 			void popInstructionContainer();
 
 			// function datastructures
-			robin_map<string, int> nameToIndex;
+			robin_map<string, size_t> nameToIndex;
 			vector<Function*> functions;
 
-			robin_map<string, int> namespaceToIndex;
+			robin_map<string, size_t> namespaceToIndex;
 			vector<NamespaceFunctions*> namespaceFunctions;
 	};
 }

@@ -11,7 +11,7 @@ namespace ts {
 		
 		protected:
 			ts::Instruction* array; // pointer to flat array in memory
-			unsigned long size;
+			size_t size;
 			friend class Interpreter;
 	};
 }

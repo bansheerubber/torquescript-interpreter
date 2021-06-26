@@ -15,7 +15,7 @@ namespace ts {
 			~Object();
 
 			VariableContext properties;
-			unsigned int id = 0;
+			size_t id = 0;
 
 			void addReference(ObjectReference* reference);
 

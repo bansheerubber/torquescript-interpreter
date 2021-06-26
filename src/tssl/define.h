@@ -31,7 +31,7 @@ namespace ts {
 		};
 
 		extern vector<Function*> functions;
-		extern unordered_map<string, unsigned long> nameToIndex;
+		extern unordered_map<string, size_t> nameToIndex;
 
 		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, int argumentCount, type* argumentTypes);
 		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes);
