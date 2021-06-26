@@ -3,6 +3,10 @@
 Torquescript is an older programming language which was used for video game development in an older version of the Torque Game Engine. Programmers familiar with Torquescript are also familiar with its many flaws making it difficult to develop for. However, Torquescript has some neat ideas that make some parts of game development effortless, even with its flaws. Torquescript was the first programming language I learned and I carry a sort of fascination for it to this day. I want to make my own programming language borrowing some of Torquescript's better ideas, but first I wanted to familiarize myself with building an interpreter since I have never made one before.
 
 ---
+## Try it out online:
+Visit https://bansheerubber.com/torquescript/ to try Torquescript online.
+
+---
 ## Compilation:
 Requires C++17 and `libfmt`.
 ```
