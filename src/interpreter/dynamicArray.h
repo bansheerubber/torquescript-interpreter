@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdlib.h>
 #include <cstring>
 
 #include "../io.h"

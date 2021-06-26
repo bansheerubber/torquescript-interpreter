@@ -1,8 +1,6 @@
 	#pragma once
 
 #include <string>
-#include <sstream>
-#include <vector>
 
 #include "component.h"
 #include "body.h"

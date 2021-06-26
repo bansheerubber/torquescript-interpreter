@@ -41,4 +41,4 @@ build-tests: dist/$(target)
 
 clean:
 	rm -Rf tmp
-	rm -f $(target)
+	rm -f dist/$(target)

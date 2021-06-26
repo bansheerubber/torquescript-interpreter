@@ -1,8 +1,6 @@
 #include <stdio.h>
 
-#include <chrono>
 #include <mutex>
-#include <thread>
 
 #include "../io.h"
 #include "parser.h"

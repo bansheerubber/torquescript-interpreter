@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <stack>
 #include <vector>
 
 #include "entry.h"
