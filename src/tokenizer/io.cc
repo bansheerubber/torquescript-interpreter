@@ -43,7 +43,7 @@ void Tokenizer::prevChar() {
 			// count the amount of characters on this line
 			// TODO does this affect parsing performance significantly?
 			int count = 0;
-			for(int i = this->fileIndex - 1; i >= 0; i--) {
+			for(size_t i = this->fileIndex - 1; i >= 0; i--) {
 				if(this->contents[i] == '\n') {
 					break;
 				}
@@ -63,11 +63,11 @@ void Tokenizer::prevChar() {
 	}
 }
 
-int Tokenizer::getTotalLineCount() {
+size_t Tokenizer::getTotalLineCount() {
 	return this->lineNumber;
 }
 
-int Tokenizer::getTotalCharacterCount() {
+size_t Tokenizer::getTotalCharacterCount() {
 	return this->contentSize;
 }
 

@@ -7,11 +7,11 @@ using namespace std;
 // *Word(s) function implementations
 namespace ts {
 	namespace sl {
-		void* firstWord(int argc, void** args) {
+		void* firstWord(size_t argc, void** args) {
 			if(argc >= 1) {
 				string* words = (string*)args[0];
 				string* first = new string();
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						break;
@@ -24,12 +24,12 @@ namespace ts {
 			return new string();
 		}
 
-		void* restWords(int argc, void** args) {
+		void* restWords(size_t argc, void** args) {
 			if(argc >= 1) {
 				string* words = (string*)args[0];
 				string* rest = new string();
 				bool copyDown = false;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 
 					if(copyDown) {
@@ -46,13 +46,13 @@ namespace ts {
 			return new string();
 		}
 
-		void* getWord(int argc, void** args) {
+		void* getWord(size_t argc, void** args) {
 			if(argc >= 2) {
 				string* words = (string*)args[0];
 				int count = *((double*)args[1]);
 				string* word = new string();
 				int spaceCount = 0;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						spaceCount++;
@@ -67,14 +67,14 @@ namespace ts {
 			return new string();
 		}
 
-		void* getWords(int argc, void** args) {
+		void* getWords(size_t argc, void** args) {
 			if(argc >= 3) {
 				string* words = (string*)args[0];
 				int startCount = *((double*)args[1]);
 				int endCount = *((double*)args[2]);
 				string* output = new string();
 				int spaceCount = 0;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						if(spaceCount >= startCount && spaceCount < endCount) {
@@ -92,13 +92,13 @@ namespace ts {
 			return new string();
 		}
 
-		void* getWordCount(int argc, void** args) {
+		void* getWordCount(size_t argc, void** args) {
 			if(argc == 1) {
 				string* words = (string*)args[0];
 				double* count = new double(0);
 
 				bool foundLast = false;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						(*count)++;
@@ -115,13 +115,13 @@ namespace ts {
 			return new double(0);
 		}
 
-		void* removeWord(int argc, void** args) {
+		void* removeWord(size_t argc, void** args) {
 			if(argc >= 2) {
 				string* words = (string*)args[0];
 				int count = *((double*)args[1]);
 				string* output = new string();
 				int spaceCount = 0;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						spaceCount++;
@@ -137,7 +137,7 @@ namespace ts {
 			return new string();
 		}
 
-		void* setWord(int argc, void** args) {
+		void* setWord(size_t argc, void** args) {
 			if(argc >= 3) {
 				string* words = (string*)args[0];
 				int count = *((double*)args[1]);
@@ -145,7 +145,7 @@ namespace ts {
 				string* output = new string();
 				int spaceCount = 0;
 				bool replaced = false;
-				for(long unsigned int i = 0; i < words->length(); i++) {
+				for(size_t i = 0; i < words->length(); i++) {
 					char character = (*words)[i];
 					if(character == ' ' || character == '\t' || character == '\n') {
 						spaceCount++;

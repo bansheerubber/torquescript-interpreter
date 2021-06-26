@@ -22,7 +22,7 @@ namespace ts {
 
 		DynamicArray(
 			class Interpreter* interpreter,
-			int size,
+			size_t size,
 			void (*init) (class Interpreter* interpreter, T* location),
 			void (*onRealloc) (class Interpreter* interpreter)
 		) {

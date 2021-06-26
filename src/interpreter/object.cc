@@ -1,7 +1,7 @@
 #include "object.h"
 #include "interpreter.h"
 
-Object::Object(ts::Interpreter* interpreter, string nameSpace, int namespaceIndex) {
+Object::Object(ts::Interpreter* interpreter, string nameSpace, size_t namespaceIndex) {
 	this->properties.interpreter = interpreter;
 	this->id = interpreter->highestObjectId++;
 

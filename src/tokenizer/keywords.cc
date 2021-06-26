@@ -9,7 +9,7 @@ void Tokenizer::initializeKeywords() {
 	
 	for(auto const &[argument, value]: this->validKeywords) {
 		string output;
-		for(unsigned int i = 0; i < argument.length(); i++) {
+		for(size_t i = 0; i < argument.length(); i++) {
 			if(!this->partialKeywords[i + 1]) {
 				this->partialKeywords[i + 1] = new unordered_map<string, string>();
 			}
@@ -31,7 +31,7 @@ bool Tokenizer::isPartialKeyword(char partial) {
 }
 
 bool Tokenizer::isPartialKeyword(string partial) {
-	unsigned int length = partial.length();
+	size_t length = partial.length();
 	if(length > this->largestPartial) {
 		return false;
 	}
@@ -132,14 +132,14 @@ Token Tokenizer::readKeyword() {
 		}
 
 		// special case if we run out of characters to read in the file
-		int overrun = this->overrun;
-		for(int i = 0; i < overrun; i++) {
+		size_t overrun = this->overrun;
+		for(size_t i = 0; i < overrun; i++) {
 			this->prevChar();
 		}
 		
 		// give back the characters we read
-		unsigned int size = argumentBuffer.length();
-		for(unsigned int i = 0; i < size; i++) {
+		size_t size = argumentBuffer.length();
+		for(size_t i = 0; i < size; i++) {
 			this->prevChar();
 		}
 

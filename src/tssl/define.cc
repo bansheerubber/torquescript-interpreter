@@ -12,7 +12,7 @@ using namespace ts::sl;
 vector<Function*> ts::sl::functions;
 unordered_map<string, size_t> ts::sl::nameToIndex;
 
-void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes) {
+void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, type* argumentTypes) {
 	Function* function = new Function;
 	function->returnType = returnType;
 	function->name = string(name);
@@ -24,7 +24,7 @@ void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nam
 	functions.push_back(function);
 }
 
-void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, int argumentCount, type* argumentTypes) {
+void ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, type* argumentTypes) {
 	Function* function = new Function;
 	function->returnType = returnType;
 	function->nameSpace = string(nameSpace);

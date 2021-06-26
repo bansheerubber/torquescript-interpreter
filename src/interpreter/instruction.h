@@ -101,7 +101,7 @@ namespace ts {
 	struct Instruction {
 		instruction::InstructionType type;
 		Instruction* next; // next instruction in linked list
-		long int index; // instruction's index in flat array
+		size_t index; // instruction's index in flat array
 
 		union {
 			struct {
@@ -111,14 +111,14 @@ namespace ts {
 			struct {
 				union {
 					Instruction* instruction;
-					long int index;
+					size_t index;
 				};
 			} jump;
 
 			struct {
 				union {
 					Instruction* instruction;
-					long int index;
+					size_t index;
 				};
 				bool pop;
 			} jumpIfTrue;
@@ -126,7 +126,7 @@ namespace ts {
 			struct {
 				union {
 					Instruction* instruction;
-					long int index;
+					size_t index;
 				};
 				bool pop;
 			} jumpIfFalse;

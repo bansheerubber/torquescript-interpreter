@@ -8,6 +8,6 @@ namespace ts {
 
 		};
 
-		void* ScriptObject__test(int argc, void** args);
+		void* ScriptObject__test(size_t argc, void** args);
 	}
 }

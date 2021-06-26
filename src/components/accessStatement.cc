@@ -191,7 +191,7 @@ bool AccessStatement::hasCall() {
 	return false;
 }
 
-int AccessStatement::chainSize() {
+size_t AccessStatement::chainSize() {
 	return this->elements.size();
 }
 

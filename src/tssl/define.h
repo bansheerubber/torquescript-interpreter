@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define TS_FUNC(name)		void* (*name)(int argc, void** args)
+#define TS_FUNC(name)		void* (*name)(size_t argc, void** args)
 #define TS_ARG_COUNT		16
 
 namespace ts {
@@ -25,7 +25,7 @@ namespace ts {
 			type returnType;
 			string nameSpace;
 			string name;
-			int argumentCount;
+			size_t argumentCount;
 			TS_FUNC(function);
 			type* argumentTypes;
 		};
@@ -33,8 +33,8 @@ namespace ts {
 		extern vector<Function*> functions;
 		extern unordered_map<string, size_t> nameToIndex;
 
-		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, int argumentCount, type* argumentTypes);
-		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, int argumentCount, type* argumentTypes);
+		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, type* argumentTypes);
+		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, type* argumentTypes);
 		
 		void define();
 	}

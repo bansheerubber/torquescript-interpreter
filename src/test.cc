@@ -33,7 +33,7 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	Parser* parser = new Parser(tokenizer, empty);
 	string json = parser->printJSON();
 
-	printf("parsed %d lines\n", tokenizer->getTotalLineCount());
+	printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
 
 	if(overwriteResults) {
 		filesystem::create_directories(filesystem::path(resultsFile).remove_filename());

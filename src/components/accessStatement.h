@@ -67,7 +67,7 @@ class AccessStatement : public Component {
 		bool hasChain();
 		bool hasArray();
 		bool hasCall();
-		int chainSize();
+		size_t chainSize();
 
 		bool IsValidLvalue();
 

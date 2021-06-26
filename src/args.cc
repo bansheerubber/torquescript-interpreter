@@ -69,7 +69,7 @@ void printHelp(vector<Argument> &arguments, string argumentName) {
 		
 		cout << "    ";
 		cout << parameters;
-		for(unsigned int i = 0; i < helpPosition - parameters.length(); i++) {
+		for(size_t i = 0; i < helpPosition - parameters.length(); i++) {
 			cout << " ";
 		}
 		cout << argument.help << endl;

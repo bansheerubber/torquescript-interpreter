@@ -13,7 +13,7 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		void* mAbs(int argc, void** args) {
+		void* mAbs(size_t argc, void** args) {
 			if(argc == 1) {
 				double number = *((double*)args[0]);
 				if(number < 0) {
@@ -26,98 +26,98 @@ namespace ts {
 			return new double(0.0);
 		}
 
-		void* mACos(int argc, void** args) {
+		void* mACos(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(acos(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mASin(int argc, void** args) {
+		void* mASin(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(asin(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mATan(int argc, void** args) {
+		void* mATan(size_t argc, void** args) {
 			if(argc == 2) {
 				return new double(atan2(*((double*)args[0]), *((double*)args[1])));
 			}
 			return new double(0.0);
 		}
 
-		void* mCeil(int argc, void** args) {
+		void* mCeil(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(ceil(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mFloor(int argc, void** args) {
+		void* mFloor(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(floor(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mCos(int argc, void** args) {
+		void* mCos(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(cos(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mSin(int argc, void** args) {
+		void* mSin(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(sin(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mTan(int argc, void** args) {
+		void* mTan(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(tan(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mPow(int argc, void** args) {
+		void* mPow(size_t argc, void** args) {
 			if(argc == 2) {
 				return new double(pow(*((double*)args[0]), *((double*)args[1])));
 			}
 			return new double(0.0);
 		}
 
-		void* mSqrt(int argc, void** args) {
+		void* mSqrt(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(sqrt(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mDegToRad(int argc, void** args) {
+		void* mDegToRad(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(*((double*)args[0]) * M_PI / 180.0);
 			}
 			return new double(0.0);
 		}
 
-		void* mRadToDeg(int argc, void** args) {
+		void* mRadToDeg(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(*((double*)args[0]) * 180.0 / M_PI);
 			}
 			return new double(0.0);
 		}
 
-		void* mLog(int argc, void** args) {
+		void* mLog(size_t argc, void** args) {
 			if(argc == 1) {
 				return new double(log(*((double*)args[0])));
 			}
 			return new double(0.0);
 		}
 
-		void* mFloatLength(int argc, void** args) {
+		void* mFloatLength(size_t argc, void** args) {
 			if(argc == 2) {
 				int precision = (int)(*((double*)args[1]));
 				if(precision < 0) {

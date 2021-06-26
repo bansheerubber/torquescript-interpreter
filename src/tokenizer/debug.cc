@@ -2,7 +2,7 @@
 #include "../io.h"
 
 void Tokenizer::error(const char* format, ...) {
-	printError("%s:%d:%d: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
+	printError("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
@@ -16,7 +16,7 @@ void Tokenizer::error(const char* format, ...) {
 
 void Tokenizer::warning(const char* format, ...) {
 	if(this->showWarnings) {
-		printWarning("%s:%d:%d: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
+		printWarning("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 		
 		va_list argptr;
 		va_start(argptr, format);
@@ -37,7 +37,7 @@ void Tokenizer::printToken(Token token) {
 	printf("Token {\n");
 	printf("   lexeme: %s\n", token.lexeme.c_str());
 	printf("   type: %s\n", TokenTypeDebug[token.type]);
-	printf("   lineNumber: %d\n", token.lineNumber);
-	printf("   characterNumber: %d\n", token.characterNumber);
+	printf("   lineNumber: %ld\n", token.lineNumber);
+	printf("   characterNumber: %ld\n", token.characterNumber);
 	printf("}\n");
 }

@@ -11,7 +11,7 @@ using namespace ts;
 namespace ts {
 	class Object {
 		public:
-			Object(class ts::Interpreter* interpreter, string nameSpace, int namespaceIndex);
+			Object(class ts::Interpreter* interpreter, string nameSpace, size_t namespaceIndex);
 			~Object();
 
 			VariableContext properties;
@@ -20,7 +20,7 @@ namespace ts {
 			void addReference(ObjectReference* reference);
 
 			string nameSpace;
-			int namespaceIndex;
+			size_t namespaceIndex;
 		
 		private:
 			vector<ObjectReference*> references;

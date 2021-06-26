@@ -138,7 +138,7 @@ void Interpreter::warning(const char* format, ...) {
 void Interpreter::interpret() {
 	start:
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
-		long int elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
+		size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
 		printf("ran %ld instructions in %lu us\n", this->ranInstructions, elapsed);
 		this->topContext->print();
 		this->printStack();
@@ -482,10 +482,10 @@ void Interpreter::interpret() {
 
 void Interpreter::printStack() {
 	printf("\nSTACK: %ld\n", this->stack.head);
-	for(unsigned int i = 0; i < this->stack.head; i++) {
+	for(size_t i = 0; i < this->stack.head; i++) {
 		Entry &entry = this->stack[i];
 
-		printf("#%d ", i);
+		printf("#%ld ", i);
 		entry.print();
 	}
 	printf("\n");
