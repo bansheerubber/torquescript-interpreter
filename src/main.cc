@@ -8,13 +8,13 @@
 #endif
 
 #include "args.h"
-#include "io.h"
-#include "./tokenizer/tokenizer.h"
-#include "./parser/parser.h"
 #include "./interpreter/compiler.h"
-#include "./interpreter/interpreter.h"
 #include "./tssl/define.h"
+#include "io.h"
+#include "./interpreter/interpreter.h"
+#include "./parser/parser.h"
 #include "test.h"
+#include "./tokenizer/tokenizer.h"
 
 using namespace std;
 

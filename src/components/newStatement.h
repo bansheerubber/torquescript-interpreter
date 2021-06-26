@@ -7,12 +7,6 @@
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
-#include "accessStatement.h"
-#include "assignStatement.h"
-#include "callStatement.h"
-#include "inheritanceStatement.h"
-#include "mathExpression.h"
-#include "symbol.h"
 
 // forward declare interpreter
 namespace ts {

@@ -1,8 +1,12 @@
 #include "interpreter.h"
+
 #include "entry.h"
 #include "debug.h"
-#include "../util/stringToNumber.h"
+#include "object.h"
 #include "../util/numberToString.h"
+#include "stack.h"
+#include "../util/stringToNumber.h"
+#include "../util/toLower.h"
 
 using namespace ts;
 

@@ -1,6 +1,10 @@
 #include "mathExpression.h"
 #include "../interpreter/interpreter.h"
-#include "../interpreter/debug.h"
+
+#include "booleanLiteral.h"
+#include "../interpreter/entry.h"
+#include "numberLiteral.h"
+#include "stringLiteral.h"
 
 map<TokenType, int> MathExpression::Precedence = MathExpression::CreatePrecedenceMap();
 

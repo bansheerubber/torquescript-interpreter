@@ -4,12 +4,9 @@
 #include <vector>
 
 #include "component.h"
-#include "arrayStatement.h"
-#include "callStatement.h"
 #include "../parser/parser.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
-#include "../interpreter/stack.h"
 
 // forward declare interpreter
 namespace ts {

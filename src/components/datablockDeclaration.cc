@@ -1,6 +1,9 @@
 #include "datablockDeclaration.h"
 #include "../interpreter/interpreter.h"
 
+#include "accessStatement.h"
+#include "assignStatement.h"
+
 bool DatablockDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == DATABLOCK;
 }

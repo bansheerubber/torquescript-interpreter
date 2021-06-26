@@ -4,8 +4,6 @@
 
 #include "component.h"
 #include "body.h"
-#include "caseBody.h"
-#include "defaultBody.h"
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"

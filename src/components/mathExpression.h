@@ -5,15 +5,11 @@
 #include <string>
 
 #include "component.h"
-#include "accessStatement.h"
-#include "numberLiteral.h"
-#include "stringLiteral.h"
-#include "booleanLiteral.h"
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
+
 #include "../interpreter/stack.h"
-#include "../interpreter/entry.h"
 
 // forward declare interpreter
 namespace ts {

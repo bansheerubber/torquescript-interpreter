@@ -7,9 +7,7 @@
 #include "../parser/parser.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
-#include "accessStatement.h"
-#include "assignStatement.h"
-#include "callStatement.h"
+
 #include "inheritanceStatement.h"
 #include "symbol.h"
 

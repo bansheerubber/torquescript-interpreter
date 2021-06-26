@@ -7,6 +7,7 @@
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
+
 #include "symbol.h"
 
 using namespace std;

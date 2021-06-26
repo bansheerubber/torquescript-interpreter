@@ -1,8 +1,8 @@
-#include "test.h"
-#include "io.h"
-#include "tokenizer/tokenizer.h"
-#include "parser/parser.h"
 #include "args.h"
+#include "io.h"
+#include "test.h"
+#include "parser/parser.h"
+#include "tokenizer/tokenizer.h"
 
 bool isFileEqual(string &contents, string filename) {
 	ifstream file(filename);

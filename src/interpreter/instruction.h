@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entry.h"
+#include "stack.h"
 
 namespace ts {
 	namespace instruction {

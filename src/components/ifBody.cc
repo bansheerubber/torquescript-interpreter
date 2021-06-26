@@ -1,7 +1,8 @@
 #include "ifBody.h"
+#include "../interpreter/interpreter.h"
+
 #include "elseIfBody.h"
 #include "elseBody.h"
-#include "../interpreter/interpreter.h"
 
 bool IfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == IF;

@@ -4,8 +4,8 @@
 #include <string>
 
 #include "../args.h"
-#include "../tokenizer/tokenizer.h"
 #include "../components/component.h"
+#include "../tokenizer/tokenizer.h"
 #include "../components/sourceFile.h"
 
 using namespace std;

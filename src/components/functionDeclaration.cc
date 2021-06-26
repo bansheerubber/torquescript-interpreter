@@ -1,5 +1,6 @@
 #include "functionDeclaration.h"
 #include "../interpreter/interpreter.h"
+
 #include "accessStatement.h"
 
 bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {

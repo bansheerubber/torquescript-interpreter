@@ -3,21 +3,18 @@
 #include <chrono>
 #include <vector>
 
-#include "entry.h"
-#include "instruction.h"
-#include "../io.h"
-#include "stack.h"
-#include "variableContext.h"
-#include "instructionContainer.h"
-#include "function.h"
-#include "../include/robin-map/include/tsl/robin_map.h"
-#include "../tssl/define.h"
-#include "interpreterMacros.h"
-#include "../util/toLower.h"
-#include "object.h"
-#include "objectReference.h"
 #include "../args.h"
 #include "dynamicArray.h"
+#include "entry.h"
+#include "function.h"
+#include "../io.h"
+#include "instruction.h"
+#include "instructionContainer.h"
+#include "../include/robin-map/include/tsl/robin_map.h"
+#include "objectReference.h"
+#include "variableContext.h"
+
+#define TS_INTERPRETER_PREFIX true
 
 using namespace std;
 

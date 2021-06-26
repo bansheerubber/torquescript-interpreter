@@ -1,6 +1,9 @@
 #include "switchBody.h"
 #include "../interpreter/interpreter.h"
 
+#include "caseBody.h"
+#include "defaultBody.h"
+
 bool SwitchBody::ShouldParse(Tokenizer* tokenizer, class Parser* parser) {
 	Token token = tokenizer->peekToken();
 	return token.type == SWITCH || token.type == STRING_SWITCH;

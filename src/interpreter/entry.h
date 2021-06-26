@@ -3,7 +3,6 @@
 #include <string>
 
 #include "objectReference.h"
-#include "stack.h"
 
 using namespace std;
 

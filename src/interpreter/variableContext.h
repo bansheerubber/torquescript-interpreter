@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../include/robin-map/include/tsl/robin_map.h"
 #include "entry.h"
+#include "../include/robin-map/include/tsl/robin_map.h"
 
 using namespace std;
 using namespace tsl;

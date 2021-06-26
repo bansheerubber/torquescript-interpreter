@@ -1,6 +1,16 @@
 #include "newStatement.h"
 #include "../interpreter/interpreter.h"
 
+#include "accessStatement.h"
+#include "assignStatement.h"
+#include "booleanLiteral.h"
+#include "callStatement.h"
+#include "inheritanceStatement.h"
+#include "mathExpression.h"
+#include "numberLiteral.h"
+#include "stringLiteral.h"
+#include "symbol.h"
+
 bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return (
 		tokenizer->peekToken().type == NEW

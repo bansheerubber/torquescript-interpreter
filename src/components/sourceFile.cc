@@ -1,7 +1,5 @@
 #include "sourceFile.h"
 #include "../parser/parser.h"
-#include "accessStatement.h"
-#include "assignStatement.h"
 #include "../interpreter/interpreter.h"
 
 string SourceFile::print() {

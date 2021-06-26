@@ -1,10 +1,10 @@
 #include "assignStatement.h"
+
 #include "accessStatement.h"
+#include "booleanLiteral.h"
+#include "../interpreter/interpreter.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
-#include "mathExpression.h"
-#include "../interpreter/interpreter.h"
-#include "../interpreter/debug.h"
 
 bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
