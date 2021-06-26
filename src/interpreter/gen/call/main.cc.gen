@@ -88,5 +88,4 @@ if(foundFunction->isTSSL) {
 }
 else {
 	this->pushInstructionContainer(foundFunction);
-	this->pushVariableContext();
 }

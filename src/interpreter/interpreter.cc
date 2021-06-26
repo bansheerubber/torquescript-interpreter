@@ -6,12 +6,21 @@
 
 using namespace ts;
 
+void ts::initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame) {
+	*frame = (FunctionFrame){
+		context: VariableContext(interpreter),
+		container: nullptr,
+		pointer: 0,
+	};
+}
+
+void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
+	FunctionFrame &frame = interpreter->frames.array[interpreter->frames.head - 1];
+	interpreter->instructionPointer = &frame.pointer;
+	interpreter->topContext = &frame.context;
+}
+
 Interpreter::Interpreter(ParsedArguments args) {
-	for(int i = 0; i < 256; i++) {
-		this->contexts[i].interpreter = this;
-	}
-	
-	this->pushVariableContext();
 	this->emptyEntry.setString(new string(""));
 
 	for(sl::Function* function: sl::functions) {
@@ -21,6 +30,9 @@ Interpreter::Interpreter(ParsedArguments args) {
 	if(args.arguments["no-warnings"] != "") {
 		this->warnings = false;
 	}
+
+	this->stack = DynamicArray<Entry>(this, 10000, 20000, initEntry, nullptr);
+	this->frames = DynamicArray<FunctionFrame>(this, 1024, 100000, initFunctionFrame, onFunctionFrameRealloc);
 }
 
 Interpreter::~Interpreter() {
@@ -55,36 +67,24 @@ void Interpreter::addTSSLFunction(sl::Function* function) {
 }
 
 void Interpreter::pushInstructionContainer(InstructionContainer* container) {
-	// push container
-	this->topContainer = container;
-	this->containerStack[this->containerStackPointer] = container;
-	this->containerStackPointer++;
+	FunctionFrame &frame = this->frames.array[this->frames.head];
+	frame.container = container;
+	frame.pointer = 0;
 
-	// push pointer
-	this->pointerStack[this->pointerStackPointer] = 0;
-	this->instructionPointer = &this->pointerStack[this->pointerStackPointer];
-	this->pointerStackPointer++;
+	this->topContainer = frame.container;
+	this->instructionPointer = &frame.pointer;
+	this->topContext = &frame.context;
+	
+	this->frames.pushed();
 }
 
 void Interpreter::popInstructionContainer() {
-	// pop container
-	this->containerStackPointer--;
-	this->topContainer = this->containerStack[this->containerStackPointer - 1];
+	this->frames.popped();
 
-	// pop pointer
-	this->pointerStackPointer--;
-	this->instructionPointer = &this->pointerStack[this->pointerStackPointer - 1];
-}
-
-void Interpreter::pushVariableContext() {
-	this->topContext = &this->contexts[this->contextPointer];
-	this->contextPointer++;
-}
-
-void Interpreter::popVariableContext() {
-	this->topContext->clear();
-	this->contextPointer--;
-	this->topContext = &this->contexts[this->contextPointer - 1];
+	FunctionFrame &frame = this->frames.array[this->frames.head - 1];
+	this->topContainer = frame.container;
+	this->instructionPointer = &frame.pointer;
+	this->topContext = &frame.context;
 }
 
 // push an entry onto the stack
@@ -392,7 +392,6 @@ void Interpreter::interpret() {
 
 		case instruction::RETURN: { // return from a function
 			this->popInstructionContainer();
-			this->popVariableContext();
 			break;
 		}
 

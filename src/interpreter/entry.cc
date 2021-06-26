@@ -123,6 +123,6 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 	}
 }
 
-void ts::initEntry(Entry* location) {;
+void ts::initEntry(class Interpreter* interpreter, Entry* location) {;
 	new((void*)location) Entry();
 }

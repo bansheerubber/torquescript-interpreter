@@ -7,6 +7,14 @@
 
 using namespace ts;
 
+VariableContext::VariableContext() {
+
+}
+
+VariableContext::VariableContext(Interpreter* interpreter) {
+	this->interpreter = interpreter;
+}
+
 VariableContext::~VariableContext() {
 
 }
@@ -133,4 +141,8 @@ void VariableContext::printWithTab(int tabs) {
 		printf("%s\"%s\":\n", space.c_str(), it->first.c_str());
 		it->second.print(tabs + 1);
 	}
+}
+
+void initVariableContext(VariableContext* location) {
+	
 }

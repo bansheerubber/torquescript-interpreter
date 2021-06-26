@@ -27,6 +27,8 @@ namespace ts {
 	
 	class VariableContext {
 		public:
+			VariableContext();
+			VariableContext(class Interpreter* interpreter);
 			~VariableContext();
 			
 			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
@@ -44,4 +46,6 @@ namespace ts {
 			friend class Object;
 			robin_map<string, Entry> variableMap;
 	};
+
+	void initVariableContext(VariableContext* location);
 }

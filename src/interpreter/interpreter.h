@@ -34,6 +34,15 @@ namespace ts {
 			this->functions = vector<Function*>();
 		}
 	};
+
+	struct FunctionFrame {
+		VariableContext context;
+		InstructionContainer* container;
+		unsigned long pointer;
+	};
+
+	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
+	void onFunctionFrameRealloc(Interpreter* interpreter);
 	
 	class Interpreter {
 		public:
@@ -68,24 +77,16 @@ namespace ts {
 			int ranInstructions = 0;
 			chrono::high_resolution_clock::time_point startTime;
 
-			// stack comes allocated with 160kb of memory
-			DynamicArray<Entry> stack = DynamicArray<Entry>(10000, initEntry);
-
-			void pushVariableContext();
-			void popVariableContext();
-			VariableContext contexts[256];
+			// stacks
+			DynamicArray<Entry> stack;
+			DynamicArray<FunctionFrame> frames;
 			VariableContext* topContext;
-			int contextPointer = 0;
-			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
+			InstructionContainer* topContainer; // the current container we're executing code from, taken from frames
+			unsigned long* instructionPointer; // the current instruction pointer, taken from frames
+
+			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 
-			InstructionContainer* containerStack[1024];
-			unsigned long containerStackPointer;
-			InstructionContainer* topContainer; // the current container we're executing code from, taken from the containerStack
-
-			unsigned long pointerStack[1024];
-			unsigned long pointerStackPointer;
-			unsigned long* instructionPointer; // the current instruction pointer, taken from the pointerStack
 			void pushInstructionContainer(InstructionContainer* container);
 			void popInstructionContainer();
 
