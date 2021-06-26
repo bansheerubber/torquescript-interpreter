@@ -29,7 +29,6 @@ namespace ts {
 		public:
 			VariableContext();
 			VariableContext(class Interpreter* interpreter);
-			~VariableContext();
 			
 			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			Entry& getVariableEntry(string &name);

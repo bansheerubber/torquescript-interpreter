@@ -1,6 +1,6 @@
 // what the stack looks like:
 // {lvalue, object we're assigning to, dimensions...}
-Entry &objectEntry = this->stack.array[this->stack.head - 1 - instruction.localAssign.dimensions];
+Entry &objectEntry = this->stack[this->stack.head - 1 - instruction.localAssign.dimensions];
 ObjectReference* object = objectEntry.objectData;
 
 // don't do anything if our reference is dead

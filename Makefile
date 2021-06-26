@@ -1,7 +1,7 @@
 target = torquescript
 cclibs = -lpthread -lstdc++fs
 cc = g++
-ccflags = -O2 -Wall -Wno-switch -Bsymbolic -fno-semantic-interposition -std=c++17
+ccflags = -O2 -Wall -Wno-switch -Wno-class-memaccess -Bsymbolic -fno-semantic-interposition -std=c++17
 
 cpp_source = $(shell find src -type f -name "*.cc" ! -path "src/include*")
 cpp_source_tmp = $(subst src, tmp, $(cpp_source))
