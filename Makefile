@@ -18,20 +18,23 @@ cpp_objects_without = $(patsubst src\/, , $(cpp_source))
 
 # force synchronization for preprocessor
 default:
-	"$(MAKE)" preprocessor
-	"$(MAKE)" dist/$(target)
+	@"$(MAKE)" preprocessor --no-print-directory
+	@"$(MAKE)" dist/$(target) --no-print-directory
 
 preprocessor:
-	python3 tools/preprocessor.py
+	@python3 tools/preprocessor.py
+	@echo -e "   PY      tools/preprocessor.py"
 
 $(cpp_objects_tmp) : %.o : %.h
 $(cpp_objects_tmp) : %.o : %.cc
 	@mkdir -p $(dir $@)
-	$(cc) $(ccflags) -c $< -o $@
+	@echo -e "   CC      $<"
+	@$(cc) $(ccflags) -c $< -o $@
 
 dist/$(target): $(cpp_objects_tmp)
 	@mkdir -p $(dir dist/$(target))
-	$(cc) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
+	@echo -e "   CC      $@"
+	@$(cc) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
 
 test: dist/$(target)
 	cd dist && ./$(target) --test
@@ -40,5 +43,7 @@ build-tests: dist/$(target)
 	cd dist && ./$(target) --test --overwrite-results
 
 clean:
-	rm -Rf tmp
-	rm -f dist/$(target)
+	@rm -Rf tmp
+	@rm -f dist/$(target)
+	@echo -e "   RM      dist/$(target)"
+	@echo -e "   RM      tmp"
