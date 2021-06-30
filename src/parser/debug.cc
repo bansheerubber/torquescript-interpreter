@@ -6,8 +6,8 @@
 #include "parser.h"
 
 std::mutex& errorLock() {
-    static std::mutex m;
-    return m;
+	static std::mutex m;
+	return m;
 }
 
 void Parser::error(const char* format, ...) {
