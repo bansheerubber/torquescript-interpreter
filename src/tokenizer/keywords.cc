@@ -132,8 +132,8 @@ Token Tokenizer::readKeyword() {
 		}
 
 		// special case if we run out of characters to read in the file
-		size_t overrun = this->overrun;
-		for(size_t i = 0; i < overrun; i++) {
+		int overrun = this->overrun;
+		for(int i = 0; i < overrun; i++) {
 			this->prevChar();
 		}
 		

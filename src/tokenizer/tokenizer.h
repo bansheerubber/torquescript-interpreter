@@ -43,9 +43,9 @@ class Tokenizer {
 		size_t characterNumber = 1;
 
 		bool freezeKeywordTest = false;
-		size_t overrun = 0;
-		size_t fileIndex = 0;
-		size_t tokenIndex = 0;
+		int overrun = 0;
+		int fileIndex = 0;
+		int tokenIndex = 0;
 		bool showWarnings = true;
 
 		bool isNumber(char input);
