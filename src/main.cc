@@ -92,19 +92,6 @@ int main(int argc, char* argv[]) {
 				Parser* parser = new Parser(tokenizer, args);
 				interpreter->startInterpretation(ts::Compile(parser, interpreter));
 			}
-			else if(filesystem::is_directory(path, error)) {
-				auto start = chrono::high_resolution_clock::now();
-				
-				for(const auto &entry: filesystem::recursive_directory_iterator(path)) {
-					string candidateFile = entry.path().string();
-					if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
-						Tokenizer(candidateFile, args);
-					}
-				}
-
-				float time = (float)chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - start).count() / 1000.0;
-				cout << "completed tokenizing in " << fixed << setprecision(2) << time << "s" << endl;
-			}
 			else {
 				printError("error opening file %s\n", fileName.c_str());
 			}
