@@ -49,7 +49,7 @@ void Tokenizer::tokenize() {
 
 	char character;
 	while(!this->isFileEOF() && (character = this->getChar())) {
-		bool failedKeyword = false;
+		this->failedKeyword = false;
 		
 		// read a number
 		if(this->isNumber(character)) {
@@ -106,14 +106,7 @@ void Tokenizer::tokenize() {
 			}
 			else { // handle keyword
 				this->prevChar();
-				Token keyword = this->readKeyword();
-
-				if(keyword.type != INVALID) {
-					this->tokens.push_back(keyword);
-				}
-				else {
-					failedKeyword = true;
-				}
+				this->readKeyword();
 			}
 		}
 		// member chain parsing
@@ -129,7 +122,7 @@ void Tokenizer::tokenize() {
 			this->error("unexpected character '%c'", character);
 		}
 
-		if(!failedKeyword) {
+		if(!this->failedKeyword) {
 			this->freezeKeywordTest = false;
 		}
 	}

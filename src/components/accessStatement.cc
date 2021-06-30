@@ -26,7 +26,7 @@ AccessStatement* AccessStatement::Parse(
 	AccessStatement* output = new AccessStatement(parser);
 	output->parent = parent;
 
-	Token token = tokenizer->peekToken();
+	Token &token = tokenizer->peekToken();
 	if(firstValue != nullptr) {
 		output->elements.push_back((AccessElement){
 			component: firstValue,

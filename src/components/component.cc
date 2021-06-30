@@ -30,13 +30,13 @@ Component::Component(Parser* parser) {
 
 bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	return AccessStatement::ShouldParse(tokenizer, parser)
-		|| MathExpression::ShouldParse(nullptr, tokenizer, parser)
 		|| NumberLiteral::ShouldParse(tokenizer, parser)
 		|| StringLiteral::ShouldParse(tokenizer, parser)
+		|| MathExpression::ShouldParse(nullptr, tokenizer, parser)
 		|| BooleanLiteral::ShouldParse(tokenizer, parser)
-		|| InlineConditional::ShouldParse(tokenizer, parser)
 		|| NewStatement::ShouldParse(tokenizer, parser)
-		|| NamespaceStatement::ShouldParse(tokenizer, parser);
+		|| NamespaceStatement::ShouldParse(tokenizer, parser)
+		|| InlineConditional::ShouldParse(tokenizer, parser);
 }
 
 // handles member chaining, inline conditionals. basically, any tacked on stuff that we might
@@ -151,17 +151,17 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 		else if(Comment::ShouldParse(tokenizer, parser)) {
 			body->addChild(Comment::Parse(body, tokenizer, parser));
 		}
+		else if(IfBody::ShouldParse(tokenizer, parser)) {
+			body->addChild(IfBody::Parse(body, tokenizer, parser));
+		}
+		else if(FunctionDeclaration::ShouldParse(tokenizer, parser)) {
+			body->addChild(FunctionDeclaration::Parse(body, tokenizer, parser));
+		}
 		else if(ReturnStatement::ShouldParse(tokenizer, parser)) {
 			body->addChild(ReturnStatement::Parse(body, tokenizer, parser));
 		}
-		else if(ContinueStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(ContinueStatement::Parse(body, tokenizer, parser));
-		}
-		else if(BreakStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(BreakStatement::Parse(body, tokenizer, parser));
-		}
-		else if(IfBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(IfBody::Parse(body, tokenizer, parser));
+		else if(DatablockDeclaration::ShouldParse(tokenizer, parser)) {
+			body->addChild(DatablockDeclaration::Parse(body, tokenizer, parser));
 		}
 		else if(ForBody::ShouldParse(tokenizer, parser)) {
 			body->addChild(ForBody::Parse(body, tokenizer, parser));
@@ -172,14 +172,14 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 		else if(SwitchBody::ShouldParse(tokenizer, parser)) {
 			body->addChild(SwitchBody::Parse(body, tokenizer, parser));
 		}
-		else if(FunctionDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(FunctionDeclaration::Parse(body, tokenizer, parser));
-		}
-		else if(DatablockDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(DatablockDeclaration::Parse(body, tokenizer, parser));
-		}
 		else if(PackageDeclaration::ShouldParse(tokenizer, parser)) {
 			body->addChild(PackageDeclaration::Parse(body, tokenizer, parser));
+		}
+		else if(ContinueStatement::ShouldParse(tokenizer, parser)) {
+			body->addChild(ContinueStatement::Parse(body, tokenizer, parser));
+		}
+		else if(BreakStatement::ShouldParse(tokenizer, parser)) {
+			body->addChild(BreakStatement::Parse(body, tokenizer, parser));
 		}
 		// error if we get something we don't recognize
 		else if(

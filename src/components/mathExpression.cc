@@ -36,6 +36,7 @@ bool MathExpression::IsOperator(TokenType type) {
 }
 
 bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser) {
+	Token &token = tokenizer->peekToken();
 	if(lvalue == nullptr) {
 		return (
 			(
@@ -46,14 +47,14 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 				)
 				&& MathExpression::IsOperator(tokenizer->peekToken(1).type)
 			)
-			|| tokenizer->peekToken().type == LEFT_PARENTHESIS
-			|| tokenizer->peekToken().type == LOGICAL_NOT
-			|| tokenizer->peekToken().type == BITWISE_NOT
-			|| tokenizer->peekToken().type == MINUS
+			|| token.type == LEFT_PARENTHESIS
+			|| token.type == LOGICAL_NOT
+			|| token.type == BITWISE_NOT
+			|| token.type == MINUS
 		);
 	}
 	else {
-		return MathExpression::IsOperator(tokenizer->peekToken().type);
+		return MathExpression::IsOperator(token.type);
 	}
 }
 
