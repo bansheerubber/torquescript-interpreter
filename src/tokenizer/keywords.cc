@@ -8,14 +8,12 @@ void Tokenizer::initializeKeywords() {
 	this->customLexeme.insert(pair<TokenType, string>(NL, "NL"));
 	
 	for(auto const &[argument, value]: this->validKeywords) {
+		this->partialKeywordCharacters.insert(pair<char, string>(argument[0], argument));
+		
 		string output;
 		for(size_t i = 0; i < argument.length(); i++) {
-			if(!this->partialKeywords[i + 1]) {
-				this->partialKeywords[i + 1] = new unordered_map<string, string>();
-			}
-
 			output += tolower(argument[i]);
-			this->partialKeywords[i + 1]->insert(pair<string, string>(output, argument));
+			this->partialKeywords.insert(pair<string, string>(output, argument));
 
 			if(i + 1 > this->largestPartial) {
 				this->largestPartial = i + 1;
@@ -25,32 +23,33 @@ void Tokenizer::initializeKeywords() {
 }
 
 bool Tokenizer::isPartialKeyword(char partial) {
-	string partialString;
-	partialString += tolower(partial);
-	return (*this->partialKeywords[1]).find(partialString) != (*this->partialKeywords[1]).end();
+	return this->partialKeywordCharacters.find(tolower(partial)) != this->partialKeywordCharacters.end();
 }
 
-bool Tokenizer::isPartialKeyword(string partial) {
+bool Tokenizer::isPartialKeyword(string &partial) {
 	size_t length = partial.length();
 	if(length > this->largestPartial) {
 		return false;
 	}
-	return (*this->partialKeywords[length]).find(partial) != (*this->partialKeywords[length]).end();
+	return this->partialKeywords.find(partial) != this->partialKeywords.end();
 }
 
-string Tokenizer::getKeywordFromPartial(string partial) {
-	if(partial.length() < this->largestPartial) {
-		return (*this->partialKeywords[partial.length()])[partial];
+string& Tokenizer::getKeywordFromPartial(string &partial) {
+	static string emptyString = "";
+	
+	auto result = this->partialKeywords.find(partial);
+	if(partial.length() < this->largestPartial && result != this->partialKeywords.end()) {
+		return result.value();
 	}
-	return "";
+	return emptyString;
 }
 
-bool Tokenizer::isArgument(string argument) {
+bool Tokenizer::isArgument(string &argument) {
 	TokenType type = this->isValidKeyword(argument);
 	return type >= PLUS && type <= COMMA;
 }
 
-bool Tokenizer::isAlphabeticalKeyword(string keyword) {
+bool Tokenizer::isAlphabeticalKeyword(string &keyword) {
 	TokenType type = this->isValidKeyword(keyword);
 	return type >= RETURN && type <= NL;
 }
@@ -59,18 +58,25 @@ bool Tokenizer::isAlphabeticalKeyword(TokenType type) {
 	return type >= RETURN && type <= NL;
 }
 
-TokenType Tokenizer::isValidKeyword(string argument) {
-	return this->validKeywords[argument];
-}
-
-string Tokenizer::getKeywordLexeme(TokenType type) {
-	if(this->customLexeme[type] == "") {
-		return "";
+TokenType Tokenizer::isValidKeyword(string &argument) {
+	auto result = this->validKeywords.find(argument);
+	if(result != this->validKeywords.end()) {
+		return result->second;
 	}
-	return this->customLexeme[type];
+	return INVALID;
 }
 
-Token Tokenizer::readKeyword() {
+string& Tokenizer::getKeywordLexeme(TokenType type) {
+	static string emptyString = "";
+	
+	auto result = this->customLexeme.find(type);
+	if(result != this->customLexeme.end()) {
+		return result.value();
+	}
+	return emptyString;
+}
+
+void Tokenizer::readKeyword() {
 	Token argument = {
 		lexeme: "",
 		type: INVALID,
@@ -113,7 +119,7 @@ Token Tokenizer::readKeyword() {
 		string customLexeme = this->getKeywordLexeme(argumentType);
 		argument.lexeme = customLexeme != "" ? customLexeme : argumentBuffer;
 		argument.type = argumentType;
-		return argument;
+		this->tokens.push_back(argument);
 	}
 	// return invalid argument after rolling back characters
 	else {
@@ -122,7 +128,8 @@ Token Tokenizer::readKeyword() {
 			this->prevChar();
 			argument.lexeme = "!";
 			argument.type = LOGICAL_NOT;
-			return argument;
+			this->tokens.push_back(argument);
+			return;
 		}
 		
 		// get argument from partial
@@ -144,6 +151,6 @@ Token Tokenizer::readKeyword() {
 		}
 
 		this->freezeKeywordTest = true;
-		return argument;
+		this->failedKeyword = true;
 	}
 }

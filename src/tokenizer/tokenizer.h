@@ -2,7 +2,7 @@
 
 #include <cstring>
 #include <fstream>
-#include <unordered_map>
+#include "../include/robin-map/include/tsl/robin_map.h"
 #include <string>
 #include <vector>
 
@@ -10,6 +10,7 @@
 #include "token.h"
 
 using namespace std;
+using namespace tsl;
 
 class Tokenizer {
 	public:
@@ -24,6 +25,7 @@ class Tokenizer {
 		size_t getTotalLineCount();
 		size_t getTotalCharacterCount();
 		bool isAlphabeticalKeyword(TokenType keyword);
+		string& getKeywordLexeme(TokenType type);
 
 		string fileName;
 	
@@ -43,6 +45,7 @@ class Tokenizer {
 		size_t characterNumber = 1;
 
 		bool freezeKeywordTest = false;
+		bool failedKeyword = false;
 		int overrun = 0;
 		int fileIndex = 0;
 		int tokenIndex = 0;
@@ -56,19 +59,19 @@ class Tokenizer {
 		size_t contentSize = 0;
 
 		// be potential symbols, like function names, object names, etc, so when we fail a keyword we need to read a symbol
-		unordered_map<int, unordered_map<string, string>*> partialKeywords; // partial keyword tables. first int is length of partial keyword
+		robin_map<string, string> partialKeywords; // partial keyword tables. first int is length of partial keyword
+		robin_map<char, string> partialKeywordCharacters;
 		size_t largestPartial = 0;
-		unordered_map<string, TokenType> validKeywords; // map of valid keyword
-		unordered_map<TokenType, string> customLexeme;
-		string getKeywordLexeme(TokenType type);
+		robin_map<string, TokenType> validKeywords; // map of valid keyword
+		robin_map<TokenType, string> customLexeme;
 		void initializeKeywords();
 		bool isPartialKeyword(char partial);
-		bool isPartialKeyword(string partial);
-		string getKeywordFromPartial(string partial);
-		TokenType isValidKeyword(string argument);
-		bool isArgument(string argument);
-		bool isAlphabeticalKeyword(string keyword);
-		Token readKeyword();
+		bool isPartialKeyword(string &partial);
+		string& getKeywordFromPartial(string &partial);
+		TokenType isValidKeyword(string &argument);
+		bool isArgument(string &argument);
+		bool isAlphabeticalKeyword(string &keyword);
+		void readKeyword();
 
 		bool isValidVariableFirstChar(char character);
 		bool isValidVariableChar(char character);
