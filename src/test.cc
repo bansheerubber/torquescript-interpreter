@@ -174,5 +174,10 @@ int runTests(bool overwriteResults) {
 	printBoundary();
 	printf("passed %d/%d tests\n", passedTests, totalTests);
 	printBoundary();
+
+	if(passedTests != totalTests) {
+		exit(1);
+	}
+
 	return 0;
 }
