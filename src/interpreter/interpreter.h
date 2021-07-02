@@ -59,6 +59,8 @@ namespace ts {
 			Entry emptyEntry;
 
 			size_t highestObjectId = 0;
+
+			bool testing = false;
 		
 		private:
 			void interpret(); // interprets the next instruction

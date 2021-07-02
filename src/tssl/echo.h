@@ -6,12 +6,9 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		void* echo(size_t argc, void** args) {
-			if(argc >= 1) {
-				printf("%s\n", ((const char*)args[0]));
-			}
+		void* echo(size_t argc, void** args);
 
-			return nullptr;
-		}
+		extern string mockStdout;
+		extern bool useMockStdout;
 	}
 }

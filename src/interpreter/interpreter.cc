@@ -146,11 +146,13 @@ void Interpreter::warning(const char* format, ...) {
 void Interpreter::interpret() {
 	start:
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
-		size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
-		printf("ran %ld instructions in %lu us\n", this->ranInstructions, elapsed);
-		this->topContext->print();
-		this->printStack();
-		exit(1);
+		if(!this->testing) {
+			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
+			printf("ran %ld instructions in %lu us\n", this->ranInstructions, elapsed);
+			this->topContext->print();
+			this->printStack();
+		}
+		return;
 	}
 
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
