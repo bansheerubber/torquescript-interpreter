@@ -20,7 +20,7 @@ namespace ts {
 		entry::EntryType type;
 		union {
 			double numberData;
-			string* stringData;
+			char* stringData;
 			ObjectReference* objectData;
 		};
 
@@ -29,8 +29,7 @@ namespace ts {
 		Entry(Entry* copy);
 		~Entry();
 		void setNumber(double value);
-		void setString(string &value);
-		void setString(string* value);
+		void setString(char* value);
 		void setObject(ObjectReference* value);
 		void print(int tabs = 0) const;
 		const char* typeToString() const;

@@ -36,7 +36,7 @@
 		}
 	}
 	else {
-		lvalueNumber = stringToNumber(*lvalue->stringData);
+		lvalueNumber = stringToNumber(lvalue->stringData);
 	}
 
 	// typecheck value
@@ -53,7 +53,7 @@
 		}
 	}
 	else {
-		rvalueNumber = stringToNumber(*rvalue->stringData);
+		rvalueNumber = stringToNumber(rvalue->stringData);
 	}
 #else
 	// postfix interpretation
@@ -94,7 +94,7 @@
 		}
 	}
 	else {
-		lvalueNumber = stringToNumber(*lvalue->stringData);
+		lvalueNumber = stringToNumber(lvalue->stringData);
 	}
 
 	// typecheck value
@@ -111,6 +111,6 @@
 		}
 	}
 	else {
-		rvalueNumber = stringToNumber(*rvalue->stringData);
+		rvalueNumber = stringToNumber(rvalue->stringData);
 	}
 #endif

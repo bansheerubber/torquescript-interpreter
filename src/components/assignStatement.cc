@@ -5,6 +5,7 @@
 #include "../interpreter/interpreter.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
+#include "../util/stringToChars.h"
 
 bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
@@ -154,7 +155,8 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 	}
 	else if(this->rvalue->getType() == STRING_LITERAL) {
 		string literal = ((StringLiteral*)this->rvalue)->getString();
-		instruction->localAssign.entry.setString(literal);
+		instruction->localAssign.entry = ts::Entry();
+		instruction->localAssign.entry.setString(stringToChars(literal));
 	}
 	else if(
 		this->rvalue->getType() == MATH_EXPRESSION

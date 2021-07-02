@@ -9,6 +9,7 @@
 #include "mathExpression.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
+#include "../util/stringToChars.h"
 #include "symbol.h"
 
 bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
@@ -154,7 +155,8 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 			}
 			else if(assignStatement->getRValue()->getType() == STRING_LITERAL) {
 				string literal = ((StringLiteral*)assignStatement->getRValue())->getString();
-				instruction->localAssign.entry.setString(literal);
+				instruction->localAssign.entry = ts::Entry();
+				instruction->localAssign.entry.setString(stringToChars(literal));
 			}
 			else if(
 				assignStatement->getRValue()->getType() == MATH_EXPRESSION

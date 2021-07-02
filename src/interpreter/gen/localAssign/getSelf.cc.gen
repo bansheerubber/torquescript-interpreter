@@ -21,6 +21,6 @@ else if(entry->type == entry::OBJECT) {
 	}
 }
 else {
-	entryNumber = stringToNumber(*entry->stringData);
+	entryNumber = stringToNumber(entry->stringData);
 }
 

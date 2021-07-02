@@ -5,6 +5,7 @@
 #include "object.h"
 #include "../util/numberToString.h"
 #include "stack.h"
+#include "../util/stringCompare.h"
 #include "../util/stringToNumber.h"
 #include "../util/toLower.h"
 
@@ -25,7 +26,7 @@ void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 }
 
 Interpreter::Interpreter(ParsedArguments args) {
-	this->emptyEntry.setString(new string(""));
+	this->emptyEntry.setString(this->emptyString);
 
 	for(sl::Function* function: sl::functions) {
 		this->addTSSLFunction(function);
@@ -105,7 +106,7 @@ void Interpreter::push(double number) {
 }
 
 // push a string onto the stack
-void Interpreter::push(string* value) {
+void Interpreter::push(char* value) {
 	this->stack[this->stack.head].setString(value);
 	this->stack.pushed();
 }
@@ -117,6 +118,12 @@ void Interpreter::push(ObjectReference* value) {
 }
 
 void Interpreter::pop() {
+	// TODO make this work
+	// if(this->stack[this->stack.head - 1].type == entry::STRING) {
+	// 	delete this->stack[this->stack.head - 1].stringData;
+	// 	this->stack[this->stack.head - 1].stringData = nullptr;
+	// }
+	
 	this->stack.popped();
 }
 
@@ -190,7 +197,7 @@ void Interpreter::interpret() {
 				)
 				|| (
 					entry.type == entry::STRING
-					&& entry.stringData->length() != 0
+					&& strlen(entry.stringData) != 0
 				)
 				|| (
 					entry.type == entry::OBJECT
@@ -214,7 +221,7 @@ void Interpreter::interpret() {
 				)
 				|| (
 					entry.type == entry::STRING
-					&& entry.stringData->length() == 0
+					&& strlen(entry.stringData) == 0
 				)
 			) {
 				*this->instructionPointer = instruction.jumpIfFalse.index;
@@ -233,7 +240,7 @@ void Interpreter::interpret() {
 				valueNumber = value.numberData;
 			}
 			else {
-				valueNumber = stringToNumber(*value.stringData);
+				valueNumber = stringToNumber(value.stringData);
 			}
 			
 			this->pop();

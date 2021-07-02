@@ -20,19 +20,30 @@ number_operations = {
 }
 
 string_operations = {
-	"MATH_STRING_EQUAL": "this->push(toLower(*{0}).compare(toLower(*{1})) == 0);",
-	"MATH_STRING_NOT_EQUAL": "this->push(toLower(*{0}).compare(toLower(*{1})) != 0);",
-	"MATH_APPEND": """string* stringResult = new string(*{0});
-			*stringResult += *{1};
+	"MATH_STRING_EQUAL": "this->push(stringCompareInsensitive({0}, {1}) == true);",
+	"MATH_STRING_NOT_EQUAL": "this->push(stringCompareInsensitive({0}, {1}) == false);",
+	"MATH_APPEND": """size_t firstSize = strlen({0}), secondSize = strlen({1});
+			char* stringResult = new char[firstSize + secondSize + 1]{{}};
+			strncpy(stringResult, {0}, firstSize);
+			strncpy(&stringResult[firstSize], {1}, secondSize);
 			this->push(stringResult);""",
-	"MATH_SPC": """string* stringResult = new string(*{0});
-			*stringResult += ' ' + *{1};
+	"MATH_SPC": """size_t firstSize = strlen({0}), secondSize = strlen({1});
+			char* stringResult = new char[firstSize + secondSize + 2]{{}};
+			strncpy(stringResult, {0}, firstSize);
+			stringResult[firstSize] = ' ';
+			strncpy(&stringResult[firstSize + 1], {1}, secondSize);
 			this->push(stringResult);""",
-	"MATH_TAB": """string* stringResult = new string(*{0});
-			*stringResult += '\\t' + *{1};
+	"MATH_TAB": """size_t firstSize = strlen({0}), secondSize = strlen({1});
+			char* stringResult = new char[firstSize + secondSize + 2]{{}};
+			strncpy(stringResult, {0}, firstSize);
+			stringResult[firstSize] = '\\t';
+			strncpy(&stringResult[firstSize + 1], {1}, secondSize);
 			this->push(stringResult);""",
-	"MATH_NL": """string* stringResult = new string(*{0});
-			*stringResult += '\\n' + *{1};
+	"MATH_NL": """size_t firstSize = strlen({0}), secondSize = strlen({1});
+			char* stringResult = new char[firstSize + secondSize + 2]{{}};
+			strncpy(stringResult, {0}, firstSize);
+			stringResult[firstSize] = '\\n';
+			strncpy(&stringResult[firstSize + 1], {1}, secondSize);
 			this->push(stringResult);""",
 }
 
