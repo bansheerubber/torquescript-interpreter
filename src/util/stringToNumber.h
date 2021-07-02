@@ -1,14 +1,10 @@
 #pragma once
 
-#include <string>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
-double stringToNumber(string &value) {
-	try {
-		return stod(value);
-	}
-	catch(...) {
-		return 0.0;
-	}
+double stringToNumber(char* &value) {
+	return strtod(value, NULL);
 }

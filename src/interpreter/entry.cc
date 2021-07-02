@@ -1,11 +1,12 @@
 #include "entry.h"
 #include "object.h"
+#include "../util/cloneString.h"
 
 using namespace ts;
 
 Entry::Entry() {
 	this->type = entry::INVALID;
-	this->numberData = 0.0;
+	this->stringData = nullptr;
 }
 
 Entry::Entry(const Entry &entry) {
@@ -25,7 +26,7 @@ Entry::Entry(Entry* copy) {
 		}
 
 		case entry::STRING: {
-			this->setString(*copy->stringData);
+			this->setString(cloneString(copy->stringData));
 			break;
 		}
 	}
@@ -44,12 +45,7 @@ void Entry::setNumber(double value) {
 	this->numberData = value;
 }
 
-void Entry::setString(string &value) {
-	this->type = entry::STRING;
-	this->stringData = new string(value);
-}
-
-void Entry::setString(string* value) {
+void Entry::setString(char* value) {
 	// TODO possible wild pointer free
 	if(this->type == entry::STRING && this->stringData != nullptr) { // delete old string data
 		delete this->stringData;
@@ -80,7 +76,7 @@ void Entry::print(int tabs) const {
 	printf("%s   type: %s,\n", space.c_str(), this->typeToString());
 
 	if(this->type == entry::STRING) {
-		printf("%s   data: \"%s\",\n", space.c_str(), this->stringData->c_str());
+		printf("%s   data: \"%s\",\n", space.c_str(), this->stringData);
 	}
 	else if(this->type == entry::NUMBER) {
 		printf("%s   data: %f,\n", space.c_str(), this->numberData);
@@ -112,7 +108,7 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 		}
 
 		case entry::STRING: {
-			destination.stringData = new string(*source.stringData);
+			destination.stringData = cloneString(source.stringData);
 			break;
 		}
 

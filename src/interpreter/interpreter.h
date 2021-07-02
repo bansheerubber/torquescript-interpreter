@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <cstring>
 #include <vector>
 
 #include "../args.h"
@@ -66,7 +67,7 @@ namespace ts {
 			
 			void push(Entry &entry) __attribute__((always_inline));
 			void push(double number) __attribute__((always_inline));
-			void push(string* data) __attribute__((always_inline));
+			void push(char* data) __attribute__((always_inline));
 			void push(ObjectReference* data) __attribute__((always_inline));
 			void pop() __attribute__((always_inline));
 

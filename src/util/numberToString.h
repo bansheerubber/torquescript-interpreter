@@ -4,8 +4,11 @@
 #include "../include/fmt/include/fmt/format.h"
 #include <string>
 
+#include "stringToChars.h"
+
 using namespace std;
 
-string* numberToString(double number) {
-	return new string(fmt::format("{:G}", number));
+char* numberToString(double number) {
+	string formatted(fmt::format("{:G}", number));
+	return stringToChars(formatted);
 }

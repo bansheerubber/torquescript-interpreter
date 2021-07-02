@@ -8,7 +8,7 @@ namespace ts {
 	namespace sl {
 		void* echo(size_t argc, void** args) {
 			if(argc >= 1) {
-				printf("%s\n", ((string*)args[0])->c_str());
+				printf("%s\n", ((const char*)args[0]));
 			}
 
 			return nullptr;

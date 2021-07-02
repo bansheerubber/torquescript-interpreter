@@ -9,6 +9,9 @@
 #include "../include/fmt/include/fmt/format.h"
 #include <string>
 
+#include "../util/getEmptyString.h"
+#include "../util/stringToChars.h"
+
 using namespace std;
 
 namespace ts {
@@ -130,9 +133,10 @@ namespace ts {
 				string formatter("{:.");
 				formatter += std::to_string(precision);
 				formatter += "f}";
-				return new string(fmt::format(formatter, *((double*)args[0])));
+				string formatted(fmt::format(formatter, *((double*)args[0])));
+				return stringToChars(formatted);
 			}
-			return new string();
+			return getEmptyString();
 		}
 	}
 }

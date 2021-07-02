@@ -13,5 +13,5 @@ else if(value->type == entry::OBJECT) {
 	}
 }
 else {
-	valueNumber = stringToNumber(*value->stringData);
+	valueNumber = stringToNumber(value->stringData);
 }

@@ -1,6 +1,8 @@
 #include "stringLiteral.h"
 #include "../interpreter/interpreter.h"
 
+#include "../util/stringToChars.h"
+
 bool StringLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == STRING || tokenizer->peekToken().type == TAGGED_STRING;
 }
@@ -28,8 +30,9 @@ string StringLiteral::printJSON() {
 ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;
+	instruction->push.entry = ts::Entry();
 	instruction->push.entry.type = ts::entry::STRING;
-	instruction->push.entry.setString(this->value.lexeme);
+	instruction->push.entry.setString(stringToChars(this->value.lexeme));
 	return ts::InstructionReturn(instruction, instruction);
 }
 

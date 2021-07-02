@@ -13,14 +13,14 @@
 	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
-	else {\
+	else {
 		rvalue = &this->stack[this->stack.head - 1];
 		this->pop();
 	}
 
 	// final strings after converting type
-	string* lvalueString = nullptr;
-	string* rvalueString = nullptr;
+	char* lvalueString = nullptr;
+	char* rvalueString = nullptr;
 
 	// if we need to delete the string if we converted from number to string
 	bool deleteLValueString = false;
@@ -32,7 +32,7 @@
 	}
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
-			lvalueString = new string();
+			lvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -51,7 +51,7 @@
 	}
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
-			rvalueString = new string();
+			rvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -84,8 +84,8 @@
 	}
 
 	// final numbers after converting type
-	string* lvalueString = nullptr;
-	string* rvalueString = nullptr;
+	char* lvalueString = nullptr;
+	char* rvalueString = nullptr;
 
 	// if we need to delete the string if we converted from number to string
 	bool deleteLValueString = false;
@@ -97,7 +97,7 @@
 	}
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
-			lvalueString = new string();
+			lvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -116,7 +116,7 @@
 	}
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
-			rvalueString = new string();
+			rvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {

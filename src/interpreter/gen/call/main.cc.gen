@@ -22,7 +22,7 @@ if(foundFunction->isTSSL) {
 				}
 				else if(entry.type == entry::OBJECT) {
 					if(entry.objectData->object == nullptr) {
-						arguments[count - 1] = new string();
+						arguments[count - 1] = getEmptyString();
 
 						this->warning("trying to access deleted object\n");
 					}
@@ -55,7 +55,7 @@ if(foundFunction->isTSSL) {
 					}
 				}
 				else {
-					arguments[count - 1] = new double(stringToNumber(*entry.stringData));
+					arguments[count - 1] = new double(stringToNumber(entry.stringData));
 					deleteArguments[count - 1] = true;
 				}
 			}
@@ -70,7 +70,7 @@ if(foundFunction->isTSSL) {
 
 	void* returnValue = function->function(actualArgumentCount, arguments);
 	if(function->returnType == sl::type::STRING) {
-		this->push((string*)returnValue);
+		this->push((char*)returnValue);
 	}
 	else if(function->returnType == sl::type::NUMBER) {
 		this->push(*((double*)returnValue));
