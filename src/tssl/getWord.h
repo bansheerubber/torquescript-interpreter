@@ -71,21 +71,30 @@ namespace ts {
 		}
 
 		void* getWords(size_t argc, void** args) {
-			if(argc >= 3) {
+			if(argc >= 2) {
 				const char* words = (const char*)args[0];
 				int startCount = *((double*)args[1]);
-				int endCount = *((double*)args[2]);
+
+				if(startCount < 0) {
+					return getEmptyString();
+				}
+
+				int endCount = -1;
+				if(argc >= 3) {
+					endCount = *((double*)args[2]);
+				}
+				
 				string output;
 				int spaceCount = 0;
 				for(; *words; words++) {
 					char character = *words;
 					if(character == ' ' || character == '\t' || character == '\n') {
-						if(spaceCount >= startCount && spaceCount < endCount) {
+						if(spaceCount >= startCount && (spaceCount < endCount || endCount == -1)) {
 							output += character;
 						}
 						spaceCount++;
 					}
-					else if(spaceCount >= startCount && spaceCount <= endCount) {
+					else if(spaceCount >= startCount && (spaceCount <= endCount || endCount == -1)) {
 						output += character;
 					}
 				}
@@ -123,17 +132,35 @@ namespace ts {
 				const char* words = (const char*)args[0];
 				int count = *((double*)args[1]);
 				string output;
+				string currentWord;
+
 				int spaceCount = 0;
 				for(; *words; words++) {
 					char character = *words;
 					if(character == ' ' || character == '\t' || character == '\n') {
 						spaceCount++;
+						currentWord = "";
 					}
-					
+					else {
+						currentWord += character;
+					}
+
 					if(spaceCount != count) {
-						output += character;
+						if( // edge case for count = 0
+							!(character == ' ' || character == '\t' || character == '\n')
+							|| count != 0
+							|| spaceCount != 1
+						) {
+							output += character;
+						}
 					}
 				}
+
+				// for some reason torquescript returns the last word if count > final space count
+				if(count > spaceCount) {
+					return stringToChars(currentWord);
+				}
+
 				return stringToChars(output);
 			}
 
@@ -166,6 +193,16 @@ namespace ts {
 						output += replace;
 					}
 				}
+
+				// edge case for when count >= getWordCount
+				for(int i = 0; i < count - spaceCount; i++) {
+					output += ' ';
+				}
+
+				if(count > spaceCount) {
+					output += replace;
+				}
+
 				return stringToChars(output);
 			}
 

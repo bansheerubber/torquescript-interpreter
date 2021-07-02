@@ -9,7 +9,7 @@ if(foundFunction->isTSSL) {
 
 	int count = 1;
 	for(int i = function->argumentCount; i >= 1; i--) { // load arguments array backwards
-		if(count <= delta) { // TODO better error handling
+		if(count > actualArgumentCount) { // TODO better error handling
 			break;
 		}
 		else {
