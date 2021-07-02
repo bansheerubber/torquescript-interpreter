@@ -39,8 +39,6 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	Parser* parser = new Parser(tokenizer, empty);
 	string json = parser->printJSON();
 
-	printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
-
 	if(overwriteResults) {
 		filesystem::create_directories(filesystem::path(resultsFile).remove_filename());
 		ofstream file;
@@ -50,11 +48,13 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	}
 
 	if(isFileEqual(json, resultsFile)) {
-		printf("passed test\n");
+		printf("   passed test\n");
+		printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
 		return true;
 	}
 	else {
-		printError("failed test\n");
+		printError("   failed test\n");
+		printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
 		return false;
 	}
 }
@@ -91,7 +91,7 @@ void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests,
 				(*passedTests)++;
 			}
 			else {
-				printError("%s failed test\n", candidateFile.c_str());
+				printError("   %s failed test\n", candidateFile.c_str());
 			}
 		}
 	}
@@ -118,17 +118,18 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			(*totalTests)++;
 			Tokenizer* tokenizer = new Tokenizer(candidateFile, empty);
 			Parser* parser = new Parser(tokenizer, empty);
-			ts::Interpreter interpreter(empty);
-			interpreter.testing = true;
-			interpreter.startInterpretation(ts::Compile(parser, &interpreter));
+			ts::Interpreter* interpreter = new ts::Interpreter(empty);
+			interpreter->testing = true;
+			interpreter->startInterpretation(ts::Compile(parser, interpreter));
 
 			totalLines += tokenizer->getTotalLineCount();
 
 			if(isFileEqual(ts::sl::mockStdout, resultsFile)) {
 				(*passedTests)++;
+				printf("   passed test %s\n", candidateFile.c_str());
 			}
 			else {
-				printError("%s failed test\n", candidateFile.c_str());
+				printError("   %s failed test\n", candidateFile.c_str());
 
 				// show diff
 				ofstream file;

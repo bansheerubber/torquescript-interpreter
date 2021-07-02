@@ -59,7 +59,13 @@ namespace ts {
 
 		void* mFloor(size_t argc, void** args) {
 			if(argc == 1) {
-				return new double(floor(*((double*)args[0])));
+				double number = *((double*)args[0]);
+				if(number < 0) {
+					return new double((int)(number - 1));
+				}
+				else {
+					return new double((int)number);
+				}
 			}
 			return new double(0.0);
 		}

@@ -1,0 +1,16 @@
+%PI = 3.1415926535;
+echo(mFloatLength(mCos(%PI), 8));
+echo(mFloatLength(mSin(%PI), 8));
+echo(mFloatLength(mTan(1), 8));
+echo(mFloatLength(mCeil(-1.5), 8));
+echo(mFloatLength(mCeil(1.5), 8));
+echo(mFloatLength(mFloor(-1.5), 8));
+echo(mFloatLength(mFloor(1.5), 8));
+echo(mFloatLength(mACos(0.5), 8));
+echo(mFloatLength(mASin(0.5), 8));
+echo(mFloatLength(mATan(1, 2), 8));
+echo(mFloatLength(mSqrt(2), 8));
+echo(mPow(5, 3));
+echo(mDegToRad(180));
+echo(mRadToDeg(%PI));
+echo(mLog(4) / mLog(2));

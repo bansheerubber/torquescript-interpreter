@@ -58,6 +58,7 @@ void ts::sl::define() {
 
 	FUNC_DEF(type::NUMBER, &mAbs, "mAbs", 1, n);
 	FUNC_DEF(type::NUMBER, &mACos, "mACos", 1, n);
+	FUNC_DEF(type::NUMBER, &mASin, "mASin", 1, n);
 	FUNC_DEF(type::NUMBER, &mATan, "mATan", 2, nn);
 	FUNC_DEF(type::NUMBER, &mCeil, "mCeil", 1, n);
 	FUNC_DEF(type::NUMBER, &mFloor, "mFloor", 1, n);
