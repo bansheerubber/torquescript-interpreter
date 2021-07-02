@@ -32,7 +32,7 @@
 	}
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
-			lvalueString = this->emptyString;
+			lvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -51,7 +51,7 @@
 	}
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
-			rvalueString = this->emptyString;
+			rvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -97,7 +97,7 @@
 	}
 	else if(lvalue->type == entry::OBJECT) {
 		if(lvalue->objectData->object == nullptr) {
-			lvalueString = this->emptyString;
+			lvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {
@@ -116,7 +116,7 @@
 	}
 	else if(rvalue->type == entry::OBJECT) {
 		if(rvalue->objectData->object == nullptr) {
-			rvalueString = this->emptyString;
+			rvalueString = getEmptyString();
 			this->warning("trying to access deleted object\n");
 		}
 		else {

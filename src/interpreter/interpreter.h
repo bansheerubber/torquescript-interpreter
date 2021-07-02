@@ -57,7 +57,6 @@ namespace ts {
 			void addTSSLFunction(sl::Function* function);
 
 			Entry emptyEntry;
-			char emptyString[1] = { '\0' };
 
 			size_t highestObjectId = 0;
 		

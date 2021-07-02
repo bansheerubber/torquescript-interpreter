@@ -22,7 +22,7 @@ if(foundFunction->isTSSL) {
 				}
 				else if(entry.type == entry::OBJECT) {
 					if(entry.objectData->object == nullptr) {
-						arguments[count - 1] = this->emptyString;
+						arguments[count - 1] = getEmptyString();
 
 						this->warning("trying to access deleted object\n");
 					}

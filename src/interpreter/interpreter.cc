@@ -2,6 +2,7 @@
 
 #include "entry.h"
 #include "debug.h"
+#include "../util/getEmptyString.h"
 #include "object.h"
 #include "../util/numberToString.h"
 #include "stack.h"
@@ -26,7 +27,7 @@ void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 }
 
 Interpreter::Interpreter(ParsedArguments args) {
-	this->emptyEntry.setString(this->emptyString);
+	this->emptyEntry.setString(getEmptyString());
 
 	for(sl::Function* function: sl::functions) {
 		this->addTSSLFunction(function);
