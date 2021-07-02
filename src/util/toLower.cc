@@ -12,5 +12,6 @@ char* toLower(char* input) {
 	for(size_t i = 0; i < length; i++) {
 		output[i] = tolower(input[i]);
 	}
+	output[length] = '\0';
 	return output;
 }
