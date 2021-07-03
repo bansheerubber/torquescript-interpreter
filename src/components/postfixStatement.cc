@@ -28,8 +28,8 @@ string PostfixStatement::printJSON() {
 	return "{\"type\":\"POSTFIX_STATEMENT\",\"lvalue\":" + this->lvalue->printJSON() + ",\"operation\":\"" + this->op.lexeme + "\"}";
 }
 
-ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter) {
-	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter);
+ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter, scope);
 
 	ts::Instruction* instruction = compiled.lastAccess;
 

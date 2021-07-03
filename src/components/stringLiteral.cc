@@ -27,7 +27,7 @@ string StringLiteral::printJSON() {
 	return "{\"type\":\"STRING_LITERAL\",\"value\":\"" + this->value.lexeme + "\",\"isTagged\":" + (this->value.type == STRING ? "false" : "true") + "}";
 }
 
-ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;
 	instruction->push.entry = ts::Entry();

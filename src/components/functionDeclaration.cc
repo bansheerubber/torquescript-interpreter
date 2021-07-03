@@ -83,7 +83,7 @@ string FunctionDeclaration::printJSON() {
 	}
 }
 
-ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// loop through the arguments and assign them from values on the stack
@@ -113,7 +113,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 
 	// compile the body of the function
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter));
+		output.add(component->compile(interpreter, this));
 	}
 
 	// push the empty value if we do not actually use a return statement from earlier in the function body

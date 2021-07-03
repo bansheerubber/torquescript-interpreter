@@ -206,18 +206,18 @@ bool AccessStatement::IsValidLvalue() {
 	return true;
 }
 
-ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter) {
-	return this->compileAccess(interpreter).output;
+ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+	return this->compileAccess(interpreter, scope).output;
 }
 
 // create instructions that set up the stack for an array access/object property access instruction
-AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter) {
+AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter, ts::Scope* scope) {
 	AccessStatementCompiled c;
 
 	auto iterator = this->elements.begin();
 
 	if(this->startsWithFunction()) { // compile a function call
-		c.output.add(this->elements[1].component->compile(interpreter)); // push arguments
+		c.output.add(this->elements[1].component->compile(interpreter, scope)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();
@@ -280,7 +280,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
-			c.output.add(element.component->compile(interpreter));
+			c.output.add(element.component->compile(interpreter, scope));
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
@@ -298,12 +298,12 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = instruction;
 		}
 		else if(element.component != nullptr && element.component->getType() == PARENT_STATEMENT) {
-			c.output.add(element.component->compile(interpreter));
+			c.output.add(element.component->compile(interpreter, scope));
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == CALL_STATEMENT) {
 			// at this point, the object should already be on the stack. no need to push it. push the args
-			c.output.add(element.component->compile(interpreter));
+			c.output.add(element.component->compile(interpreter, scope));
 
 			// push the amount of arguments we just found
 			ts::Instruction* pushArgumentCount = new ts::Instruction();
@@ -329,7 +329,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
-			c.output.add(element.component->compile(interpreter));
+			c.output.add(element.component->compile(interpreter, scope));
 			lastInstruction = nullptr;
 		}
 		count++;

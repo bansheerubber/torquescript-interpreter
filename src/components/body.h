@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "component.h"
+#include "../compiler/scope.h"
 
 using namespace std;
 
@@ -29,7 +30,7 @@ class Body : public Component {
 			return false;
 		}
 
-		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter) = 0;
+		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope) = 0;
 
 		string print() {
 			return "";

@@ -27,7 +27,7 @@ string DefaultBody::printJSON() {
 	return "{\"type\":\"DEFAULT_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn DefaultBody::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn DefaultBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

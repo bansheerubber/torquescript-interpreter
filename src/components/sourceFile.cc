@@ -25,12 +25,12 @@ string SourceFile::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// compile source file
 	for(Component* child: this->children) {
-		ts::InstructionReturn compiled = child->compile(interpreter);
+		ts::InstructionReturn compiled = child->compile(interpreter, this);
 		if(compiled.first != nullptr) {
 			output.add(compiled);
 		}

@@ -5,6 +5,7 @@
 #include "component.h"
 #include "body.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
@@ -33,7 +34,7 @@ class PackageDeclaration : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();

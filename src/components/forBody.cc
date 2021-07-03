@@ -62,7 +62,7 @@ string ForBody::printJSON() {
 	return "{\"type\":\"FOR_STATEMENT\",\"initialization\":" + this->initialization->printJSON() + ",\"conditional\":" + this->conditional->printJSON() + ",\"increment\":" + this->increment->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in for statement
@@ -70,10 +70,10 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
 	noop->type = ts::instruction::NOOP;
 
 	// add variable initialization
-	output.add(this->initialization->compile(interpreter));
+	output.add(this->initialization->compile(interpreter, scope));
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter);
+	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, scope);
 	output.add(compiledConditional);
 
 	// add conditional jump
@@ -85,11 +85,11 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter) {
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter));
+		output.add(component->compile(interpreter, scope));
 	}
 
 	// add the increment
-	output.add(this->increment->compile(interpreter));
+	output.add(this->increment->compile(interpreter, scope));
 
 	// add jump to conditional
 	ts::Instruction* jump = new ts::Instruction();

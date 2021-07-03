@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "interpreter/compiler.h"
+#include "compiler/compiler.h"
 #include "tssl/echo.h"
 #include "interpreter/interpreter.h"
 #include "io.h"

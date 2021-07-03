@@ -6,6 +6,7 @@
 
 #include "component.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
@@ -62,7 +63,7 @@ class MathExpression : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();
@@ -77,6 +78,6 @@ class MathExpression : public Component {
 		static ts::instruction::InstructionType TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter);
+		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::Scope* scope);
 		vector<PostfixElement> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
 };

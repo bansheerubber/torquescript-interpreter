@@ -74,7 +74,7 @@ string DatablockDeclaration::printJSON() {
 	return "{\"type\":\"DATABLOCK_DECLARATION\",\"typeName\":" + this->typeName->printJSON() + ",\"className\":" + this->className->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn DatablockDeclaration::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn DatablockDeclaration::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

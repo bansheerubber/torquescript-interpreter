@@ -65,11 +65,11 @@ string NamespaceStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 	
 	if(this->name != nullptr) {
-		output.add(this->call->compile(interpreter)); // push arguments
+		output.add(this->call->compile(interpreter, scope)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();

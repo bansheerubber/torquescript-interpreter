@@ -420,7 +420,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 	return postfix;
 }
 
-ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter) {
+ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 	
 	vector<PostfixElement> postfix = this->convertToPostfix(list, TS_INTERPRETER_PREFIX);
@@ -541,7 +541,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	// finally add instructions to output
 	for(Value* value: instructionList) {
 		if(value->component != nullptr) {
-			output.add(value->component->compile(interpreter));
+			output.add(value->component->compile(interpreter, scope));
 
 			if(value->unary.size() != ts::instruction::INVALID_UNARY) {
 				for(ts::instruction::UnaryOperator operation: value->unary) {
@@ -560,7 +560,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	return output;
 }
 
-ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// split along logical operators
@@ -608,7 +608,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 					andList.push_back(element);
 				}
 				else {
-					output.add(this->compileList(&andList, interpreter));
+					output.add(this->compileList(&andList, interpreter, scope));
 					andList.clear();
 
 					if(andNoop == nullptr) {
@@ -628,7 +628,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter) {
 				}
 			}
 
-			output.add(this->compileList(&andList, interpreter));
+			output.add(this->compileList(&andList, interpreter, scope));
 			andList.clear();
 
 			output.add(andNoop);

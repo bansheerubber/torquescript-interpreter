@@ -1,6 +1,6 @@
 #pragma once
 
-#include "instruction.h"
+#include "../interpreter/instruction.h"
 #include "../parser/parser.h"
 
 namespace ts {
