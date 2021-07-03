@@ -63,12 +63,13 @@ if(foundFunction->isTSSL) {
 		count++;
 	}
 
+	void* returnValue = function->function(actualArgumentCount, arguments);
+
 	// pop the data
 	for(int i = 0; i < actualArgumentCount + 1; i++) {
 		this->pop();
 	}
 
-	void* returnValue = function->function(actualArgumentCount, arguments);
 	if(function->returnType == sl::type::STRING) {
 		this->push((char*)returnValue);
 	}

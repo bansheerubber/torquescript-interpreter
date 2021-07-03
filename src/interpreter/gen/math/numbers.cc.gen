@@ -1,116 +1,51 @@
 #if TS_INTERPRETER_PREFIX
-	// prefix interpretation
-	Entry* lvalue;
-	Entry* rvalue;
+	// final numbers after converting type
+	double lvalueNumber = 0;
+	double rvalueNumber = 0;
+
 	// we have to define lvalue first when working with prefix
 	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-		lvalue = &instruction.mathematics.lvalueEntry;
+		Entry &lvalue = instruction.mathematics.lvalueEntry;
+		%%lvalueTypecheck%%
 	}
 	else {
-		lvalue = &this->stack[this->stack.head - 1];
-		this->pop();
-	}
-	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
-		rvalue = &instruction.mathematics.rvalueEntry;
-	}
-	else {
-		rvalue = &this->stack[this->stack.head - 1];
+		Entry &lvalue = this->stack[this->stack.head - 1];
+		%%lvalueTypecheck%%
 		this->pop();
 	}
 
+	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+		Entry &rvalue = instruction.mathematics.rvalueEntry;
+		%%rvalueTypecheck%%
+	}
+	else {
+		Entry &rvalue = this->stack[this->stack.head - 1];
+		%%rvalueTypecheck%%
+		this->pop();
+	}
+#else
 	// final numbers after converting type
 	double lvalueNumber = 0;
 	double rvalueNumber = 0;
-
-	// typecheck value
-	if(lvalue->type == entry::NUMBER) {
-		lvalueNumber = lvalue->numberData;
-	}
-	else if(lvalue->type == entry::OBJECT) {
-		if(lvalue->objectData->object == nullptr) {
-			lvalueNumber = 0.0;
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			lvalueNumber = lvalue->objectData->object->id;
-		}
-	}
-	else {
-		lvalueNumber = stringToNumber(lvalue->stringData);
-	}
-
-	// typecheck value
-	if(rvalue->type == entry::NUMBER) {
-		rvalueNumber = rvalue->numberData;
-	}
-	else if(rvalue->type == entry::OBJECT) {
-		if(rvalue->objectData->object == nullptr) {
-			rvalueNumber = 0.0;
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			rvalueNumber = rvalue->objectData->object->id;
-		}
-	}
-	else {
-		rvalueNumber = stringToNumber(rvalue->stringData);
-	}
-#else
-	// postfix interpretation
-	Entry* lvalue;
-	Entry* rvalue;
+	
 	// we have to define rvalue first when working with postfix
 	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
-		rvalue = &instruction.mathematics.rvalueEntry;
+		Entry &rvalue = instruction.mathematics.rvalueEntry;
+		%%rvalueTypecheck%%
 	}
 	else {
-		rvalue = &this->stack[this->stack.head - 1];
+		Entry &rvalue = this->stack[this->stack.head - 1];
+		%%rvalueTypecheck%%
 		this->pop();
 	}
 
 	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
-		lvalue = &instruction.mathematics.lvalueEntry;
+		Entry &lvalue = instruction.mathematics.lvalueEntry;
+		%%lvalueTypecheck%%
 	}
 	else {
-		lvalue = &this->stack[this->stack.head - 1];
+		Entry &lvalue = this->stack[this->stack.head - 1];
+		%%lvalueTypecheck%%
 		this->pop();
-	}
-
-	// final numbers after converting type
-	double lvalueNumber = 0;
-	double rvalueNumber = 0;
-
-	// typecheck value
-	if(lvalue->type == entry::NUMBER) {
-		lvalueNumber = lvalue->numberData;
-	}
-	else if(lvalue->type == entry::OBJECT) {
-		if(lvalue->objectData->object == nullptr) {
-			lvalueNumber = 0.0;
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			lvalueNumber = lvalue->objectData->object->id;
-		}
-	}
-	else {
-		lvalueNumber = stringToNumber(lvalue->stringData);
-	}
-
-	// typecheck value
-	if(rvalue->type == entry::NUMBER) {
-		rvalueNumber = rvalue->numberData;
-	}
-	else if(rvalue->type == entry::OBJECT) {
-		if(rvalue->objectData->object == nullptr) {
-			rvalueNumber = 0.0;
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			rvalueNumber = rvalue->objectData->object->id;
-		}
-	}
-	else {
-		rvalueNumber = stringToNumber(rvalue->stringData);
 	}
 #endif

@@ -113,6 +113,8 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			string resultsFile(candidateFile);
 			resultsFile.replace(9, 7, "results").replace(resultsFile.find(".cs"), 3, "");
 
+			printf("   trying test %s\n", candidateFile.c_str());
+
 			ts::sl::mockStdout = string();
 
 			(*totalTests)++;
@@ -126,10 +128,10 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 
 			if(isFileEqual(ts::sl::mockStdout, resultsFile)) {
 				(*passedTests)++;
-				printf("   passed test %s\n", candidateFile.c_str());
+				printf("     passed test %s\n", candidateFile.c_str());
 			}
 			else {
-				printError("   %s failed test\n", candidateFile.c_str());
+				printError("     %s failed test\n", candidateFile.c_str());
 
 				// show diff
 				ofstream file;

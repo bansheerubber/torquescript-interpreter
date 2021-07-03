@@ -120,10 +120,11 @@ void Interpreter::push(ObjectReference* value) {
 
 void Interpreter::pop() {
 	// TODO make this work
-	// if(this->stack[this->stack.head - 1].type == entry::STRING) {
-	// 	delete this->stack[this->stack.head - 1].stringData;
-	// 	this->stack[this->stack.head - 1].stringData = nullptr;
-	// }
+	Entry &test = this->stack[this->stack.head - 1];
+	if(test.type == entry::STRING && test.stringData != nullptr) {
+		delete test.stringData;
+		test.stringData = nullptr;
+	}
 	
 	this->stack.popped();
 }

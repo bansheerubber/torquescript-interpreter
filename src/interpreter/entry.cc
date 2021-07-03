@@ -10,6 +10,7 @@ Entry::Entry() {
 }
 
 Entry::Entry(const Entry &entry) {
+	this->type = entry::INVALID;
 	copyEntry(entry, *this);
 }
 
@@ -33,10 +34,9 @@ Entry::Entry(Entry* copy) {
 }
 
 Entry::~Entry() {
-	if(this->type == entry::STRING) {
-		if(this->stringData != nullptr) {
-			delete this->stringData;
-		}
+	if(this->type == entry::STRING && this->stringData != nullptr) {
+		delete this->stringData;
+		this->stringData = nullptr;
 	}
 }
 
@@ -96,6 +96,12 @@ void Entry::print(int tabs) const {
 }
 
 void ts::copyEntry(const Entry &source, Entry &destination) {
+	// delete string data if we're going to copy an entry (prevents memory leak)
+	if(destination.type == entry::STRING && destination.stringData != nullptr) {
+		delete destination.stringData;
+		destination.stringData = nullptr;
+	}
+	
 	destination.type = source.type;
 	switch(destination.type) {
 		case entry::INVALID: {

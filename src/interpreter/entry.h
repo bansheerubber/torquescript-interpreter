@@ -20,6 +20,17 @@ namespace ts {
 		entry::EntryType type;
 		union {
 			double numberData;
+
+			/*
+				strings are freed every once in a while depending on what the interpreter is doing.
+				- strings are always deleted when their parent entries are popped from the stack
+				- strings are deleted from the destination during a `copyEntry` operation
+				- strings are overwritten and deleted when using `setString` on an entry with string type
+				these happen in some bizzare places due to optimization problems. freeing strings every
+				time we did an entry type conversion proved to be too slow while this method is faster.
+				i'm trying to keep number operations as quick as possible, and this was the way i found
+				to preserve performance
+			*/
 			char* stringData;
 			ObjectReference* objectData;
 		};

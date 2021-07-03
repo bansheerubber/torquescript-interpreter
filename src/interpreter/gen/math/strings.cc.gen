@@ -1,4 +1,7 @@
 #if TS_INTERPRETER_PREFIX
+	bool popLValue = false;
+	bool popRValue = false;
+	
 	Entry* lvalue;
 	Entry* rvalue;
 	// we have to define lvalue first when working with prefix
@@ -7,15 +10,15 @@
 	}
 	else {
 		lvalue = &this->stack[this->stack.head - 1];
-		this->pop();
+		popLValue = true;
 	}
 
 	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
 	else {
-		rvalue = &this->stack[this->stack.head - 1];
-		this->pop();
+		rvalue = &this->stack[this->stack.head - 2];
+		popRValue = true;
 	}
 
 	// final strings after converting type
@@ -23,47 +26,14 @@
 	char* rvalueString = nullptr;
 
 	// if we need to delete the string if we converted from number to string
-	bool deleteLValueString = false;
-	bool deleteRValueString = false;
+	bool deletelvalueString = false;
+	bool deletervalueString = false;
 
-	// typecheck value
-	if(lvalue->type == entry::STRING) {
-		lvalueString = lvalue->stringData;
-	}
-	else if(lvalue->type == entry::OBJECT) {
-		if(lvalue->objectData->object == nullptr) {
-			lvalueString = getEmptyString();
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			lvalueString = numberToString(lvalue->objectData->object->id);
-		}
-		deleteLValueString = true;
-	}
-	else {
-		lvalueString = numberToString(lvalue->numberData);
-		deleteLValueString = true;
-	}
-
-	// typecheck value
-	if(rvalue->type == entry::STRING) {
-		rvalueString = rvalue->stringData;
-	}
-	else if(rvalue->type == entry::OBJECT) {
-		if(rvalue->objectData->object == nullptr) {
-			rvalueString = getEmptyString();
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			rvalueString = numberToString(rvalue->objectData->object->id);
-		}
-		deleteRValueString = true;
-	}
-	else {
-		rvalueString = numberToString(rvalue->numberData);
-		deleteRValueString = true;
-	}
+	%%lvalueTypecheck%%
+	%%rvalueTypecheck%%
 #else
+	bool popLValue = false;
+	bool popRValue = false;
 	Entry* lvalue;
 	Entry* rvalue;
 	/* we have to define rvalue first when working with postfix */
@@ -72,15 +42,15 @@
 	}
 	else {
 		rvalue = &this->stack[this->stack.head - 1];
-		this->pop();
+		popRValue = true;
 	}
 	
 	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
 		lvalue = &instruction.mathematics.lvalueEntry;
 	}
 	else {
-		lvalue = &this->stack[this->stack.head - 1];
-		this->pop();
+		lvalue = &this->stack[this->stack.head - 2];
+		popLValue = true;
 	}
 
 	// final numbers after converting type
@@ -88,44 +58,9 @@
 	char* rvalueString = nullptr;
 
 	// if we need to delete the string if we converted from number to string
-	bool deleteLValueString = false;
-	bool deleteRValueString = false;
+	bool deletelvalueString = false;
+	bool deletervalueString = false;
 
-	// typecheck value
-	if(lvalue->type == entry::STRING) {
-		lvalueString = lvalue->stringData;
-	}
-	else if(lvalue->type == entry::OBJECT) {
-		if(lvalue->objectData->object == nullptr) {
-			lvalueString = getEmptyString();
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			lvalueString = numberToString(lvalue->objectData->object->id);
-		}
-		deleteLValueString = true;
-	}
-	else {
-		lvalueString = numberToString(lvalue->numberData);
-		deleteLValueString = true;
-	}
-
-	// typecheck value
-	if(rvalue->type == entry::STRING) {
-		rvalueString = rvalue->stringData;
-	}
-	else if(rvalue->type == entry::OBJECT) {
-		if(rvalue->objectData->object == nullptr) {
-			rvalueString = getEmptyString();
-			this->warning("trying to access deleted object\n");
-		}
-		else {
-			rvalueString = numberToString(rvalue->objectData->object->id);
-		}
-		deleteRValueString = true;
-	}
-	else {
-		rvalueString = numberToString(rvalue->numberData);
-		deleteRValueString = true;
-	}
+	%%lvalueTypecheck%%
+	%%rvalueTypecheck%%
 #endif
