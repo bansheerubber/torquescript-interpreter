@@ -33,9 +33,13 @@ $ ./torquescript code.cs
 
 ---
 
-## Testing:
-There aren't a whole lot of tests at the moment. I'm mostly regression testing the parser and tokenizer. Testing for the interpreter will come later.
+## Development:
+I included a basic script `auto.py` that watches for changes in the source directory and automatically recompiles the executable whenever it finds changes (Linux only).
 
+### Git Hooks
+For some Git hooks that help automate testing a little, visit https://github.com/bansheerubber/torquescript-interpreter-hooks.
+
+### Testing:
 **To build tests:**
 ```
 $ make build-tests
