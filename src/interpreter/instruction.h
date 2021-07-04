@@ -144,6 +144,7 @@ namespace ts {
 				int dimensions;
 				string destination;
 				size_t hash;
+				size_t stackIndex;
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
@@ -171,6 +172,7 @@ namespace ts {
 				int dimensions;
 				string source;
 				size_t hash;
+				size_t stackIndex;
 			} localAccess;
 
 			struct {
@@ -250,6 +252,19 @@ namespace ts {
 				else {
 					this->last->next = compiled.first;
 					this->last = compiled.last;
+				}
+			}
+		}
+
+		void addFirst(Instruction* instruction) {
+			if(instruction != nullptr) {
+				if(this->first == nullptr) {
+					this->first = instruction;
+					this->last = instruction;
+				}
+				else {
+					instruction->next = this->first;
+					this->first = instruction;
 				}
 			}
 		}

@@ -259,6 +259,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->localAccess.dimensions = 0;
 			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
 			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			instruction->localAccess.stackIndex = (size_t)-1;
 
 			c.lastAccess = instruction;
 
@@ -284,6 +285,9 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
+				if(lastInstruction->type == ts::instruction::LOCAL_ACCESS) {
+					lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
+				}
 				c.output.add(lastInstruction);
 			}
 
@@ -336,6 +340,9 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	}
 
 	if(lastInstruction != nullptr) {
+		if(lastInstruction->type == ts::instruction::LOCAL_ACCESS) {
+			lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
+		}
 		c.output.add(lastInstruction);
 	}
 

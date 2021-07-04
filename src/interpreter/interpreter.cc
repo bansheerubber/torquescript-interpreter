@@ -295,17 +295,22 @@ void Interpreter::interpret() {
 		}
 		
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			Entry &entry = this->topContext->getVariableEntry(
-				instruction,
-				instruction.localAccess.source,
-				instruction.localAssign.hash
-			);
-
-			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
-				this->pop(); // pop the dimensions if we have any
+			if(instruction.localAccess.stackIndex != (size_t)-1) {
+				this->push(this->stack[instruction.localAccess.stackIndex]);
 			}
+			else {
+				Entry &entry = this->topContext->getVariableEntry(
+					instruction,
+					instruction.localAccess.source,
+					instruction.localAccess.hash
+				);
 
-			this->push(entry);
+				for(int i = 0; i < instruction.localAccess.dimensions; i++) {
+					this->pop(); // pop the dimensions if we have any
+				}
+
+				this->push(entry);	
+			}
 
 			break;
 		}

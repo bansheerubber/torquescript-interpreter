@@ -1,11 +1,17 @@
 // get the value of the variable contained in the instruction
 Entry* entry = nullptr;
 double entryNumber = 0;
-entry = &this->topContext->getVariableEntry(
-	instruction,
-	instruction.localAssign.destination,
-	instruction.localAssign.hash
-);
+
+if(instruction.localAssign.stackIndex == (size_t)-1) {
+	entry = &this->topContext->getVariableEntry(
+		instruction,
+		instruction.localAssign.destination,
+		instruction.localAssign.hash
+	);
+}
+else {
+	entry = &this->stack[instruction.localAccess.stackIndex];
+}
 
 // convert the value of the variable to a number if needed
 if(entry->type == entry::NUMBER) {

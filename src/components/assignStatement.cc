@@ -143,6 +143,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
 		instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
+		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;
 		instruction->localAssign.fromStack = false;
 		instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
 	}

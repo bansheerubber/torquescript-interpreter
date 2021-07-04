@@ -5,7 +5,7 @@ using namespace ts;
 BoundVariable& Scope::allocateVariable(string &variableName) {
 	if(this->variables.find(variableName) == this->variables.end()) {
 		this->variables[variableName] = (BoundVariable){
-			stackIndex: ++this->stackIndex,
+			stackIndex: this->stackIndex++,
 			name: variableName,
 		};
 	}

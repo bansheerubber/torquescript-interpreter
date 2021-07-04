@@ -19,12 +19,17 @@ operations = {
 }
 
 specific_operations = {
-	"LOCAL_ASSIGN_EQUAL": """this->topContext->setVariableEntry(
-				instruction,
-				instruction.localAssign.destination,
-				instruction.localAssign.hash,
-				*entry
-			);""",
+	"LOCAL_ASSIGN_EQUAL": """if(instruction.localAssign.stackIndex == (size_t)-1) {{
+				this->topContext->setVariableEntry(
+					instruction,
+					instruction.localAssign.destination,
+					instruction.localAssign.hash,
+					*entry
+				);
+			}}
+			else {{
+				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex]);
+			}}""",
 	"OBJECT_ASSIGN_EQUAL": """object->object->properties.setVariableEntry(
 				instruction,
 				instruction.localAssign.destination,
