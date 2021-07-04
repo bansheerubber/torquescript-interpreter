@@ -295,7 +295,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
-				if(lastInstruction->type == ts::instruction::LOCAL_ACCESS) {
+				if(lastInstruction->type == ts::instruction::LOCAL_ACCESS && lastInstruction->localAccess.dimensions == 0) {
 					lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
 				}
 				c.output.add(lastInstruction);
@@ -350,7 +350,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	}
 
 	if(lastInstruction != nullptr) {
-		if(lastInstruction->type == ts::instruction::LOCAL_ACCESS) {
+		if(lastInstruction->type == ts::instruction::LOCAL_ACCESS && lastInstruction->localAccess.dimensions == 0) {
 			lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
 		}
 		c.output.add(lastInstruction);
