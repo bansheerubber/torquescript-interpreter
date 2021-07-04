@@ -85,6 +85,7 @@ if sys.argv[1] == "instruction.cc":
 			if variable_type == "string":
 				print(f"	new((void*)&destination.{key}.{variable_name}) string(source.{key}.{variable_name});")
 			elif variable_type == "Entry":
+				print(f"	destination.{key}.{variable_name} = ts::Entry();")
 				print(f"	copyEntry(source.{key}.{variable_name}, destination.{key}.{variable_name});")
 			else:
 				print(f"	destination.{key}.{variable_name} = source.{key}.{variable_name};")

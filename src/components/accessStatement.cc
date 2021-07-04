@@ -322,6 +322,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			// push the amount of arguments we just found
 			ts::Instruction* pushArgumentCount = new ts::Instruction();
 			pushArgumentCount->type = ts::instruction::PUSH;
+			pushArgumentCount->push.entry = ts::Entry();
 			pushArgumentCount->push.entry.type = ts::entry::NUMBER;
 			pushArgumentCount->push.entry.setNumber(((CallStatement*)element.component)->getElementCount() + 1);
 			c.output.add(pushArgumentCount);

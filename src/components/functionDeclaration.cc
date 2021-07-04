@@ -110,6 +110,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 			ts::Instruction* push = new ts::Instruction();
 			push->type = ts::instruction::PUSH;
 			push->push.entry = ts::Entry();
+			push->push.entry = ts::Entry();
 			push->push.entry.setString(getEmptyString());
 			output.addFirst(push);
 		}
@@ -126,6 +127,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 	// push the empty value if we do not actually use a return statement from earlier in the function body
 	ts::Instruction* pushEmpty = new ts::Instruction();
 	pushEmpty->type = ts::instruction::PUSH;
+	pushEmpty->push.entry = ts::Entry();
 	copyEntry(interpreter->emptyEntry, pushEmpty->push.entry);
 	output.add(pushEmpty);
 
