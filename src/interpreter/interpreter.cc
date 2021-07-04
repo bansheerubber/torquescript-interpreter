@@ -149,7 +149,7 @@ void Interpreter::interpret() {
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		if(!this->testing) {
 			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
-			printf("ran %ld instructions in %lu us\n", this->ranInstructions, elapsed);
+			printf("ran in %lu us\n", elapsed);
 			this->topContext->print();
 			this->printStack();
 		}
@@ -490,8 +490,6 @@ void Interpreter::interpret() {
 	}
 
 	// this->printStack();
-
-	this->ranInstructions++;
 
 	goto start;
 }
