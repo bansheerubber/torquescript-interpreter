@@ -25,7 +25,7 @@ bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, To
 		parent->getType() == DATABLOCK_DECLARATION
 		|| parent->getType() == NEW_STATEMENT
 		|| (
-			(lvalue != nullptr && lvalue->IsValidLvalue()) || lvalue == nullptr
+			(lvalue != nullptr && lvalue->isValidLValue()) || lvalue == nullptr
 		)
 	);
 }
@@ -118,10 +118,10 @@ ts::instruction::InstructionType AssignStatement::TypeToObjectOperator(TokenType
 	}
 }
 
-ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
-	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter);
+	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter, scope);
 	ts::Instruction* instruction = c.lastAccess;
 
 	// handle object accesses
@@ -143,6 +143,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
 		instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
+		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;
 		instruction->localAssign.fromStack = false;
 		instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
@@ -165,7 +166,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter) {
 		|| this->rvalue->getType() == NEW_STATEMENT
 		|| this->rvalue->getType() == PARENT_STATEMENT
 	) {
-		output.add(this->rvalue->compile(interpreter));
+		output.add(this->rvalue->compile(interpreter, scope));
 		instruction->localAssign.fromStack = true;
 	}
 

@@ -4,24 +4,32 @@
 	double rvalueNumber = 0;
 
 	// we have to define lvalue first when working with prefix
-	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.lvalueEntry.type) {
 		Entry &lvalue = instruction.mathematics.lvalueEntry;
 		%%lvalueTypecheck%%
 	}
-	else {
+	else if(instruction.mathematics.lvalueStackIndex < 0) {
 		Entry &lvalue = this->stack[this->stack.head - 1];
 		%%lvalueTypecheck%%
 		this->pop();
 	}
+	else {
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
+		%%lvalueTypecheck%%
+	}
 
-	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.rvalueEntry.type) {
 		Entry &rvalue = instruction.mathematics.rvalueEntry;
 		%%rvalueTypecheck%%
 	}
-	else {
+	else if(instruction.mathematics.rvalueStackIndex < 0) {
 		Entry &rvalue = this->stack[this->stack.head - 1];
 		%%rvalueTypecheck%%
 		this->pop();
+	}
+	else {
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
+		%%lvalueTypecheck%%
 	}
 #else
 	// final numbers after converting type
@@ -29,23 +37,31 @@
 	double rvalueNumber = 0;
 	
 	// we have to define rvalue first when working with postfix
-	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.rvalueEntry.type) {
 		Entry &rvalue = instruction.mathematics.rvalueEntry;
 		%%rvalueTypecheck%%
 	}
-	else {
+	else if(instruction.mathematics.rvalueStackIndex < 0) {
 		Entry &rvalue = this->stack[this->stack.head - 1];
 		%%rvalueTypecheck%%
 		this->pop();
 	}
+	else {
+		Entry &rvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
+		%%rvalueTypecheck%%
+	}
 
-	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.lvalueEntry.type) {
 		Entry &lvalue = instruction.mathematics.lvalueEntry;
 		%%lvalueTypecheck%%
 	}
-	else {
+	else if(instruction.mathematics.lvalueStackIndex < 0) {
 		Entry &lvalue = this->stack[this->stack.head - 1];
 		%%lvalueTypecheck%%
 		this->pop();
+	}
+	else {
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer;
+		%%lvalueTypecheck%%
 	}
 #endif

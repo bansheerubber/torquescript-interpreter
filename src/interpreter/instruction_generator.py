@@ -11,14 +11,15 @@ structs = {
 	"jumpIfFalse": ["JUMP_IF_FALSE"],
 	"mathematics": get_math_instructions(),
 	"unaryMathematics": ["UNARY_MATHEMATICS"],
-	"argumentAssign": ["ARGUMENT_ASSIGN"],
 	"localAssign": get_assignment_instructions("LOCAL_ASSIGN"),
 	"localAccess": ["LOCAL_ACCESS"],
 	"createObject": ["CREATE_OBJECT"],
 	"callFunction": ["CALL_FUNCTION"],
 	"callObject": ["CALL_OBJECT"],
 	"objectAssign": get_assignment_instructions("OBJECT_ASSIGN"),
-	"objectAccess": ["OBJECT_ACCESS"]
+	"objectAccess": ["OBJECT_ACCESS"],
+	"popArguments": ["POP_ARGUMENTS"],
+	"linkVariable": ["LINK_VARIABLE"],
 }
 
 instruction_to_struct = {instruction: struct for struct in structs.keys() for instruction in structs[struct]}
@@ -84,6 +85,7 @@ if sys.argv[1] == "instruction.cc":
 			if variable_type == "string":
 				print(f"	new((void*)&destination.{key}.{variable_name}) string(source.{key}.{variable_name});")
 			elif variable_type == "Entry":
+				print(f"	destination.{key}.{variable_name} = ts::Entry();")
 				print(f"	copyEntry(source.{key}.{variable_name}, destination.{key}.{variable_name});")
 			else:
 				print(f"	destination.{key}.{variable_name} = source.{key}.{variable_name};")

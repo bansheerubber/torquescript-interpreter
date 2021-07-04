@@ -120,7 +120,7 @@ string NewStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 	
 	ts::Instruction* createObject = new ts::Instruction();
@@ -134,7 +134,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 		if(component->getType() == ASSIGN_STATEMENT) {
 			AssignStatement* assignStatement = (AssignStatement*)component;
 
-			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter);
+			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter, scope);
 			ts::Instruction* instruction = c.lastAccess;
 			
 			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
@@ -148,15 +148,15 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 			instruction->objectAssign.popObject = false;
 
 			if(assignStatement->getRValue()->getType() == NUMBER_LITERAL) {
-				instruction->localAssign.entry.setNumber(((NumberLiteral*)assignStatement->getRValue())->getNumber());
+				instruction->objectAssign.entry.setNumber(((NumberLiteral*)assignStatement->getRValue())->getNumber());
 			}
 			else if(assignStatement->getRValue()->getType() == BOOLEAN_LITERAL) {
-				instruction->localAssign.entry.setNumber(((BooleanLiteral*)assignStatement->getRValue())->getBoolean());
+				instruction->objectAssign.entry.setNumber(((BooleanLiteral*)assignStatement->getRValue())->getBoolean());
 			}
 			else if(assignStatement->getRValue()->getType() == STRING_LITERAL) {
 				string literal = ((StringLiteral*)assignStatement->getRValue())->getString();
-				instruction->localAssign.entry = ts::Entry();
-				instruction->localAssign.entry.setString(stringToChars(literal));
+				instruction->objectAssign.entry = ts::Entry();
+				instruction->objectAssign.entry.setString(stringToChars(literal));
 			}
 			else if(
 				assignStatement->getRValue()->getType() == MATH_EXPRESSION
@@ -164,8 +164,8 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter) {
 				|| assignStatement->getRValue()->getType() == ASSIGN_STATEMENT
 				|| assignStatement->getRValue()->getType() == NEW_STATEMENT
 			) {
-				output.add(assignStatement->getRValue()->compile(interpreter));
-				instruction->localAssign.fromStack = true;
+				output.add(assignStatement->getRValue()->compile(interpreter, scope));
+				instruction->objectAssign.fromStack = true;
 			}
 
 			output.add(c.output);

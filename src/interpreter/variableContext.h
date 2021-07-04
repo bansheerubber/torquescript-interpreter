@@ -7,22 +7,10 @@ using namespace std;
 using namespace tsl;
 
 namespace ts {
-	namespace variable {
-		struct Array {
-			Entry* entry;
-			Array* next;
-
-			Array() {
-				this->entry = nullptr;
-				this->next = nullptr;
-			}
-
-			Array(Entry* entry) {
-				this->entry = entry;
-				this->next = nullptr;
-			}
-		};
-	}
+	struct VariableContextEntry {
+		Entry entry;
+		int stackIndex;
+	};
 	
 	class VariableContext {
 		public:
@@ -34,6 +22,7 @@ namespace ts {
 			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
 			void setVariableEntry(string &name, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
+			void linkVariable(string &name, size_t hash, int stackIndex);
 			void print();
 			void printWithTab(int tabs);
 			void clear();
@@ -42,7 +31,7 @@ namespace ts {
 			class Interpreter* interpreter;
 			friend class Interpreter;
 			friend class Object;
-			robin_map<string, Entry> variableMap;
+			robin_map<string, VariableContextEntry> variableMap;
 	};
 
 	void initVariableContext(VariableContext* location);

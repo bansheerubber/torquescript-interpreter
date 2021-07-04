@@ -21,7 +21,7 @@ string BreakStatement::printJSON() {
 	return "{\"type\":\"BREAK_STATEMENT\"}";
 }
 
-ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

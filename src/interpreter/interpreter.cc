@@ -16,13 +16,16 @@ void ts::initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame) {
 	*frame = (FunctionFrame){
 		context: VariableContext(interpreter),
 		container: nullptr,
-		pointer: 0,
+		instructionPointer: 0,
+		stackPointer: 0,
+		stackPopCount: 0,
 	};
 }
 
 void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 	FunctionFrame &frame = interpreter->frames[interpreter->frames.head - 1];
-	interpreter->instructionPointer = &frame.pointer;
+	interpreter->instructionPointer = &frame.instructionPointer;
+	interpreter->stackFramePointer = frame.stackPointer;
 	interpreter->topContext = &frame.context;
 }
 
@@ -73,13 +76,16 @@ void Interpreter::addTSSLFunction(sl::Function* function) {
 	}
 }
 
-void Interpreter::pushInstructionContainer(InstructionContainer* container) {
+void Interpreter::pushInstructionContainer(InstructionContainer* container, size_t argumentCount, size_t popCount) {
 	FunctionFrame &frame = this->frames[this->frames.head];
 	frame.container = container;
-	frame.pointer = 0;
+	frame.instructionPointer = 0;
+	frame.stackPointer = this->stack.head - argumentCount;
+	frame.stackPopCount = popCount;
 
 	this->topContainer = frame.container;
-	this->instructionPointer = &frame.pointer;
+	this->instructionPointer = &frame.instructionPointer;
+	this->stackFramePointer = frame.stackPointer;
 	this->topContext = &frame.context;
 	
 	this->frames.pushed();
@@ -90,8 +96,13 @@ void Interpreter::popInstructionContainer() {
 
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
 	this->topContainer = frame.container;
-	this->instructionPointer = &frame.pointer;
+	this->instructionPointer = &frame.instructionPointer;
+	this->stackFramePointer = frame.stackPointer;
 	this->topContext = &frame.context;
+
+	for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
+		this->pop();
+	}
 }
 
 // push an entry onto the stack
@@ -102,7 +113,9 @@ void Interpreter::push(Entry &entry) {
 
 // push a number onto the stack
 void Interpreter::push(double number) {
-	this->stack[this->stack.head].setNumber(number);
+	// manually inline this b/c for some reason it doesn't want to by itself
+	this->stack[this->stack.head].type = entry::NUMBER;
+	this->stack[this->stack.head].numberData = number;
 	this->stack.pushed();
 }
 
@@ -119,9 +132,8 @@ void Interpreter::push(ObjectReference* value) {
 }
 
 void Interpreter::pop() {
-	// TODO make this work
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type == entry::STRING && test.stringData != nullptr) {
+	if(test.type == entry::STRING && test.stringData) {
 		delete test.stringData;
 		test.stringData = nullptr;
 	}
@@ -146,17 +158,18 @@ void Interpreter::warning(const char* format, ...) {
 
 void Interpreter::interpret() {
 	start:
+	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
+	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		if(!this->testing) {
 			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
-			printf("ran %ld instructions in %lu us\n", this->ranInstructions, elapsed);
+			printf("ran in %lu us\n", elapsed);
 			this->topContext->print();
 			this->printStack();
 		}
 		return;
 	}
 
-	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	(*this->instructionPointer)++;
 
 	// PrintInstruction(instruction);
@@ -269,43 +282,24 @@ void Interpreter::interpret() {
 			this->push(result);
 			break;
 		}
-
-		case instruction::ARGUMENT_ASSIGN: { // assign argument a value from the stack
-			int actualArgumentCount = (int)this->stack[this->stack.head - 1].numberData; // get the amount of arguments used
-			int delta = instruction.argumentAssign.argc - actualArgumentCount;
-			relative_stack_location location = this->stack.head - 1 - instruction.argumentAssign.offset + delta;
-
-			if((int)instruction.argumentAssign.offset <= delta) {
-				this->topContext->setVariableEntry(
-					instruction,
-					instruction.argumentAssign.destination,
-					instruction.argumentAssign.hash,
-					this->emptyEntry
-				);
-			}
-			else {
-				this->topContext->setVariableEntry(
-					instruction,
-					instruction.argumentAssign.destination,
-					instruction.argumentAssign.hash,
-					this->stack[location]
-				);
-			}
-			break;
-		}
 		
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			Entry &entry = this->topContext->getVariableEntry(
-				instruction,
-				instruction.localAccess.source,
-				instruction.localAssign.hash
-			);
+			if(instruction.localAccess.stackIndex < 0) {
+				Entry &entry = this->topContext->getVariableEntry(
+					instruction,
+					instruction.localAccess.source,
+					instruction.localAccess.hash
+				);
 
-			for(int i = 0; i < instruction.localAccess.dimensions; i++) {
-				this->pop(); // pop the dimensions if we have any
+				for(int i = 0; i < instruction.localAccess.dimensions; i++) {
+					this->pop(); // pop the dimensions if we have any
+				}
+
+				this->push(entry);	
 			}
-
-			this->push(entry);
+			else {
+				this->push(this->stack[instruction.localAccess.stackIndex + this->stackFramePointer]);
+			}
 
 			break;
 		}
@@ -407,16 +401,25 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::RETURN: { // return from a function
+			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
+			this->pop(); // pop return value
 			this->popInstructionContainer();
+			this->push(this->returnRegister); // push return register
 			break;
 		}
 
 		case instruction::POP_ARGUMENTS: {
 			Entry &numberOfArguments = this->stack[this->stack.head - 1];
+			size_t realNumberOfArguments = instruction.popArguments.argumentCount;
+			int number = (int)numberOfArguments.numberData - realNumberOfArguments;
 
-			int number = (int)numberOfArguments.numberData;
-			for(int i = 0; i < number + 1; i++) {
+			this->pop(); // pop argument count
+			for(int i = 0; i < number; i++) {
 				this->pop();
+			}
+
+			for(int i = 0; i < -number; i++) {
+				this->push(getEmptyString());
 			}
 
 			break;
@@ -479,14 +482,17 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::LINK_VARIABLE: {
+			this->topContext->linkVariable(instruction.linkVariable.source, instruction.linkVariable.hash, instruction.linkVariable.stackIndex);
+			break;
+		}
+
 		default: {
 			printf("DID NOT EXECUTE INSTRUCTION.\n");
 		}
 	}
 
 	// this->printStack();
-
-	this->ranInstructions++;
 
 	goto start;
 }
@@ -502,14 +508,14 @@ void Interpreter::printStack() {
 	printf("\n");
 }
 
-void Interpreter::addFunction(string &name, InstructionReturn output) {
-	Function* container = new Function(output.first, name);
+void Interpreter::addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name);
 	this->nameToIndex[toLower(name)] = this->functions.size();
 	this->functions.push_back(container);
 }
 
-void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output) {
-	Function* container = new Function(output.first, name, nameSpace);
+void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
 
 	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
 		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();

@@ -4,6 +4,7 @@
 
 #include "component.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
 
@@ -17,7 +18,7 @@ namespace ts {
 	class Interpreter;
 }
 
-class FunctionDeclaration : public Body {
+class FunctionDeclaration : public Body, public ts::Scope {
 	public:
 		using Body::Body;
 		
@@ -36,7 +37,7 @@ class FunctionDeclaration : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();

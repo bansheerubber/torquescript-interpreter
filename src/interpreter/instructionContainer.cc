@@ -18,7 +18,7 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 		count++;
 	}
 
-	this->array = new Instruction[count];
+	this->array = new Instruction[count + 1]; // allocate an empty slot at the end b/c of how we do bounds checking
 	this->size = count;
 
 	instruction = head;
@@ -64,8 +64,8 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 }
 
 void InstructionContainer::print() {
-	printf("-----------------------------------------------------------------\n");
 	for(size_t i = 0; i < this->size; i++) {
 		PrintInstruction(this->array[i]);
 	}
+	printf("-----------------------------------------------------------------\n");
 }

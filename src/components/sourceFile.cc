@@ -2,6 +2,9 @@
 #include "../parser/parser.h"
 #include "../interpreter/interpreter.h"
 
+#include "../interpreter/entry.h"
+#include "../util/getEmptyString.h"
+
 string SourceFile::print() {
 	string output;
 	for(Component* child: this->children) {
@@ -25,16 +28,26 @@ string SourceFile::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// compile source file
 	for(Component* child: this->children) {
-		ts::InstructionReturn compiled = child->compile(interpreter);
+		ts::InstructionReturn compiled = child->compile(interpreter, this);
 		if(compiled.first != nullptr) {
 			output.add(compiled);
 		}
 	}
+
+	for(auto const& [key, value]: this->variables) {
+		ts::Instruction* push = new ts::Instruction();
+		push->type = ts::instruction::PUSH;
+		push->push.entry = ts::Entry();
+		push->push.entry.setString(getEmptyString());
+		output.addFirst(push);
+	}
+
+	output.addFirst(this->compileLinkVariables(interpreter));
 
 	return output;
 }

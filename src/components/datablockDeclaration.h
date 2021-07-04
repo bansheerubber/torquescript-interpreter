@@ -5,6 +5,7 @@
 
 #include "component.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
 
@@ -34,7 +35,7 @@ class DatablockDeclaration : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();

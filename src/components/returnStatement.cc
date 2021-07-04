@@ -44,9 +44,9 @@ string ReturnStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
-	output.add(this->operation->compile(interpreter));
+	output.add(this->operation->compile(interpreter, scope));
 
 	// add a return statement that exits out from our function
 	ts::Instruction* returnInstruction = new ts::Instruction();

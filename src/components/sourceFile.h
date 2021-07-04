@@ -12,7 +12,7 @@ namespace ts {
 	class Interpreter;
 }
 
-class SourceFile : public Body {
+class SourceFile : public Body, public ts::Scope {
 	public:
 		using Body::Body;
 		
@@ -28,7 +28,7 @@ class SourceFile : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();

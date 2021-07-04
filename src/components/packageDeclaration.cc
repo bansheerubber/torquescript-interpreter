@@ -44,7 +44,7 @@ string PackageDeclaration::printJSON() {
 	return "{\"type\":\"PACKAGE_DECLARATION\",\"name\":" + this->packageName->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

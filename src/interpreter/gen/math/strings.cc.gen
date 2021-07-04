@@ -5,20 +5,26 @@
 	Entry* lvalue;
 	Entry* rvalue;
 	// we have to define lvalue first when working with prefix
-	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.lvalueEntry.type) {
 		lvalue = &instruction.mathematics.lvalueEntry;
 	}
-	else {
+	else if(instruction.mathematics.lvalueStackIndex < 0) {
 		lvalue = &this->stack[this->stack.head - 1];
 		popLValue = true;
 	}
+	else {
+		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
+	}
 
-	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.rvalueEntry.type) {
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
-	else {
+	else if(instruction.mathematics.rvalueStackIndex < 0) {
 		rvalue = &this->stack[this->stack.head - 2];
 		popRValue = true;
+	}
+	else {
+		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
 	}
 
 	// final strings after converting type
@@ -37,20 +43,26 @@
 	Entry* lvalue;
 	Entry* rvalue;
 	/* we have to define rvalue first when working with postfix */
-	if(instruction.mathematics.rvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.rvalueEntry.type) {
 		rvalue = &instruction.mathematics.rvalueEntry;
 	}
-	else {
-		rvalue = &this->stack[this->stack.head - 1];
+	else if(instruction.mathematics.rvalueStackIndex < 0) {
+		rvalue = &this->stack[this->stack.head - 2];
 		popRValue = true;
 	}
+	else {
+		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
+	}
 	
-	if(instruction.mathematics.lvalueEntry.type != entry::INVALID) {
+	if(instruction.mathematics.lvalueEntry.type) {
 		lvalue = &instruction.mathematics.lvalueEntry;
 	}
-	else {
-		lvalue = &this->stack[this->stack.head - 2];
+	else if(instruction.mathematics.lvalueStackIndex < 0) {
+		lvalue = &this->stack[this->stack.head - 1];
 		popLValue = true;
+	}
+	else {
+		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 	}
 
 	// final numbers after converting type

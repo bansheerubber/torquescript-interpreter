@@ -35,7 +35,9 @@ namespace ts {
 	struct FunctionFrame {
 		VariableContext context;
 		InstructionContainer* container;
-		size_t pointer;
+		size_t instructionPointer;
+		size_t stackPointer;
+		size_t stackPopCount;
 	};
 
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
@@ -52,8 +54,8 @@ namespace ts {
 			void printStack();
 			void warning(const char* format, ...);
 
-			void addFunction(string &name, InstructionReturn output);
-			void addFunction(string &nameSpace, string &name, InstructionReturn output);
+			void addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
+			void addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addTSSLFunction(sl::Function* function);
 
 			Entry emptyEntry;
@@ -82,11 +84,14 @@ namespace ts {
 			VariableContext* topContext;
 			InstructionContainer* topContainer; // the current container we're executing code from, taken from frames
 			size_t* instructionPointer; // the current instruction pointer, taken from frames
+			size_t stackFramePointer; // the current frame pointer
+			Entry returnRegister;
 
 			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
+			friend VariableContext;
 
-			void pushInstructionContainer(InstructionContainer* container);
+			void pushInstructionContainer(InstructionContainer* container, size_t argumentCount = 0, size_t popCount = 0);
 			void popInstructionContainer();
 
 			// function datastructures

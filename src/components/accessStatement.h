@@ -5,6 +5,7 @@
 
 #include "component.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
 
@@ -47,8 +48,8 @@ class AccessStatement : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
-		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
+		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();
@@ -68,8 +69,9 @@ class AccessStatement : public Component {
 		bool hasArray();
 		bool hasCall();
 		size_t chainSize();
+		size_t getStackIndex(ts::Scope* scope);
 
-		bool IsValidLvalue();
+		bool isValidLValue();
 
 		static bool DatablockAsSymbol;
 

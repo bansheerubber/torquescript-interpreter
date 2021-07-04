@@ -19,12 +19,17 @@ operations = {
 }
 
 specific_operations = {
-	"LOCAL_ASSIGN_EQUAL": """this->topContext->setVariableEntry(
-				instruction,
-				instruction.localAssign.destination,
-				instruction.localAssign.hash,
-				*entry
-			);""",
+	"LOCAL_ASSIGN_EQUAL": """if(instruction.localAssign.stackIndex < 0) {{
+				this->topContext->setVariableEntry(
+					instruction,
+					instruction.localAssign.destination,
+					instruction.localAssign.hash,
+					*entry
+				);
+			}}
+			else {{
+				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
+			}}""",
 	"OBJECT_ASSIGN_EQUAL": """object->object->properties.setVariableEntry(
 				instruction,
 				instruction.localAssign.destination,
@@ -51,7 +56,8 @@ for prefix, folder in get_prefixes().items():
 			
 			print(f"""		case instruction::{prefix}_{suffix}: {{
 {START_MACRO}{GET_SELF_MACRO}{get_macro}
-			entry->setNumber({operation});\n
+			entry->type = entry::NUMBER;\n
+			entry->numberData = {operation};\n
 {END_MACRO}
 			break;
 		}}\n""")

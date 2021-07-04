@@ -21,7 +21,7 @@ string ContinueStatement::printJSON() {
 	return "{\"type\":\"CONTINUE_STATEMENT\"}";
 }
 
-ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

@@ -2,6 +2,7 @@
 #include "../interpreter/interpreter.h"
 
 #include "accessStatement.h"
+#include "../util/getEmptyString.h"
 
 bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == FUNCTION;
@@ -83,42 +84,50 @@ string FunctionDeclaration::printJSON() {
 	}
 }
 
-ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// loop through the arguments and assign them from values on the stack
 	auto it = this->args->getElements();
-	int count = 0;
 	int argumentCount = this->args->getElementCount();
 	for (; it.first != it.second; it.first++) {
 		AccessStatement* component = (AccessStatement*)(*(it.first)).component; // we know these are local variables
 		if(component != nullptr) {
-			// assign a value from the stack to this variable	
-			ts::Instruction* instruction = new ts::Instruction();
-			instruction->type = ts::instruction::ARGUMENT_ASSIGN;
-			new((void*)&instruction->argumentAssign.destination) string(component->getVariableName());
-			instruction->argumentAssign.hash = hash<string>{}(component->getVariableName());
-			instruction->argumentAssign.dimensions = 0;
-			instruction->argumentAssign.offset = argumentCount - count;
-			instruction->argumentAssign.argc = argumentCount;
-			count++;
-			output.add(instruction);
+			// allocate the variable in our scope
+			string name = component->getVariableName();
+			this->allocateVariable(name, true);
+		}
+	}
+
+	// compile the body of the function
+	for(Component* component: this->children) {
+		output.add(component->compile(interpreter, this));
+	}
+
+	// push variables
+	for(auto const& [key, value]: this->variables) {
+		if(!value.isArgument) {
+			ts::Instruction* push = new ts::Instruction();
+			push->type = ts::instruction::PUSH;
+			push->push.entry = ts::Entry();
+			push->push.entry = ts::Entry();
+			push->push.entry.setString(getEmptyString());
+			output.addFirst(push);
 		}
 	}
 
 	// tell the interpreter to pop values from the stack that were pushed as arguments
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::POP_ARGUMENTS;
-	output.add(instruction);
+	instruction->popArguments.argumentCount = argumentCount;
+	output.addFirst(instruction);
 
-	// compile the body of the function
-	for(Component* component: this->children) {
-		output.add(component->compile(interpreter));
-	}
+	output.addFirst(this->compileLinkVariables(interpreter));
 
 	// push the empty value if we do not actually use a return statement from earlier in the function body
 	ts::Instruction* pushEmpty = new ts::Instruction();
 	pushEmpty->type = ts::instruction::PUSH;
+	pushEmpty->push.entry = ts::Entry();
 	copyEntry(interpreter->emptyEntry, pushEmpty->push.entry);
 	output.add(pushEmpty);
 
@@ -130,11 +139,11 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter)
 	if(this->name2 != nullptr) {
 		string nameSpace = this->name1->print();
 		string name = this->name2->print();
-		interpreter->addFunction(nameSpace, name, output);
+		interpreter->addFunction(nameSpace, name, output, argumentCount, this->allocatedSize());
 	}
 	else {
 		string name = this->name1->print();
-		interpreter->addFunction(name, output); // tell the interpreter to add a function under our name
+		interpreter->addFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 	}
 
 	return {}; // do not output anything to the body, functions are stored elsewhere

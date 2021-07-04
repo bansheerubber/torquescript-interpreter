@@ -77,7 +77,7 @@ string CaseBody::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

@@ -112,7 +112,7 @@ string IfBody::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
+ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in if statement
@@ -125,11 +125,11 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
 	conditionalJump->jumpIfFalse.instruction = noop;
 	conditionalJump->jumpIfFalse.pop = true;
 
-	output.add(this->conditional->compile(interpreter));
+	output.add(this->conditional->compile(interpreter, scope));
 	output.add(conditionalJump);
 	
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter));
+		output.add(component->compile(interpreter, scope));
 	}
 
 	if(this->next != nullptr) {
@@ -144,7 +144,7 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
 		Body* next = this->next;
 		while(next != nullptr) {
 			if(next->getType() == ELSE_IF_STATEMENT) {
-				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf(interpreter);
+				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf(interpreter, scope);
 				compiled.lastJump->jump.instruction = noop;
 				output.add(compiled.output);
 
@@ -153,7 +153,7 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter) {
 				next = ((ElseIfBody*)next)->next;
 			}
 			else if(next->getType() == ELSE_STATEMENT) {
-				ts::InstructionReturn compiled = next->compile(interpreter);
+				ts::InstructionReturn compiled = next->compile(interpreter, scope);
 				lastConditionalJump->jumpIfFalse.instruction = compiled.first;
 				output.add(compiled);
 				next = nullptr;

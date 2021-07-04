@@ -70,6 +70,7 @@ namespace ts {
 			OBJECT_ASSIGN_BITWISE_XOR,
 			OBJECT_ASSIGN_BITWISE_OR,
 			OBJECT_ACCESS,
+			LINK_VARIABLE,
 		};
 
 		enum AssignOperations {
@@ -134,6 +135,8 @@ namespace ts {
 			struct {
 				Entry lvalueEntry;
 				Entry rvalueEntry;
+				int lvalueStackIndex;
+				int rvalueStackIndex;
 			} mathematics;
 
 			struct {
@@ -147,6 +150,7 @@ namespace ts {
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
+				int stackIndex;
 			} localAssign;
 
 			struct {
@@ -161,16 +165,9 @@ namespace ts {
 
 			struct {
 				int dimensions;
-				relative_stack_location offset; // subtracted from top of stack
-				size_t argc; // expected amount of arguments
-				string destination;
-				size_t hash;
-			} argumentAssign;
-
-			struct {
-				int dimensions;
 				string source;
 				size_t hash;
+				int stackIndex;
 			} localAccess;
 
 			struct {
@@ -200,6 +197,16 @@ namespace ts {
 				size_t namespaceIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
+
+			struct {
+				size_t argumentCount;
+			} popArguments;
+
+			struct {
+				int stackIndex;
+				string source;
+				size_t hash;
+			} linkVariable;
 		};
 
 		Instruction() {
@@ -250,6 +257,32 @@ namespace ts {
 				else {
 					this->last->next = compiled.first;
 					this->last = compiled.last;
+				}
+			}
+		}
+
+		void addFirst(Instruction* instruction) {
+			if(instruction != nullptr) {
+				if(this->first == nullptr) {
+					this->first = instruction;
+					this->last = instruction;
+				}
+				else {
+					instruction->next = this->first;
+					this->first = instruction;
+				}
+			}
+		}
+
+		void addFirst(InstructionReturn compiled) {
+			if(compiled.first != nullptr && compiled.last != nullptr) {
+				if(this->first == nullptr) {
+					this->first = compiled.first;
+					this->last = compiled.last;
+				}
+				else {
+					compiled.last->next = this->first;
+					this->first = compiled.first;
 				}
 			}
 		}

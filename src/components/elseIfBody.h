@@ -5,6 +5,7 @@
 #include "component.h"
 #include "body.h"
 #include "../parser/parser.h"
+#include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
@@ -45,8 +46,8 @@ class ElseIfBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter);
-		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
+		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter, ts::Scope* scope);
 
 		string print();
 		string printJSON();

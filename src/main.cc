@@ -8,7 +8,7 @@
 #endif
 
 #include "args.h"
-#include "./interpreter/compiler.h"
+#include "./compiler/compiler.h"
 #include "./tssl/define.h"
 #include "io.h"
 #include "./interpreter/interpreter.h"
