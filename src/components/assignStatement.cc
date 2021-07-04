@@ -25,7 +25,7 @@ bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, To
 		parent->getType() == DATABLOCK_DECLARATION
 		|| parent->getType() == NEW_STATEMENT
 		|| (
-			(lvalue != nullptr && lvalue->IsValidLvalue()) || lvalue == nullptr
+			(lvalue != nullptr && lvalue->isValidLValue()) || lvalue == nullptr
 		)
 	);
 }

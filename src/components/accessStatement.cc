@@ -196,7 +196,7 @@ size_t AccessStatement::chainSize() {
 }
 
 // we cannot assign to a function call or to a symbol
-bool AccessStatement::IsValidLvalue() {
+bool AccessStatement::isValidLValue() {
 	if(this->elements.size() == 1 && this->elements.back().token.type == SYMBOL) {
 		return false;
 	}
@@ -204,6 +204,16 @@ bool AccessStatement::IsValidLvalue() {
 		return false;
 	}
 	return true;
+}
+
+size_t AccessStatement::getStackIndex(ts::Scope* scope) {
+	if(!this->isLocalVariable() || this->chainSize() != 1) {
+		return -1;
+	}
+	else {
+		string name = this->getVariableName();
+		return scope->allocateVariable(name).stackIndex;
+	}
 }
 
 ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
@@ -259,7 +269,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->localAccess.dimensions = 0;
 			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
 			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
-			instruction->localAccess.stackIndex = (size_t)-1;
+			instruction->localAccess.stackIndex = -1;
 
 			c.lastAccess = instruction;
 

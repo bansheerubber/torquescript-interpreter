@@ -1,6 +1,7 @@
 #include "mathExpression.h"
 #include "../interpreter/interpreter.h"
 
+#include "accessStatement.h"
 #include "booleanLiteral.h"
 #include "../interpreter/entry.h"
 #include "numberLiteral.h"
@@ -447,6 +448,8 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			instruction->mathematics.lvalueEntry.type = ts::entry::INVALID;
 			instruction->mathematics.rvalueEntry = ts::Entry();
 			instruction->mathematics.rvalueEntry.type = ts::entry::INVALID;
+			instruction->mathematics.lvalueStackIndex = -1;
+			instruction->mathematics.rvalueStackIndex = -1;
 
 			instructionList.push_back(new Value(nullptr, instruction)); // push empty value as dummy for our result
 		}
@@ -508,22 +511,34 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			}
 
 			// figure out if we should cache literal in instruction
-			if(
-				lvalue->component != nullptr
-				&& lvalue->unary.size() == 0
-				&& lvalue->component->getType() == NUMBER_LITERAL
-			) {
-				value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
-				eraseList.push_back(lvalue);
+			if(lvalue->component != nullptr) {
+				if(lvalue->unary.size() == 0 && lvalue->component->getType() == NUMBER_LITERAL) {
+					value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
+					eraseList.push_back(lvalue);
+				}
+				else if(
+					lvalue->component->getType() == ACCESS_STATEMENT
+					&& ((AccessStatement*)(lvalue->component))->isLocalVariable()
+					&& ((AccessStatement*)(lvalue->component))->chainSize() == 1
+				) {
+					value->math->mathematics.lvalueStackIndex = ((AccessStatement*)(lvalue->component))->getStackIndex(scope);
+					eraseList.push_back(lvalue);
+				}
 			}
 
-			if(
-				rvalue->component != nullptr
-				&& rvalue->unary.size() == 0
-				&& rvalue->component->getType() == NUMBER_LITERAL
-			) {
-				value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
-				eraseList.push_back(rvalue);
+			if(rvalue->component != nullptr) {
+				if(rvalue->unary.size() == 0 && rvalue->component->getType() == NUMBER_LITERAL) {
+					value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
+					eraseList.push_back(rvalue);
+				}
+				else if(
+					rvalue->component->getType() == ACCESS_STATEMENT
+					&& ((AccessStatement*)(rvalue->component))->isLocalVariable()
+					&& ((AccessStatement*)(rvalue->component))->chainSize() == 1
+				) {
+					value->math->mathematics.rvalueStackIndex = ((AccessStatement*)(rvalue->component))->getStackIndex(scope);
+					eraseList.push_back(rvalue);
+				}
 			}
 			
 			evaluationStack.push(value);

@@ -134,6 +134,8 @@ namespace ts {
 			struct {
 				Entry lvalueEntry;
 				Entry rvalueEntry;
+				int lvalueStackIndex;
+				int rvalueStackIndex;
 			} mathematics;
 
 			struct {
@@ -144,7 +146,7 @@ namespace ts {
 				int dimensions;
 				string destination;
 				size_t hash;
-				size_t stackIndex;
+				int stackIndex;
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
@@ -172,7 +174,7 @@ namespace ts {
 				int dimensions;
 				string source;
 				size_t hash;
-				size_t stackIndex;
+				int stackIndex;
 			} localAccess;
 
 			struct {

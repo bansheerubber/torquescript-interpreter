@@ -2,7 +2,7 @@
 Entry* entry = nullptr;
 double entryNumber = 0;
 
-if(instruction.localAssign.stackIndex == (size_t)-1) {
+if(instruction.localAssign.stackIndex < 0) {
 	entry = &this->topContext->getVariableEntry(
 		instruction,
 		instruction.localAssign.destination,

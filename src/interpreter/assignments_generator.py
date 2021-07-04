@@ -19,7 +19,7 @@ operations = {
 }
 
 specific_operations = {
-	"LOCAL_ASSIGN_EQUAL": """if(instruction.localAssign.stackIndex == (size_t)-1) {{
+	"LOCAL_ASSIGN_EQUAL": """if(instruction.localAssign.stackIndex < 0) {{
 				this->topContext->setVariableEntry(
 					instruction,
 					instruction.localAssign.destination,

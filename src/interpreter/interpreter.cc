@@ -121,7 +121,7 @@ void Interpreter::push(ObjectReference* value) {
 void Interpreter::pop() {
 	// TODO make this work
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type == entry::STRING && test.stringData != nullptr) {
+	if(test.type == entry::STRING && test.stringData) {
 		delete test.stringData;
 		test.stringData = nullptr;
 	}
@@ -295,10 +295,7 @@ void Interpreter::interpret() {
 		}
 		
 		case instruction::LOCAL_ACCESS: { // push local variable to stack
-			if(instruction.localAccess.stackIndex != (size_t)-1) {
-				this->push(this->stack[instruction.localAccess.stackIndex]);
-			}
-			else {
+			if(instruction.localAccess.stackIndex < 0) {
 				Entry &entry = this->topContext->getVariableEntry(
 					instruction,
 					instruction.localAccess.source,
@@ -310,6 +307,9 @@ void Interpreter::interpret() {
 				}
 
 				this->push(entry);	
+			}
+			else {
+				this->push(this->stack[instruction.localAccess.stackIndex]);
 			}
 
 			break;

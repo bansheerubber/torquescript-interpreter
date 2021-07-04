@@ -69,8 +69,9 @@ class AccessStatement : public Component {
 		bool hasArray();
 		bool hasCall();
 		size_t chainSize();
+		size_t getStackIndex(ts::Scope* scope);
 
-		bool IsValidLvalue();
+		bool isValidLValue();
 
 		static bool DatablockAsSymbol;
 
