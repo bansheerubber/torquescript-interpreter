@@ -10,7 +10,7 @@ if(instruction.localAssign.stackIndex < 0) {
 	);
 }
 else {
-	entry = &this->stack[instruction.localAccess.stackIndex + this->stackFramePointer];
+	entry = &this->stack[instruction.localAssign.stackIndex + this->stackFramePointer];
 }
 
 // convert the value of the variable to a number if needed

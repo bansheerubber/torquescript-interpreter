@@ -146,10 +146,10 @@ namespace ts {
 				int dimensions;
 				string destination;
 				size_t hash;
-				int stackIndex;
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
+				int stackIndex;
 			} localAssign;
 
 			struct {
