@@ -276,7 +276,15 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = instruction;
 		}
 		else if(element.token.type == GLOBAL_VARIABLE) {
-			this->parser->error("global variables not supported");
+			ts::Instruction* instruction = new ts::Instruction();
+			instruction->type = ts::instruction::GLOBAL_ACCESS;
+			instruction->globalAccess.dimensions = 0;
+			instruction->globalAccess.hash = hash<string>{}(element.token.lexeme);
+			new((void*)&instruction->globalAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+
+			c.lastAccess = instruction;
+
+			lastInstruction = instruction;
 		}
 		else if(element.token.type == SYMBOL) {
 			ts::Instruction* instruction = new ts::Instruction();

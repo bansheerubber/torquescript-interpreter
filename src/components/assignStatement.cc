@@ -89,6 +89,35 @@ ts::instruction::InstructionType AssignStatement::TypeToLocalOperator(TokenType 
 	}
 }
 
+ts::instruction::InstructionType AssignStatement::TypeToGlobalOperator(TokenType type) {
+	switch(type) {
+		case PLUS_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_PLUS;
+		case MINUS_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_MINUS;
+		case SLASH_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_SLASH;
+		case ASTERISK_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_ASTERISK;
+		case MODULUS_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_MODULUS;
+		case OR_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_BITWISE_OR;
+		case AND_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_BITWISE_AND;
+		case XOR_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_BITWISE_XOR;
+		case SHIFT_LEFT_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_SHIFT_LEFT;
+		case SHIFT_RIGHT_ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_SHIFT_RIGHT;
+		case ASSIGN:
+			return ts::instruction::GLOBAL_ASSIGN_EQUAL;
+		default:
+			return ts::instruction::INVALID_INSTRUCTION;
+	}
+}
+
 ts::instruction::InstructionType AssignStatement::TypeToObjectOperator(TokenType type) {
 	switch(type) {
 		case PLUS_ASSIGN:
@@ -135,6 +164,16 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->objectAssign.fromStack = false;
 		instruction->objectAssign.pushResult = this->parent->shouldPushToStack(this);
 		instruction->objectAssign.popObject = true;
+	}
+	else if(instruction->type == ts::instruction::GLOBAL_ACCESS) {
+		instruction->type = AssignStatement::TypeToGlobalOperator(this->assignmentToken.type);
+		instruction->globalAssign.entry = ts::Entry(); // initialize memory to avoid crash
+		
+		new((void*)&instruction->globalAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+		instruction->globalAssign.hash = hash<string>{}(instruction->localAccess.source);
+		instruction->globalAssign.dimensions = instruction->localAccess.dimensions;
+		instruction->globalAssign.fromStack = false;
+		instruction->globalAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
 	else { // copy access instruction to assign instruction
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);

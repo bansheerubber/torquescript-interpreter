@@ -50,7 +50,21 @@ namespace ts {
 			LOCAL_ASSIGN_BITWISE_AND,
 			LOCAL_ASSIGN_BITWISE_XOR,
 			LOCAL_ASSIGN_BITWISE_OR,
+			GLOBAL_ASSIGN_EQUAL,
+			GLOBAL_ASSIGN_INCREMENT,
+			GLOBAL_ASSIGN_DECREMENT,
+			GLOBAL_ASSIGN_PLUS,
+			GLOBAL_ASSIGN_MINUS,
+			GLOBAL_ASSIGN_ASTERISK,
+			GLOBAL_ASSIGN_SLASH,
+			GLOBAL_ASSIGN_MODULUS,
+			GLOBAL_ASSIGN_SHIFT_LEFT,
+			GLOBAL_ASSIGN_SHIFT_RIGHT,
+			GLOBAL_ASSIGN_BITWISE_AND,
+			GLOBAL_ASSIGN_BITWISE_XOR,
+			GLOBAL_ASSIGN_BITWISE_OR,
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
+			GLOBAL_ACCESS,
 			CALL_FUNCTION, // call a globally scoped function
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
@@ -160,6 +174,15 @@ namespace ts {
 				bool fromStack;
 				bool pushResult;
 				Entry entry;
+			} globalAssign;
+
+			struct {
+				int dimensions;
+				string destination;
+				size_t hash;
+				bool fromStack;
+				bool pushResult;
+				Entry entry;
 				bool popObject;
 			} objectAssign;
 
@@ -169,6 +192,12 @@ namespace ts {
 				size_t hash;
 				int stackIndex;
 			} localAccess;
+
+			struct {
+				int dimensions;
+				string source;
+				size_t hash;
+			} globalAccess;
 
 			struct {
 				int dimensions;

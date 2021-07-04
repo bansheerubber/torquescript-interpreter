@@ -36,6 +36,12 @@ specific_operations = {
 				instruction.localAssign.hash,
 				*entry
 			);""",
+	"GLOBAL_ASSIGN_EQUAL": """this->globalContext.setVariableEntry(
+				instruction,
+				instruction.globalAssign.destination,
+				instruction.globalAssign.hash,
+				*entry
+			);""",
 }
 
 no_get = ["INCREMENT", "DECREMENT"]

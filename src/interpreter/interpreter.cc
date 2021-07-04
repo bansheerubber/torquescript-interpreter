@@ -42,6 +42,8 @@ Interpreter::Interpreter(ParsedArguments args) {
 
 	this->stack = DynamicArray<Entry>(this, 10000, initEntry, nullptr);
 	this->frames = DynamicArray<FunctionFrame>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
+
+	this->globalContext = VariableContext(this);
 }
 
 Interpreter::~Interpreter() {
@@ -300,6 +302,22 @@ void Interpreter::interpret() {
 			else {
 				this->push(this->stack[instruction.localAccess.stackIndex + this->stackFramePointer]);
 			}
+
+			break;
+		}
+
+		case instruction::GLOBAL_ACCESS: { // push local variable to stack
+			Entry &entry = this->globalContext.getVariableEntry(
+				instruction,
+				instruction.globalAccess.source,
+				instruction.globalAccess.hash
+			);
+
+			for(int i = 0; i < instruction.globalAccess.dimensions; i++) {
+				this->pop(); // pop the dimensions if we have any
+			}
+
+			this->push(entry);
 
 			break;
 		}

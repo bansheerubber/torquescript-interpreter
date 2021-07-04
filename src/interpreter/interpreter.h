@@ -86,6 +86,7 @@ namespace ts {
 			size_t* instructionPointer; // the current instruction pointer, taken from frames
 			size_t stackFramePointer; // the current frame pointer
 			Entry returnRegister;
+			VariableContext globalContext;
 
 			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
