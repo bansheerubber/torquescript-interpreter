@@ -113,7 +113,9 @@ void Interpreter::push(Entry &entry) {
 
 // push a number onto the stack
 void Interpreter::push(double number) {
-	this->stack[this->stack.head].setNumber(number);
+	// manually inline this b/c for some reason it doesn't want to by itself
+	this->stack[this->stack.head].type = entry::NUMBER;
+	this->stack[this->stack.head].numberData = number;
 	this->stack.pushed();
 }
 
