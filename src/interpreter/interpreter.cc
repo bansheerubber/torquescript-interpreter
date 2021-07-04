@@ -157,6 +157,8 @@ void Interpreter::warning(const char* format, ...) {
 
 void Interpreter::interpret() {
 	start:
+	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
+	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		if(!this->testing) {
 			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
@@ -167,7 +169,6 @@ void Interpreter::interpret() {
 		return;
 	}
 
-	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	(*this->instructionPointer)++;
 
 	// PrintInstruction(instruction);
