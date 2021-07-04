@@ -6,7 +6,7 @@
 namespace ts {
 	class Function : public InstructionContainer {
 		public:
-			Function(Instruction* head, size_t argumentCount, string functionName, string namespaceName = string());
+			Function(Instruction* head, size_t argumentCount, size_t variableCount, string functionName, string namespaceName = string());
 			Function(sl::Function* function);
 
 			bool isTSSL = false;
@@ -14,5 +14,6 @@ namespace ts {
 			string functionName;
 			string namespaceName;
 			size_t argumentCount;
+			size_t variableCount;
 	};
 }

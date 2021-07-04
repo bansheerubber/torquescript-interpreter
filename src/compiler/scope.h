@@ -19,6 +19,7 @@ namespace ts {
 		public:
 			BoundVariable& allocateVariable(string &variableName, bool isArgument = false);
 			ts::InstructionReturn compileLinkVariables(ts::Interpreter* interpreter);
+			size_t allocatedSize();
 		
 		protected:
 			size_t stackIndex = 0;

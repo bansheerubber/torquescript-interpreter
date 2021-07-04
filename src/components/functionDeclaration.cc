@@ -2,6 +2,7 @@
 #include "../interpreter/interpreter.h"
 
 #include "accessStatement.h"
+#include "../util/getEmptyString.h"
 
 bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == FUNCTION;
@@ -94,7 +95,23 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 		if(component != nullptr) {
 			// allocate the variable in our scope
 			string name = component->getVariableName();
-			this->allocateVariable(name);
+			this->allocateVariable(name, true);
+		}
+	}
+
+	// compile the body of the function
+	for(Component* component: this->children) {
+		output.add(component->compile(interpreter, this));
+	}
+
+	// push variables
+	for(auto const& [key, value]: this->variables) {
+		if(!value.isArgument) {
+			ts::Instruction* push = new ts::Instruction();
+			push->type = ts::instruction::PUSH;
+			push->push.entry = ts::Entry();
+			push->push.entry.setString(getEmptyString());
+			output.addFirst(push);
 		}
 	}
 
@@ -102,12 +119,9 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::POP_ARGUMENTS;
 	instruction->popArguments.argumentCount = argumentCount;
-	output.add(instruction);
+	output.addFirst(instruction);
 
-	// compile the body of the function
-	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, this));
-	}
+	output.addFirst(this->compileLinkVariables(interpreter));
 
 	// push the empty value if we do not actually use a return statement from earlier in the function body
 	ts::Instruction* pushEmpty = new ts::Instruction();
@@ -123,11 +137,11 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 	if(this->name2 != nullptr) {
 		string nameSpace = this->name1->print();
 		string name = this->name2->print();
-		interpreter->addFunction(nameSpace, name, output, argumentCount);
+		interpreter->addFunction(nameSpace, name, output, argumentCount, this->allocatedSize());
 	}
 	else {
 		string name = this->name1->print();
-		interpreter->addFunction(name, output, argumentCount); // tell the interpreter to add a function under our name
+		interpreter->addFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 	}
 
 	return {}; // do not output anything to the body, functions are stored elsewhere

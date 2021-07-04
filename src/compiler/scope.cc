@@ -28,3 +28,7 @@ ts::InstructionReturn Scope::compileLinkVariables(ts::Interpreter* interpreter) 
 
 	return output;
 }
+
+size_t Scope::allocatedSize() {
+	return this->variables.size();
+}

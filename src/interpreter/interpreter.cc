@@ -508,14 +508,14 @@ void Interpreter::printStack() {
 	printf("\n");
 }
 
-void Interpreter::addFunction(string &name, InstructionReturn output, size_t argumentCount) {
-	Function* container = new Function(output.first, argumentCount, name);
+void Interpreter::addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name);
 	this->nameToIndex[toLower(name)] = this->functions.size();
 	this->functions.push_back(container);
 }
 
-void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount) {
-	Function* container = new Function(output.first, argumentCount, name, nameSpace);
+void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
 
 	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
 		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();

@@ -54,8 +54,8 @@ namespace ts {
 			void printStack();
 			void warning(const char* format, ...);
 
-			void addFunction(string &name, InstructionReturn output, size_t argumentCount);
-			void addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount);
+			void addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
+			void addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addTSSLFunction(sl::Function* function);
 
 			Entry emptyEntry;
