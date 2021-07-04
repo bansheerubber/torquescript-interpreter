@@ -56,7 +56,8 @@ for prefix, folder in get_prefixes().items():
 			
 			print(f"""		case instruction::{prefix}_{suffix}: {{
 {START_MACRO}{GET_SELF_MACRO}{get_macro}
-			entry->setNumber({operation});\n
+			entry->type = entry::NUMBER;\n
+			entry->numberData = {operation};\n
 {END_MACRO}
 			break;
 		}}\n""")
