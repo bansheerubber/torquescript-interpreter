@@ -130,7 +130,6 @@ void Interpreter::push(ObjectReference* value) {
 }
 
 void Interpreter::pop() {
-	// TODO make this work
 	Entry &test = this->stack[this->stack.head - 1];
 	if(test.type == entry::STRING && test.stringData) {
 		delete test.stringData;
