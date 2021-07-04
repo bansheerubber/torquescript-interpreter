@@ -13,7 +13,7 @@
 		popLValue = true;
 	}
 	else {
-		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex];
+		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 	}
 
 	if(instruction.mathematics.rvalueEntry.type) {
@@ -24,7 +24,7 @@
 		popRValue = true;
 	}
 	else {
-		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex];
+		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
 	}
 
 	// final strings after converting type
@@ -51,7 +51,7 @@
 		popRValue = true;
 	}
 	else {
-		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex];
+		rvalue = &this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
 	}
 	
 	if(instruction.mathematics.lvalueEntry.type) {
@@ -62,7 +62,7 @@
 		popLValue = true;
 	}
 	else {
-		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex];
+		lvalue = &this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 	}
 
 	// final numbers after converting type

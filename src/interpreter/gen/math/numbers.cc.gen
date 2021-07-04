@@ -14,7 +14,7 @@
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex];
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 		%%lvalueTypecheck%%
 	}
 
@@ -28,7 +28,7 @@
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex];
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 		%%lvalueTypecheck%%
 	}
 #else
@@ -47,7 +47,7 @@
 		this->pop();
 	}
 	else {
-		Entry &rvalue = this->stack[instruction.mathematics.lvalueStackIndex];
+		Entry &rvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 		%%rvalueTypecheck%%
 	}
 
@@ -61,7 +61,7 @@
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex];
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer;
 		%%lvalueTypecheck%%
 	}
 #endif

@@ -28,7 +28,7 @@ specific_operations = {
 				);
 			}}
 			else {{
-				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex]);
+				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
 			}}""",
 	"OBJECT_ASSIGN_EQUAL": """object->object->properties.setVariableEntry(
 				instruction,

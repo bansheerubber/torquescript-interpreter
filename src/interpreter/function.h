@@ -6,12 +6,13 @@
 namespace ts {
 	class Function : public InstructionContainer {
 		public:
-			Function(Instruction* head, string functionName, string namespaceName = string());
+			Function(Instruction* head, size_t argumentCount, string functionName, string namespaceName = string());
 			Function(sl::Function* function);
 
 			bool isTSSL = false;
 			sl::Function* function; // the standard library function to call if we're a standard library function
 			string functionName;
 			string namespaceName;
+			size_t argumentCount;
 	};
 }

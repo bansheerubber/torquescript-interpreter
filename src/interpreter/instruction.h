@@ -164,14 +164,6 @@ namespace ts {
 
 			struct {
 				int dimensions;
-				relative_stack_location offset; // subtracted from top of stack
-				size_t argc; // expected amount of arguments
-				string destination;
-				size_t hash;
-			} argumentAssign;
-
-			struct {
-				int dimensions;
 				string source;
 				size_t hash;
 				int stackIndex;
@@ -204,6 +196,10 @@ namespace ts {
 				size_t namespaceIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
+
+			struct {
+				size_t argumentCount;
+			} popArguments;
 		};
 
 		Instruction() {
