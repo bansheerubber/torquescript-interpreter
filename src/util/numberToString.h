@@ -8,7 +8,5 @@
 
 using namespace std;
 
-char* numberToString(double number) {
-	string formatted(fmt::format("{:G}", number));
-	return stringToChars(formatted);
-}
+char* numberToString(double number);
+string numberToStdString(double number);

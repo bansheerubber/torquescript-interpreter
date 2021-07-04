@@ -70,6 +70,7 @@ namespace ts {
 			OBJECT_ASSIGN_BITWISE_XOR,
 			OBJECT_ASSIGN_BITWISE_OR,
 			OBJECT_ACCESS,
+			LINK_VARIABLE,
 		};
 
 		enum AssignOperations {
@@ -200,6 +201,12 @@ namespace ts {
 			struct {
 				size_t argumentCount;
 			} popArguments;
+
+			struct {
+				int stackIndex;
+				string source;
+				size_t hash;
+			} linkVariable;
 		};
 
 		Instruction() {
@@ -263,6 +270,19 @@ namespace ts {
 				else {
 					instruction->next = this->first;
 					this->first = instruction;
+				}
+			}
+		}
+
+		void addFirst(InstructionReturn compiled) {
+			if(compiled.first != nullptr && compiled.last != nullptr) {
+				if(this->first == nullptr) {
+					this->first = compiled.first;
+					this->last = compiled.last;
+				}
+				else {
+					compiled.last->next = this->first;
+					this->first = compiled.first;
 				}
 			}
 		}

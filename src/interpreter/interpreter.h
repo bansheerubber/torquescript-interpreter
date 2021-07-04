@@ -89,6 +89,7 @@ namespace ts {
 
 			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
+			friend VariableContext;
 
 			void pushInstructionContainer(InstructionContainer* container, size_t argumentCount = 0, size_t popCount = 0);
 			void popInstructionContainer();

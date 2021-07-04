@@ -47,5 +47,7 @@ ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::Scop
 		output.addFirst(push);
 	}
 
+	output.addFirst(this->compileLinkVariables(interpreter));
+
 	return output;
 }

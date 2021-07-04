@@ -482,6 +482,11 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::LINK_VARIABLE: {
+			this->topContext->linkVariable(instruction.linkVariable.source, instruction.linkVariable.hash, instruction.linkVariable.stackIndex);
+			break;
+		}
+
 		default: {
 			printf("DID NOT EXECUTE INSTRUCTION.\n");
 		}
