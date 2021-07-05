@@ -53,7 +53,8 @@ string SwitchBody::print() {
 }
 
 string SwitchBody::printJSON() {
-	return "{\"type\":\"SWITCH_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
+	string switchType = string(this->parser->tokenizer->typeToName(this->switchType.type));
+	return "{\"type\":\"SWITCH_STATEMENT\",\"switchType\":\"" + switchType + "\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
 ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
