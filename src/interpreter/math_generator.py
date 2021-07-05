@@ -20,8 +20,12 @@ number_operations = {
 }
 
 string_operations = {
-	"MATH_STRING_EQUAL": "this->push(stringCompareInsensitive({0}, {1}) == true);",
-	"MATH_STRING_NOT_EQUAL": "this->push(stringCompareInsensitive({0}, {1}) == false);",
+	"MATH_STRING_EQUAL": """bool result = stringCompareInsensitive({0}, {1}) == true;
+			%%popStrings%%
+			this->push(result);""",
+	"MATH_STRING_NOT_EQUAL": """bool result = stringCompareInsensitive({0}, {1}) == false;
+			%%popStrings%%
+			this->push(result);""",
 	"MATH_APPEND": """size_t firstSize = strlen({0}), secondSize = strlen({1});
 			char* stringResult = new char[firstSize + secondSize + 1];
 			strncpy(stringResult, {0}, firstSize);
