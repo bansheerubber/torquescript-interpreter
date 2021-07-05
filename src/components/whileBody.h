@@ -4,6 +4,7 @@
 
 #include "component.h"
 #include "body.h"
+#include "../compiler/loops.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
@@ -16,7 +17,7 @@ namespace ts {
 	class Interpreter;
 }
 
-class WhileBody : public Body {
+class WhileBody : public Body, public ts::LoopsContext {
 	public:
 		using Body::Body;
 		
@@ -40,7 +41,7 @@ class WhileBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
 
 		string print();
 		string printJSON();

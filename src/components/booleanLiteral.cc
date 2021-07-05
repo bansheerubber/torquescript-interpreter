@@ -30,7 +30,7 @@ string BooleanLiteral::printJSON() {
 	}
 }
 
-ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;
 	instruction->push.entry = ts::Entry();

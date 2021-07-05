@@ -38,7 +38,7 @@ string InlineConditional::printJSON() {
 	return "{\"type\":\"INLINE_CONDITIONAL\",\"conditional\":" + this->leftHandSide->printJSON() + ",\"ifTrue\":" + this->ifTrue->printJSON() + ",\"ifFalse\":" + this->ifFalse->printJSON() + "}";
 }
 
-ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

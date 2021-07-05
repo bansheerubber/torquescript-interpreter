@@ -84,7 +84,7 @@ string FunctionDeclaration::printJSON() {
 	}
 }
 
-ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// loop through the arguments and assign them from values on the stack
@@ -101,7 +101,10 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 
 	// compile the body of the function
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, this));
+		output.add(component->compile(interpreter, (ts::CompilationContext){
+			loop: nullptr,
+			scope: this,
+		}));
 	}
 
 	// push variables

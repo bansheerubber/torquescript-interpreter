@@ -40,7 +40,7 @@ class IfBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
 
 		string print();
 		string printJSON();

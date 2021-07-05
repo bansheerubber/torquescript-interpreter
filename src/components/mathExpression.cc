@@ -421,7 +421,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 	return postfix;
 }
 
-ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	vector<PostfixElement> postfix = this->convertToPostfix(list, TS_INTERPRETER_PREFIX);
@@ -521,7 +521,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 					&& ((AccessStatement*)(lvalue->component))->isLocalVariable()
 					&& ((AccessStatement*)(lvalue->component))->chainSize() == 1
 				) {
-					value->math->mathematics.lvalueStackIndex = ((AccessStatement*)(lvalue->component))->getStackIndex(scope);
+					value->math->mathematics.lvalueStackIndex = ((AccessStatement*)(lvalue->component))->getStackIndex(context.scope);
 					eraseList.push_back(lvalue);
 				}
 			}
@@ -536,7 +536,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 					&& ((AccessStatement*)(rvalue->component))->isLocalVariable()
 					&& ((AccessStatement*)(rvalue->component))->chainSize() == 1
 				) {
-					value->math->mathematics.rvalueStackIndex = ((AccessStatement*)(rvalue->component))->getStackIndex(scope);
+					value->math->mathematics.rvalueStackIndex = ((AccessStatement*)(rvalue->component))->getStackIndex(context.scope);
 					eraseList.push_back(rvalue);
 				}
 			}
@@ -556,7 +556,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	// finally add instructions to output
 	for(Value* value: instructionList) {
 		if(value->component != nullptr) {
-			output.add(value->component->compile(interpreter, scope));
+			output.add(value->component->compile(interpreter, context));
 
 			if(value->unary.size() != ts::instruction::INVALID_UNARY) {
 				for(ts::instruction::UnaryOperator operation: value->unary) {
@@ -575,7 +575,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	return output;
 }
 
-ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// split along logical operators
@@ -623,7 +623,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::
 					andList.push_back(element);
 				}
 				else {
-					output.add(this->compileList(&andList, interpreter, scope));
+					output.add(this->compileList(&andList, interpreter, context));
 					andList.clear();
 
 					if(andNoop == nullptr) {
@@ -643,7 +643,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::
 				}
 			}
 
-			output.add(this->compileList(&andList, interpreter, scope));
+			output.add(this->compileList(&andList, interpreter, context));
 			andList.clear();
 
 			output.add(andNoop);

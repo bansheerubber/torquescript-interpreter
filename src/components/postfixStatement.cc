@@ -28,8 +28,8 @@ string PostfixStatement::printJSON() {
 	return "{\"type\":\"POSTFIX_STATEMENT\",\"lvalue\":" + this->lvalue->printJSON() + ",\"operation\":\"" + this->op.lexeme + "\"}";
 }
 
-ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
-	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter, scope);
+ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter, context);
 
 	ts::Instruction* instruction = compiled.lastAccess;
 
@@ -48,6 +48,6 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
-	instruction->localAssign.stackIndex = scope->allocateVariable(instruction->localAssign.destination).stackIndex;
+	instruction->localAssign.stackIndex = context.scope->allocateVariable(instruction->localAssign.destination).stackIndex;
 	return compiled.output;
 }

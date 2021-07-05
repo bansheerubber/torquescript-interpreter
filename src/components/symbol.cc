@@ -20,7 +20,7 @@ string Symbol::printJSON() {
 	return "{\"type\":\"SYMBOL_STATEMENT\",\"value\":\"" + this->value + "\"}";
 }
 
-ts::InstructionReturn Symbol::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn Symbol::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

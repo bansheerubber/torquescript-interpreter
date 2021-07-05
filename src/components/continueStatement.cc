@@ -21,7 +21,16 @@ string ContinueStatement::printJSON() {
 	return "{\"type\":\"CONTINUE_STATEMENT\"}";
 }
 
-ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
-	return {};
+ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+	if(context.loop == nullptr) {
+		this->parser->error("continue statement must be in loop body");
+		return {};
+	}
+	
+	ts::InstructionReturn output;
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::JUMP;
+	output.add(instruction);
+	context.loop->continues.push_back(output);
+	return output;
 }

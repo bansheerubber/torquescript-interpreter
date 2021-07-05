@@ -46,11 +46,11 @@ string ElseIfBody::printJSON() {
 	return "{\"type\":\"ELSE_IF_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn ElseIfBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
-	return this->compileElseIf(interpreter, scope).output;
+ts::InstructionReturn ElseIfBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+	return this->compileElseIf(interpreter, context).output;
 }
 
-ElseIfBodyCompiled ElseIfBody::compileElseIf(ts::Interpreter* interpreter, ts::Scope* scope) {
+ElseIfBodyCompiled ElseIfBody::compileElseIf(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ElseIfBodyCompiled compiled;
 
 	ts::Instruction* conditionalJump = new ts::Instruction();
@@ -58,11 +58,11 @@ ElseIfBodyCompiled ElseIfBody::compileElseIf(ts::Interpreter* interpreter, ts::S
 	conditionalJump->jumpIfFalse.pop = true;
 	compiled.conditionalJump = conditionalJump;
 
-	compiled.output.add(this->conditional->compile(interpreter, scope));
+	compiled.output.add(this->conditional->compile(interpreter, context));
 	compiled.output.add(conditionalJump);
 
 	for(Component* component: this->children) {
-		compiled.output.add(component->compile(interpreter, scope));
+		compiled.output.add(component->compile(interpreter, context));
 	}
 
 	ts::Instruction* jump = new ts::Instruction();

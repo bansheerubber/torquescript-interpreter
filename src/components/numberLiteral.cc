@@ -22,7 +22,7 @@ string NumberLiteral::printJSON() {
 	return "{\"type\":\"NUMBER_LITERAL\",\"value\":\"" + this->number + "\"}";
 }
 
-InstructionReturn NumberLiteral::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+InstructionReturn NumberLiteral::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	Instruction* instruction = new Instruction();
 	instruction->type = instruction::PUSH;
 	instruction->push.entry = ts::Entry();

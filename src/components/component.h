@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../compiler/scope.h"
+#include "../compiler/context.h"
 #include "../tokenizer/tokenizer.h"
 #include "../interpreter/instruction.h"
 
@@ -56,7 +56,7 @@ class Component {
 		virtual string printJSON() = 0; // serializes to JSON
 		virtual bool requiresSemicolon(Component* child) = 0; // whether or not a child of this component needs a semicolon
 		virtual bool shouldPushToStack(Component* child) = 0; // whether or not a child should push its value to the stack
-		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope) = 0; // compile to bytecode
+		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context) = 0; // compile to bytecode
 
 		static bool ShouldParse(Component* parent, Tokenizer* tokenizer, class Parser* parser);
 		static Component* AfterParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, class Parser* parser);

@@ -84,12 +84,12 @@ string ArrayStatement::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn ArrayStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn ArrayStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	for(ArrayElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile(interpreter, scope));
+			output.add(element.component->compile(interpreter, context));
 		}
 	}
 

@@ -5,6 +5,8 @@ from shutil import copyfile
 import subprocess
 import sys
 
+total_lines = 0
+
 def write_file(filename, contents):
 	file = open(filename, "w")
 	for line in contents:
@@ -12,6 +14,11 @@ def write_file(filename, contents):
 	file.close()
 
 def preprocess(filename, contents):
+	global total_lines
+	
+	if "include" not in filename:
+		total_lines = total_lines + len(contents)
+	
 	pattern = r'^[\s]*?##(.+)$'
 	new_contents = []
 	for line in contents:

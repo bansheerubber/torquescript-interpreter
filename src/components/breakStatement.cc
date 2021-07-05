@@ -21,7 +21,16 @@ string BreakStatement::printJSON() {
 	return "{\"type\":\"BREAK_STATEMENT\"}";
 }
 
-ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
-	return {};
+ts::InstructionReturn BreakStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+	if(context.loop == nullptr) {
+		this->parser->error("break statement must be in loop body");
+		return {};
+	}
+	
+	ts::InstructionReturn output;
+	ts::Instruction* instruction = new ts::Instruction();
+	instruction->type = ts::instruction::JUMP;
+	output.add(instruction);
+	context.loop->breaks.push_back(output);
+	return output;
 }

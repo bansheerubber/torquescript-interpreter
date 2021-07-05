@@ -37,7 +37,7 @@ string ElseBody::printJSON() {
 	return "{\"type\":\"ELSE_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	if(this->children.size() == 0) {
 		ts::Instruction* noop = new ts::Instruction();
@@ -46,7 +46,7 @@ ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter, ts::Scope*
 	}
 	else {
 		for(Component* component: this->children) {
-			output.add(component->compile(interpreter, scope));
+			output.add(component->compile(interpreter, context));
 		}
 	}
 	return output;

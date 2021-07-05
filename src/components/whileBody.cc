@@ -45,7 +45,7 @@ string WhileBody::printJSON() {
 	return "{\"type\":\"WHILE_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	// final NOOP statement in while statement
@@ -53,7 +53,7 @@ ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Scope
 	noop->type = ts::instruction::NOOP;
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, scope);
+	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, context);
 	output.add(compiledConditional);
 
 	// add conditional jump
@@ -65,7 +65,18 @@ ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Scope
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, scope));
+		output.add(component->compile(interpreter, (ts::CompilationContext){
+			loop: this,
+			scope: context.scope,
+		}));
+	}
+
+	for(ts::InstructionReturn &compiled: this->breaks) {
+		compiled.first->jump.instruction = noop;
+	}
+
+	for(ts::InstructionReturn &compiled: this->continues) {
+		compiled.first->jump.instruction = compiledConditional.first;
 	}
 
 	// add jump to conditional

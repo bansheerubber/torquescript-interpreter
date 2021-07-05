@@ -147,10 +147,10 @@ ts::instruction::InstructionType AssignStatement::TypeToObjectOperator(TokenType
 	}
 }
 
-ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
-	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter, scope);
+	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter, context);
 	ts::Instruction* instruction = c.lastAccess;
 
 	// handle object accesses
@@ -205,7 +205,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		|| this->rvalue->getType() == NEW_STATEMENT
 		|| this->rvalue->getType() == PARENT_STATEMENT
 	) {
-		output.add(this->rvalue->compile(interpreter, scope));
+		output.add(this->rvalue->compile(interpreter, context));
 		instruction->localAssign.fromStack = true;
 	}
 

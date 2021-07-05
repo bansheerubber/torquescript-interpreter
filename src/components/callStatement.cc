@@ -92,11 +92,11 @@ size_t CallStatement::getElementCount() {
 }
 
 // upon compilation, push values of the variables
-ts::InstructionReturn CallStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn CallStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	for(CallElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile(interpreter, scope));
+			output.add(element.component->compile(interpreter, context));
 		}
 	}
 	return output;

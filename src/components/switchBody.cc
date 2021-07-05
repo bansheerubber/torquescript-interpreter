@@ -56,7 +56,7 @@ string SwitchBody::printJSON() {
 	return "{\"type\":\"SWITCH_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
 	return {};
 }

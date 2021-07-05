@@ -62,7 +62,7 @@ string ForBody::printJSON() {
 	return "{\"type\":\"FOR_STATEMENT\",\"initialization\":" + this->initialization->printJSON() + ",\"conditional\":" + this->conditional->printJSON() + ",\"increment\":" + this->increment->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in for statement
@@ -70,11 +70,14 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::Scope* 
 	noop->type = ts::instruction::NOOP;
 
 	// add variable initialization
-	output.add(this->initialization->compile(interpreter, scope));
+	output.add(this->initialization->compile(interpreter, context));
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, scope);
+	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, context);
 	output.add(compiledConditional);
+
+	// add increment
+	ts::InstructionReturn compiledIncrement = this->increment->compile(interpreter, context);
 
 	// add conditional jump
 	ts::Instruction* conditionalJump = new ts::Instruction();
@@ -85,11 +88,22 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::Scope* 
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, scope));
+		output.add(component->compile(interpreter, (ts::CompilationContext){
+			loop: this,
+			scope: context.scope,
+		}));
+	}
+
+	for(ts::InstructionReturn &compiled: this->breaks) {
+		compiled.first->jump.instruction = noop;
+	}
+
+	for(ts::InstructionReturn &compiled: this->continues) {
+		compiled.first->jump.instruction = compiledIncrement.first;
 	}
 
 	// add the increment
-	output.add(this->increment->compile(interpreter, scope));
+	output.add(compiledIncrement);
 
 	// add jump to conditional
 	ts::Instruction* jump = new ts::Instruction();

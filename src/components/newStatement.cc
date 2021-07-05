@@ -120,7 +120,7 @@ string NewStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	ts::Instruction* createObject = new ts::Instruction();
@@ -134,7 +134,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Sc
 		if(component->getType() == ASSIGN_STATEMENT) {
 			AssignStatement* assignStatement = (AssignStatement*)component;
 
-			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter, scope);
+			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter, context);
 			ts::Instruction* instruction = c.lastAccess;
 			
 			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
@@ -164,7 +164,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Sc
 				|| assignStatement->getRValue()->getType() == ASSIGN_STATEMENT
 				|| assignStatement->getRValue()->getType() == NEW_STATEMENT
 			) {
-				output.add(assignStatement->getRValue()->compile(interpreter, scope));
+				output.add(assignStatement->getRValue()->compile(interpreter, context));
 				instruction->objectAssign.fromStack = true;
 			}
 

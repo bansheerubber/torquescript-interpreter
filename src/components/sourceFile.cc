@@ -28,12 +28,15 @@ string SourceFile::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// compile source file
 	for(Component* child: this->children) {
-		ts::InstructionReturn compiled = child->compile(interpreter, this);
+		ts::InstructionReturn compiled = child->compile(interpreter, (ts::CompilationContext){
+			loop: nullptr,
+			scope: this,
+		});
 		if(compiled.first != nullptr) {
 			output.add(compiled);
 		}

@@ -63,7 +63,7 @@ class MathExpression : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
@@ -78,6 +78,6 @@ class MathExpression : public Component {
 		static ts::instruction::InstructionType TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::CompilationContext context);
 		vector<PostfixElement> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
 };

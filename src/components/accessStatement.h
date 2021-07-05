@@ -48,8 +48,8 @@ class AccessStatement : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
-		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter, ts::CompilationContext context);
 
 		string print();
 		string printJSON();

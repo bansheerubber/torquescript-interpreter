@@ -20,6 +20,6 @@ string Comment::printJSON() {
 	return "{\"type\":\"COMMENT_STATEMENT\",\"value\":\"" + this->comment + "\"}";
 }
 
-ts::InstructionReturn Comment::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
+ts::InstructionReturn Comment::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	return {};
 }

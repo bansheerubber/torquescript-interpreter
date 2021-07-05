@@ -216,18 +216,18 @@ size_t AccessStatement::getStackIndex(ts::Scope* scope) {
 	}
 }
 
-ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter, ts::Scope* scope) {
-	return this->compileAccess(interpreter, scope).output;
+ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+	return this->compileAccess(interpreter, context).output;
 }
 
 // create instructions that set up the stack for an array access/object property access instruction
-AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter, ts::Scope* scope) {
+AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	AccessStatementCompiled c;
 
 	auto iterator = this->elements.begin();
 
 	if(this->startsWithFunction()) { // compile a function call
-		c.output.add(this->elements[1].component->compile(interpreter, scope)); // push arguments
+		c.output.add(this->elements[1].component->compile(interpreter, context)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();
@@ -299,12 +299,12 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
-			c.output.add(element.component->compile(interpreter, scope));
+			c.output.add(element.component->compile(interpreter, context));
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
 				if(lastInstruction->type == ts::instruction::LOCAL_ACCESS && lastInstruction->localAccess.dimensions == 0) {
-					lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
+					lastInstruction->localAccess.stackIndex = context.scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
 				}
 				c.output.add(lastInstruction);
 			}
@@ -320,12 +320,12 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = instruction;
 		}
 		else if(element.component != nullptr && element.component->getType() == PARENT_STATEMENT) {
-			c.output.add(element.component->compile(interpreter, scope));
+			c.output.add(element.component->compile(interpreter, context));
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == CALL_STATEMENT) {
 			// at this point, the object should already be on the stack. no need to push it. push the args
-			c.output.add(element.component->compile(interpreter, scope));
+			c.output.add(element.component->compile(interpreter, context));
 
 			// push the amount of arguments we just found
 			ts::Instruction* pushArgumentCount = new ts::Instruction();
@@ -352,7 +352,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
-			c.output.add(element.component->compile(interpreter, scope));
+			c.output.add(element.component->compile(interpreter, context));
 			lastInstruction = nullptr;
 		}
 		count++;
@@ -360,7 +360,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 
 	if(lastInstruction != nullptr) {
 		if(lastInstruction->type == ts::instruction::LOCAL_ACCESS && lastInstruction->localAccess.dimensions == 0) {
-			lastInstruction->localAccess.stackIndex = scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
+			lastInstruction->localAccess.stackIndex = context.scope->allocateVariable(lastInstruction->localAccess.source).stackIndex;
 		}
 		c.output.add(lastInstruction);
 	}

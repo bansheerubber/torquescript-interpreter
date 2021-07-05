@@ -46,8 +46,8 @@ class ElseIfBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope);
-		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter, ts::Scope* scope);
+		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter, ts::CompilationContext context);
 
 		string print();
 		string printJSON();

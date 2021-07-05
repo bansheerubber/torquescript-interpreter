@@ -30,7 +30,7 @@ class Body : public Component {
 			return false;
 		}
 
-		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::Scope* scope) = 0;
+		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context) = 0;
 
 		string print() {
 			return "";
