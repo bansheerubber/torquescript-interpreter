@@ -51,4 +51,5 @@ class CaseBody : public Body {
 	
 	private:
 		vector<CaseElement> conditionals;
+		friend class SwitchBody;
 };

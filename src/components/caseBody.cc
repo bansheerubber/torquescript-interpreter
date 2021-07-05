@@ -78,6 +78,16 @@ string CaseBody::printJSON() {
 }
 
 ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
-	return {};
+	ts::InstructionReturn output;
+	for(Component* component: this->children) {
+		output.add(component->compile(interpreter, context));
+	}
+
+	if(output.first == nullptr) {
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::NOOP;
+		output.add(instruction);
+	}
+
+	return output;
 }
