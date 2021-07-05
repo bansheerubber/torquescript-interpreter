@@ -204,6 +204,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		|| this->rvalue->getType() == ASSIGN_STATEMENT
 		|| this->rvalue->getType() == NEW_STATEMENT
 		|| this->rvalue->getType() == PARENT_STATEMENT
+		|| this->rvalue->getType() == INLINE_CONDITIONAL
 	) {
 		output.add(this->rvalue->compile(interpreter, context));
 		instruction->localAssign.fromStack = true;

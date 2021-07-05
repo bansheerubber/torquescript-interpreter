@@ -39,6 +39,39 @@ string InlineConditional::printJSON() {
 }
 
 ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
-	return {};
+	ts::InstructionReturn output;
+
+	// final NOOP statement in inline statement
+	ts::Instruction* noop = new ts::Instruction();
+	noop->type = ts::instruction::NOOP;
+
+	// compile if true statement
+	ts::InstructionReturn ifTrue = this->ifTrue->compile(interpreter, context);
+
+	// compile if false statement
+	ts::InstructionReturn ifFalse = this->ifFalse->compile(interpreter, context);
+
+	// conditional statement for inline statement
+	ts::Instruction* conditionalJump = new ts::Instruction();
+	conditionalJump->type = ts::instruction::JUMP_IF_FALSE;
+	conditionalJump->jumpIfFalse.instruction = ifFalse.first;
+	conditionalJump->jumpIfFalse.pop = true;
+
+	output.add(this->leftHandSide->compile(interpreter, context));
+	output.add(conditionalJump);
+
+	output.add(ifTrue);
+
+	// add jump to end once we're done with true
+	ts::Instruction* jumpToEnd = new ts::Instruction();
+	jumpToEnd->type = ts::instruction::JUMP;
+	jumpToEnd->jump.instruction = noop;
+	output.add(jumpToEnd);
+
+	// add if false statement
+	output.add(ifFalse);
+
+	output.add(noop);
+
+	return output;
 }
