@@ -8,7 +8,7 @@ import sys
 total_lines = 0
 
 def write_file(filename, contents):
-	file = open(filename, "w")
+	file = open(filename, "w", encoding='utf-8')
 	for line in contents:
 		file.write(line)
 	file.close()
@@ -56,7 +56,7 @@ for root, subdirs, files in os.walk("./src"):
 		tmp_parent = tmp_file_object.parent
 
 		if extension == ".cc" or extension == ".h":
-			opened_file = open(file_object, "r")
+			opened_file = open(file_object, "r", encoding='utf-8')
 			file_contents = opened_file.readlines()
 			opened_file.close()
 			
