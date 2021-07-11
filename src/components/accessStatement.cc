@@ -245,7 +245,6 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		callFunction->callFunction.cachedNamespaceIndex = 0;
 		callFunction->callFunction.isCached = false;
 		callFunction->callFunction.isNamespaceCached = false;
-		callFunction->callFunction.isTSSL = false;
 		c.output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it

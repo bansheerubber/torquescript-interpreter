@@ -215,7 +215,6 @@ namespace ts {
 				size_t cachedNamespaceIndex;
 				bool isCached;
 				bool isNamespaceCached;
-				bool isTSSL;
 			} callFunction;
 
 			struct {

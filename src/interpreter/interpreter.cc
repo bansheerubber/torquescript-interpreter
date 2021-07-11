@@ -407,10 +407,6 @@ void Interpreter::interpret() {
 						instruction.callFunction.cachedIndex = this->nameToFunctionIndex[toLower(instruction.callFunction.name)];
 						instruction.callFunction.isCached = true;
 
-						if(this->functions[instruction.callFunction.cachedIndex]->isTSSL) {
-							instruction.callFunction.isTSSL = true;
-						}
-
 						found = true;
 					}
 				}

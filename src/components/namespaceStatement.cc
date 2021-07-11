@@ -88,7 +88,6 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		callFunction->callFunction.cachedNamespaceIndex = 0;
 		callFunction->callFunction.isCached = false;
 		callFunction->callFunction.isNamespaceCached = false;
-		callFunction->callFunction.isTSSL = false;
 		output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
