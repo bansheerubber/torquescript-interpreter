@@ -11,6 +11,7 @@
 #include "../io.h"
 #include "instruction.h"
 #include "instructionContainer.h"
+#include "methodTree.h"
 #include "../compiler/package.h"
 #include "packagedFunctionList.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
@@ -47,6 +48,7 @@ namespace ts {
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
 	void onFunctionFrameRealloc(Interpreter* interpreter);
 	void initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list);
+	void initMethodTree(Interpreter* interpreter, MethodTree** tree);
 	
 	class Interpreter {
 		public:
@@ -60,10 +62,11 @@ namespace ts {
 			void warning(const char* format, ...);
 
 			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
-			void addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
+			void defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void defineTSSLFunction(sl::Function* function);
 
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
+			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
 			Entry emptyEntry;
 
@@ -114,7 +117,11 @@ namespace ts {
 			robin_map<string, size_t> nameToFunctionIndex;
 			DynamicArray<PackagedFunctionList*, Interpreter> functions;
 
-			robin_map<string, size_t> namespaceToIndex;
-			vector<NamespaceFunctions*> namespaceFunctions;
+			robin_map<string, size_t> namespaceToMethodTreeIndex;
+			DynamicArray<MethodTree*, Interpreter> methodTrees;
+
+			// used to index into a method tree
+			robin_map<string, size_t> methodNameToIndex;
+			size_t currentMethodNameIndex = 0;
 	};
 }

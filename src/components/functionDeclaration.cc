@@ -144,7 +144,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 		if(this->name2 != nullptr) {
 			string nameSpace = this->name1->print();
 			string name = this->name2->print();
-			interpreter->addFunction(nameSpace, name, output, argumentCount, this->allocatedSize());
+			interpreter->defineMethod(nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();
@@ -153,7 +153,9 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 	}
 	else {
 		if(this->name2 != nullptr) {
-
+			string nameSpace = this->name1->print();
+			string name = this->name2->print();
+			interpreter->addPackageMethod(context.package, nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();

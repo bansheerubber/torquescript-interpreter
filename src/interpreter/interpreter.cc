@@ -33,12 +33,17 @@ void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList
 	*list = nullptr;
 }
 
+void ts::initMethodTree(Interpreter* interpreter, MethodTree** tree) {
+	*tree = nullptr;
+}
+
 Interpreter::Interpreter(ParsedArguments args) {
 	this->emptyEntry.setString(getEmptyString());
 
 	this->stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
 	this->frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
 	this->functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
+	this->methodTrees = DynamicArray<MethodTree*, Interpreter>(this, 1024, initMethodTree, nullptr);
 
 	for(sl::Function* function: sl::functions) {
 		this->defineTSSLFunction(function);
@@ -383,24 +388,19 @@ void Interpreter::interpret() {
 				bool found = false;
 				if(
 					instruction.callFunction.nameSpace.length() != 0
-					&& this->namespaceToIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToIndex.end()
+					&& this->namespaceToMethodTreeIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToMethodTreeIndex.end()
 				) {
-					/*int namespaceIndex = this->namespaceToIndex[toLower(instruction.callFunction.nameSpace)];
-					if(
-						this->namespaceFunctions[namespaceIndex]->nameToIndex.find(toLower(instruction.callFunction.name))
-							!= this->namespaceFunctions[namespaceIndex]->nameToIndex.end()
-					) {
-						instruction.callFunction.cachedIndex = this->namespaceFunctions[namespaceIndex]->nameToIndex[toLower(instruction.callFunction.name)];
+					size_t namespaceIndex = this->namespaceToMethodTreeIndex[toLower(instruction.callFunction.nameSpace)];
+					auto methodIndex = this->methodNameToIndex.find(toLower(instruction.callFunction.name));
+
+					if(methodIndex != this->methodNameToIndex.end()) {
+						instruction.callFunction.cachedIndex = methodIndex->second;
 						instruction.callFunction.cachedNamespaceIndex = namespaceIndex;
 						instruction.callFunction.isCached = true;
 						instruction.callFunction.isNamespaceCached = true;
 
-						if(this->namespaceFunctions[namespaceIndex]->functions[instruction.callFunction.cachedIndex]->isTSSL) {
-							instruction.callFunction.isTSSL = true;
-						}
-
 						found = true;
-					}*/
+					}
 				}
 				else { // find non-namespace function
 					if(this->nameToFunctionIndex.find(toLower(instruction.callFunction.name)) != this->nameToFunctionIndex.end()) {
@@ -435,12 +435,14 @@ void Interpreter::interpret() {
 			PackagedFunctionList* list;
 			int packagedFunctionListIndex = -1;
 			if(instruction.callFunction.isNamespaceCached) {
-				foundFunction = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex];
+				list = this->methodTrees[instruction.callFunction.cachedNamespaceIndex]->methodIndexToEntry[instruction.callFunction.cachedIndex]->list[0];
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[packagedFunctionListIndex];
 			}
 			else {
 				list = this->functions[instruction.callFunction.cachedIndex];
 				packagedFunctionListIndex = list->topValidIndex;
-				foundFunction = (*list)[list->topValidIndex];
+				foundFunction = (*list)[packagedFunctionListIndex];
 			}
 
 			## call_generator.py
@@ -474,13 +476,13 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			if(
+			/*if(
 				!instruction.createObject.isCached
 				&& this->namespaceToIndex.find(instruction.createObject.type) != this->namespaceToIndex.end()
 			) {
 				instruction.createObject.namespaceIndex = this->namespaceToIndex[instruction.createObject.type];
 				instruction.createObject.isCached = true;
-			}
+			}*/
 			
 			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.namespaceIndex);
 			this->push(new ObjectReference(object));
@@ -491,7 +493,7 @@ void Interpreter::interpret() {
 			printf("no calling objects\n");
 			exit(1);
 			
-			PackagedFunctionList* list;
+			/*PackagedFunctionList* list;
 			int packagedFunctionListIndex = -1;
 			Entry &numberOfArguments = this->stack[this->stack.head - 1];
 			int argumentCount = (int)numberOfArguments.numberData;
@@ -530,7 +532,7 @@ void Interpreter::interpret() {
 				}
 
 				this->push(this->emptyEntry);
-			}
+			}*/
 			
 			break;
 		}
@@ -598,25 +600,32 @@ void Interpreter::defineFunction(string &name, InstructionReturn output, size_t 
 	list->addInitialFunction(container);
 }
 
-void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
-	/*Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
+void Interpreter::defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
 
-	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
-		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();
-
-		// add to function data structure
-		NamespaceFunctions* functions = new NamespaceFunctions();
-		functions->nameToIndex[toLower(name)] = functions->functions.size();
-		functions->nameToFunction[toLower(name)] = container;
-		functions->functions.push_back(container);
-		this->namespaceFunctions.push_back(functions);
+	// define the method tree if we don't have one yet
+	MethodTree* tree;
+	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(toLower(nameSpace));
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
 	}
 	else {
-		NamespaceFunctions* functions = this->namespaceFunctions[this->namespaceToIndex[nameSpace]];
-		functions->nameToIndex[toLower(name)] = functions->functions.size();
-		functions->nameToFunction[toLower(name)] = container;
-		functions->functions.push_back(container);
-	}*/
+		tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(name)]];
+	}
+
+	// associate the method name with an index
+	size_t index = 0;
+	if(this->methodNameToIndex.find(toLower(name)) == this->methodNameToIndex.end()) {
+		this->methodNameToIndex[toLower(name)] = index = this->currentMethodNameIndex;
+		this->currentMethodNameIndex++;
+	}
+	else {
+		index = this->methodNameToIndex[toLower(name)];
+	}
+
+	tree->defineInitialMethod(name, index, container);
 }
 
 void Interpreter::addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
@@ -637,4 +646,40 @@ void Interpreter::addPackageFunction(Package* package, string &name, Instruction
 
 	// create the packaged function list
 	list->addPackageFunction(container);
+}
+
+void Interpreter::addPackageMethod(
+	Package* package,
+	string &nameSpace,
+	string &name,
+	InstructionReturn output,
+	size_t argumentCount,
+	size_t variableCount
+) {
+	// create the function container which we will use to execute the function at runtime
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
+	
+	// define the method tree if we don't have one yet
+	MethodTree* tree;
+	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(toLower(nameSpace));
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+	else {
+		tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(name)]];
+	}
+
+	// associate the method name with an index
+	size_t index = 0;
+	if(this->methodNameToIndex.find(toLower(name)) == this->methodNameToIndex.end()) {
+		this->methodNameToIndex[toLower(name)] = index = this->currentMethodNameIndex;
+		this->currentMethodNameIndex++;
+	}
+	else {
+		index = this->methodNameToIndex[toLower(name)];
+	}
+
+	tree->addPackageMethod(name, index, container);
 }
