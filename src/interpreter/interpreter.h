@@ -61,7 +61,7 @@ namespace ts {
 
 			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
-			void addTSSLFunction(sl::Function* function);
+			void defineTSSLFunction(sl::Function* function);
 
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 

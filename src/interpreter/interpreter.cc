@@ -36,17 +36,17 @@ void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList
 Interpreter::Interpreter(ParsedArguments args) {
 	this->emptyEntry.setString(getEmptyString());
 
+	this->stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
+	this->frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
+	this->functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
+
 	for(sl::Function* function: sl::functions) {
-		this->addTSSLFunction(function);
+		this->defineTSSLFunction(function);
 	}
 
 	if(args.arguments["no-warnings"] != "") {
 		this->warnings = false;
 	}
-
-	this->stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
-	this->frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
-	this->functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
 
 	this->globalContext = VariableContext(this);
 }
@@ -56,15 +56,28 @@ Interpreter::~Interpreter() {
 	free(this->frames.array);	
 }
 
-void Interpreter::addTSSLFunction(sl::Function* function) {
-	/*Function* container = new Function(function);
+void Interpreter::defineTSSLFunction(sl::Function* function) {
+	Function* container = new Function(function);
 	
 	if(function->nameSpace.length() == 0) {
-		this->nameToIndex[toLower(function->name)] = this->functions.size();
-		this->functions.push_back(container);
+		PackagedFunctionList* list;
+		if(this->nameToFunctionIndex.find(toLower(function->name)) == this->nameToFunctionIndex.end()) {
+			// add the function to the function-specific datastructure
+			this->nameToFunctionIndex[toLower(function->name)] = this->functions.head;
+			list = new PackagedFunctionList(function->name);
+			list->isTSSL = true;
+			this->functions[this->functions.head] = list;
+			this->functions.pushed();
+		}
+		else {
+			list = this->functions[this->nameToFunctionIndex[toLower(function->name)]];
+		}
+
+		// create the packaged function list
+		list->addPackageFunction(container);
 	}
 	else {
-		if(this->namespaceToIndex.find(toLower(function->nameSpace)) == this->namespaceToIndex.end()) {
+		/*if(this->namespaceToIndex.find(toLower(function->nameSpace)) == this->namespaceToIndex.end()) {
 			this->namespaceToIndex[toLower(function->nameSpace)] = this->namespaceFunctions.size();
 
 			// add to function data structure
@@ -79,8 +92,8 @@ void Interpreter::addTSSLFunction(sl::Function* function) {
 			functions->nameToIndex[toLower(function->name)] = functions->functions.size();
 			functions->nameToFunction[toLower(function->name)] = container;
 			functions->functions.push_back(container);
-		}
-	}*/
+		}*/
+	}
 }
 
 void Interpreter::pushInstructionContainer(
