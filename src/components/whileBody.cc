@@ -67,6 +67,7 @@ ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Compi
 	for(Component* component: this->children) {
 		output.add(component->compile(interpreter, (ts::CompilationContext){
 			loop: this,
+			package: nullptr,
 			scope: context.scope,
 		}));
 	}

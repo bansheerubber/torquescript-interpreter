@@ -29,6 +29,10 @@ void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 	interpreter->topContext = &frame.context;
 }
 
+void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list) {
+	*list = nullptr;
+}
+
 Interpreter::Interpreter(ParsedArguments args) {
 	this->emptyEntry.setString(getEmptyString());
 
@@ -40,8 +44,9 @@ Interpreter::Interpreter(ParsedArguments args) {
 		this->warnings = false;
 	}
 
-	this->stack = DynamicArray<Entry>(this, 10000, initEntry, nullptr);
-	this->frames = DynamicArray<FunctionFrame>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
+	this->stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
+	this->frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
+	this->functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
 
 	this->globalContext = VariableContext(this);
 }
@@ -52,7 +57,7 @@ Interpreter::~Interpreter() {
 }
 
 void Interpreter::addTSSLFunction(sl::Function* function) {
-	Function* container = new Function(function);
+	/*Function* container = new Function(function);
 	
 	if(function->nameSpace.length() == 0) {
 		this->nameToIndex[toLower(function->name)] = this->functions.size();
@@ -75,15 +80,23 @@ void Interpreter::addTSSLFunction(sl::Function* function) {
 			functions->nameToFunction[toLower(function->name)] = container;
 			functions->functions.push_back(container);
 		}
-	}
+	}*/
 }
 
-void Interpreter::pushInstructionContainer(InstructionContainer* container, size_t argumentCount, size_t popCount) {
+void Interpreter::pushInstructionContainer(
+	InstructionContainer* container,
+	PackagedFunctionList* list,
+	int packagedFunctionListIndex,
+	size_t argumentCount,
+	size_t popCount
+) {
 	FunctionFrame &frame = this->frames[this->frames.head];
 	frame.container = container;
 	frame.instructionPointer = 0;
 	frame.stackPointer = this->stack.head - argumentCount;
 	frame.stackPopCount = popCount;
+	frame.packagedFunctionList = list;
+	frame.packagedFunctionListIndex = packagedFunctionListIndex;
 
 	this->topContainer = frame.container;
 	this->instructionPointer = &frame.instructionPointer;
@@ -359,7 +372,7 @@ void Interpreter::interpret() {
 					instruction.callFunction.nameSpace.length() != 0
 					&& this->namespaceToIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToIndex.end()
 				) {
-					int namespaceIndex = this->namespaceToIndex[toLower(instruction.callFunction.nameSpace)];
+					/*int namespaceIndex = this->namespaceToIndex[toLower(instruction.callFunction.nameSpace)];
 					if(
 						this->namespaceFunctions[namespaceIndex]->nameToIndex.find(toLower(instruction.callFunction.name))
 							!= this->namespaceFunctions[namespaceIndex]->nameToIndex.end()
@@ -374,11 +387,11 @@ void Interpreter::interpret() {
 						}
 
 						found = true;
-					}
+					}*/
 				}
 				else { // find non-namespace function
-					if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
-						instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
+					if(this->nameToFunctionIndex.find(toLower(instruction.callFunction.name)) != this->nameToFunctionIndex.end()) {
+						instruction.callFunction.cachedIndex = this->nameToFunctionIndex[toLower(instruction.callFunction.name)];
 						instruction.callFunction.isCached = true;
 
 						if(this->functions[instruction.callFunction.cachedIndex]->isTSSL) {
@@ -406,11 +419,15 @@ void Interpreter::interpret() {
 			}
 
 			Function* foundFunction;
+			PackagedFunctionList* list;
+			int packagedFunctionListIndex = -1;
 			if(instruction.callFunction.isNamespaceCached) {
 				foundFunction = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex];
 			}
 			else {
-				foundFunction = this->functions[instruction.callFunction.cachedIndex];
+				list = this->functions[instruction.callFunction.cachedIndex];
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[list->topValidIndex];
 			}
 
 			## call_generator.py
@@ -458,6 +475,11 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CALL_OBJECT: {
+			printf("no calling objects\n");
+			exit(1);
+			
+			PackagedFunctionList* list;
+			int packagedFunctionListIndex = -1;
 			Entry &numberOfArguments = this->stack[this->stack.head - 1];
 			int argumentCount = (int)numberOfArguments.numberData;
 			
@@ -505,6 +527,23 @@ void Interpreter::interpret() {
 			break;
 		}
 
+		case instruction::CALL_PARENT: {
+			FunctionFrame &frame = this->frames[this->frames.head - 1];
+			PackagedFunctionList* list = frame.packagedFunctionList;
+			int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
+
+			if(packagedFunctionListIndex != -1) {
+				Function* foundFunction = (*list)[packagedFunctionListIndex];
+				## call_generator.py
+			}
+			else {
+				printError("failed to do parent\n");
+				exit(1);
+			}
+
+			break;
+		}
+
 		default: {
 			printf("DID NOT EXECUTE INSTRUCTION.\n");
 		}
@@ -526,14 +565,28 @@ void Interpreter::printStack() {
 	printf("\n");
 }
 
-void Interpreter::addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+void Interpreter::defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	// create the function container which we will use to execute the function at runtime
 	Function* container = new Function(output.first, argumentCount, variableCount, name);
-	this->nameToIndex[toLower(name)] = this->functions.size();
-	this->functions.push_back(container);
+	
+	PackagedFunctionList* list;
+	if(this->nameToFunctionIndex.find(toLower(name)) == this->nameToFunctionIndex.end()) {
+		// add the function to the function-specific datastructure
+		this->nameToFunctionIndex[toLower(name)] = this->functions.head;
+		list = new PackagedFunctionList(name);
+		this->functions[this->functions.head] = list;
+		this->functions.pushed();
+	}
+	else {
+		list = this->functions[this->nameToFunctionIndex[toLower(name)]];
+	}
+
+	// create the packaged function list
+	list->addInitialFunction(container);
 }
 
 void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
-	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
+	/*Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
 
 	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
 		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();
@@ -550,5 +603,25 @@ void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn
 		functions->nameToIndex[toLower(name)] = functions->functions.size();
 		functions->nameToFunction[toLower(name)] = container;
 		functions->functions.push_back(container);
+	}*/
+}
+
+void Interpreter::addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	// create the function container which we will use to execute the function at runtime
+	Function* container = new Function(output.first, argumentCount, variableCount, name);
+	
+	PackagedFunctionList* list;
+	if(this->nameToFunctionIndex.find(toLower(name)) == this->nameToFunctionIndex.end()) {
+		// add the function to the function-specific datastructure
+		this->nameToFunctionIndex[toLower(name)] = this->functions.head;
+		list = new PackagedFunctionList(name);
+		this->functions[this->functions.head] = list;
+		this->functions.pushed();
 	}
+	else {
+		list = this->functions[this->nameToFunctionIndex[toLower(name)]];
+	}
+
+	// create the packaged function list
+	list->addPackageFunction(container);
 }

@@ -17,6 +17,7 @@ structs = {
 	"globalAccess": ["GLOBAL_ACCESS"],
 	"createObject": ["CREATE_OBJECT"],
 	"callFunction": ["CALL_FUNCTION"],
+	"callParent": ["CALL_PARENT"],
 	"callObject": ["CALL_OBJECT"],
 	"objectAssign": get_assignment_instructions("OBJECT_ASSIGN"),
 	"objectAccess": ["OBJECT_ACCESS"],

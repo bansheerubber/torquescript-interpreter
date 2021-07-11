@@ -66,6 +66,7 @@ namespace ts {
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			GLOBAL_ACCESS,
 			CALL_FUNCTION, // call a globally scoped function
+			CALL_PARENT,
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
 			CREATE_OBJECT, // create an object
@@ -236,6 +237,12 @@ namespace ts {
 				string source;
 				size_t hash;
 			} linkVariable;
+
+			struct {
+				string name;
+				size_t cachedIndex;
+				bool isCached;
+			} callParent;
 		};
 
 		Instruction() {
