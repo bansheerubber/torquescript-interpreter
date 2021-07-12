@@ -472,25 +472,20 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			/*if(
+			if(
 				!instruction.createObject.isCached
-				&& this->namespaceToIndex.find(instruction.createObject.type) != this->namespaceToIndex.end()
+				&& this->namespaceToMethodTreeIndex.find(instruction.createObject.type) != this->namespaceToMethodTreeIndex.end()
 			) {
-				instruction.createObject.namespaceIndex = this->namespaceToIndex[instruction.createObject.type];
+				instruction.createObject.methodTreeIndex = this->namespaceToMethodTreeIndex[instruction.createObject.type];
 				instruction.createObject.isCached = true;
-			}*/
+			}
 			
-			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.namespaceIndex);
+			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
 			this->push(new ObjectReference(object));
 			break;
 		}
 
 		case instruction::CALL_OBJECT: {
-			printf("no calling objects\n");
-			exit(1);
-			
-			/*PackagedFunctionList* list;
-			int packagedFunctionListIndex = -1;
 			Entry &numberOfArguments = this->stack[this->stack.head - 1];
 			int argumentCount = (int)numberOfArguments.numberData;
 			
@@ -512,23 +507,38 @@ void Interpreter::interpret() {
 				break;
 			}
 
-			auto search = this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.find(toLower(instruction.callObject.name));
-			if(search != this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.end()) {
-				Function* foundFunction = search->second;
-				## call_generator.py
-			}
-			else {
-				this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
-
-				// pop arguments that we didn't use
-				Entry &numberOfArguments = this->stack[this->stack.head - 1];
-				int number = (int)numberOfArguments.numberData;
-				for(int i = 0; i < number + 1; i++) {
-					this->pop();
+			// cache the method entry pointer in the instruction
+			if(instruction.callObject.isCached == false) {
+				bool found = false;
+				auto methodNameIndex = this->methodNameToIndex.find(toLower(instruction.callObject.name));
+				if(methodNameIndex != this->methodNameToIndex.end()) {
+					auto methodEntry = this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+					if(methodEntry != this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.end()) {
+						instruction.callObject.cachedEntry = methodEntry->second;
+						instruction.callObject.isCached = true;
+						found = true;
+					}
 				}
+				
+				if(!found) {
+					this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
 
-				this->push(this->emptyEntry);
-			}*/
+					// pop arguments that we didn't use
+					Entry &numberOfArguments = this->stack[this->stack.head - 1];
+					int number = (int)numberOfArguments.numberData;
+					for(int i = 0; i < number + 1; i++) {
+						this->pop();
+					}
+
+					this->push(this->emptyEntry);
+				}
+			}
+
+			// look up the method in the method tree
+			PackagedFunctionList* list = instruction.callObject.cachedEntry->list[0];
+			size_t packagedFunctionListIndex = list->topValidIndex;
+			Function* foundFunction = (*list)[packagedFunctionListIndex];
+			## call_generator.py
 			
 			break;
 		}

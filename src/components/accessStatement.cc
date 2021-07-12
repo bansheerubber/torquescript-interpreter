@@ -338,6 +338,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::CALL_OBJECT;
 			new((void*)&instruction->callObject.name) string(lastInstruction->objectAccess.source); // TODO move this initialization elsewhere
+			instruction->callObject.cachedEntry = nullptr;
+			instruction->callObject.isCached = false;
 
 			c.output.add(instruction);
 

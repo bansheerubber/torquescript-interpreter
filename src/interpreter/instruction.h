@@ -219,11 +219,13 @@ namespace ts {
 
 			struct {
 				string name;
+				class MethodTreeEntry* cachedEntry;
+				bool isCached;
 			} callObject;
 
 			struct {
 				string type;
-				size_t namespaceIndex;
+				size_t methodTreeIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
 

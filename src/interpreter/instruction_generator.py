@@ -140,6 +140,8 @@ elif sys.argv[1] == "debug.cc":
 	}}""")
 			elif variable_type == "size_t" or variable_type == "relative_stack_location" or variable_type == "stack_location": # handle size_t
 				print(f'	printf("   {variable_name}: %ld,\\n", instruction.{struct}.{variable_name});')
+			elif variable_type[-1] == "*": # handle pointers
+				print(f'	printf("   {variable_name}: %p,\\n", instruction.{struct}.{variable_name});')
 			else: # handle everything else
 				print(f'	printf("   {variable_name}: %d,\\n", instruction.{struct}.{variable_name});')
 		
