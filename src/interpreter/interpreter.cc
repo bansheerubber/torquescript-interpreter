@@ -394,17 +394,18 @@ void Interpreter::interpret() {
 					auto methodIndex = this->methodNameToIndex.find(toLower(instruction.callFunction.name));
 
 					if(methodIndex != this->methodNameToIndex.end()) {
-						instruction.callFunction.cachedIndex = methodIndex->second;
-						instruction.callFunction.cachedNamespaceIndex = namespaceIndex;
-						instruction.callFunction.isCached = true;
-						instruction.callFunction.isNamespaceCached = true;
-
-						found = true;
+						auto methodEntry = this->methodTrees[namespaceIndex]->methodIndexToEntry.find(methodIndex->second);
+						if(methodEntry != this->methodTrees[namespaceIndex]->methodIndexToEntry.end()) {
+							instruction.callFunction.cachedEntry = methodEntry->second;
+							instruction.callFunction.isCached = true;
+							instruction.callFunction.isEntryCached = true;
+							found = true;
+						}
 					}
 				}
 				else { // find non-namespace function
 					if(this->nameToFunctionIndex.find(toLower(instruction.callFunction.name)) != this->nameToFunctionIndex.end()) {
-						instruction.callFunction.cachedIndex = this->nameToFunctionIndex[toLower(instruction.callFunction.name)];
+						instruction.callFunction.cachedFunctionList = this->functions[this->nameToFunctionIndex[toLower(instruction.callFunction.name)]];
 						instruction.callFunction.isCached = true;
 
 						found = true;
@@ -430,13 +431,13 @@ void Interpreter::interpret() {
 			Function* foundFunction;
 			PackagedFunctionList* list;
 			int packagedFunctionListIndex = -1;
-			if(instruction.callFunction.isNamespaceCached) {
-				list = this->methodTrees[instruction.callFunction.cachedNamespaceIndex]->methodIndexToEntry[instruction.callFunction.cachedIndex]->list[0];
+			if(instruction.callFunction.isEntryCached) {
+				list = instruction.callFunction.cachedEntry->list[0];
 				packagedFunctionListIndex = list->topValidIndex;
 				foundFunction = (*list)[packagedFunctionListIndex];
 			}
 			else {
-				list = this->functions[instruction.callFunction.cachedIndex];
+				list = instruction.callFunction.cachedFunctionList;
 				packagedFunctionListIndex = list->topValidIndex;
 				foundFunction = (*list)[packagedFunctionListIndex];
 			}
@@ -531,6 +532,7 @@ void Interpreter::interpret() {
 					}
 
 					this->push(this->emptyEntry);
+					break;
 				}
 			}
 

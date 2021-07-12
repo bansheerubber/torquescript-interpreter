@@ -208,13 +208,11 @@ namespace ts {
 
 			struct {
 				string name;
-				// cache the index when we lookup the name of the function at runtime
-				// (hashing an int during runtime is probably faster than hashing a string)
-				size_t cachedIndex;
 				string nameSpace;
-				size_t cachedNamespaceIndex;
+				class PackagedFunctionList* cachedFunctionList;
+				class MethodTreeEntry* cachedEntry;
 				bool isCached;
-				bool isNamespaceCached;
+				bool isEntryCached;
 			} callFunction;
 
 			struct {

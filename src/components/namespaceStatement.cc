@@ -84,10 +84,10 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		new((void*)&callFunction->callFunction.name) string(this->operation->print()); // TODO move this initialization elsewhere
 		new((void*)&callFunction->callFunction.nameSpace) string(this->name->print()); // TODO move this initialization elsewhere
-		callFunction->callFunction.cachedIndex = 0;
-		callFunction->callFunction.cachedNamespaceIndex = 0;
+		callFunction->callFunction.cachedFunctionList = nullptr;
+		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isNamespaceCached = false;
+		callFunction->callFunction.isEntryCached = false;
 		output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
