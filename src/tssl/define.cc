@@ -8,6 +8,7 @@
 #include "math.h"
 #include "../interpreter/methodTree.h"
 #include "scriptObject.h"
+#include "simObject.h"
 
 using namespace ts::sl;
 
@@ -96,6 +97,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(type::NUMBER, &mLog, "mLog", 1, n));
 	functions.push_back(FUNC_DEF(type::STRING, &mFloatLength, "mFloatLength", 2, n));
 
+	functions.push_back(FUNC_DEF(type::VOID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(type::VOID, &ScriptObject__test, "ScriptObject", "test", 2, os));
 
 	for(ts::sl::Function* function: functions) {

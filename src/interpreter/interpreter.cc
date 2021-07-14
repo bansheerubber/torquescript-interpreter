@@ -64,7 +64,6 @@ void Interpreter::defineTSSLMethodTree(MethodTree* tree) {
 	string nameSpace = tree->name;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(toLower(nameSpace));
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -548,6 +547,7 @@ void Interpreter::interpret() {
 
 			// look up the method in the method tree
 			PackagedFunctionList* list = instruction.callObject.cachedEntry->list[0];
+			printf("%ld\n", instruction.callObject.cachedEntry->list.head);
 			size_t packagedFunctionListIndex = list->topValidIndex;
 			Function* foundFunction = (*list)[packagedFunctionListIndex];
 			## call_generator.py
