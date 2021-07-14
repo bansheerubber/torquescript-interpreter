@@ -89,5 +89,5 @@ if(foundFunction->isTSSL) {
 }
 else {
 	int numberOfArguments = (int)this->stack[this->stack.head - 1].numberData;
-	this->pushInstructionContainer(foundFunction, list, packagedFunctionListIndex, numberOfArguments + 1, foundFunction->variableCount);
+	this->pushInstructionContainer(foundFunction, list, packagedFunctionListIndex, methodTreeEntry, methodTreeEntryIndex, numberOfArguments + 1, foundFunction->variableCount);
 }

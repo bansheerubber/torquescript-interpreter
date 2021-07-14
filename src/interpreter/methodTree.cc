@@ -68,7 +68,7 @@ void MethodTree::addPackageMethod(string name, size_t nameIndex, Function* conta
 void MethodTree::updateMethodTree(string methodName, size_t methodNameIndex) {
 	vector<PackagedFunctionList*> list = this->buildMethodTreeEntryForParents(methodName, methodNameIndex);
 	MethodTreeEntry* entry = this->methodIndexToEntry[methodNameIndex];
-	entry->list.head = 1;
+	entry->list.head = entry->list[0] == nullptr ? 1 : 0;
 	for(PackagedFunctionList* functionList: list) {
 		entry->list[entry->list.head] = functionList;
 		entry->list.pushed();

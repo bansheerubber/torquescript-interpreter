@@ -110,6 +110,8 @@ void Interpreter::pushInstructionContainer(
 	InstructionContainer* container,
 	PackagedFunctionList* list,
 	int packagedFunctionListIndex,
+	MethodTreeEntry* methodTreeEntry,
+	int methodTreeEntryIndex,
 	size_t argumentCount,
 	size_t popCount
 ) {
@@ -120,6 +122,8 @@ void Interpreter::pushInstructionContainer(
 	frame.stackPopCount = popCount;
 	frame.packagedFunctionList = list;
 	frame.packagedFunctionListIndex = packagedFunctionListIndex;
+	frame.methodTreeEntry = methodTreeEntry;
+	frame.methodTreeEntryIndex = methodTreeEntryIndex;
 
 	this->topContainer = frame.container;
 	this->instructionPointer = &frame.instructionPointer;
@@ -436,6 +440,8 @@ void Interpreter::interpret() {
 			Function* foundFunction;
 			PackagedFunctionList* list;
 			int packagedFunctionListIndex = -1;
+			MethodTreeEntry* methodTreeEntry = nullptr;
+			int methodTreeEntryIndex = -1;
 			if(instruction.callFunction.isEntryCached) {
 				list = instruction.callFunction.cachedEntry->list[0];
 				packagedFunctionListIndex = list->topValidIndex;
@@ -546,8 +552,9 @@ void Interpreter::interpret() {
 			}
 
 			// look up the method in the method tree
-			PackagedFunctionList* list = instruction.callObject.cachedEntry->list[0];
-			printf("%ld\n", instruction.callObject.cachedEntry->list.head);
+			MethodTreeEntry* methodTreeEntry = instruction.callObject.cachedEntry;
+			int methodTreeEntryIndex = instruction.callObject.cachedEntry->hasInitialMethod ? 0 : 1;
+			PackagedFunctionList* list = methodTreeEntry->list[methodTreeEntryIndex];
 			size_t packagedFunctionListIndex = list->topValidIndex;
 			Function* foundFunction = (*list)[packagedFunctionListIndex];
 			## call_generator.py
@@ -562,10 +569,26 @@ void Interpreter::interpret() {
 
 		case instruction::CALL_PARENT: {
 			FunctionFrame &frame = this->frames[this->frames.head - 1];
+			MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
+			int methodTreeEntryIndex = frame.methodTreeEntryIndex;
 			PackagedFunctionList* list = frame.packagedFunctionList;
 			int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
 
-			if(packagedFunctionListIndex != -1) {
+			if(packagedFunctionListIndex == -1 && methodTreeEntry != nullptr) { // walk the method tree
+				methodTreeEntryIndex++;
+				if((size_t)methodTreeEntryIndex < methodTreeEntry->list.head) {
+					list = methodTreeEntry->list[methodTreeEntryIndex];
+					packagedFunctionListIndex = list->topValidIndex;
+
+					Function* foundFunction = (*list)[packagedFunctionListIndex];
+					## call_generator.py
+				}
+				else {
+					printError("failed to do method tree parent\n");
+					exit(1);
+				}
+			}
+			else if(packagedFunctionListIndex != -1) {
 				Function* foundFunction = (*list)[packagedFunctionListIndex];
 				## call_generator.py
 			}

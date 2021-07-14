@@ -43,6 +43,8 @@ namespace ts {
 		size_t stackPopCount;
 		PackagedFunctionList* packagedFunctionList;
 		int packagedFunctionListIndex;
+		MethodTreeEntry* methodTreeEntry;
+		int methodTreeEntryIndex;
 	};
 
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
@@ -107,6 +109,8 @@ namespace ts {
 				InstructionContainer* container,
 				PackagedFunctionList* list = nullptr,
 				int packagedFunctionListIndex = -1,
+				MethodTreeEntry* methodTreeEntry = nullptr,
+				int methodTreeEntryIndex = -1,
 				size_t argumentCount = 0,
 				size_t popCount = 0
 			);
