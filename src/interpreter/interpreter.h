@@ -45,6 +45,7 @@ namespace ts {
 		int packagedFunctionListIndex;
 		MethodTreeEntry* methodTreeEntry;
 		int methodTreeEntryIndex;
+		bool isTSSL;
 	};
 
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
@@ -105,7 +106,7 @@ namespace ts {
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 			friend VariableContext;
 
-			void pushInstructionContainer(
+			void pushFunctionFrame(
 				InstructionContainer* container,
 				PackagedFunctionList* list = nullptr,
 				int packagedFunctionListIndex = -1,
@@ -114,7 +115,8 @@ namespace ts {
 				size_t argumentCount = 0,
 				size_t popCount = 0
 			);
-			void popInstructionContainer();
+			void popFunctionFrame();
+			void pushTSSLFunctionFrame();
 
 			// function datastructures
 			// robin_map<string, size_t> nameToIndex;

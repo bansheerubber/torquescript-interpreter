@@ -106,7 +106,7 @@ void Interpreter::defineTSSLFunction(sl::Function* function) {
 	}
 }
 
-void Interpreter::pushInstructionContainer(
+void Interpreter::pushFunctionFrame(
 	InstructionContainer* container,
 	PackagedFunctionList* list,
 	int packagedFunctionListIndex,
@@ -124,6 +124,7 @@ void Interpreter::pushInstructionContainer(
 	frame.packagedFunctionListIndex = packagedFunctionListIndex;
 	frame.methodTreeEntry = methodTreeEntry;
 	frame.methodTreeEntryIndex = methodTreeEntryIndex;
+	frame.isTSSL = false;
 
 	this->topContainer = frame.container;
 	this->instructionPointer = &frame.instructionPointer;
@@ -133,7 +134,7 @@ void Interpreter::pushInstructionContainer(
 	this->frames.pushed();
 }
 
-void Interpreter::popInstructionContainer() {
+void Interpreter::popFunctionFrame() {
 	this->frames.popped();
 
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
@@ -145,6 +146,13 @@ void Interpreter::popInstructionContainer() {
 	for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
 		this->pop();
 	}
+}
+
+void Interpreter::pushTSSLFunctionFrame() {
+	FunctionFrame &frame = this->frames[this->frames.head];
+	frame.isTSSL = true;
+	frame.stackPopCount = 0;
+	this->frames.pushed();
 }
 
 // push an entry onto the stack
@@ -184,7 +192,7 @@ void Interpreter::pop() {
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
-	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
+	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
 	this->interpret();
 }
@@ -461,7 +469,7 @@ void Interpreter::interpret() {
 		case instruction::RETURN: { // return from a function
 			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
 			this->pop(); // pop return value
-			this->popInstructionContainer();
+			this->popFunctionFrame();
 			this->push(this->returnRegister); // push return register
 			break;
 		}
