@@ -5,8 +5,10 @@
 using namespace std;
 
 namespace ts {
+	class Interpreter;
+	
 	namespace sl {
-		void* echo(size_t argc, void** args);
+		void* echo(Interpreter* interpreter, size_t argc, void** args);
 
 		extern string mockStdout;
 		extern bool useMockStdout;

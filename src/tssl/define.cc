@@ -104,3 +104,7 @@ void ts::sl::define(Interpreter* interpreter) {
 		interpreter->defineTSSLFunction(function);
 	}
 }
+
+void ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv) {
+	printf("%s %ld\n", methodName, argc);
+}

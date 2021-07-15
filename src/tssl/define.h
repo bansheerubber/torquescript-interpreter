@@ -8,12 +8,12 @@
 
 using namespace std;
 
-#define TS_FUNC(name)		void* (*name)(size_t argc, void** args)
-#define TS_ARG_COUNT		16
-
 namespace ts {
 	class MethodTree;
 	class Interpreter;
+
+	#define TS_FUNC(name)		void* (*name)(Interpreter* interpreter, size_t argc, void** args)
+	#define TS_ARG_COUNT		16
 	
 	namespace sl {
 		// types for working with the C++ <-> TS interface
@@ -43,6 +43,8 @@ namespace ts {
 		ts::sl::Function* FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, type* argumentTypes);
 
 		MethodTree* NAMESPACE_DEF(const char* name);
+
+		void PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv);
 		
 		void define(Interpreter* interpreter);
 	}

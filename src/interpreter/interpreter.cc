@@ -148,10 +148,12 @@ void Interpreter::popFunctionFrame() {
 	}
 }
 
-void Interpreter::pushTSSLFunctionFrame() {
+void Interpreter::pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex) {
 	FunctionFrame &frame = this->frames[this->frames.head];
 	frame.isTSSL = true;
 	frame.stackPopCount = 0;
+	frame.methodTreeEntry = methodTreeEntry;
+	frame.methodTreeEntryIndex = methodTreeEntryIndex;
 	this->frames.pushed();
 }
 

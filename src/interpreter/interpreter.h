@@ -116,7 +116,7 @@ namespace ts {
 				size_t popCount = 0
 			);
 			void popFunctionFrame();
-			void pushTSSLFunctionFrame();
+			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
 			// function datastructures
 			// robin_map<string, size_t> nameToIndex;
