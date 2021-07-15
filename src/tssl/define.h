@@ -44,7 +44,7 @@ namespace ts {
 
 		MethodTree* NAMESPACE_DEF(const char* name);
 
-		void PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv);
+		void* PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv, sl::type* argumentTypes);
 		
 		void define(Interpreter* interpreter);
 	}

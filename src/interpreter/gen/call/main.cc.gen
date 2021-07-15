@@ -91,5 +91,13 @@ if(foundFunction->isTSSL) {
 }
 else {
 	int numberOfArguments = (int)this->stack[this->stack.head - 1].numberData;
-	this->pushFunctionFrame(foundFunction, list, packagedFunctionListIndex, methodTreeEntry, methodTreeEntryIndex, numberOfArguments + 1, foundFunction->variableCount);
+	this->pushFunctionFrame(
+		foundFunction,
+		list,
+		packagedFunctionListIndex,
+		methodTreeEntry,
+		methodTreeEntryIndex,
+		numberOfArguments + 1,
+		foundFunction->variableCount
+	);
 }

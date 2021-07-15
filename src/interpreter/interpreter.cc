@@ -1,8 +1,9 @@
 #include "interpreter.h"
 
-#include "entry.h"
+#include "../util/cloneString.h"
 #include "debug.h"
 #include "../tssl/define.h"
+#include "entry.h"
 #include "../util/getEmptyString.h"
 #include "object.h"
 #include "../util/numberToString.h"
@@ -197,6 +198,72 @@ void Interpreter::startInterpretation(Instruction* head) {
 	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
 	this->interpret();
+}
+
+void* Interpreter::handleTSSLParent(string &name, size_t argc, void** argv, sl::type* argumentTypes) {
+	FunctionFrame &frame = this->frames[this->frames.head - 1];
+	MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
+	int methodTreeEntryIndex = frame.methodTreeEntryIndex + 1; // always go up in the method tree
+	PackagedFunctionList* list = frame.packagedFunctionList;
+	int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
+
+	if((size_t)methodTreeEntryIndex < methodTreeEntry->list.head) {
+		list = methodTreeEntry->list[methodTreeEntryIndex];
+		packagedFunctionListIndex = list->topValidIndex;
+
+		Function* foundFunction = (*list)[packagedFunctionListIndex];
+		if(foundFunction->isTSSL) {
+			sl::Function* function = foundFunction->function;
+			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+			void* returnValue = function->function(this, argc, argv);
+			this->popFunctionFrame();
+			return returnValue;
+		}
+		else {
+			// push arguments onto the stack
+			for(size_t i = 0; i < argc; i++) {
+				if(argumentTypes[i] == sl::type::STRING) {
+					this->push(cloneString((char*)argv[i]));
+				}
+				else if(argumentTypes[i] == sl::type::NUMBER) {
+					this->push(*((double*)argv[i]));
+				}
+				else if(argumentTypes[i] == sl::type::OBJECT) {
+					this->push(*((size_t*)argv[i]));
+				}
+			}
+
+			this->push((double)argc);
+			
+			int numberOfArguments = (int)this->stack[this->stack.head - 1].numberData;
+			this->pushFunctionFrame(
+				foundFunction,
+				list,
+				packagedFunctionListIndex,
+				methodTreeEntry,
+				methodTreeEntryIndex,
+				numberOfArguments + 1,
+				foundFunction->variableCount
+			);
+			this->interpret();
+
+			// convert the return type and return that
+			if(this->returnRegister.type == entry::STRING) {
+				return cloneString(this->returnRegister.stringData);
+			}
+			else if(this->returnRegister.type == entry::NUMBER) {
+				return new double(this->returnRegister.numberData);
+			}
+			else { // push void return value
+				return getEmptyString();
+			}
+		}
+	}
+	else {
+		printf("could not call parent\n");
+	}
+
+	return nullptr;
 }
 
 void Interpreter::warning(const char* format, ...) {
@@ -472,6 +539,13 @@ void Interpreter::interpret() {
 			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
 			this->pop(); // pop return value
 			this->popFunctionFrame();
+
+			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
+			// here so the original TSSL method can take over
+			if(this->frames[this->frames.head - 1].isTSSL) {
+				return;
+			}
+
 			this->push(this->returnRegister); // push return register
 			break;
 		}

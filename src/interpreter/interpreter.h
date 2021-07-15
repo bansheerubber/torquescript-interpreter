@@ -118,9 +118,10 @@ namespace ts {
 			void popFunctionFrame();
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
-			// function datastructures
-			// robin_map<string, size_t> nameToIndex;
-			// vector<Function*> functions;
+			friend void* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv, sl::type* argumentTypes);
+			void* handleTSSLParent(string &name, size_t argc, void** argv, sl::type* argumentTypes);
+
+			// function data structures
 			robin_map<string, size_t> nameToFunctionIndex;
 			DynamicArray<PackagedFunctionList*, Interpreter> functions;
 
