@@ -2,11 +2,12 @@ if(foundFunction->isTSSL) {
 	sl::Function* function = foundFunction->function;
 
 	// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
-	size_t actualArgumentCount = (size_t)this->stack[this->stack.head - 1].numberData; // get the amount of arguments used in the program
+	size_t head = this->stack.head;
+	size_t actualArgumentCount = (size_t)this->stack[head - 1].numberData; // get the amount of arguments used in the program
 	Entry* argv = new Entry[actualArgumentCount];
 	for(size_t i = 0; i < actualArgumentCount; i++) {
 		if(i < actualArgumentCount) {
-			relative_stack_location location = this->stack.head - 1 - (actualArgumentCount - i);
+			relative_stack_location location = head - 1 - (actualArgumentCount - i);
 			copyEntry(this->stack[location], argv[i]);
 			if(i < function->argumentCount) {
 				convertToType(argv[i], function->argumentTypes[i]);
