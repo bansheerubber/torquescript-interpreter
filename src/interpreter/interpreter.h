@@ -114,8 +114,8 @@ namespace ts {
 				int methodTreeEntryIndex = -1,
 				size_t argumentCount = 0,
 				size_t popCount = 0
-			);
-			void popFunctionFrame();
+			) __attribute__((always_inline));
+			void popFunctionFrame() __attribute__((always_inline));
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
 			friend Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
