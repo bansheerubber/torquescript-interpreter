@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include "../interpreter/entry.h"
+
 using namespace std;
 
 // *Word(s) function implementations
@@ -9,12 +11,12 @@ namespace ts {
 	class Interpreter;
 
 	namespace sl {
-		void* firstWord(Interpreter* interpreter, size_t argc, void** args);
-		void* restWords(Interpreter* interpreter, size_t argc, void** args);
-		void* getWord(Interpreter* interpreter, size_t argc, void** args);
-		void* getWords(Interpreter* interpreter, size_t argc, void** args);
-		void* getWordCount(Interpreter* interpreter, size_t argc, void** args);
-		void* removeWord(Interpreter* interpreter, size_t argc, void** args);
-		void* setWord(Interpreter* interpreter, size_t argc, void** args);
+		Entry* firstWord(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* restWords(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* getWord(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* getWords(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* getWordCount(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* removeWord(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* setWord(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

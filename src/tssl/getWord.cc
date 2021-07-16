@@ -10,9 +10,9 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		void* firstWord(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* firstWord(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 1) {
-				const char* words = (const char*)args[0];
+				const char* words = args[0].stringData;
 				string first;
 				for(; *words; words++) {
 					char character = *words;
@@ -21,15 +21,15 @@ namespace ts {
 					}
 					first += character;
 				}
-				return stringToChars(first);
+				return new Entry(stringToChars(first));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 
-		void* restWords(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* restWords(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 1) {
-				const char* words = (const char*)args[0];
+				const char* words = args[0].stringData;
 				string rest;
 				bool copyDown = false;
 				for(; *words; words++) {
@@ -43,16 +43,16 @@ namespace ts {
 						copyDown = true;
 					}
 				}
-				return stringToChars(rest);
+				return new Entry(stringToChars(rest));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 
-		void* getWord(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* getWord(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 2) {
-				const char* words = (const char*)args[0];
-				int count = *((double*)args[1]);
+				const char* words = args[0].stringData;
+				int count = args[1].numberData;
 				string word;
 				int spaceCount = 0;
 				for(; *words; words++) {
@@ -64,24 +64,24 @@ namespace ts {
 						word += character;
 					}
 				}
-				return stringToChars(word);
+				return new Entry(stringToChars(word));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 
-		void* getWords(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* getWords(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 2) {
-				const char* words = (const char*)args[0];
-				int startCount = *((double*)args[1]);
+				const char* words = args[0].stringData;
+				int startCount = args[1].numberData;
 
 				if(startCount < 0) {
-					return getEmptyString();
+					return nullptr;
 				}
 
 				int endCount = -1;
 				if(argc >= 3) {
-					endCount = *((double*)args[2]);
+					endCount = args[2].numberData;
 				}
 				
 				string output;
@@ -98,39 +98,39 @@ namespace ts {
 						output += character;
 					}
 				}
-				return stringToChars(output);
+				return new Entry(stringToChars(output));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 
-		void* getWordCount(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* getWordCount(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				const char* words = (const char*)args[0];
-				double* count = new double(0);
+				const char* words = args[0].stringData;
+				double count = 0;
 
 				bool foundLast = false;
 				for(; *words; words++) {
 					char character = *words;
 					if(character == ' ' || character == '\t' || character == '\n') {
-						(*count)++;
+						count++;
 						foundLast = false;
 					}
 					else {
 						foundLast = true;
 					}
 				}
-				*count += foundLast;
-				return count;
+				count += foundLast;
+				return new Entry((double)count);
 			}
 
-			return new double(0);
+			return new Entry((double)0);
 		}
 
-		void* removeWord(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* removeWord(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 2) {
-				const char* words = (const char*)args[0];
-				int count = *((double*)args[1]);
+				const char* words = args[0].stringData;
+				int count = args[1].numberData;
 				string output;
 				string currentWord;
 
@@ -158,20 +158,20 @@ namespace ts {
 
 				// for some reason torquescript returns the last word if count > final space count
 				if(count > spaceCount) {
-					return stringToChars(currentWord);
+					return new Entry(stringToChars(currentWord));
 				}
 
-				return stringToChars(output);
+				return new Entry(stringToChars(output));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 
-		void* setWord(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* setWord(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 3) {
-				const char* words = (const char*)args[0];
-				int count = *((double*)args[1]);
-				const char* replace = (const char*)args[2];
+				const char* words = args[0].stringData;
+				int count = args[1].numberData;
+				const char* replace = args[2].stringData;
 				string output;
 				int spaceCount = 0;
 				bool replaced = false;
@@ -203,10 +203,10 @@ namespace ts {
 					output += replace;
 				}
 
-				return stringToChars(output);
+				return new Entry(stringToChars(output));
 			}
 
-			return getEmptyString();
+			return nullptr;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../interpreter/entry.h"
 #include "../interpreter/object.h"
 
 namespace ts {
@@ -10,6 +11,6 @@ namespace ts {
 
 		};
 
-		void* SimObject__test(Interpreter* interpreter, size_t argc, void** args);
+		Entry* SimObject__test(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

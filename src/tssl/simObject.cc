@@ -4,10 +4,10 @@
 
 namespace ts {
 	namespace sl {
-		void* SimObject__test(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* SimObject__test(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 2) {
 				printf("attemtping print because argc high\n");
-				printf("sim object says: %s\n", ((const char*)args[1]));
+				printf("sim object says: %s\n", args[1].stringData);
 			}
 			return nullptr;
 		}

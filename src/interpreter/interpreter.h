@@ -118,8 +118,8 @@ namespace ts {
 			void popFunctionFrame();
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
-			friend void* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv, sl::type* argumentTypes);
-			void* handleTSSLParent(string &name, size_t argc, void** argv, sl::type* argumentTypes);
+			friend Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+			Entry* handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 
 			// function data structures
 			robin_map<string, size_t> nameToFunctionIndex;

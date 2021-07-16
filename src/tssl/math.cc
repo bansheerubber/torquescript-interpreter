@@ -17,119 +17,119 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		void* mAbs(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mAbs(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				double number = *((double*)args[0]);
+				double number = args[0].numberData;
 				if(number < 0) {
-					return new double(-number);
+					return new Entry(-number);
 				}
 				else {
-					return new double(number);
+					return new Entry(number);
 				}
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mACos(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mACos(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(acos(*((double*)args[0])));
+				return new Entry(acos(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mASin(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mASin(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(asin(*((double*)args[0])));
+				return new Entry(asin(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mATan(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mATan(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 2) {
-				return new double(atan2(*((double*)args[0]), *((double*)args[1])));
+				return new Entry(atan2(args[0].numberData, args[1].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mCeil(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mCeil(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(ceil(*((double*)args[0])));
+				return new Entry(ceil(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mFloor(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mFloor(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				double number = *((double*)args[0]);
+				double number = args[0].numberData;
 				if(number < 0) {
-					return new double((int)(number - 1));
+					return new Entry((int)(number - 1));
 				}
 				else {
-					return new double((int)number);
+					return new Entry((int)number);
 				}
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mCos(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mCos(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(cos(*((double*)args[0])));
+				return new Entry(cos(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mSin(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mSin(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(sin(*((double*)args[0])));
+				return new Entry(sin(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mTan(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mTan(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(tan(*((double*)args[0])));
+				return new Entry(tan(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mPow(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mPow(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 2) {
-				return new double(pow(*((double*)args[0]), *((double*)args[1])));
+				return new Entry(pow(args[0].numberData, args[1].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mSqrt(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mSqrt(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(sqrt(*((double*)args[0])));
+				return new Entry(sqrt(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mDegToRad(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mDegToRad(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(*((double*)args[0]) * M_PI / 180.0);
+				return new Entry(args[0].numberData * M_PI / 180.0);
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mRadToDeg(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mRadToDeg(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(*((double*)args[0]) * 180.0 / M_PI);
+				return new Entry(args[0].numberData * 180.0 / M_PI);
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mLog(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mLog(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				return new double(log(*((double*)args[0])));
+				return new Entry(log(args[0].numberData));
 			}
-			return new double(0.0);
+			return new Entry(0.0);
 		}
 
-		void* mFloatLength(Interpreter* interpreter, size_t argc, void** args) {
+		Entry* mFloatLength(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 2) {
-				int precision = (int)(*((double*)args[1]));
+				int precision = (int)args[1].numberData;
 				if(precision < 0) {
 					precision = 0;
 				}
@@ -140,10 +140,10 @@ namespace ts {
 				string formatter("{:.");
 				formatter += std::to_string(precision);
 				formatter += "f}";
-				string formatted(fmt::format(formatter, *((double*)args[0])));
-				return stringToChars(formatted);
+				string formatted(fmt::format(formatter, args[0].numberData));
+				return new Entry(stringToChars(formatted));
 			}
-			return getEmptyString();
+			return nullptr;
 		}
 	}
 }

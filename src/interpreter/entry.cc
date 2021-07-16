@@ -1,6 +1,10 @@
 #include "entry.h"
-#include "object.h"
+
 #include "../util/cloneString.h"
+#include "../util/getEmptyString.h"
+#include "../util/numberToString.h"
+#include "object.h"
+#include "../util/stringToNumber.h"
 
 using namespace ts;
 
@@ -31,6 +35,21 @@ Entry::Entry(Entry* copy) {
 			break;
 		}
 	}
+}
+
+Entry::Entry(double value) {
+	this->type = entry::NUMBER;
+	this->numberData = value;
+}
+
+Entry::Entry(char* value) {
+	this->type = entry::STRING;
+	this->stringData = value;
+}
+
+Entry::Entry(ObjectReference* value) {
+	this->type = entry::OBJECT;
+	this->objectData = value;
 }
 
 Entry::~Entry() {
@@ -120,6 +139,83 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 
 		case entry::OBJECT: {
 			destination.objectData = source.objectData;
+			break;
+		}
+	}
+}
+
+void ts::convertToType(Entry &source, entry::EntryType type) {
+	if(source.type == type) {
+		return;
+	}
+	
+	switch(source.type) {
+		case entry::INVALID: {
+			break;
+		}
+
+		case entry::NUMBER: {
+			source.type = type;
+			switch(type) {
+				case entry::STRING: {
+					source.stringData = numberToString(source.numberData);
+					break;
+				}
+
+				case entry::OBJECT: {
+					printf("cannot convert number to object\n");
+					exit(1);
+					break;
+				}
+			}
+			break;
+		}
+
+		case entry::STRING: {
+			source.type = type;
+			switch(type) {
+				case entry::NUMBER: {
+					source.numberData = stringToNumber(source.stringData);
+					break;
+				}
+
+				case entry::OBJECT: {
+					printf("cannot convert string to object\n");
+					exit(1);
+					break;
+				}
+			}
+			break;
+		}
+
+		case entry::OBJECT: {
+			source.type = type;
+			if(source.objectData->object == nullptr) {
+				switch(type) {
+					case entry::NUMBER: {
+						source.numberData = 0.0;
+						break;
+					}
+
+					case entry::STRING: {
+						source.stringData = getEmptyString();
+						break;
+					}
+				}
+			}
+			else {
+				switch(type) {
+					case entry::NUMBER: {
+						source.numberData = source.objectData->object->id;
+						break;
+					}
+
+					case entry::STRING: {
+						source.stringData = numberToString(source.objectData->object->id);
+						break;
+					}
+				}
+			}
 			break;
 		}
 	}

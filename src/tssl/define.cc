@@ -18,7 +18,7 @@ unordered_map<string, size_t> ts::sl::nameToIndex;
 vector<MethodTree*> ts::sl::methodTrees;
 unordered_map<string, size_t> ts::sl::methodTreeNameToIndex;
 
-ts::sl::Function* ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, type* argumentTypes) {
+ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, entry::EntryType* argumentTypes) {
 	ts::sl::Function* function = new ts::sl::Function;
 	function->returnType = returnType;
 	function->name = string(name);
@@ -29,7 +29,7 @@ ts::sl::Function* ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), co
 	return function;
 }
 
-ts::sl::Function* ts::sl::FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, type* argumentTypes) {
+ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, entry::EntryType* argumentTypes) {
 	ts::sl::Function* function = new ts::sl::Function;
 	function->returnType = returnType;
 	function->nameSpace = string(nameSpace);
@@ -63,49 +63,49 @@ void ts::sl::define(Interpreter* interpreter) {
 	
 	// define functions/methods
 	vector<ts::sl::Function*> functions;
-	type* s = new type[TS_ARG_COUNT] { type::STRING };
-	type* n = new type[TS_ARG_COUNT] { type::NUMBER };
-	type* sn = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER };
-	type* nn = new type[TS_ARG_COUNT] { type::NUMBER, type::NUMBER };
-	type* snn = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::NUMBER };
-	type* sns = new type[TS_ARG_COUNT] { type::STRING, type::NUMBER, type::STRING };
-	type* os = new type[TS_ARG_COUNT] { type::OBJECT, type::STRING };
+	entry::EntryType* s = new entry::EntryType[TS_ARG_COUNT] { entry::STRING };
+	entry::EntryType* n = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER };
+	entry::EntryType* sn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER };
+	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
+	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
+	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
+	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 
-	functions.push_back(FUNC_DEF(type::VOID, &echo, "echo", 1, s));
+	functions.push_back(FUNC_DEF(entry::INVALID, &echo, "echo", 1, s));
 
-	functions.push_back(FUNC_DEF(type::STRING, &firstWord, "firstWord", 1, s));
-	functions.push_back(FUNC_DEF(type::STRING, &restWords, "restWords", 1, s));
-	functions.push_back(FUNC_DEF(type::STRING, &getWord, "getWord", 2, sn));
-	functions.push_back(FUNC_DEF(type::STRING, &getWords, "getWords", 3, snn));
-	functions.push_back(FUNC_DEF(type::NUMBER, &getWordCount, "getWordCount", 1, s));
-	functions.push_back(FUNC_DEF(type::STRING, &removeWord, "removeWord", 2, sn));
-	functions.push_back(FUNC_DEF(type::STRING, &setWord, "setWord", 3, sns));
+	functions.push_back(FUNC_DEF(entry::STRING, &firstWord, "firstWord", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &restWords, "restWords", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &getWord, "getWord", 2, sn));
+	functions.push_back(FUNC_DEF(entry::STRING, &getWords, "getWords", 3, snn));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &getWordCount, "getWordCount", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &removeWord, "removeWord", 2, sn));
+	functions.push_back(FUNC_DEF(entry::STRING, &setWord, "setWord", 3, sns));
 
-	functions.push_back(FUNC_DEF(type::NUMBER, &mAbs, "mAbs", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mACos, "mACos", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mASin, "mASin", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mATan, "mATan", 2, nn));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mCeil, "mCeil", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mFloor, "mFloor", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mCos, "mCos", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mSin, "mSin", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mTan, "mTan", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mPow, "mPow", 2, nn));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mSqrt, "mSqrt", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mDegToRad, "mDegToRad", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mRadToDeg, "mRadToDeg", 1, n));
-	functions.push_back(FUNC_DEF(type::NUMBER, &mLog, "mLog", 1, n));
-	functions.push_back(FUNC_DEF(type::STRING, &mFloatLength, "mFloatLength", 2, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mASin, "mASin", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mATan, "mATan", 2, nn));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mCeil, "mCeil", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mFloor, "mFloor", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mCos, "mCos", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mSin, "mSin", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mTan, "mTan", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mPow, "mPow", 2, nn));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mSqrt, "mSqrt", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mDegToRad, "mDegToRad", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mRadToDeg, "mRadToDeg", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &mLog, "mLog", 1, n));
+	functions.push_back(FUNC_DEF(entry::STRING, &mFloatLength, "mFloatLength", 2, n));
 
-	functions.push_back(FUNC_DEF(type::VOID, &SimObject__test, "SimObject", "test", 2, os));
-	functions.push_back(FUNC_DEF(type::VOID, &ScriptObject__test, "ScriptObject", "test", 2, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));
 
 	for(ts::sl::Function* function: functions) {
 		interpreter->defineTSSLFunction(function);
 	}
 }
 
-void* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, void** argv, sl::type* argumentTypes) {
+Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
 	string methodNameString(methodName);
 	return interpreter->handleTSSLParent(methodNameString, argc, argv, argumentTypes);
 }

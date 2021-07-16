@@ -200,7 +200,7 @@ void Interpreter::startInterpretation(Instruction* head) {
 	this->interpret();
 }
 
-void* Interpreter::handleTSSLParent(string &name, size_t argc, void** argv, sl::type* argumentTypes) {
+Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
 	MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
 	int methodTreeEntryIndex = frame.methodTreeEntryIndex + 1; // always go up in the method tree
@@ -215,22 +215,14 @@ void* Interpreter::handleTSSLParent(string &name, size_t argc, void** argv, sl::
 		if(foundFunction->isTSSL) {
 			sl::Function* function = foundFunction->function;
 			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-			void* returnValue = function->function(this, argc, argv);
+			Entry* returnValue = function->function(this, argc, argv);
 			this->popFunctionFrame();
 			return returnValue;
 		}
 		else {
 			// push arguments onto the stack
 			for(size_t i = 0; i < argc; i++) {
-				if(argumentTypes[i] == sl::type::STRING) {
-					this->push(cloneString((char*)argv[i]));
-				}
-				else if(argumentTypes[i] == sl::type::NUMBER) {
-					this->push(*((double*)argv[i]));
-				}
-				else if(argumentTypes[i] == sl::type::OBJECT) {
-					this->push(*((size_t*)argv[i]));
-				}
+				this->push(argv[i]);
 			}
 
 			this->push((double)argc);
@@ -247,23 +239,14 @@ void* Interpreter::handleTSSLParent(string &name, size_t argc, void** argv, sl::
 			);
 			this->interpret();
 
-			// convert the return type and return that
-			if(this->returnRegister.type == entry::STRING) {
-				return cloneString(this->returnRegister.stringData);
-			}
-			else if(this->returnRegister.type == entry::NUMBER) {
-				return new double(this->returnRegister.numberData);
-			}
-			else { // push void return value
-				return getEmptyString();
-			}
+			return new Entry(this->returnRegister);
 		}
 	}
 	else {
 		printf("could not call parent\n");
 	}
 
-	return nullptr;
+	return new Entry(getEmptyString());
 }
 
 void Interpreter::warning(const char* format, ...) {
