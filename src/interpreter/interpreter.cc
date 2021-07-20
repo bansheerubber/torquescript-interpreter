@@ -467,7 +467,6 @@ void Interpreter::interpret() {
 						if(methodEntry != this->methodTrees[namespaceIndex]->methodIndexToEntry.end()) {
 							instruction.callFunction.cachedEntry = methodEntry->second;
 							instruction.callFunction.isCached = true;
-							instruction.callFunction.isEntryCached = true;
 							found = true;
 						}
 					}
@@ -476,7 +475,6 @@ void Interpreter::interpret() {
 					if(this->nameToFunctionIndex.find(toLower(instruction.callFunction.name)) != this->nameToFunctionIndex.end()) {
 						instruction.callFunction.cachedFunctionList = this->functions[this->nameToFunctionIndex[toLower(instruction.callFunction.name)]];
 						instruction.callFunction.isCached = true;
-
 						found = true;
 					}
 				}
@@ -502,7 +500,7 @@ void Interpreter::interpret() {
 			int packagedFunctionListIndex = -1;
 			MethodTreeEntry* methodTreeEntry = nullptr;
 			int methodTreeEntryIndex = -1;
-			if(instruction.callFunction.isEntryCached) {
+			if(instruction.callFunction.cachedEntry != nullptr) {
 				list = instruction.callFunction.cachedEntry->list[0];
 				packagedFunctionListIndex = list->topValidIndex;
 				foundFunction = (*list)[packagedFunctionListIndex];

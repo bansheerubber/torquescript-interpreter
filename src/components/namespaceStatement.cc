@@ -87,7 +87,6 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isEntryCached = false;
 		output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it

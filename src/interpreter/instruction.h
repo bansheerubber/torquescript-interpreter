@@ -212,7 +212,6 @@ namespace ts {
 				class PackagedFunctionList* cachedFunctionList;
 				class MethodTreeEntry* cachedEntry;
 				bool isCached;
-				bool isEntryCached;
 			} callFunction;
 
 			struct {

@@ -244,7 +244,6 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isEntryCached = false;
 		c.output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
