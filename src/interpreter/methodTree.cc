@@ -13,8 +13,11 @@ void ts::initMethodTree(MethodTree* self, MethodTree** tree) {
 	*tree = nullptr;
 }
 
-MethodTreeEntry::MethodTreeEntry(MethodTree* tree) {
+MethodTreeEntry::MethodTreeEntry(MethodTree* tree, string name) {
 	this->list = DynamicArray<PackagedFunctionList*, MethodTree>(tree, 5, initMethodTreePackagedFunctionList, nullptr);
+	this->name = name;
+	this->list[0] = new PackagedFunctionList(name);
+	this->list.pushed();
 	this->hasInitialMethod = false;
 }
 
@@ -30,19 +33,18 @@ MethodTree::MethodTree(string name) {
 
 void MethodTree::defineInitialMethod(string name, size_t nameIndex, Function* container) {
 	MethodTreeEntry* entry;
+	PackagedFunctionList* list;
 	if(this->methodIndexToEntry.find(nameIndex) == this->methodIndexToEntry.end()) {
-		entry = this->methodIndexToEntry[nameIndex] = new MethodTreeEntry(this);
+		entry = this->methodIndexToEntry[nameIndex] = new MethodTreeEntry(this, name);
+		list = entry->list[0];
 	}
 	else {
 		entry = this->methodIndexToEntry[nameIndex];
-		delete entry->list[0];
+		list = entry->list[0];
 	}
 
 	entry->hasInitialMethod = true;
-
-	PackagedFunctionList* list = new PackagedFunctionList(name);
-	list->addInitialFunction(container);
-	entry->list[0] = list;
+	list->defineInitialFunction(container);
 
 	for(size_t i = 0; i < this->children.head; i++) {
 		this->children[i]->updateMethodTree(name, nameIndex);
@@ -52,7 +54,7 @@ void MethodTree::defineInitialMethod(string name, size_t nameIndex, Function* co
 void MethodTree::addPackageMethod(string name, size_t nameIndex, Function* container) {
 	MethodTreeEntry* entry;
 	if(this->methodIndexToEntry.find(nameIndex) == this->methodIndexToEntry.end()) {
-		entry = this->methodIndexToEntry[nameIndex] = new MethodTreeEntry(this);
+		entry = this->methodIndexToEntry[nameIndex] = new MethodTreeEntry(this, name);
 	}
 	else {
 		entry = this->methodIndexToEntry[nameIndex];
@@ -78,7 +80,7 @@ void MethodTree::updateMethodTree(string methodName, size_t methodNameIndex) {
 vector<PackagedFunctionList*> MethodTree::buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex) {
 	MethodTreeEntry* entry;
 	if(this->methodIndexToEntry.find(methodNameIndex) == this->methodIndexToEntry.end()) {
-		entry = this->methodIndexToEntry[methodNameIndex] = new MethodTreeEntry(this);
+		entry = this->methodIndexToEntry[methodNameIndex] = new MethodTreeEntry(this, methodName);
 	}
 	else {
 		entry = this->methodIndexToEntry[methodNameIndex];

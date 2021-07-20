@@ -17,15 +17,15 @@ PackagedFunctionList::PackagedFunctionList(string functionName, string functionN
 	this->functions = DynamicArray<Function*, PackagedFunctionList>(this, PACKAGED_FUNCTION_LIST_START_SIZE, initFunction, nullptr);
 }
 
-void PackagedFunctionList::addInitialFunction(Function* function) {
-	if(this->functions.head != 0) {
-		printError("cannot define initial function twice");
-		exit(1);	
+void PackagedFunctionList::defineInitialFunction(Function* function) {
+	if(this->functions[0] != nullptr) {
+		delete this->functions[0];
 	}
 	
 	this->functions[0] = function;
-	this->topValidIndex = 0;
 	this->functions.pushed();
+
+	this->findValidFunction();
 }
 
 void PackagedFunctionList::addPackageFunction(Function* function) {
@@ -62,7 +62,7 @@ int PackagedFunctionList::getNextValidIndex(int currentIndex) {
 
 void PackagedFunctionList::findValidFunction() {
 	// find top-most valid index
-	for(size_t i = this->functions.head - 1; i >= 0; i--) {
+	for(int i = this->functions.head - 1; i >= 0; i--) {
 		if(this->functions[i] != nullptr && this->functions[i]->isActive) {
 			this->topValidIndex = i;
 			break;

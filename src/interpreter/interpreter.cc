@@ -88,7 +88,7 @@ void Interpreter::defineTSSLFunction(sl::Function* function) {
 		}
 
 		// create the packaged function list
-		list->addPackageFunction(container);
+		list->defineInitialFunction(container);
 	}
 	else {
 		MethodTree* tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(function->nameSpace)]];
@@ -703,7 +703,7 @@ void Interpreter::defineFunction(string &name, InstructionReturn output, size_t 
 	}
 
 	// create the packaged function list
-	list->addInitialFunction(container);
+	list->defineInitialFunction(container);
 }
 
 void Interpreter::defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {

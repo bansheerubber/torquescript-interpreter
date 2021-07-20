@@ -15,11 +15,12 @@ namespace ts {
 	struct MethodTreeEntry {
 		DynamicArray<class PackagedFunctionList*, class MethodTree> list;
 		bool hasInitialMethod;
+		string name;
 
 		MethodTreeEntry() {
 			this->hasInitialMethod = false;
 		}
-		MethodTreeEntry(class MethodTree* tree);
+		MethodTreeEntry(class MethodTree* tree, string name);
 	};
 	
 	class MethodTree {
