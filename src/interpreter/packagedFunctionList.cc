@@ -3,7 +3,7 @@
 using namespace ts;
 
 // for the dynamic array
-void initFunction(PackagedFunctionList* hierarchy, Function** function) {
+void ts::initPackagedFunctionListFunction(PackagedFunctionList* hierarchy, Function** function) {
 	*function = nullptr;
 }
 
@@ -14,7 +14,17 @@ PackagedFunctionList::PackagedFunctionList() {
 PackagedFunctionList::PackagedFunctionList(string functionName, string functionNamespace) {
 	this->functionName = functionName;
 	this->functionNamespace = functionNamespace;
-	this->functions = DynamicArray<Function*, PackagedFunctionList>(this, PACKAGED_FUNCTION_LIST_START_SIZE, initFunction, nullptr);
+}
+
+PackagedFunctionList::~PackagedFunctionList() {
+	for(size_t i = 0; i < this->functions.head; i++) {
+		if(this->functions[i] != nullptr) {
+			delete this->functions[i];
+			this->functions[i] = nullptr;
+		}
+	}
+
+	this->functions.head = 0;
 }
 
 void PackagedFunctionList::defineInitialFunction(Function* function) {

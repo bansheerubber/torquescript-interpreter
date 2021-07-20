@@ -3,14 +3,15 @@
 #include "dynamicArray.h"
 #include "function.h"
 
-#define PACKAGED_FUNCTION_LIST_START_SIZE 5
-
 namespace ts {
+	void initPackagedFunctionListFunction(class PackagedFunctionList* hierarchy, Function** function);
+	
 	// describes the package hierarchy for a particular function
 	class PackagedFunctionList {
 		public:
 			PackagedFunctionList();
 			PackagedFunctionList(string functionName, string functionNamespace = string());
+			~PackagedFunctionList();
 
 			// if the initial function is a part of the standard library
 			bool isTSSL = false;
@@ -32,7 +33,7 @@ namespace ts {
 			size_t topValidIndex = 0;
 		
 		private:
-			DynamicArray<Function*, PackagedFunctionList> functions;
+			DynamicArray<Function*, PackagedFunctionList> functions = DynamicArray<Function*, PackagedFunctionList>(this, 15, initPackagedFunctionListFunction, nullptr);
 			void findValidFunction();
 	};
 }

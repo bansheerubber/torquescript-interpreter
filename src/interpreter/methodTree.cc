@@ -5,7 +5,7 @@
 
 using namespace ts;
 
-void ts::initMethodTreePackagedFunctionList(class MethodTree* tree, PackagedFunctionList** list) {
+void ts::initMethodTreePackagedFunctionList(MethodTreeEntry* tree, PackagedFunctionList** list) {
 	*list = nullptr;
 }
 
@@ -14,11 +14,14 @@ void ts::initMethodTree(MethodTree* self, MethodTree** tree) {
 }
 
 MethodTreeEntry::MethodTreeEntry(MethodTree* tree, string name) {
-	this->list = DynamicArray<PackagedFunctionList*, MethodTree>(tree, 5, initMethodTreePackagedFunctionList, nullptr);
 	this->name = name;
 	this->list[0] = new PackagedFunctionList(name);
 	this->list.pushed();
 	this->hasInitialMethod = false;
+}
+
+MethodTreeEntry::~MethodTreeEntry() {
+	delete this->list[0]; // only delete our initial method
 }
 
 MethodTree::MethodTree() {
@@ -27,21 +30,24 @@ MethodTree::MethodTree() {
 
 MethodTree::MethodTree(string name) {
 	this->name = name;
-	this->parents = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
-	this->children = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
+}
+
+MethodTree::~MethodTree() {
+	for(const auto& it: this->methodIndexToEntry) {
+		delete it.second;
+	}
 }
 
 void MethodTree::defineInitialMethod(string name, size_t nameIndex, Function* container) {
 	MethodTreeEntry* entry;
-	PackagedFunctionList* list;
 	if(this->methodIndexToEntry.find(nameIndex) == this->methodIndexToEntry.end()) {
 		entry = this->methodIndexToEntry[nameIndex] = new MethodTreeEntry(this, name);
-		list = entry->list[0];
 	}
 	else {
 		entry = this->methodIndexToEntry[nameIndex];
-		list = entry->list[0];
 	}
+
+	PackagedFunctionList* list = entry->list[0];
 
 	entry->hasInitialMethod = true;
 	list->defineInitialFunction(container);
@@ -58,10 +64,6 @@ void MethodTree::addPackageMethod(string name, size_t nameIndex, Function* conta
 	}
 	else {
 		entry = this->methodIndexToEntry[nameIndex];
-	}
-
-	if(entry->list[0] == nullptr) {
-		entry->list[0] = new PackagedFunctionList(name);
 	}
 
 	entry->list[0]->addPackageFunction(container);

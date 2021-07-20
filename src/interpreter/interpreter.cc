@@ -42,11 +42,6 @@ void ts::initMethodTree(Interpreter* interpreter, MethodTree** tree) {
 Interpreter::Interpreter(ParsedArguments args) {
 	this->emptyEntry.setString(getEmptyString());
 
-	this->stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
-	this->frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
-	this->functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
-	this->methodTrees = DynamicArray<MethodTree*, Interpreter>(this, 1024, initMethodTree, nullptr);
-
 	ts::sl::define(this);
 
 	if(args.arguments["no-warnings"] != "") {
@@ -57,8 +52,13 @@ Interpreter::Interpreter(ParsedArguments args) {
 }
 
 Interpreter::~Interpreter() {
-	free(this->stack.array);	
-	free(this->frames.array);	
+	for(size_t i = 0; i < this->functions.head; i++) {
+		delete this->functions[i];
+	}
+
+	for(size_t i = 0; i < this->methodTrees.head; i++) {
+		delete this->methodTrees[i];
+	}
 }
 
 void Interpreter::defineTSSLMethodTree(MethodTree* tree) {
@@ -713,7 +713,7 @@ void Interpreter::defineMethod(string &nameSpace, string &name, InstructionRetur
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(toLower(nameSpace));
+		tree = new MethodTree(nameSpace);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -769,7 +769,7 @@ void Interpreter::addPackageMethod(
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(toLower(nameSpace));
+		tree = new MethodTree(nameSpace);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}

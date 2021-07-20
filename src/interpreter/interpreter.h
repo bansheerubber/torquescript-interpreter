@@ -56,8 +56,8 @@ namespace ts {
 	class Interpreter {
 		public:
 			Interpreter();
-			Interpreter(ParsedArguments args);
 			~Interpreter();
+			Interpreter(ParsedArguments args);
 
 			void startInterpretation(Instruction* head);
 			
@@ -93,8 +93,8 @@ namespace ts {
 			chrono::high_resolution_clock::time_point startTime;
 
 			// stacks
-			DynamicArray<Entry, Interpreter> stack;
-			DynamicArray<FunctionFrame, Interpreter> frames;
+			DynamicArray<Entry, Interpreter> stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
+			DynamicArray<FunctionFrame, Interpreter> frames = DynamicArray<FunctionFrame, Interpreter>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
 			VariableContext* topContext;
 			InstructionContainer* topContainer; // the current container we're executing code from, taken from frames
 			size_t* instructionPointer; // the current instruction pointer, taken from frames
@@ -123,10 +123,10 @@ namespace ts {
 
 			// function data structures
 			robin_map<string, size_t> nameToFunctionIndex;
-			DynamicArray<PackagedFunctionList*, Interpreter> functions;
+			DynamicArray<PackagedFunctionList*, Interpreter> functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
 
 			robin_map<string, size_t> namespaceToMethodTreeIndex;
-			DynamicArray<MethodTree*, Interpreter> methodTrees;
+			DynamicArray<MethodTree*, Interpreter> methodTrees = DynamicArray<MethodTree*, Interpreter>(this, 1024, initMethodTree, nullptr);
 
 			// used to index into a method tree
 			robin_map<string, size_t> methodNameToIndex;

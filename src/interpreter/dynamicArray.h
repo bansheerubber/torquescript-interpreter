@@ -44,6 +44,13 @@ namespace ts {
 			}
 		}
 
+		~DynamicArray() {
+			if(this->array != nullptr) {
+				free(this->array);
+				this->array = nullptr;
+			}
+		}
+
 		void pushed() {
 			this->head++;
 
