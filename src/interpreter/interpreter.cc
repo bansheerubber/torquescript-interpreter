@@ -227,23 +227,19 @@ Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, ent
 
 			this->push((double)argc);
 			
-			int numberOfArguments = (int)this->stack[this->stack.head - 1].numberData;
 			this->pushFunctionFrame(
 				foundFunction,
 				list,
 				packagedFunctionListIndex,
 				methodTreeEntry,
 				methodTreeEntryIndex,
-				numberOfArguments + 1,
+				argc + 1,
 				foundFunction->variableCount
 			);
 			this->interpret();
 
 			return new Entry(this->returnRegister);
 		}
-	}
-	else {
-		printf("could not call parent\n");
 	}
 
 	return new Entry(getEmptyString());
@@ -649,8 +645,15 @@ void Interpreter::interpret() {
 					## call_generator.py
 				}
 				else {
-					printError("failed to do method tree parent\n");
-					exit(1);
+					// pop arguments that we didn't use
+					Entry &numberOfArguments = this->stack[this->stack.head - 1];
+					int number = (int)numberOfArguments.numberData;
+					for(int i = 0; i < number + 1; i++) {
+						this->pop();
+					}
+
+					this->push(this->emptyEntry);
+					break;
 				}
 			}
 			else if(packagedFunctionListIndex != -1) {
@@ -658,8 +661,15 @@ void Interpreter::interpret() {
 				## call_generator.py
 			}
 			else {
-				printError("failed to do parent\n");
-				exit(1);
+				// pop arguments that we didn't use
+				Entry &numberOfArguments = this->stack[this->stack.head - 1];
+				int number = (int)numberOfArguments.numberData;
+				for(int i = 0; i < number + 1; i++) {
+					this->pop();
+				}
+
+				this->push(this->emptyEntry);
+				break;
 			}
 
 			break;
