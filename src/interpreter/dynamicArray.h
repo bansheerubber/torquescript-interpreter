@@ -7,26 +7,26 @@
 namespace ts {
 	#define DYNAMIC_ARRAY_MAX_SIZE 5000000
 	
-	template <typename T>
+	template <typename T, typename S>
 	struct DynamicArray {
 		T* array;
 		size_t size;
 		size_t head;
-		class Interpreter* interpreter;
-		void (*init) (class Interpreter* interpreter, T* location);
-		void (*onRealloc) (class Interpreter* interpreter);
+		S* parent;
+		void (*init) (S* parent, T* location);
+		void (*onRealloc) (S* parent);
 
 		DynamicArray() {
 			this->array = nullptr;
 		}
 
 		DynamicArray(
-			class Interpreter* interpreter,
+			S* parent,
 			size_t size,
-			void (*init) (class Interpreter* interpreter, T* location),
-			void (*onRealloc) (class Interpreter* interpreter)
+			void (*init) (S* parent, T* location),
+			void (*onRealloc) (S* parent)
 		) {
-			this->interpreter = interpreter;
+			this->parent = parent;
 			this->size = size;
 			this->head = 0;
 			this->init = init;
@@ -40,7 +40,14 @@ namespace ts {
 			this->array = array;
 
 			for(size_t i = 0; i < this->size; i++) {
-				(*this->init)(this->interpreter, &this->array[i]);
+				(*this->init)(this->parent, &this->array[i]);
+			}
+		}
+
+		~DynamicArray() {
+			if(this->array != nullptr) {
+				free(this->array);
+				this->array = nullptr;
 			}
 		}
 
@@ -61,12 +68,12 @@ namespace ts {
 				this->array = array;
 
 				for(size_t i = this->size; i < this->size * 2; i++) {
-					(*this->init)(this->interpreter, &this->array[i]);
+					(*this->init)(this->parent, &this->array[i]);
 				}
 				this->size *= 2;
 				
 				if(this->onRealloc != nullptr) {
-					(*this->onRealloc)(this->interpreter);
+					(*this->onRealloc)(this->parent);
 				}
 			}
 		}

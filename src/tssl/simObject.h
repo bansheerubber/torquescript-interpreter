@@ -7,10 +7,10 @@ namespace ts {
 	class Interpreter;
 
 	namespace sl {
-		class ScriptObject : public Object {
+		class SimObject : public Object {
 
 		};
 
-		Entry* ScriptObject__test(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* SimObject__test(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

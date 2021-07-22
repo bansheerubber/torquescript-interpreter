@@ -1,93 +1,49 @@
 if(foundFunction->isTSSL) {
 	sl::Function* function = foundFunction->function;
 
-	void* arguments[TS_ARG_COUNT];
-	bool deleteArguments[TS_ARG_COUNT];
 	// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
-	int actualArgumentCount = (int)this->stack[this->stack.head - 1].numberData; // get the amount of arguments used in the program
-	int delta = function->argumentCount - actualArgumentCount;
-
-	int count = 1;
-	for(int i = function->argumentCount; i >= 1; i--) { // load arguments array backwards
-		if(count > actualArgumentCount) { // TODO better error handling
-			break;
+	size_t head = this->stack.head;
+	size_t actualArgumentCount = (size_t)this->stack[head - 1].numberData; // get the amount of arguments used in the program
+	Entry* argv = new Entry[actualArgumentCount];
+	for(size_t i = 0; i < actualArgumentCount; i++) {
+		if(i < actualArgumentCount) {
+			relative_stack_location location = head - 1 - (actualArgumentCount - i);
+			copyEntry(this->stack[location], argv[i]);
+			if(i < function->argumentCount) {
+				convertToType(argv[i], function->argumentTypes[i]);
+			}
 		}
 		else {
-			relative_stack_location location = this->stack.head - 1 - i + delta;
-			Entry &entry = this->stack[location];
-			if(function->argumentTypes[count - 1] == sl::STRING) {
-				if(entry.type == entry::NUMBER) {
-					arguments[count - 1] = numberToString(entry.numberData);
-					deleteArguments[count - 1] = true;
-				}
-				else if(entry.type == entry::OBJECT) {
-					if(entry.objectData->object == nullptr) {
-						arguments[count - 1] = getEmptyString();
-
-						this->warning("trying to access deleted object\n");
-					}
-					else {
-						arguments[count - 1] = numberToString(entry.objectData->object->id);	
-					}
-
-					deleteArguments[count - 1] = true;
-				}
-				else {
-					arguments[count - 1] = entry.stringData;
-					deleteArguments[count - 1] = false;
-				}
-			}
-			else {
-				if(entry.type == entry::NUMBER) {
-					arguments[count - 1] = &entry.numberData;
-					deleteArguments[count - 1] = false;
-				}
-				else if(entry.type == entry::OBJECT) {
-					if(entry.objectData->object == nullptr) {
-						arguments[count - 1] = new double(0);
-						deleteArguments[count - 1] = true;
-
-						this->warning("trying to access deleted object\n");
-					}
-					else {
-						arguments[count - 1] = &entry.objectData->object->id;
-						deleteArguments[count - 1] = false;
-					}
-				}
-				else {
-					arguments[count - 1] = new double(stringToNumber(entry.stringData));
-					deleteArguments[count - 1] = true;
-				}
-			}
+			argv[i] = Entry(getEmptyString());
 		}
-		count++;
 	}
 
-	void* returnValue = function->function(actualArgumentCount, arguments);
+	this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+	Entry* returnValue = function->function(this, actualArgumentCount, argv);
+	this->popFunctionFrame();
 
 	// pop the data
-	for(int i = 0; i < actualArgumentCount + 1; i++) {
+	for(size_t i = 0; i < actualArgumentCount + 1; i++) {
 		this->pop();
 	}
 
-	if(function->returnType == sl::type::STRING) {
-		this->push((char*)returnValue);
+	if(returnValue == nullptr) {
+		this->push(getEmptyString());
 	}
-	else if(function->returnType == sl::type::NUMBER) {
-		this->push(*((double*)returnValue));
-		delete (double*)returnValue;
-	}
-	else { // push void return value
-		this->push(this->emptyEntry);
-	}
-
-	for(int i = 0; i < count - 1; i++) {
-		if(deleteArguments[i]) {
-			delete arguments[i];
-		}
+	else {
+		this->push(*returnValue);
+		delete returnValue;
 	}
 }
 else {
 	int numberOfArguments = (int)this->stack[this->stack.head - 1].numberData;
-	this->pushInstructionContainer(foundFunction, numberOfArguments + 1, foundFunction->variableCount);
+	this->pushFunctionFrame(
+		foundFunction,
+		list,
+		packagedFunctionListIndex,
+		methodTreeEntry,
+		methodTreeEntryIndex,
+		numberOfArguments + 1,
+		foundFunction->variableCount
+	);
 }

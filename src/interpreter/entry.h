@@ -38,6 +38,9 @@ namespace ts {
 		Entry();
 		Entry(const Entry &entry);
 		Entry(Entry* copy);
+		Entry(double value);
+		Entry(char* value);
+		Entry(ObjectReference* value);
 		~Entry();
 		void setNumber(double value);
 		void setString(char* value);
@@ -47,5 +50,6 @@ namespace ts {
 	};
 
 	void copyEntry(const Entry &source, Entry &destination);
+	void convertToType(Entry &source, entry::EntryType type);
 	void initEntry(class Interpreter* interpreter, Entry* location);
 }

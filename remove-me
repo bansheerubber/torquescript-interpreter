@@ -1,0 +1,53 @@
+// functionIndex = the name -> index link
+
+... first we lookup functionIndex and cache it in the call instruction ...
+
+object->methodTree[functionIndex] --> interpreter->cachedMethodTrees[?]
+
+interpreter->cachedMethodTrees[n] = DynamicArray<FunctionHierarchy>{ firstCall, secondCall, ..., nthCall }
+
+// - cachedMethods holds a list of functions to iterate through based on a unique combination of .class/.superclass/real class/parent classes
+// - the list is generated whenever a new scriptobject is created, for every single method the scriptobject has
+//   - all it has to do is identify compiletime-defined FunctionHierarchies and put them in order into a list
+
+// pros:
+// - after the creation of the first object with a particular .class/.superclass/real class/parent class combo, we cache the lists into a robin_map
+//   and do not have to generate the list after this point
+
+// cons:
+// - first-time creation of objects will probably be very slow, since we have to access a lot of maps/arrays in order to construct these lists
+// - data structures will be complicated, we will have to store a ton of double-dimensioned lists and stuff
+
+DynamicArray<FunctionHierarchy*, Interpreter> functions;
+robin_map<string, DynamicArray<FunctionHierarchy*, Interpreter>*> namespaceToMethods;
+DynamicArray<DynamicArray<FunctionHierarchy*, Interpreter>*, Interpreter> cachedMethodTrees;
+
+// generate cached method list for object
+function generateTree(robin_map<size_t, DynamicArray<FunctionHierarchy*, Interpreter>*> &cachedMethodTrees, string &nameSpace) {
+	auto classNameMethods = interpreter->namespaceToMethodNames[nameSpace];
+	// generate method tree for all className methods
+	for(size_t i = 0; i < classNameMethods->head; i++) {
+		FunctionHierarchy* function = classNameMethods[i];
+
+		DynamicArray<FunctionHierarchy*, Interpreter>* methodTree;
+		if(method tree doesn't exist) {
+			methodTree = new DynamicArray<FunctionArray*, Interpreter>(...);
+		}
+		else {
+			methodTree = cachedMethodTrees[magic_index];
+		}
+
+		methodTree.add(function);
+	}
+}
+
+robin_map<size_t, DynamicArray<FunctionHierarchy*, Interpreter>*> cachedMethodTrees;
+generateTree(cachedMethodTrees, symbolNamespace);
+generateTree(cachedMethodTrees, classNamespace);
+generateTree(cachedMethodTrees, superclassNamespace);
+generateTree(cachedMethodTrees, objectClassNamespace);
+generateTree(cachedMethodTrees, parentClassNamespace);
+
+for(auto const &[methodTreeIndex, array]: cachedMethodTrees) {
+	interpreter->cachedMethodTrees[methodTreeIndex] = array;
+}

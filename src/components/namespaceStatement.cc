@@ -84,11 +84,9 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		new((void*)&callFunction->callFunction.name) string(this->operation->print()); // TODO move this initialization elsewhere
 		new((void*)&callFunction->callFunction.nameSpace) string(this->name->print()); // TODO move this initialization elsewhere
-		callFunction->callFunction.cachedIndex = 0;
-		callFunction->callFunction.cachedNamespaceIndex = 0;
+		callFunction->callFunction.cachedFunctionList = nullptr;
+		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isNamespaceCached = false;
-		callFunction->callFunction.isTSSL = false;
 		output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
@@ -98,8 +96,29 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		}
 	}
 	else {
-		printf("parent not supported\n");
-		exit(1);
+		output.add(this->call->compile(interpreter, context)); // push arguments
+
+		// push the amount of arguments we just found
+		ts::Instruction* instruction = new ts::Instruction();
+		instruction->type = ts::instruction::PUSH;
+		instruction->push.entry = ts::Entry();
+		instruction->push.entry.type = ts::entry::NUMBER;
+		instruction->push.entry.setNumber(((CallStatement*)this->call)->getElementCount());
+		output.add(instruction);
+
+		// build call instruction
+		ts::Instruction* callParent = new ts::Instruction();
+		callParent->type = ts::instruction::CALL_PARENT;
+		new((void*)&callParent->callParent.name) string(this->operation->print()); // TODO move this initialization elsewhere
+		callParent->callParent.cachedIndex = 0;
+		callParent->callParent.isCached = false;
+		output.add(callParent);
+
+		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
+			ts::Instruction* pop = new ts::Instruction();
+			pop->type = ts::instruction::POP;
+			output.add(pop);
+		}
 	}
 	
 	return output;

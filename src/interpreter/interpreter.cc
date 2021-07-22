@@ -1,7 +1,9 @@
 #include "interpreter.h"
 
-#include "entry.h"
+#include "../util/cloneString.h"
 #include "debug.h"
+#include "../tssl/define.h"
+#include "entry.h"
 #include "../util/getEmptyString.h"
 #include "object.h"
 #include "../util/numberToString.h"
@@ -29,61 +31,101 @@ void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 	interpreter->topContext = &frame.context;
 }
 
+void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list) {
+	*list = nullptr;
+}
+
+void ts::initMethodTree(Interpreter* interpreter, MethodTree** tree) {
+	*tree = nullptr;
+}
+
 Interpreter::Interpreter(ParsedArguments args) {
 	this->emptyEntry.setString(getEmptyString());
 
-	for(sl::Function* function: sl::functions) {
-		this->addTSSLFunction(function);
-	}
+	ts::sl::define(this);
 
 	if(args.arguments["no-warnings"] != "") {
 		this->warnings = false;
 	}
 
-	this->stack = DynamicArray<Entry>(this, 10000, initEntry, nullptr);
-	this->frames = DynamicArray<FunctionFrame>(this, 1024, initFunctionFrame, onFunctionFrameRealloc);
-
 	this->globalContext = VariableContext(this);
 }
 
 Interpreter::~Interpreter() {
-	free(this->stack.array);	
-	free(this->frames.array);	
+	for(size_t i = 0; i < this->functions.head; i++) {
+		delete this->functions[i];
+	}
+
+	for(size_t i = 0; i < this->methodTrees.head; i++) {
+		delete this->methodTrees[i];
+	}
 }
 
-void Interpreter::addTSSLFunction(sl::Function* function) {
+void Interpreter::defineTSSLMethodTree(MethodTree* tree) {
+	string nameSpace = tree->name;
+	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+}
+
+void Interpreter::defineTSSLFunction(sl::Function* function) {
 	Function* container = new Function(function);
 	
 	if(function->nameSpace.length() == 0) {
-		this->nameToIndex[toLower(function->name)] = this->functions.size();
-		this->functions.push_back(container);
-	}
-	else {
-		if(this->namespaceToIndex.find(toLower(function->nameSpace)) == this->namespaceToIndex.end()) {
-			this->namespaceToIndex[toLower(function->nameSpace)] = this->namespaceFunctions.size();
-
-			// add to function data structure
-			NamespaceFunctions* functions = new NamespaceFunctions();
-			functions->nameToIndex[toLower(function->name)] = functions->functions.size();
-			functions->nameToFunction[toLower(function->name)] = container;
-			functions->functions.push_back(container);
-			this->namespaceFunctions.push_back(functions);
+		PackagedFunctionList* list;
+		if(this->nameToFunctionIndex.find(toLower(function->name)) == this->nameToFunctionIndex.end()) {
+			// add the function to the function-specific datastructure
+			this->nameToFunctionIndex[toLower(function->name)] = this->functions.head;
+			list = new PackagedFunctionList(function->name);
+			list->isTSSL = true;
+			this->functions[this->functions.head] = list;
+			this->functions.pushed();
 		}
 		else {
-			NamespaceFunctions* functions = this->namespaceFunctions[this->namespaceToIndex[function->nameSpace]];
-			functions->nameToIndex[toLower(function->name)] = functions->functions.size();
-			functions->nameToFunction[toLower(function->name)] = container;
-			functions->functions.push_back(container);
+			list = this->functions[this->nameToFunctionIndex[toLower(function->name)]];
 		}
+
+		// create the packaged function list
+		list->defineInitialFunction(container);
+	}
+	else {
+		MethodTree* tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(function->nameSpace)]];
+
+		// associate the method name with an index
+		size_t index = 0;
+		if(this->methodNameToIndex.find(toLower(function->name)) == this->methodNameToIndex.end()) {
+			this->methodNameToIndex[toLower(function->name)] = index = this->currentMethodNameIndex;
+			this->currentMethodNameIndex++;
+		}
+		else {
+			index = this->methodNameToIndex[toLower(function->name)];
+		}
+
+		tree->defineInitialMethod(function->name, index, container);
 	}
 }
 
-void Interpreter::pushInstructionContainer(InstructionContainer* container, size_t argumentCount, size_t popCount) {
+void Interpreter::pushFunctionFrame(
+	InstructionContainer* container,
+	PackagedFunctionList* list,
+	int packagedFunctionListIndex,
+	MethodTreeEntry* methodTreeEntry,
+	int methodTreeEntryIndex,
+	size_t argumentCount,
+	size_t popCount
+) {
 	FunctionFrame &frame = this->frames[this->frames.head];
 	frame.container = container;
 	frame.instructionPointer = 0;
 	frame.stackPointer = this->stack.head - argumentCount;
 	frame.stackPopCount = popCount;
+	frame.packagedFunctionList = list;
+	frame.packagedFunctionListIndex = packagedFunctionListIndex;
+	frame.methodTreeEntry = methodTreeEntry;
+	frame.methodTreeEntryIndex = methodTreeEntryIndex;
+	frame.isTSSL = false;
 
 	this->topContainer = frame.container;
 	this->instructionPointer = &frame.instructionPointer;
@@ -93,7 +135,7 @@ void Interpreter::pushInstructionContainer(InstructionContainer* container, size
 	this->frames.pushed();
 }
 
-void Interpreter::popInstructionContainer() {
+void Interpreter::popFunctionFrame() {
 	this->frames.popped();
 
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
@@ -105,6 +147,15 @@ void Interpreter::popInstructionContainer() {
 	for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
 		this->pop();
 	}
+}
+
+void Interpreter::pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex) {
+	FunctionFrame &frame = this->frames[this->frames.head];
+	frame.isTSSL = true;
+	frame.stackPopCount = 0;
+	frame.methodTreeEntry = methodTreeEntry;
+	frame.methodTreeEntryIndex = methodTreeEntryIndex;
+	this->frames.pushed();
 }
 
 // push an entry onto the stack
@@ -144,9 +195,54 @@ void Interpreter::pop() {
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
-	this->pushInstructionContainer(new InstructionContainer(head)); // create the instructions
+	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
 	this->interpret();
+}
+
+Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
+	FunctionFrame &frame = this->frames[this->frames.head - 1];
+	MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
+	int methodTreeEntryIndex = frame.methodTreeEntryIndex + 1; // always go up in the method tree
+	PackagedFunctionList* list = frame.packagedFunctionList;
+	int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
+
+	if((size_t)methodTreeEntryIndex < methodTreeEntry->list.head) {
+		list = methodTreeEntry->list[methodTreeEntryIndex];
+		packagedFunctionListIndex = list->topValidIndex;
+
+		Function* foundFunction = (*list)[packagedFunctionListIndex];
+		if(foundFunction->isTSSL) {
+			sl::Function* function = foundFunction->function;
+			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+			Entry* returnValue = function->function(this, argc, argv);
+			this->popFunctionFrame();
+			return returnValue;
+		}
+		else {
+			// push arguments onto the stack
+			for(size_t i = 0; i < argc; i++) {
+				this->push(argv[i]);
+			}
+
+			this->push((double)argc);
+			
+			this->pushFunctionFrame(
+				foundFunction,
+				list,
+				packagedFunctionListIndex,
+				methodTreeEntry,
+				methodTreeEntryIndex,
+				argc + 1,
+				foundFunction->variableCount
+			);
+			this->interpret();
+
+			return new Entry(this->returnRegister);
+		}
+	}
+
+	return new Entry(getEmptyString());
 }
 
 void Interpreter::warning(const char* format, ...) {
@@ -357,34 +453,24 @@ void Interpreter::interpret() {
 				bool found = false;
 				if(
 					instruction.callFunction.nameSpace.length() != 0
-					&& this->namespaceToIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToIndex.end()
+					&& this->namespaceToMethodTreeIndex.find(toLower(instruction.callFunction.nameSpace)) != this->namespaceToMethodTreeIndex.end()
 				) {
-					int namespaceIndex = this->namespaceToIndex[toLower(instruction.callFunction.nameSpace)];
-					if(
-						this->namespaceFunctions[namespaceIndex]->nameToIndex.find(toLower(instruction.callFunction.name))
-							!= this->namespaceFunctions[namespaceIndex]->nameToIndex.end()
-					) {
-						instruction.callFunction.cachedIndex = this->namespaceFunctions[namespaceIndex]->nameToIndex[toLower(instruction.callFunction.name)];
-						instruction.callFunction.cachedNamespaceIndex = namespaceIndex;
-						instruction.callFunction.isCached = true;
-						instruction.callFunction.isNamespaceCached = true;
+					size_t namespaceIndex = this->namespaceToMethodTreeIndex[toLower(instruction.callFunction.nameSpace)];
+					auto methodIndex = this->methodNameToIndex.find(toLower(instruction.callFunction.name));
 
-						if(this->namespaceFunctions[namespaceIndex]->functions[instruction.callFunction.cachedIndex]->isTSSL) {
-							instruction.callFunction.isTSSL = true;
+					if(methodIndex != this->methodNameToIndex.end()) {
+						auto methodEntry = this->methodTrees[namespaceIndex]->methodIndexToEntry.find(methodIndex->second);
+						if(methodEntry != this->methodTrees[namespaceIndex]->methodIndexToEntry.end()) {
+							instruction.callFunction.cachedEntry = methodEntry->second;
+							instruction.callFunction.isCached = true;
+							found = true;
 						}
-
-						found = true;
 					}
 				}
 				else { // find non-namespace function
-					if(this->nameToIndex.find(toLower(instruction.callFunction.name)) != this->nameToIndex.end()) {
-						instruction.callFunction.cachedIndex = this->nameToIndex[toLower(instruction.callFunction.name)];
+					if(this->nameToFunctionIndex.find(toLower(instruction.callFunction.name)) != this->nameToFunctionIndex.end()) {
+						instruction.callFunction.cachedFunctionList = this->functions[this->nameToFunctionIndex[toLower(instruction.callFunction.name)]];
 						instruction.callFunction.isCached = true;
-
-						if(this->functions[instruction.callFunction.cachedIndex]->isTSSL) {
-							instruction.callFunction.isTSSL = true;
-						}
-
 						found = true;
 					}
 				}
@@ -406,11 +492,19 @@ void Interpreter::interpret() {
 			}
 
 			Function* foundFunction;
-			if(instruction.callFunction.isNamespaceCached) {
-				foundFunction = this->namespaceFunctions[instruction.callFunction.cachedNamespaceIndex]->functions[instruction.callFunction.cachedIndex];
+			PackagedFunctionList* list;
+			int packagedFunctionListIndex = -1;
+			MethodTreeEntry* methodTreeEntry = nullptr;
+			int methodTreeEntryIndex = -1;
+			if(instruction.callFunction.cachedEntry != nullptr) {
+				list = instruction.callFunction.cachedEntry->list[0];
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[packagedFunctionListIndex];
 			}
 			else {
-				foundFunction = this->functions[instruction.callFunction.cachedIndex];
+				list = instruction.callFunction.cachedFunctionList;
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[packagedFunctionListIndex];
 			}
 
 			## call_generator.py
@@ -421,7 +515,14 @@ void Interpreter::interpret() {
 		case instruction::RETURN: { // return from a function
 			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
 			this->pop(); // pop return value
-			this->popInstructionContainer();
+			this->popFunctionFrame();
+
+			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
+			// here so the original TSSL method can take over
+			if(this->frames[this->frames.head - 1].isTSSL) {
+				return;
+			}
+
 			this->push(this->returnRegister); // push return register
 			break;
 		}
@@ -446,13 +547,17 @@ void Interpreter::interpret() {
 		case instruction::CREATE_OBJECT: {
 			if(
 				!instruction.createObject.isCached
-				&& this->namespaceToIndex.find(instruction.createObject.type) != this->namespaceToIndex.end()
+				&& this->namespaceToMethodTreeIndex.find(toLower(instruction.createObject.type)) != this->namespaceToMethodTreeIndex.end()
 			) {
-				instruction.createObject.namespaceIndex = this->namespaceToIndex[instruction.createObject.type];
+				instruction.createObject.methodTreeIndex = this->namespaceToMethodTreeIndex[toLower(instruction.createObject.type)];
 				instruction.createObject.isCached = true;
 			}
+			else {
+				printf("could not find method tree index\n");
+				exit(1);
+			}
 			
-			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.namespaceIndex);
+			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
 			this->push(new ObjectReference(object));
 			break;
 		}
@@ -479,14 +584,83 @@ void Interpreter::interpret() {
 				break;
 			}
 
-			auto search = this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.find(toLower(instruction.callObject.name));
-			if(search != this->namespaceFunctions[object->object->namespaceIndex]->nameToFunction.end()) {
-				Function* foundFunction = search->second;
+			// cache the method entry pointer in the instruction
+			if(instruction.callObject.isCached == false) {
+				bool found = false;
+				auto methodNameIndex = this->methodNameToIndex.find(toLower(instruction.callObject.name));
+				if(methodNameIndex != this->methodNameToIndex.end()) {
+					auto methodEntry = this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+					if(methodEntry != this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.end()) {
+						instruction.callObject.cachedEntry = methodEntry->second;
+						instruction.callObject.isCached = true;
+						found = true;
+					}
+				}
+				
+				if(!found) {
+					this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
+
+					// pop arguments that we didn't use
+					Entry &numberOfArguments = this->stack[this->stack.head - 1];
+					int number = (int)numberOfArguments.numberData;
+					for(int i = 0; i < number + 1; i++) {
+						this->pop();
+					}
+
+					this->push(this->emptyEntry);
+					break;
+				}
+			}
+
+			// look up the method in the method tree
+			MethodTreeEntry* methodTreeEntry = instruction.callObject.cachedEntry;
+			int methodTreeEntryIndex = instruction.callObject.cachedEntry->hasInitialMethod ? 0 : 1;
+			PackagedFunctionList* list = methodTreeEntry->list[methodTreeEntryIndex];
+			size_t packagedFunctionListIndex = list->topValidIndex;
+			Function* foundFunction = (*list)[packagedFunctionListIndex];
+			## call_generator.py
+			
+			break;
+		}
+
+		case instruction::LINK_VARIABLE: {
+			this->topContext->linkVariable(instruction.linkVariable.source, instruction.linkVariable.hash, instruction.linkVariable.stackIndex);
+			break;
+		}
+
+		case instruction::CALL_PARENT: {
+			FunctionFrame &frame = this->frames[this->frames.head - 1];
+			MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
+			int methodTreeEntryIndex = frame.methodTreeEntryIndex;
+			PackagedFunctionList* list = frame.packagedFunctionList;
+			int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
+
+			if(packagedFunctionListIndex == -1 && methodTreeEntry != nullptr) { // walk the method tree
+				methodTreeEntryIndex++;
+				if((size_t)methodTreeEntryIndex < methodTreeEntry->list.head) {
+					list = methodTreeEntry->list[methodTreeEntryIndex];
+					packagedFunctionListIndex = list->topValidIndex;
+
+					Function* foundFunction = (*list)[packagedFunctionListIndex];
+					## call_generator.py
+				}
+				else {
+					// pop arguments that we didn't use
+					Entry &numberOfArguments = this->stack[this->stack.head - 1];
+					int number = (int)numberOfArguments.numberData;
+					for(int i = 0; i < number + 1; i++) {
+						this->pop();
+					}
+
+					this->push(this->emptyEntry);
+					break;
+				}
+			}
+			else if(packagedFunctionListIndex != -1) {
+				Function* foundFunction = (*list)[packagedFunctionListIndex];
 				## call_generator.py
 			}
 			else {
-				this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
-
 				// pop arguments that we didn't use
 				Entry &numberOfArguments = this->stack[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
@@ -495,13 +669,9 @@ void Interpreter::interpret() {
 				}
 
 				this->push(this->emptyEntry);
+				break;
 			}
-			
-			break;
-		}
 
-		case instruction::LINK_VARIABLE: {
-			this->topContext->linkVariable(instruction.linkVariable.source, instruction.linkVariable.hash, instruction.linkVariable.stackIndex);
 			break;
 		}
 
@@ -526,29 +696,106 @@ void Interpreter::printStack() {
 	printf("\n");
 }
 
-void Interpreter::addFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+void Interpreter::defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	// create the function container which we will use to execute the function at runtime
 	Function* container = new Function(output.first, argumentCount, variableCount, name);
-	this->nameToIndex[toLower(name)] = this->functions.size();
-	this->functions.push_back(container);
-}
-
-void Interpreter::addFunction(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
-	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
-
-	if(this->namespaceToIndex.find(toLower(nameSpace)) == this->namespaceToIndex.end()) {
-		this->namespaceToIndex[toLower(nameSpace)] = this->namespaceFunctions.size();
-
-		// add to function data structure
-		NamespaceFunctions* functions = new NamespaceFunctions();
-		functions->nameToIndex[toLower(name)] = functions->functions.size();
-		functions->nameToFunction[toLower(name)] = container;
-		functions->functions.push_back(container);
-		this->namespaceFunctions.push_back(functions);
+	
+	PackagedFunctionList* list;
+	if(this->nameToFunctionIndex.find(toLower(name)) == this->nameToFunctionIndex.end()) {
+		// add the function to the function-specific datastructure
+		this->nameToFunctionIndex[toLower(name)] = this->functions.head;
+		list = new PackagedFunctionList(name);
+		this->functions[this->functions.head] = list;
+		this->functions.pushed();
 	}
 	else {
-		NamespaceFunctions* functions = this->namespaceFunctions[this->namespaceToIndex[nameSpace]];
-		functions->nameToIndex[toLower(name)] = functions->functions.size();
-		functions->nameToFunction[toLower(name)] = container;
-		functions->functions.push_back(container);
+		list = this->functions[this->nameToFunctionIndex[toLower(name)]];
 	}
+
+	// create the packaged function list
+	list->defineInitialFunction(container);
+}
+
+void Interpreter::defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
+
+	// define the method tree if we don't have one yet
+	MethodTree* tree;
+	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(nameSpace);
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+	else {
+		tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(nameSpace)]];
+	}
+
+	// associate the method name with an index
+	size_t index = 0;
+	if(this->methodNameToIndex.find(toLower(name)) == this->methodNameToIndex.end()) {
+		this->methodNameToIndex[toLower(name)] = index = this->currentMethodNameIndex;
+		this->currentMethodNameIndex++;
+	}
+	else {
+		index = this->methodNameToIndex[toLower(name)];
+	}
+
+	tree->defineInitialMethod(name, index, container);
+}
+
+void Interpreter::addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount) {
+	// create the function container which we will use to execute the function at runtime
+	Function* container = new Function(output.first, argumentCount, variableCount, name);
+	
+	PackagedFunctionList* list;
+	if(this->nameToFunctionIndex.find(toLower(name)) == this->nameToFunctionIndex.end()) {
+		// add the function to the function-specific datastructure
+		this->nameToFunctionIndex[toLower(name)] = this->functions.head;
+		list = new PackagedFunctionList(name);
+		this->functions[this->functions.head] = list;
+		this->functions.pushed();
+	}
+	else {
+		list = this->functions[this->nameToFunctionIndex[toLower(name)]];
+	}
+
+	// create the packaged function list
+	list->addPackageFunction(container);
+}
+
+void Interpreter::addPackageMethod(
+	Package* package,
+	string &nameSpace,
+	string &name,
+	InstructionReturn output,
+	size_t argumentCount,
+	size_t variableCount
+) {
+	// create the function container which we will use to execute the function at runtime
+	Function* container = new Function(output.first, argumentCount, variableCount, name, nameSpace);
+	
+	// define the method tree if we don't have one yet
+	MethodTree* tree;
+	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(nameSpace);
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+	else {
+		tree = this->methodTrees[this->namespaceToMethodTreeIndex[toLower(nameSpace)]];
+	}
+
+	// associate the method name with an index
+	size_t index = 0;
+	if(this->methodNameToIndex.find(toLower(name)) == this->methodNameToIndex.end()) {
+		this->methodNameToIndex[toLower(name)] = index = this->currentMethodNameIndex;
+		this->currentMethodNameIndex++;
+	}
+	else {
+		index = this->methodNameToIndex[toLower(name)];
+	}
+
+	tree->addPackageMethod(name, index, container);
 }

@@ -126,7 +126,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
 	new((void*)&createObject->createObject.type) string(this->className->print()); // TODO move this initialization elsewhere
-	createObject->createObject.namespaceIndex = 0;
+	createObject->createObject.methodTreeIndex = 0;
 	createObject->createObject.isCached = false;
 	output.add(createObject);
 

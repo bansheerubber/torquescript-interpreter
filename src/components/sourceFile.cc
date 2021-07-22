@@ -35,6 +35,7 @@ ts::InstructionReturn SourceFile::compile(ts::Interpreter* interpreter, ts::Comp
 	for(Component* child: this->children) {
 		ts::InstructionReturn compiled = child->compile(interpreter, (ts::CompilationContext){
 			loop: nullptr,
+			package: nullptr,
 			scope: this,
 		});
 		if(compiled.first != nullptr) {

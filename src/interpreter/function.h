@@ -15,5 +15,7 @@ namespace ts {
 			string namespaceName;
 			size_t argumentCount;
 			size_t variableCount;
+			bool isActive = true;
+			bool isPackaged;
 	};
 }

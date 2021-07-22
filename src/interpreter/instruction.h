@@ -66,6 +66,7 @@ namespace ts {
 			LOCAL_ACCESS, // gets the value of a local variable and puts it on the stack
 			GLOBAL_ACCESS,
 			CALL_FUNCTION, // call a globally scoped function
+			CALL_PARENT,
 			RETURN, // return from a function without returning a value
 			POP_ARGUMENTS, // pop x arguments from the stack, x being obtained from the top of the stack
 			CREATE_OBJECT, // create an object
@@ -207,23 +208,21 @@ namespace ts {
 
 			struct {
 				string name;
-				// cache the index when we lookup the name of the function at runtime
-				// (hashing an int during runtime is probably faster than hashing a string)
-				size_t cachedIndex;
 				string nameSpace;
-				size_t cachedNamespaceIndex;
+				class PackagedFunctionList* cachedFunctionList;
+				class MethodTreeEntry* cachedEntry;
 				bool isCached;
-				bool isNamespaceCached;
-				bool isTSSL;
 			} callFunction;
 
 			struct {
 				string name;
+				class MethodTreeEntry* cachedEntry;
+				bool isCached;
 			} callObject;
 
 			struct {
 				string type;
-				size_t namespaceIndex;
+				size_t methodTreeIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 			}	createObject;
 
@@ -236,6 +235,12 @@ namespace ts {
 				string source;
 				size_t hash;
 			} linkVariable;
+
+			struct {
+				string name;
+				size_t cachedIndex;
+				bool isCached;
+			} callParent;
 		};
 
 		Instruction() {

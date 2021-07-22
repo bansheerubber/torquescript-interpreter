@@ -241,11 +241,9 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		new((void*)&callFunction->callFunction.name) string(this->elements[0].token.lexeme); // TODO move this initialization elsewhere
 		new((void*)&callFunction->callFunction.nameSpace) string(""); // TODO move this initialization elsewhere
-		callFunction->callFunction.cachedIndex = 0;
-		callFunction->callFunction.cachedNamespaceIndex = 0;
+		callFunction->callFunction.cachedFunctionList = nullptr;
+		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isNamespaceCached = false;
-		callFunction->callFunction.isTSSL = false;
 		c.output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
@@ -339,6 +337,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::CALL_OBJECT;
 			new((void*)&instruction->callObject.name) string(lastInstruction->objectAccess.source); // TODO move this initialization elsewhere
+			instruction->callObject.cachedEntry = nullptr;
+			instruction->callObject.isCached = false;
 
 			c.output.add(instruction);
 
