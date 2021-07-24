@@ -1,0 +1,3 @@
+%%conditional%%(%%entry%%.type == entry::NUMBER) {
+	%%output%% = %%entry%%.numberData;
+}

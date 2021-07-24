@@ -1,0 +1,3 @@
+%%conditional%%(%%entry%%.type == entry::OBJECT) {
+	%%output%% = %%entry%%.objectData->id;
+}

@@ -4,6 +4,7 @@
 ObjectReference::ObjectReference(Object* object) {
 	object->addReference(this);
 	this->object = object;
+	this->id = object->id;
 }
 
 ObjectReference::~ObjectReference() {

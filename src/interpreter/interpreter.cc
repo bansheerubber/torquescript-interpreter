@@ -351,12 +351,8 @@ void Interpreter::interpret() {
 		case instruction::UNARY_MATHEMATICS: {
 			Entry &value = this->stack[this->stack.head - 1];
 			double valueNumber = 0;
-			if(value.type == entry::NUMBER) {
-				valueNumber = value.numberData;
-			}
-			else {
-				valueNumber = stringToNumber(value.stringData);
-			}
+
+			## type_conversion.py value valueNumber NUMBER_STRING_OBJECT NUMBER
 			
 			this->pop();
 

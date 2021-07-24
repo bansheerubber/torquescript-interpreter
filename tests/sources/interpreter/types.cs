@@ -34,4 +34,8 @@ for(%i = 0; %i < 4; %i++) {
 	%obj[%i].test();
 	%objNumber[%i].test();
 	%objString[%i].test();
+
+	echo(-%obj[%i]);
+	echo(-%objNumber[%i]);
+	echo(-%objString[%i]);
 }
