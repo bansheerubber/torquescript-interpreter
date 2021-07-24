@@ -186,7 +186,7 @@ void Interpreter::push(ObjectReference* value) {
 
 void Interpreter::pop() {
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type == entry::STRING && test.stringData) {
+	if(test.type != entry::NUMBER && test.stringData) {
 		delete test.stringData;
 		test.stringData = nullptr;
 	}

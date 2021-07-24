@@ -66,7 +66,7 @@ void Entry::setNumber(double value) {
 
 void Entry::setString(char* value) {
 	// TODO possible wild pointer free
-	if(this->type == entry::STRING && this->stringData != nullptr) { // delete old string data
+	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
 		delete this->stringData;
 	}
 	
@@ -75,6 +75,10 @@ void Entry::setString(char* value) {
 }
 
 void Entry::setObject(ObjectReference* object) {
+	if(this->type != entry::NUMBER && this->objectData != nullptr) { // delete old string data
+		delete this->objectData;
+	}
+	
 	this->type = entry::OBJECT;
 	this->objectData = object;
 }
@@ -138,7 +142,7 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 		}
 
 		case entry::OBJECT: {
-			destination.objectData = source.objectData;
+			destination.objectData = new ObjectReference(source.objectData->object);
 			break;
 		}
 	}
