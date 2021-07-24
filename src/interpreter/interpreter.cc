@@ -420,18 +420,18 @@ void Interpreter::interpret() {
 
 		case instruction::OBJECT_ACCESS: { // push object property to stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - instruction.localAssign.dimensions];
-			ObjectReference* object = objectEntry.objectData;
+			Object* object = nullptr;
+
+			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
 			// if the object is not alive anymore, push nothing to the stack
-			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+			if(object == nullptr) {
 				this->pop(); // pop the object
 				this->push(this->emptyEntry);
-
-				this->warning("trying to access deleted object\n");
 				break;
 			}
 			
-			Entry &entry = object->object->properties.getVariableEntry(
+			Entry &entry = object->properties.getVariableEntry(
 				instruction,
 				instruction.localAccess.source,
 				instruction.localAssign.hash
@@ -572,8 +572,6 @@ void Interpreter::interpret() {
 			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
 			if(object == nullptr) {
-				this->warning("trying to call a deleted object\n");
-				
 				// pop arguments that we didn't use
 				Entry &numberOfArguments = this->stack[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
