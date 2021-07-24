@@ -1,26 +1,10 @@
 // get the value of the variable contained in the instruction
 Entry* entry = nullptr;
 double entryNumber = 0;
-entry = &object->object->properties.getVariableEntry(
+entry = &object->properties.getVariableEntry(
 	instruction,
 	instruction.objectAssign.destination,
 	instruction.objectAssign.hash
 );
 
-// convert the value of the variable to a number if needed
-if(entry->type == entry::NUMBER) {
-	entryNumber = entry->numberData;
-}
-else if(entry->type == entry::OBJECT) {
-	if(entry->objectData->object == nullptr) {
-		entryNumber = 0.0;
-		this->warning("trying to access deleted object\n");
-	}
-	else {
-		entryNumber = entry->objectData->object->id;
-	}
-}
-else {
-	entryNumber = stringToNumber(entry->stringData);
-}
-
+## type_conversion.py *entry entryNumber NUMBER_OBJECT_STRING NUMBER

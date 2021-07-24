@@ -18,11 +18,13 @@ namespace ts {
 			size_t id = 0;
 
 			void addReference(ObjectReference* reference);
+			void removeReference(ObjectReference* reference);
 
 			string nameSpace;
 			size_t namespaceIndex;
 		
 		private:
-			vector<ObjectReference*> references;
+			ObjectReference* list = nullptr;
+			ObjectReference* top = nullptr;;
 	};
 }

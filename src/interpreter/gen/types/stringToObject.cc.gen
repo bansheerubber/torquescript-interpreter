@@ -1,0 +1,3 @@
+%%conditional%%((%%entry%%).type == entry::STRING) {
+	%%output%% = %%this%%->objects[stringToNumber((%%entry%%).stringData)];
+}

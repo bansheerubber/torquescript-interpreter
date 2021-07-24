@@ -37,7 +37,7 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 			newVariable = newVariable + entry.stringData;
 		}
 		else if(entry.type == entry::OBJECT) {
-			newVariable = newVariable + numberToStdString(entry.objectData->object->id);
+			newVariable = newVariable + numberToStdString(entry.objectData->id);
 		}
 
 		firstDimensionSet = true;

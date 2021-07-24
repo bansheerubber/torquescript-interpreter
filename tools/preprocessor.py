@@ -13,7 +13,7 @@ def write_file(filename, contents):
 		file.write(line)
 	file.close()
 
-def preprocess(filename, contents):
+def preprocess(filename, contents, directory = None):
 	global total_lines
 	
 	if "include" not in filename:
@@ -23,7 +23,9 @@ def preprocess(filename, contents):
 	new_contents = []
 	for line in contents:
 		if match := re.match(pattern, line):
-			directory = pathlib.Path(filename).parent
+			if directory == None:
+				directory = pathlib.Path(filename).parent
+
 			command = match.group(1).strip()
 
 			if ".py" in command:

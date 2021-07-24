@@ -1,0 +1,3 @@
+%%conditional%%((%%entry%%).type == entry::NUMBER) {
+	%%output%% = %%this%%->objects[(%%entry%%).numberData];
+}

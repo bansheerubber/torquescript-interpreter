@@ -186,7 +186,7 @@ void Interpreter::push(ObjectReference* value) {
 
 void Interpreter::pop() {
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type == entry::STRING && test.stringData) {
+	if(test.type != entry::NUMBER && test.stringData) {
 		delete test.stringData;
 		test.stringData = nullptr;
 	}
@@ -305,19 +305,10 @@ void Interpreter::interpret() {
 
 		case instruction::JUMP_IF_TRUE: { // jump to an instruction
 			Entry &entry = this->stack[this->stack.head - 1];
-			if(
-				(
-					entry.type == entry::NUMBER
-					&& entry.numberData != 0
-				)
-				|| (
-					entry.type == entry::STRING
-					&& strlen(entry.stringData) != 0
-				)
-				|| (
-					entry.type == entry::OBJECT
-				)
-			) {
+			int number = 0;
+			## type_conversion.py entry number NUMBER_STRING_OBJECT NUMBER
+
+			if(number != 0) {
 				*this->instructionPointer = instruction.jumpIfTrue.index;
 			}
 
@@ -329,16 +320,10 @@ void Interpreter::interpret() {
 
 		case instruction::JUMP_IF_FALSE: { // jump to an instruction
 			Entry &entry = this->stack[this->stack.head - 1];
-			if(
-				(
-					entry.type == entry::NUMBER
-					&& entry.numberData == 0
-				)
-				|| (
-					entry.type == entry::STRING
-					&& strlen(entry.stringData) == 0
-				)
-			) {
+			int number = 1;
+			## type_conversion.py entry number NUMBER_STRING_OBJECT NUMBER
+
+			if(number == 0) {
 				*this->instructionPointer = instruction.jumpIfFalse.index;
 			}
 
@@ -351,12 +336,8 @@ void Interpreter::interpret() {
 		case instruction::UNARY_MATHEMATICS: {
 			Entry &value = this->stack[this->stack.head - 1];
 			double valueNumber = 0;
-			if(value.type == entry::NUMBER) {
-				valueNumber = value.numberData;
-			}
-			else {
-				valueNumber = stringToNumber(value.stringData);
-			}
+
+			## type_conversion.py value valueNumber NUMBER_STRING_OBJECT NUMBER
 			
 			this->pop();
 
@@ -420,18 +401,18 @@ void Interpreter::interpret() {
 
 		case instruction::OBJECT_ACCESS: { // push object property to stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - instruction.localAssign.dimensions];
-			ObjectReference* object = objectEntry.objectData;
+			Object* object = nullptr;
+
+			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
 			// if the object is not alive anymore, push nothing to the stack
-			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+			if(object == nullptr) {
 				this->pop(); // pop the object
 				this->push(this->emptyEntry);
-
-				this->warning("trying to access deleted object\n");
 				break;
 			}
 			
-			Entry &entry = object->object->properties.getVariableEntry(
+			Entry &entry = object->properties.getVariableEntry(
 				instruction,
 				instruction.localAccess.source,
 				instruction.localAssign.hash
@@ -568,11 +549,10 @@ void Interpreter::interpret() {
 			
 			// pull the object from the stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - argumentCount];
-			ObjectReference* object = objectEntry.objectData;
+			Object* object = nullptr;
+			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
-			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
-				this->warning("trying to call a deleted object\n");
-				
+			if(object == nullptr) {
 				// pop arguments that we didn't use
 				Entry &numberOfArguments = this->stack[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
@@ -589,8 +569,8 @@ void Interpreter::interpret() {
 				bool found = false;
 				auto methodNameIndex = this->methodNameToIndex.find(toLower(instruction.callObject.name));
 				if(methodNameIndex != this->methodNameToIndex.end()) {
-					auto methodEntry = this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
-					if(methodEntry != this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.end()) {
+					auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+					if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
 						instruction.callObject.cachedEntry = methodEntry->second;
 						instruction.callObject.isCached = true;
 						found = true;
@@ -598,7 +578,7 @@ void Interpreter::interpret() {
 				}
 				
 				if(!found) {
-					this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
+					this->warning("could not find function with name '%s::%s'\n", object->nameSpace.c_str(), instruction.callFunction.name.c_str());
 
 					// pop arguments that we didn't use
 					Entry &numberOfArguments = this->stack[this->stack.head - 1];

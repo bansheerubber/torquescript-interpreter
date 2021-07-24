@@ -67,40 +67,6 @@ string_operations = {
 			this->push(stringResult);""",
 }
 
-number_typecheck = """if(%%.type == entry::NUMBER) {
-						%%Number = %%.numberData;
-					}
-					else if(%%.type == entry::OBJECT) {
-						if(%%.objectData->object == nullptr) {
-							%%Number = 0.0;
-							this->warning("trying to access deleted object\\n");
-						}
-						else {
-							%%Number = %%.objectData->object->id;
-						}
-					}
-					else {
-						%%Number = stringToNumber(%%.stringData);
-					}"""
-
-string_typecheck = """if(%%->type == entry::STRING) {
-					%%String = %%->stringData;
-				}
-				else if(%%->type == entry::OBJECT) {
-					if(%%->objectData->object == nullptr) {
-						%%String = getEmptyString();
-						this->warning("trying to access deleted object\\n");
-					}
-					else {
-						%%String = numberToString(%%->objectData->object->id);
-					}
-					delete%%String = true;
-				}
-				else {
-					%%String = numberToString(%%->numberData);
-					delete%%String = true;
-				}"""
-
 string_pop = """if(popLValue) {{
 				this->pop();
 			}}
@@ -109,11 +75,7 @@ string_pop = """if(popLValue) {{
 				this->pop();
 			}}"""
 
-lvalue_number_typecheck = number_typecheck.replace("%%", "lvalue")
-rvalue_number_typecheck = number_typecheck.replace("%%", "rvalue")
 NUMBER_MATH_MACRO = get_generated_code("math", "numbers", 3)
-NUMBER_MATH_MACRO = NUMBER_MATH_MACRO.replace("%%lvalueTypecheck%%", lvalue_number_typecheck)
-NUMBER_MATH_MACRO = NUMBER_MATH_MACRO.replace("%%rvalueTypecheck%%", rvalue_number_typecheck)
 
 # handle number instructions
 for instruction, operation in number_operations.items():
@@ -126,11 +88,7 @@ for instruction, operation in number_operations.items():
 			break;
 		}}\n""")
 
-lvalue_string_typecheck = string_typecheck.replace("%%", "lvalue")
-rvalue_string_typecheck = string_typecheck.replace("%%", "rvalue")
 STRING_MATH_MACRO = get_generated_code("math", "strings", 3)
-STRING_MATH_MACRO = STRING_MATH_MACRO.replace("%%lvalueTypecheck%%", lvalue_string_typecheck)
-STRING_MATH_MACRO = STRING_MATH_MACRO.replace("%%rvalueTypecheck%%", rvalue_string_typecheck)
 
 # handle string instructions
 for instruction, operation in string_operations.items():
