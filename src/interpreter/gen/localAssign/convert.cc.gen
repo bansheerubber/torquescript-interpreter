@@ -1,17 +1,3 @@
 // convert the value we read from stack to a number if necessary
 double valueNumber = 0;
-if(value->type == entry::NUMBER) {
-	valueNumber = value->numberData;
-}
-else if(value->type == entry::OBJECT) {
-	if(value->objectData->object == nullptr) {
-		entryNumber = 0.0;
-		this->warning("trying to access deleted object\n");
-	}
-	else {
-		entryNumber = value->objectData->object->id;
-	}
-}
-else {
-	valueNumber = stringToNumber(value->stringData);
-}
+## type_conversion.py *value valueNumber NUMBER_OBJECT_STRING NUMBER
