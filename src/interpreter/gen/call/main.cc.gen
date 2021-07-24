@@ -10,7 +10,7 @@ if(foundFunction->isTSSL) {
 			relative_stack_location location = head - 1 - (actualArgumentCount - i);
 			copyEntry(this->stack[location], argv[i]);
 			if(i < function->argumentCount) {
-				convertToType(argv[i], function->argumentTypes[i]);
+				convertToType(this, argv[i], function->argumentTypes[i]);
 			}
 		}
 		else {

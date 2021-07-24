@@ -106,6 +106,7 @@ namespace ts {
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 			friend VariableContext;
 			friend Object;
+			friend void convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type);
 
 			void pushFunctionFrame(
 				InstructionContainer* container,

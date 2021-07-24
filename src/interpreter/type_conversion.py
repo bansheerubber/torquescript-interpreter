@@ -6,6 +6,7 @@ output_name = sys.argv[2]
 source_type = sys.argv[3]
 output_type = sys.argv[4]
 additional = sys.argv[5] if len(sys.argv) >= 6 else ""
+interpreter = sys.argv[6] if len(sys.argv) >= 7 else "this"
 
 entry_types = [
 	"NUMBER",
@@ -31,6 +32,13 @@ for entry_type1 in entry_types:
 		except:
 			pass
 
+def get_delete_line(variable_name, entry_type):
+	if variable_name == None or variable_name == "":
+		return ""
+	
+	value = "true" if output_type != "STRING" else "false"
+	return f"{variable_name} = {value};"
+
 if "_" in source_type:
 	argument_types = source_type.split("_")
 	
@@ -41,7 +49,8 @@ if "_" in source_type:
 			.replace("%%conditional%%", conditional)\
 			.replace("%%entry%%", entry_name)\
 			.replace("%%output%%", output_name)\
-			.replace("%%delete%%", additional)
+			.replace("%%delete%%", get_delete_line(additional, entry_type))\
+			.replace("%%this%%", interpreter)
 		
 		print(code)
 		
@@ -52,6 +61,7 @@ else:
 		.replace("%%conditional%%", "if")\
 		.replace("%%entry%%", entry_name)\
 		.replace("%%output%%", output_name)\
-		.replace("%%delete%%", additional)
+		.replace("%%delete%%", get_delete_line(additional, output_type))\
+		.replace("%%this%%", interpreter)
 	
 	print(code)

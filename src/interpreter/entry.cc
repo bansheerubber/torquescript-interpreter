@@ -2,6 +2,7 @@
 
 #include "../util/cloneString.h"
 #include "../util/getEmptyString.h"
+#include "interpreter.h"
 #include "../util/numberToString.h"
 #include "object.h"
 #include "../util/stringToNumber.h"
@@ -148,81 +149,31 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 	}
 }
 
-void ts::convertToType(Entry &source, entry::EntryType type) {
+void ts::convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type) {
 	if(source.type == type) {
 		return;
 	}
-	
-	switch(source.type) {
-		case entry::INVALID: {
-			break;
-		}
 
+	switch(type) {
 		case entry::NUMBER: {
-			source.type = type;
-			switch(type) {
-				case entry::STRING: {
-					source.stringData = numberToString(source.numberData);
-					break;
-				}
-
-				case entry::OBJECT: {
-					printf("cannot convert number to object\n");
-					exit(1);
-					break;
-				}
-			}
-			break;
-		}
-
-		case entry::STRING: {
-			source.type = type;
-			switch(type) {
-				case entry::NUMBER: {
-					source.numberData = stringToNumber(source.stringData);
-					break;
-				}
-
-				case entry::OBJECT: {
-					printf("cannot convert string to object\n");
-					exit(1);
-					break;
-				}
-			}
+			## type_conversion.py source source.numberData STRING_OBJECT NUMBER "" interpreter
 			break;
 		}
 
 		case entry::OBJECT: {
-			source.type = type;
-			if(source.objectData->object == nullptr) {
-				switch(type) {
-					case entry::NUMBER: {
-						source.numberData = 0.0;
-						break;
-					}
+			Object* object = nullptr;
+			## type_conversion.py source object NUMBER_STRING OBJECT "" interpreter
+			source.objectData = new ObjectReference(object);
+			break;
+		}
 
-					case entry::STRING: {
-						source.stringData = getEmptyString();
-						break;
-					}
-				}
-			}
-			else {
-				switch(type) {
-					case entry::NUMBER: {
-						source.numberData = source.objectData->object->id;
-						break;
-					}
-
-					case entry::STRING: {
-						source.stringData = numberToString(source.objectData->object->id);
-						break;
-					}
-				}
-			}
+		case entry::STRING: {
+			## type_conversion.py source source.stringData NUMBER_OBJECT STRING "" interpreter
 			break;
 		}
 	}
+
+	source.type = type;
 }
 
 void ts::initEntry(class Interpreter* interpreter, Entry* location) {;
