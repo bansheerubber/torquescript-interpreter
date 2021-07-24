@@ -568,9 +568,10 @@ void Interpreter::interpret() {
 			
 			// pull the object from the stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - argumentCount];
-			ObjectReference* object = objectEntry.objectData;
+			Object* object = nullptr;
+			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
-			if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+			if(object == nullptr) {
 				this->warning("trying to call a deleted object\n");
 				
 				// pop arguments that we didn't use
@@ -589,8 +590,8 @@ void Interpreter::interpret() {
 				bool found = false;
 				auto methodNameIndex = this->methodNameToIndex.find(toLower(instruction.callObject.name));
 				if(methodNameIndex != this->methodNameToIndex.end()) {
-					auto methodEntry = this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
-					if(methodEntry != this->methodTrees[object->object->namespaceIndex]->methodIndexToEntry.end()) {
+					auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+					if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
 						instruction.callObject.cachedEntry = methodEntry->second;
 						instruction.callObject.isCached = true;
 						found = true;
@@ -598,7 +599,7 @@ void Interpreter::interpret() {
 				}
 				
 				if(!found) {
-					this->warning("could not find function with name '%s::%s'\n", object->object->nameSpace.c_str(), instruction.callFunction.name.c_str());
+					this->warning("could not find function with name '%s::%s'\n", object->nameSpace.c_str(), instruction.callFunction.name.c_str());
 
 					// pop arguments that we didn't use
 					Entry &numberOfArguments = this->stack[this->stack.head - 1];

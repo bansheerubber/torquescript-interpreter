@@ -4,6 +4,7 @@
 Object::Object(ts::Interpreter* interpreter, string nameSpace, size_t namespaceIndex) {
 	this->properties.interpreter = interpreter;
 	this->id = interpreter->highestObjectId++;
+	interpreter->objects[this->id] = this;
 
 	string id = "id";
 	Entry entry;
@@ -20,6 +21,8 @@ Object::~Object() {
 		reference->object = nullptr;
 		reference = reference->next;
 	}
+
+	this->properties.interpreter->objects.erase(this->id);
 }
 
 void Object::addReference(ObjectReference* reference) {

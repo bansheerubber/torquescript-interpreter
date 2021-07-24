@@ -105,6 +105,7 @@ namespace ts {
 			friend void onFunctionFrameRealloc(Interpreter* interpreter);
 			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 			friend VariableContext;
+			friend Object;
 
 			void pushFunctionFrame(
 				InstructionContainer* container,
@@ -131,5 +132,8 @@ namespace ts {
 			// used to index into a method tree
 			robin_map<string, size_t> methodNameToIndex;
 			size_t currentMethodNameIndex = 0;
+
+			// used to lookup objects
+			robin_map<size_t, Object*> objects;
 	};
 }
