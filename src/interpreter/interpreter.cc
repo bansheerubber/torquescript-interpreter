@@ -305,19 +305,10 @@ void Interpreter::interpret() {
 
 		case instruction::JUMP_IF_TRUE: { // jump to an instruction
 			Entry &entry = this->stack[this->stack.head - 1];
-			if(
-				(
-					entry.type == entry::NUMBER
-					&& entry.numberData != 0
-				)
-				|| (
-					entry.type == entry::STRING
-					&& strlen(entry.stringData) != 0
-				)
-				|| (
-					entry.type == entry::OBJECT
-				)
-			) {
+			int number = 0;
+			## type_conversion.py entry number NUMBER_STRING_OBJECT NUMBER
+
+			if(number != 0) {
 				*this->instructionPointer = instruction.jumpIfTrue.index;
 			}
 
@@ -329,16 +320,10 @@ void Interpreter::interpret() {
 
 		case instruction::JUMP_IF_FALSE: { // jump to an instruction
 			Entry &entry = this->stack[this->stack.head - 1];
-			if(
-				(
-					entry.type == entry::NUMBER
-					&& entry.numberData == 0
-				)
-				|| (
-					entry.type == entry::STRING
-					&& strlen(entry.stringData) == 0
-				)
-			) {
+			int number = 1;
+			## type_conversion.py entry number NUMBER_STRING_OBJECT NUMBER
+
+			if(number == 0) {
 				*this->instructionPointer = instruction.jumpIfFalse.index;
 			}
 
