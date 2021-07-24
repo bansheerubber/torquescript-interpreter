@@ -5,6 +5,7 @@ entry_name = sys.argv[1]
 output_name = sys.argv[2]
 source_type = sys.argv[3]
 output_type = sys.argv[4]
+additional = sys.argv[5] if len(sys.argv) >= 6 else ""
 
 entry_types = [
 	"NUMBER",
@@ -39,7 +40,8 @@ if "_" in source_type:
 		code = code\
 			.replace("%%conditional%%", conditional)\
 			.replace("%%entry%%", entry_name)\
-			.replace("%%output%%", output_name)
+			.replace("%%output%%", output_name)\
+			.replace("%%delete%%", additional)
 		
 		print(code)
 		
@@ -49,6 +51,7 @@ else:
 	code = code\
 		.replace("%%conditional%%", "if")\
 		.replace("%%entry%%", entry_name)\
-		.replace("%%output%%", output_name)
+		.replace("%%output%%", output_name)\
+		.replace("%%delete%%", additional)
 	
 	print(code)

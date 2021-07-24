@@ -1,0 +1,4 @@
+%%conditional%%((%%entry%%).type == entry::STRING) {
+	%%output%% = (%%entry%%).stringData;
+	%%delete%% = false;
+}
