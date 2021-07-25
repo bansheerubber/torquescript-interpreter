@@ -1,6 +1,8 @@
 #include "postfixStatement.h"
 #include "../interpreter/interpreter.h"
 
+#include "../util/allocateString.h"
+
 bool PostfixStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	Token token = tokenizer->peekToken();
 	return token.type == INCREMENT
@@ -43,7 +45,7 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
 	// copy access instruction to assign instruction
-	new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+	ALLOCATE_STRING(instruction->localAccess.source, instruction->localAssign.destination);
 	instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;

@@ -86,7 +86,7 @@ if sys.argv[1] == "instruction.cc":
 
 		for variable_type, variable_name in struct_to_types[key]:
 			if variable_type == "string":
-				print(f"	new((void*)&destination.{key}.{variable_name}) string(source.{key}.{variable_name});")
+				print(f"  ALLOCATE_STRING(source.{key}.{variable_name}, destination.{key}.{variable_name});")
 			elif variable_type == "Entry":
 				print(f"	destination.{key}.{variable_name} = ts::Entry();")
 				print(f"	copyEntry(source.{key}.{variable_name}, destination.{key}.{variable_name});")

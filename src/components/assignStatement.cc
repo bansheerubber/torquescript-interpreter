@@ -1,6 +1,7 @@
 #include "assignStatement.h"
 
 #include "accessStatement.h"
+#include "../util/allocateString.h"
 #include "booleanLiteral.h"
 #include "../interpreter/interpreter.h"
 #include "numberLiteral.h"
@@ -158,7 +159,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToObjectOperator(this->assignmentToken.type);
 		instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-		new((void*)&instruction->objectAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(instruction->localAccess.source, instruction->objectAssign.destination);
 		instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->objectAssign.fromStack = false;
@@ -169,7 +170,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToGlobalOperator(this->assignmentToken.type);
 		instruction->globalAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		new((void*)&instruction->globalAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(instruction->localAccess.source, instruction->globalAssign.destination);
 		instruction->globalAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->globalAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->globalAssign.fromStack = false;
@@ -179,7 +180,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);
 		instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(instruction->localAccess.source, instruction->localAssign.destination);
 		instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;

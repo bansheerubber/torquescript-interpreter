@@ -2,6 +2,7 @@
 #include "../interpreter/interpreter.h"
 
 #include "accessStatement.h"
+#include "../util/allocateString.h"
 #include "assignStatement.h"
 #include "booleanLiteral.h"
 #include "callStatement.h"
@@ -125,7 +126,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
-	new((void*)&createObject->createObject.type) string(this->className->print()); // TODO move this initialization elsewhere
+	ALLOCATE_STRING(this->className->print(), createObject->createObject.type);
 	createObject->createObject.methodTreeIndex = 0;
 	createObject->createObject.isCached = false;
 	output.add(createObject);
@@ -140,7 +141,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
 			instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-			new((void*)&instruction->objectAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(instruction->localAccess.source, instruction->objectAssign.destination);
 			instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
 			instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
 			instruction->objectAssign.fromStack = false;

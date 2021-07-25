@@ -1,5 +1,7 @@
 #include "instruction.h"
 
+#include "../util/allocateString.h"
+
 void ts::copyInstruction(Instruction &source, Instruction &destination) {
 	destination.type = source.type;
 	destination.index = source.index;

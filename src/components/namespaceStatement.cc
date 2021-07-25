@@ -1,6 +1,8 @@
 #include "namespaceStatement.h"
 #include "../interpreter/interpreter.h"
 
+#include "../util/allocateString.h"
+
 bool NamespaceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return (
 		tokenizer->peekToken().type == PARENT
@@ -82,8 +84,8 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		// build call instruction
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
-		new((void*)&callFunction->callFunction.name) string(this->operation->print()); // TODO move this initialization elsewhere
-		new((void*)&callFunction->callFunction.nameSpace) string(this->name->print()); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(this->operation->print(), callFunction->callFunction.name);
+		ALLOCATE_STRING(this->name->print(), callFunction->callFunction.nameSpace);
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
@@ -109,7 +111,7 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		// build call instruction
 		ts::Instruction* callParent = new ts::Instruction();
 		callParent->type = ts::instruction::CALL_PARENT;
-		new((void*)&callParent->callParent.name) string(this->operation->print()); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(this->operation->print(), callParent->callParent.name);
 		callParent->callParent.cachedIndex = 0;
 		callParent->callParent.isCached = false;
 		output.add(callParent);

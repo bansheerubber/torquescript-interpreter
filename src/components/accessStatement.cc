@@ -1,6 +1,7 @@
 #include "accessStatement.h"
 #include "../interpreter/interpreter.h"
 
+#include "../util/allocateString.h"
 #include "arrayStatement.h"
 #include "callStatement.h"
 
@@ -239,8 +240,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		// build call instruction
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
-		new((void*)&callFunction->callFunction.name) string(this->elements[0].token.lexeme); // TODO move this initialization elsewhere
-		new((void*)&callFunction->callFunction.nameSpace) string(""); // TODO move this initialization elsewhere
+		ALLOCATE_STRING(this->elements[0].token.lexeme, callFunction->callFunction.name);
+		ALLOCATE_STRING("", callFunction->callFunction.nameSpace);
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
@@ -266,7 +267,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->type = ts::instruction::LOCAL_ACCESS;
 			instruction->localAccess.dimensions = 0;
 			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(element.token.lexeme, instruction->localAccess.source);
 			instruction->localAccess.stackIndex = -1;
 
 			c.lastAccess = instruction;
@@ -278,7 +279,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->type = ts::instruction::GLOBAL_ACCESS;
 			instruction->globalAccess.dimensions = 0;
 			instruction->globalAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->globalAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(element.token.lexeme, instruction->globalAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -289,7 +290,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->type = ts::instruction::INVALID_INSTRUCTION; // TODO figure out a better way to do this
 			instruction->localAccess.dimensions = 0;
 			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(element.token.lexeme, instruction->localAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -311,7 +312,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			instruction->type = ts::instruction::OBJECT_ACCESS;
 			instruction->objectAccess.dimensions = 0;
 			instruction->objectAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->objectAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(element.token.lexeme, instruction->objectAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -336,7 +337,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			// compile the call instruction
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::CALL_OBJECT;
-			new((void*)&instruction->callObject.name) string(lastInstruction->objectAccess.source); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(lastInstruction->objectAccess.source, instruction->callObject.name);
 			instruction->callObject.cachedEntry = nullptr;
 			instruction->callObject.isCached = false;
 
