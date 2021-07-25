@@ -61,7 +61,7 @@
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer;
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
 		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 #endif
