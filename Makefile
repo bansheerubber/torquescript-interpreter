@@ -1,6 +1,6 @@
 target = torquescript
 cclibs = -lpthread
-cc = g++
+CC = g++
 ccflags = -O2 -Wall -Wno-switch -Wno-class-memaccess -Wno-delete-incomplete -Wno-attributes -Bsymbolic -fno-semantic-interposition -std=c++17
 
 cpp_source = $(shell find src -type f -name "*.cc" ! -path "src/include*")
@@ -29,12 +29,12 @@ $(cpp_objects_tmp) : %.o : %.h
 $(cpp_objects_tmp) : %.o : %.cc
 	@mkdir -p $(dir $@)
 	@echo -e "   CC      $<"
-	@$(cc) $(ccflags) -c $< -o $@
+	@$(CC) $(ccflags) -c $< -o $@
 
 dist/$(target): $(cpp_objects_tmp)
 	@mkdir -p $(dir dist/$(target))
 	@echo -e "   CC      $@"
-	@$(cc) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
+	@$(CC) $(cpp_objects_tmp) -Wall $(cclibs) -o $@
 
 test: dist/$(target)
 	cd dist && ./$(target) --test
