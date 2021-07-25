@@ -4,6 +4,7 @@
 #include "../util/allocateString.h"
 #include "arrayStatement.h"
 #include "callStatement.h"
+#include "../util/stringToChars.h"
 
 bool AccessStatement::DatablockAsSymbol = false;
 
@@ -257,6 +258,13 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		++iterator;
 	}
 
+
+	// special cases for strings at the start of the access statement
+	if(this->elements[0].component != nullptr && this->elements[0].component->getType() == STRING_LITERAL) {
+		c.output.add(this->elements[0].component->compile(interpreter, context));
+		++iterator;
+	}
+
 	int count = 0;
 	ts::Instruction* lastInstruction = nullptr;
 	for(; iterator != this->elements.end(); ++iterator) {
@@ -287,10 +295,10 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.token.type == SYMBOL) {
 			ts::Instruction* instruction = new ts::Instruction();
-			instruction->type = ts::instruction::INVALID_INSTRUCTION; // TODO figure out a better way to do this
-			instruction->localAccess.dimensions = 0;
-			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			ALLOCATE_STRING(element.token.lexeme, instruction->localAccess.source);
+			instruction->type = ts::instruction::SYMBOL_ACCESS;
+			instruction->symbolAccess.dimensions = 0;
+			instruction->symbolAccess.hash = hash<string>{}(element.token.lexeme);
+			ALLOCATE_STRING(element.token.lexeme, instruction->symbolAccess.source);
 
 			c.lastAccess = instruction;
 

@@ -86,6 +86,7 @@ namespace ts {
 			OBJECT_ASSIGN_BITWISE_OR,
 			OBJECT_ACCESS,
 			LINK_VARIABLE,
+			SYMBOL_ACCESS,
 		};
 
 		enum AssignOperations {
@@ -205,6 +206,12 @@ namespace ts {
 				string source;
 				size_t hash;
 			} objectAccess;
+
+			struct {
+				int dimensions;
+				string source;
+				size_t hash;
+			} symbolAccess;
 
 			struct {
 				string name;

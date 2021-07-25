@@ -141,9 +141,9 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
 			instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-			ALLOCATE_STRING(instruction->localAccess.source, instruction->objectAssign.destination);
-			instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
-			instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
+			ALLOCATE_STRING(instruction->symbolAccess.source, instruction->objectAssign.destination);
+			instruction->objectAssign.hash = hash<string>{}(instruction->symbolAccess.source);
+			instruction->objectAssign.dimensions = instruction->symbolAccess.dimensions;
 			instruction->objectAssign.fromStack = false;
 			instruction->objectAssign.pushResult = false;
 			instruction->objectAssign.popObject = false;

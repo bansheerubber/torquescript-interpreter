@@ -176,7 +176,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->globalAssign.fromStack = false;
 		instruction->globalAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
-	else { // copy access instruction to assign instruction
+	else if(instruction->type == ts::instruction::LOCAL_ACCESS) { // copy access instruction to assign instruction
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);
 		instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
