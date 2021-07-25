@@ -204,8 +204,8 @@ Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, ent
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
 	MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
 	int methodTreeEntryIndex = frame.methodTreeEntryIndex + 1; // always go up in the method tree
-	PackagedFunctionList* list = frame.packagedFunctionList;
-	int packagedFunctionListIndex = frame.packagedFunctionList->getNextValidIndex(frame.packagedFunctionListIndex);
+	PackagedFunctionList* list;
+	int packagedFunctionListIndex;
 
 	if((size_t)methodTreeEntryIndex < methodTreeEntry->list.head) {
 		list = methodTreeEntry->list[methodTreeEntryIndex];
