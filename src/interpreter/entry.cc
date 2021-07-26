@@ -3,6 +3,7 @@
 #include "../util/cloneString.h"
 #include "../util/getEmptyString.h"
 #include "interpreter.h"
+#include "../util/isInteger.h"
 #include "../util/numberToString.h"
 #include "object.h"
 #include "../util/stringToNumber.h"

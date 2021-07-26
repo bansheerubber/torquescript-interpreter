@@ -1,3 +1,9 @@
 %%conditional%%((%%entry%%).type == entry::STRING) {
-	%%output%% = %%this%%->objects[stringToNumber((%%entry%%).stringData)];
+	if(isInteger((%%entry%%).stringData)) {
+		%%output%% = %%this%%->objects[stringToNumber((%%entry%%).stringData)];
+	}
+	else {
+		string name((%%entry%%).stringData);
+		%%output%% = %%this%%->stringToObject[name];
+	}
 }

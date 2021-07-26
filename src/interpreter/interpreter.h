@@ -136,5 +136,6 @@ namespace ts {
 
 			// used to lookup objects
 			robin_map<size_t, Object*> objects;
+			robin_map<string, Object*> stringToObject;
 	};
 }

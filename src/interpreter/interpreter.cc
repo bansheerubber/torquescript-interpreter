@@ -5,6 +5,7 @@
 #include "../tssl/define.h"
 #include "entry.h"
 #include "../util/getEmptyString.h"
+#include "../util/isInteger.h"
 #include "object.h"
 #include "../util/numberToString.h"
 #include "stack.h"
@@ -374,7 +375,7 @@ void Interpreter::interpret() {
 					this->pop(); // pop the dimensions if we have any
 				}
 
-				this->push(entry);	
+				this->push(entry);
 			}
 			else {
 				this->push(this->stack[instruction.localAccess.stackIndex + this->stackFramePointer]);
@@ -426,6 +427,19 @@ void Interpreter::interpret() {
 
 			this->push(entry);
 
+			break;
+		}
+
+		case instruction::SYMBOL_ACCESS: { // lookup object by name and push it to stack if it exists
+			// try to look up the object's name
+			auto objectIterator = this->stringToObject.find(instruction.symbolAccess.source, instruction.symbolAccess.hash);
+			if(objectIterator == this->stringToObject.end()) {
+				this->push(emptyEntry);
+			}
+			else {
+				this->push(new ObjectReference(objectIterator->second));
+			}
+			
 			break;
 		}
 
