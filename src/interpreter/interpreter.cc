@@ -1,6 +1,7 @@
 #include "interpreter.h"
 
 #include "../util/cloneString.h"
+#include "../compiler/compiler.h"
 #include "debug.h"
 #include "../tssl/define.h"
 #include "entry.h"
@@ -8,9 +9,11 @@
 #include "../util/isInteger.h"
 #include "object.h"
 #include "../util/numberToString.h"
+#include "../parser/parser.h"
 #include "stack.h"
 #include "../util/stringCompare.h"
 #include "../util/stringToNumber.h"
+#include "../tokenizer/tokenizer.h"
 #include "../util/toLower.h"
 
 using namespace ts;
@@ -139,14 +142,22 @@ void Interpreter::pushFunctionFrame(
 void Interpreter::popFunctionFrame() {
 	this->frames.popped();
 
-	FunctionFrame &frame = this->frames[this->frames.head - 1];
-	this->topContainer = frame.container;
-	this->instructionPointer = &frame.instructionPointer;
-	this->stackFramePointer = frame.stackPointer;
-	this->topContext = &frame.context;
+	if(this->frames.head == 0) {
+		this->topContainer = nullptr;
+		this->instructionPointer = nullptr;
+		this->stackFramePointer = 0;
+		this->topContext = nullptr;
+	}
+	else {
+		FunctionFrame &frame = this->frames[this->frames.head - 1];
+		this->topContainer = frame.container;
+		this->instructionPointer = &frame.instructionPointer;
+		this->stackFramePointer = frame.stackPointer;
+		this->topContext = &frame.context;
 
-	for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
-		this->pop();
+		for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
+			this->pop();
+		}
 	}
 }
 
@@ -198,6 +209,15 @@ void Interpreter::pop() {
 void Interpreter::startInterpretation(Instruction* head) {
 	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
 	this->startTime = chrono::high_resolution_clock::now();
+	this->interpret();
+}
+
+void Interpreter::execFile(string filename) {
+	ParsedArguments args;
+	Tokenizer tokenizer(filename, args);
+	Parser parser(&tokenizer, args);
+	
+	this->pushFunctionFrame(new InstructionContainer(ts::Compile(&parser, this)));
 	this->interpret();
 }
 
@@ -266,6 +286,7 @@ void Interpreter::interpret() {
 			this->topContext->print();
 			this->printStack();
 		}
+		this->popFunctionFrame();
 		return;
 	}
 

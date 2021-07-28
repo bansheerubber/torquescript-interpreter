@@ -11,6 +11,7 @@
 #include "./compiler/compiler.h"
 #include "io.h"
 #include "./interpreter/interpreter.h"
+#include "./lib/lib.h"
 #include "./parser/parser.h"
 #include "test.h"
 #include "./tokenizer/tokenizer.h"

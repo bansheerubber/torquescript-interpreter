@@ -8,3 +8,4 @@ tests/results/parser
 tests/results/Server_MiniDungeons
 *.pyc
 __pycache__
+libtorquescript.map
