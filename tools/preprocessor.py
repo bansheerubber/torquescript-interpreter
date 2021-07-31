@@ -45,29 +45,65 @@ def preprocess(filename, contents, directory = None):
 			new_contents.append(line)
 	return new_contents
 
-for root, subdirs, files in os.walk("./src"):
-	files = [f"{root}/{file}" for file in files]
-	for file in files:
-		file = file.replace("\\", "/")
-		file_object = pathlib.Path(file)
-		tmp_file = file.replace("./src/", "./tmp/")
-		tmp_file_object = pathlib.Path(tmp_file)
-		
-		extension = file_object.suffix
-		parent = file_object.parent
-		tmp_parent = tmp_file_object.parent
+if __name__ == "__main__":
+	include_file = open("./src/lib/libSymbols.h")
+	functions = []
+	for line in include_file:
+		if match := re.search(r'[\w]+(?=\()', line):
+			functions.append(match.group(0))
 
-		if extension == ".cc" or extension == ".h":
-			opened_file = open(file_object, "r", encoding='utf-8')
-			file_contents = opened_file.readlines()
-			opened_file.close()
+	include_file.close()
+
+	# generate the map file
+	global_symbols = ";".join(functions)
+	map_contents = """torquescript {
+		global: %%;
+		local: *;
+	};""".replace("%%", global_symbols)
+
+	map_file = open("libtorquescript.map", "w")
+	map_file.write(map_contents)
+	map_file.close()
+
+	# generate the include files
+	os.makedirs("./dist/include.cpp", exist_ok=True)
+	copyfile("./src/lib/libSymbols.h", "./dist/include.cpp/ts.h")
+
+	os.makedirs("./dist/include.c", exist_ok=True)
+	include_c_source = open("./src/lib/libSymbols.h")
+	include_c_destination = open("./dist/include.c/ts.h", "w")
+	include_c_lines = []
+	for line in include_c_source:
+		if 'extern "C"' not in line and line.strip() != "}":
+			include_c_lines.append(line.strip() + "\n")
+
+	include_c_destination.writelines(include_c_lines)
+	include_c_destination.close()
+	include_c_source.close()
+
+	for root, subdirs, files in os.walk("./src"):
+		files = [f"{root}/{file}" for file in files]
+		for file in files:
+			file = file.replace("\\", "/")
+			file_object = pathlib.Path(file)
+			tmp_file = file.replace("./src/", "./tmp/")
+			tmp_file_object = pathlib.Path(tmp_file)
 			
-			if os.path.exists(tmp_file):
-				src_time = file_object.stat().st_mtime
-				tmp_time = tmp_file_object.stat().st_mtime
+			extension = file_object.suffix
+			parent = file_object.parent
+			tmp_parent = tmp_file_object.parent
 
-				if src_time > tmp_time: # recopy file if source file is newer than tmp file
+			if extension == ".cc" or extension == ".h":
+				opened_file = open(file_object, "r", encoding='utf-8')
+				file_contents = opened_file.readlines()
+				opened_file.close()
+				
+				if os.path.exists(tmp_file):
+					src_time = file_object.stat().st_mtime
+					tmp_time = tmp_file_object.stat().st_mtime
+
+					if src_time > tmp_time: # recopy file if source file is newer than tmp file
+						write_file(tmp_file, preprocess(file, file_contents))
+				else:
+					os.makedirs(tmp_parent, exist_ok=True)
 					write_file(tmp_file, preprocess(file, file_contents))
-			else:
-				os.makedirs(tmp_parent, exist_ok=True)
-				write_file(tmp_file, preprocess(file, file_contents))

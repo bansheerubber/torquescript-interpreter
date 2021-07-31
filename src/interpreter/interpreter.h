@@ -60,6 +60,7 @@ namespace ts {
 			Interpreter(ParsedArguments args);
 
 			void startInterpretation(Instruction* head);
+			void execFile(string filename);
 			
 			void printStack();
 			void warning(const char* format, ...);
