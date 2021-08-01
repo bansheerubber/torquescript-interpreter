@@ -23,7 +23,7 @@ class MinHeap {
 			this->array[iterator] = value;
 			this->array.pushed();
 
-			while(iterator != 0 && this->array[this->parentIndex(iterator)] > this->array[iterator]) {
+			while(iterator != 0 && this->array[iterator] < this->array[this->parentIndex(iterator)]) {
 				this->swap(iterator, this->parentIndex(iterator));
 				iterator = this->parentIndex(iterator);
 			}
@@ -34,10 +34,15 @@ class MinHeap {
 		}
 
 		void pop() {
-			this->array[0] = this->array[this->array.head - 1];
-			this->array.popped();
+			if(this->array.head == 1) {
+				this->array.popped();
+			}
+			else {
+				this->array[0] = this->array[this->array.head - 1];
+				this->array.popped();
 
-			this->organize(0);
+				this->organize(0);
+			}
 		}
 	
 		DynamicArray<T, S> array;
