@@ -12,9 +12,11 @@
 #include "instruction.h"
 #include "instructionContainer.h"
 #include "methodTree.h"
+#include "../util/minHeap.h"
 #include "../compiler/package.h"
 #include "packagedFunctionList.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
+#include "schedule.h"
 #include "objectReference.h"
 #include "variableContext.h"
 
@@ -52,6 +54,7 @@ namespace ts {
 	void onFunctionFrameRealloc(Interpreter* interpreter);
 	void initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list);
 	void initMethodTree(Interpreter* interpreter, MethodTree** tree);
+	void initSchedule(Interpreter* interpreter, Schedule** schedule);
 	
 	class Interpreter {
 		public:
@@ -73,6 +76,8 @@ namespace ts {
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
+			void addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount);
+
 			Entry emptyEntry;
 
 			size_t highestObjectId = 0;
@@ -81,6 +86,7 @@ namespace ts {
 		
 		private:
 			void interpret(); // interprets the next instruction
+			void tick();
 
 			bool warnings = true;
 			
@@ -138,5 +144,8 @@ namespace ts {
 			// used to lookup objects
 			robin_map<size_t, Object*> objects;
 			robin_map<string, Object*> stringToObject;
+
+			// keep track of schedules
+			MinHeap<Schedule*, Interpreter> schedules = MinHeap<Schedule*, Interpreter>(this, initSchedule, nullptr);
 	};
 }

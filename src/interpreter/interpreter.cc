@@ -13,6 +13,7 @@
 #include "stack.h"
 #include "../util/stringCompare.h"
 #include "../util/stringToNumber.h"
+#include "../util/time.h"
 #include "../tokenizer/tokenizer.h"
 #include "../util/toLower.h"
 
@@ -41,6 +42,10 @@ void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList
 
 void ts::initMethodTree(Interpreter* interpreter, MethodTree** tree) {
 	*tree = nullptr;
+}
+
+void ts::initSchedule(Interpreter* interpreter, Schedule** schedule) {
+	*schedule = nullptr;
 }
 
 Interpreter::Interpreter(ParsedArguments args) {
@@ -273,6 +278,58 @@ void Interpreter::warning(const char* format, ...) {
 		printWarning(format, argptr);
 		va_end(argptr);
 	}
+}
+
+void Interpreter::tick() {
+	unsigned long long time = getMicrosecondsNow();
+	
+	Schedule* schedule = this->schedules.top();
+	while(this->schedules.array.head > 0 && time - schedule->start > schedule->time) {
+		this->schedules.pop();
+
+		// set up function call frame
+		PackagedFunctionList* list;
+		if(this->nameToFunctionIndex.find(toLower(schedule->command)) != this->nameToFunctionIndex.end()) {
+			list = this->functions[this->nameToFunctionIndex[toLower(schedule->command)]];
+		}
+		else {
+			continue;
+		}
+
+		int packagedFunctionListIndex = list->topValidIndex;
+		Function* foundFunction = (*list)[packagedFunctionListIndex];
+		MethodTreeEntry* methodTreeEntry = nullptr;
+		int methodTreeEntryIndex = -1;
+
+		if(foundFunction->isTSSL) {
+			sl::Function* function = foundFunction->function;
+			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+			function->function(this, schedule->argumentCount, schedule->arguments);
+			this->popFunctionFrame();
+		}
+		else {
+			// push arguments onto the stack
+			for(size_t i = 0; i < schedule->argumentCount; i++) {
+				this->push(schedule->arguments[i]);
+			}
+
+			this->push((double)schedule->argumentCount);
+
+			// handle callback
+			this->pushFunctionFrame(
+				foundFunction,
+				list,
+				packagedFunctionListIndex,
+				methodTreeEntry,
+				methodTreeEntryIndex,
+				schedule->argumentCount + 1,
+				foundFunction->variableCount
+			);
+			this->interpret();
+		}
+	}
+
+	this->tick();
 }
 
 void Interpreter::interpret() {
@@ -536,6 +593,11 @@ void Interpreter::interpret() {
 			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
 			// here so the original TSSL method can take over
 			if(this->frames[this->frames.head - 1].isTSSL) {
+				return;
+			}
+
+			// if we just ran out of instruction containers, just die here
+			if(this->topContainer == nullptr) {
 				return;
 			}
 
@@ -813,4 +875,14 @@ void Interpreter::addPackageMethod(
 	}
 
 	tree->addPackageMethod(name, index, container);
+}
+
+void Interpreter::addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount) {
+	this->schedules.insert(new Schedule(
+		time,
+		getMicrosecondsNow(),
+		command,
+		arguments,
+		argumentCount
+	));
 }
