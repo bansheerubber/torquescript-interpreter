@@ -31,7 +31,7 @@ tsInterpreter tsCreateInterpreter(char isParallel) {
 }
 
 void tsTick(tsInterpreter interpreter) {
-	
+	interpreters[interpreter.id]->tick();
 }
 
 void tsExecFile(tsInterpreter interpreter, const char* filename) {

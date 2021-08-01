@@ -78,6 +78,8 @@ namespace ts {
 
 			void addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount);
 
+			void tick();
+
 			Entry emptyEntry;
 
 			size_t highestObjectId = 0;
@@ -86,7 +88,6 @@ namespace ts {
 		
 		private:
 			void interpret(); // interprets the next instruction
-			void tick();
 
 			bool warnings = true;
 			
