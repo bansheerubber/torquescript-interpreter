@@ -48,7 +48,9 @@ void ts::initSchedule(Interpreter* interpreter, Schedule** schedule) {
 	*schedule = nullptr;
 }
 
-Interpreter::Interpreter(ParsedArguments args) {
+Interpreter::Interpreter(ParsedArguments args, bool isParallel) {
+	this->isParallel = isParallel;
+	
 	this->emptyEntry.setString(getEmptyString());
 
 	ts::sl::define(this);
@@ -58,6 +60,10 @@ Interpreter::Interpreter(ParsedArguments args) {
 	}
 
 	this->globalContext = VariableContext(this);
+
+	if(this->isParallel) {
+		this->tickThread = thread(&Interpreter::tick, this);
+	}
 }
 
 Interpreter::~Interpreter() {
@@ -218,6 +224,14 @@ void Interpreter::startInterpretation(Instruction* head) {
 }
 
 void Interpreter::execFile(string filename) {
+	if(this->isParallel) {
+		this->execFilenames.push(filename);
+		return;
+	}
+	this->actuallyExecFile(filename);
+}
+
+void Interpreter::actuallyExecFile(string filename) {
 	ParsedArguments args;
 	Tokenizer tokenizer(filename, args);
 	Parser parser(&tokenizer, args);
@@ -329,7 +343,22 @@ void Interpreter::tick() {
 		}
 	}
 
-	this->tick();
+	// process queued files for parallel mode
+	if(this->isParallel) {
+		while(this->execFilenames.size() != 0) {
+			string filename = this->execFilenames.front();
+			this->execFilenames.pop();
+
+			this->actuallyExecFile(filename);
+		}
+
+		this_thread::sleep_for(chrono::milliseconds(this->tickRate));
+		this->tick();
+	}
+}
+
+void Interpreter::setTickRate(long tickRate) {
+	this->tickRate = tickRate;
 }
 
 void Interpreter::interpret() {
@@ -337,12 +366,6 @@ void Interpreter::interpret() {
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
-		if(!this->testing) {
-			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
-			printf("ran in %lu us\n", elapsed);
-			this->topContext->print();
-			this->printStack();
-		}
 		this->popFunctionFrame();
 		return;
 	}

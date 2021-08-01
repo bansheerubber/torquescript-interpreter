@@ -19,7 +19,7 @@ DynamicArray<ts::Interpreter*, void> interpreters(nullptr, 5, initInterpreterId,
 
 tsInterpreter tsCreateInterpreter(char isParallel) {
 	ParsedArguments args = {};
-	ts::Interpreter* interpreter = new ts::Interpreter(args);
+	ts::Interpreter* interpreter = new ts::Interpreter(args, isParallel);
 
 	size_t index = interpreters.head;
 	interpreters[index] = interpreter;
@@ -32,6 +32,10 @@ tsInterpreter tsCreateInterpreter(char isParallel) {
 
 void tsTick(tsInterpreter interpreter) {
 	interpreters[interpreter.id]->tick();
+}
+
+void tsSetTickRate(tsInterpreter interpreter, long tickRate) {
+	interpreters[interpreter.id]->setTickRate(tickRate);
 }
 
 void tsExecFile(tsInterpreter interpreter, const char* filename) {

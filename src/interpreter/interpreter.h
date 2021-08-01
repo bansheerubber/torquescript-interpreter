@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <cstring>
+#include <thread>
+#include <queue>
 #include <vector>
 
 #include "../args.h"
@@ -60,7 +62,7 @@ namespace ts {
 		public:
 			Interpreter();
 			~Interpreter();
-			Interpreter(ParsedArguments args);
+			Interpreter(ParsedArguments args, bool isParallel);
 
 			void startInterpretation(Instruction* head);
 			void execFile(string filename);
@@ -79,6 +81,7 @@ namespace ts {
 			void addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount);
 
 			void tick();
+			void setTickRate(long tickRate);
 
 			Entry emptyEntry;
 
@@ -89,7 +92,10 @@ namespace ts {
 		private:
 			void interpret(); // interprets the next instruction
 
+			void actuallyExecFile(string filename);
+
 			bool warnings = true;
+			bool isParallel = false;
 			
 			void push(Entry &entry) __attribute__((always_inline));
 			void push(double number) __attribute__((always_inline));
@@ -148,5 +154,10 @@ namespace ts {
 
 			// keep track of schedules
 			MinHeap<Schedule*, Interpreter> schedules = MinHeap<Schedule*, Interpreter>(this, initSchedule, nullptr);
+
+			// parallel stuff
+			thread tickThread;
+			queue<string> execFilenames;
+			long tickRate = 4;
 	};
 }
