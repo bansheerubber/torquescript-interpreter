@@ -20,7 +20,11 @@ def make():
 	global last_compile
 	global target
 	if time() - last_compile > 1:
-		process = subprocess.Popen(["make", target, "-j", "8"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		args = ["make", "-j", "8"]
+		if target != "":
+			args = ["make", target, "-j", "8"]
+
+		process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		error = False
 		for line in process.stderr:
