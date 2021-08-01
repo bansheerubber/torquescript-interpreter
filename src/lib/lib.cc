@@ -15,7 +15,7 @@ void initInterpreterId(void* nothing, ts::Interpreter** value) {
 	*value = nullptr;
 };
 
-ts::DynamicArray<ts::Interpreter*, void> interpreters(nullptr, 5, initInterpreterId, nullptr);
+DynamicArray<ts::Interpreter*, void> interpreters(nullptr, 5, initInterpreterId, nullptr);
 
 tsInterpreter tsCreateInterpreter(char isParallel) {
 	ParsedArguments args = {};

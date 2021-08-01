@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dynamicArray.h"
+#include "../util/dynamicArray.h"
 #include "function.h"
 
 namespace ts {

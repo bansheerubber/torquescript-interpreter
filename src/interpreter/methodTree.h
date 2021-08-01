@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "dynamicArray.h"
+#include "../util/dynamicArray.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
 
 using namespace tsl;

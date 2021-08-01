@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "../args.h"
-#include "dynamicArray.h"
+#include "../util/dynamicArray.h"
 #include "entry.h"
 #include "function.h"
 #include "../io.h"

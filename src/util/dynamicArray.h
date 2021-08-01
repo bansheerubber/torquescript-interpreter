@@ -4,20 +4,16 @@
 
 #include "../io.h"
 
-namespace ts {
-	#define DYNAMIC_ARRAY_MAX_SIZE 5000000
-	
-	template <typename T, typename S>
-	struct DynamicArray {
-		T* array;
-		size_t size;
+#define DYNAMIC_ARRAY_MAX_SIZE 5000000
+
+template <typename T, typename S>
+class DynamicArray {
+	public:
 		size_t head;
-		S* parent;
-		void (*init) (S* parent, T* location);
-		void (*onRealloc) (S* parent);
 
 		DynamicArray() {
 			this->array = nullptr;
+			this->dontDelete = true;
 		}
 
 		DynamicArray(
@@ -45,6 +41,11 @@ namespace ts {
 		}
 
 		~DynamicArray() {
+			if(this->dontDelete) {
+				this->dontDelete = false;
+				return;
+			}
+			
 			if(this->array != nullptr) {
 				free(this->array);
 				this->array = nullptr;
@@ -85,5 +86,12 @@ namespace ts {
 		T& operator[](size_t index) {
 			return this->array[index];
 		}
-	};
-}
+	
+	private:
+		bool dontDelete = false;
+		T* array;
+		size_t size;
+		S* parent;
+		void (*init) (S* parent, T* location);
+		void (*onRealloc) (S* parent);
+};

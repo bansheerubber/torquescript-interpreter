@@ -2,7 +2,7 @@
 
 #include "libSymbols.h"
 
-#include "../interpreter/dynamicArray.h"
+#include "../util/dynamicArray.h"
 
 namespace ts {
 	class Interpreter;
@@ -10,4 +10,4 @@ namespace ts {
 
 void initInterpreterId(void* nothing, ts::Interpreter** value);
 
-extern ts::DynamicArray<ts::Interpreter*, void> interpreters;
+extern DynamicArray<ts::Interpreter*, void> interpreters;
