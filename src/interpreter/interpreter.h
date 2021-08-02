@@ -78,7 +78,7 @@ namespace ts {
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
-			void addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount, ObjectReference* object = nullptr);
+			void addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object = nullptr);
 
 			void tick();
 			void setTickRate(long tickRate);

@@ -314,7 +314,7 @@ void Interpreter::tick() {
 			}
 			
 			bool found = false;
-			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->command));
+			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->functionName));
 			if(methodNameIndex != this->methodNameToIndex.end()) {
 				auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
 				if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
@@ -332,8 +332,8 @@ void Interpreter::tick() {
 			}
 		}
 		else {
-			if(this->nameToFunctionIndex.find(toLower(schedule->command)) != this->nameToFunctionIndex.end()) {
-				list = this->functions[this->nameToFunctionIndex[toLower(schedule->command)]];
+			if(this->nameToFunctionIndex.find(toLower(schedule->functionName)) != this->nameToFunctionIndex.end()) {
+				list = this->functions[this->nameToFunctionIndex[toLower(schedule->functionName)]];
 				packagedFunctionListIndex = list->topValidIndex;
 				foundFunction = (*list)[packagedFunctionListIndex];
 			}
@@ -930,11 +930,11 @@ void Interpreter::addPackageMethod(
 	tree->addPackageMethod(name, index, container);
 }
 
-void Interpreter::addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount, ObjectReference* object) {
+void Interpreter::addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object) {
 	this->schedules.insert(new Schedule(
 		time,
 		getMicrosecondsNow(),
-		command,
+		functionName,
 		arguments,
 		argumentCount,
 		object

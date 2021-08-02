@@ -11,7 +11,7 @@ namespace ts {
 		unsigned long long time; // how long this schedule should be
 		unsigned long long start; // when this schedule started
 		unsigned long long end; // when the schedule should end
-		string command;
+		string functionName;
 		Entry* arguments;
 		size_t argumentCount;
 		ObjectReference* object;
@@ -19,14 +19,14 @@ namespace ts {
 		Schedule(
 			unsigned long long time,
 			unsigned long long start,
-			string command,
+			string functionName,
 			Entry* arguments,
 			size_t argumentCount,
 			class ObjectReference* object = nullptr
 		) {
 			this->time = time;
 			this->start = start;
-			this->command = command;
+			this->functionName = functionName;
 			this->arguments = arguments;
 			this->argumentCount = argumentCount;
 			this->object = object;

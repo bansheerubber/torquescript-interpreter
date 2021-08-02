@@ -11,8 +11,8 @@ namespace ts {
 				return nullptr;
 			}
 			else if(argc == 2) {
-				string command(args[1].stringData);
-				interpreter->addSchedule((size_t)args[0].numberData * 1000, command, nullptr, 0);
+				string functionName(args[1].stringData);
+				interpreter->addSchedule((size_t)args[0].numberData * 1000, functionName, nullptr, 0);
 				return nullptr;
 			}
 
@@ -21,8 +21,8 @@ namespace ts {
 				copyEntry(args[i + 2], copiedArguments[i]);
 			}
 			
-			string command(args[1].stringData);
-			interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, command, copiedArguments, argc - 2);
+			string functionName(args[1].stringData);
+			interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, copiedArguments, argc - 2);
 			return nullptr;
 		}
 
@@ -31,11 +31,11 @@ namespace ts {
 				return nullptr;
 			}
 			else if(argc == 3) {
-				string command(args[2].stringData);
+				string functionName(args[2].stringData);
 
 				Entry* arguments = new Entry[1];
 				copyEntry(args[0], arguments[0]);
-				interpreter->addSchedule((size_t)args[1].numberData * 1000, command, arguments, 1, new ObjectReference(args[0].objectData));
+				interpreter->addSchedule((size_t)args[1].numberData * 1000, functionName, arguments, 1, new ObjectReference(args[0].objectData));
 				return nullptr;
 			}
 
@@ -45,8 +45,8 @@ namespace ts {
 				copyEntry(args[i + 3], copiedArguments[i + 1]);
 			}
 			
-			string command(args[2].stringData);
-			interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, command, copiedArguments, argc - 2, new ObjectReference(args[0].objectData));
+			string functionName(args[2].stringData);
+			interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, copiedArguments, argc - 2, new ObjectReference(args[0].objectData));
 			return nullptr;
 		}
 	}
