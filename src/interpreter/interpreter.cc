@@ -297,12 +297,8 @@ void Interpreter::warning(const char* format, ...) {
 void Interpreter::tick() {
 	unsigned long long time = getMicrosecondsNow();
 
-	for(size_t i = 0; i < this->schedules.array.head; i++) {
-		printf("%p\n", this->schedules.array[i]);
-	}
-	
 	Schedule* schedule = this->schedules.top();
-	while(this->schedules.array.head > 0 && time - schedule->start > schedule->time) {
+	while(this->schedules.array.head > 0 && time > schedule->end) {
 		// set up function call frame
 		Function* foundFunction;
 		PackagedFunctionList* list;

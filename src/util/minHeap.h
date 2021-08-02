@@ -23,7 +23,7 @@ class MinHeap {
 			this->array[iterator] = value;
 			this->array.pushed();
 
-			while(iterator != 0 && this->array[iterator] < this->array[this->parentIndex(iterator)]) {
+			while(iterator != 0 && this->compare(iterator, this->parentIndex(iterator))) {
 				this->swap(iterator, this->parentIndex(iterator));
 				iterator = this->parentIndex(iterator);
 			}
@@ -74,17 +74,26 @@ class MinHeap {
 			size_t rightIndex = this->rightChildIndex(index);
 			size_t smallestIndex = index;
 
-			if(leftIndex < this->array.head && this->array[leftIndex] < this->array[smallestIndex]) {
+			if(leftIndex < this->array.head && this->compare(leftIndex, smallestIndex)) {
 				smallestIndex = leftIndex;
 			}
 
-			if(rightIndex < this->array.head && this->array[rightIndex] < this->array[smallestIndex]) {
+			if(rightIndex < this->array.head && this->compare(rightIndex, smallestIndex)) {
 				smallestIndex = rightIndex;
 			}
 
 			if(smallestIndex != index) {
 				this->swap(index, smallestIndex);
 				this->organize(smallestIndex);
+			}
+		}
+
+		bool compare(size_t leftIndex, size_t rightIndex) {
+			if(std::is_pointer<T>::value) {
+				return *(this->array[leftIndex]) < *(this->array[rightIndex]);
+			}
+			else {
+				return this->array[leftIndex] < this->array[rightIndex];
 			}
 		}
 };
