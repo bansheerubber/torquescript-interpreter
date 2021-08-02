@@ -296,24 +296,55 @@ void Interpreter::warning(const char* format, ...) {
 
 void Interpreter::tick() {
 	unsigned long long time = getMicrosecondsNow();
+
+	for(size_t i = 0; i < this->schedules.array.head; i++) {
+		printf("%p\n", this->schedules.array[i]);
+	}
 	
 	Schedule* schedule = this->schedules.top();
 	while(this->schedules.array.head > 0 && time - schedule->start > schedule->time) {
-		this->schedules.pop();
-
 		// set up function call frame
+		Function* foundFunction;
 		PackagedFunctionList* list;
-		if(this->nameToFunctionIndex.find(toLower(schedule->command)) != this->nameToFunctionIndex.end()) {
-			list = this->functions[this->nameToFunctionIndex[toLower(schedule->command)]];
-		}
-		else {
-			continue;
-		}
-
-		int packagedFunctionListIndex = list->topValidIndex;
-		Function* foundFunction = (*list)[packagedFunctionListIndex];
+		int packagedFunctionListIndex = -1;
 		MethodTreeEntry* methodTreeEntry = nullptr;
 		int methodTreeEntryIndex = -1;
+
+		if(schedule->object != nullptr) {
+			Object* object = schedule->object->object;
+
+			if(object == nullptr) {
+				continue;
+			}
+			
+			bool found = false;
+			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->command));
+			if(methodNameIndex != this->methodNameToIndex.end()) {
+				auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+				if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
+					methodTreeEntry = methodEntry->second;
+					methodTreeEntryIndex = methodTreeEntry->hasInitialMethod ? 0 : 1;
+					list = methodTreeEntry->list[methodTreeEntryIndex];
+					packagedFunctionListIndex = list->topValidIndex;
+					foundFunction = (*list)[packagedFunctionListIndex];
+					found = true;
+				}
+			}
+
+			if(!found) {
+				continue;
+			}
+		}
+		else {
+			if(this->nameToFunctionIndex.find(toLower(schedule->command)) != this->nameToFunctionIndex.end()) {
+				list = this->functions[this->nameToFunctionIndex[toLower(schedule->command)]];
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[packagedFunctionListIndex];
+			}
+			else {
+				continue;
+			}
+		}
 
 		if(foundFunction->isTSSL) {
 			sl::Function* function = foundFunction->function;
@@ -341,6 +372,9 @@ void Interpreter::tick() {
 			);
 			this->interpret();
 		}
+
+		this->schedules.pop();
+		schedule = this->schedules.top();
 	}
 
 	// process queued files for parallel mode
@@ -900,12 +934,13 @@ void Interpreter::addPackageMethod(
 	tree->addPackageMethod(name, index, container);
 }
 
-void Interpreter::addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount) {
+void Interpreter::addSchedule(unsigned long long time, string command, Entry* arguments, size_t argumentCount, ObjectReference* object) {
 	this->schedules.insert(new Schedule(
 		time,
 		getMicrosecondsNow(),
 		command,
 		arguments,
-		argumentCount
+		argumentCount,
+		object
 	));
 }

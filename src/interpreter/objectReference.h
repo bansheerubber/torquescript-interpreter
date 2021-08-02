@@ -8,6 +8,7 @@ namespace ts {
 	class ObjectReference {
 		public:
 			ObjectReference(class Object* object);
+			ObjectReference(ObjectReference* objectReference);
 			~ObjectReference();
 			class Object* object = nullptr;
 

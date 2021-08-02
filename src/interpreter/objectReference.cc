@@ -4,9 +4,18 @@
 ObjectReference::ObjectReference(Object* object) {
 	this->object = object;
 	
-	if(object != nullptr) {
-		object->addReference(this);
-		this->id = object->id;
+	if(this->object != nullptr) {
+		this->object->addReference(this);
+		this->id = this->object->id;
+	}
+}
+
+ObjectReference::ObjectReference(ObjectReference* objectReference) {
+	this->object = objectReference->object;
+
+	if(this->object != nullptr) {
+		this->object->addReference(this);
+		this->id = this->object->id;
 	}
 }
 

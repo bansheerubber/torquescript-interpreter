@@ -13,13 +13,22 @@ namespace ts {
 		string command;
 		Entry* arguments;
 		size_t argumentCount;
+		ObjectReference* object;
 
-		Schedule(unsigned long long time, unsigned long long start, string command, Entry* arguments, size_t argumentCount) {
+		Schedule(
+			unsigned long long time,
+			unsigned long long start,
+			string command,
+			Entry* arguments,
+			size_t argumentCount,
+			class ObjectReference* object = nullptr
+		) {
 			this->time = time;
 			this->start = start;
 			this->command = command;
 			this->arguments = arguments;
 			this->argumentCount = argumentCount;
+			this->object = object;
 		}
 
 		bool operator<(const Schedule &other) {

@@ -68,10 +68,11 @@ void ts::sl::define(Interpreter* interpreter) {
 	entry::EntryType* n = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER };
 	entry::EntryType* sn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER };
 	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
-	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
-	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
+	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
+	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
+	entry::EntryType* ons = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::NUMBER, entry::STRING };
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &echo, "echo", 1, s));
 
@@ -100,6 +101,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &mFloatLength, "mFloatLength", 2, n));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &schedule, "schedule", 2, ns));
+	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__schedule, "SimObject", "schedule", 3, ons));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));
