@@ -9,5 +9,6 @@ extern "C" {
 	tsInterpreter tsCreateInterpreter(char isParallel);
 
 	void tsTick(tsInterpreter interpreter);
+	void tsSetTickRate(tsInterpreter interpreter, long tickRate);
 	void tsExecFile(tsInterpreter interpreter, const char* filename);
 }

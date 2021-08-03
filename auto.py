@@ -14,7 +14,7 @@ class EventHandler(pyinotify.ProcessEvent):
 		make()
 
 last_compile = 0
-target = f"{sys.argv[1]} " if len(sys.argv) == 2 else ""
+target = sys.argv[1] if len(sys.argv) == 2 else ""
 
 def make():
 	global last_compile
@@ -42,7 +42,12 @@ def make():
 		last_compile = time()
 
 os.system("make clean")
-os.system(f"make {target}-j 8")
+
+if target:
+	os.system(f"make {target} -j 8")
+else:
+	os.system(f"make -j 8")
+
 print("---------------------------------------------------------------------------------")
 
 handler = EventHandler()

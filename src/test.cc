@@ -120,7 +120,7 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			(*totalTests)++;
 			Tokenizer* tokenizer = new Tokenizer(candidateFile, empty);
 			Parser* parser = new Parser(tokenizer, empty);
-			ts::Interpreter* interpreter = new ts::Interpreter(empty);
+			ts::Interpreter* interpreter = new ts::Interpreter(empty, false);
 			interpreter->testing = true;
 			interpreter->startInterpretation(ts::Compile(parser, interpreter));
 

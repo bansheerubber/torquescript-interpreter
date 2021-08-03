@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <cstring>
+#include <thread>
+#include <queue>
 #include <vector>
 
 #include "../args.h"
@@ -12,9 +14,11 @@
 #include "instruction.h"
 #include "instructionContainer.h"
 #include "methodTree.h"
+#include "../util/minHeap.h"
 #include "../compiler/package.h"
 #include "packagedFunctionList.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
+#include "schedule.h"
 #include "objectReference.h"
 #include "variableContext.h"
 
@@ -52,12 +56,13 @@ namespace ts {
 	void onFunctionFrameRealloc(Interpreter* interpreter);
 	void initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list);
 	void initMethodTree(Interpreter* interpreter, MethodTree** tree);
+	void initSchedule(Interpreter* interpreter, Schedule** schedule);
 	
 	class Interpreter {
 		public:
 			Interpreter();
 			~Interpreter();
-			Interpreter(ParsedArguments args);
+			Interpreter(ParsedArguments args, bool isParallel);
 
 			void startInterpretation(Instruction* head);
 			void execFile(string filename);
@@ -73,6 +78,11 @@ namespace ts {
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
+			void addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object = nullptr);
+
+			void tick();
+			void setTickRate(long tickRate);
+
 			Entry emptyEntry;
 
 			size_t highestObjectId = 0;
@@ -82,7 +92,10 @@ namespace ts {
 		private:
 			void interpret(); // interprets the next instruction
 
+			void actuallyExecFile(string filename);
+
 			bool warnings = true;
+			bool isParallel = false;
 			
 			void push(Entry &entry) __attribute__((always_inline));
 			void push(double number) __attribute__((always_inline));
@@ -138,5 +151,13 @@ namespace ts {
 			// used to lookup objects
 			robin_map<size_t, Object*> objects;
 			robin_map<string, Object*> stringToObject;
+
+			// keep track of schedules
+			MinHeap<Schedule*, Interpreter> schedules = MinHeap<Schedule*, Interpreter>(this, initSchedule, nullptr);
+
+			// parallel stuff
+			thread tickThread;
+			queue<string> execFilenames;
+			long tickRate = 4;
 	};
 }

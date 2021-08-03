@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	ts::Interpreter* interpreter = new ts::Interpreter(args);
+	ts::Interpreter* interpreter = new ts::Interpreter(args, false);
 	
 	if(isPiped) {
 		string file;

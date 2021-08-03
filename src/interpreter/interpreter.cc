@@ -13,6 +13,7 @@
 #include "stack.h"
 #include "../util/stringCompare.h"
 #include "../util/stringToNumber.h"
+#include "../util/time.h"
 #include "../tokenizer/tokenizer.h"
 #include "../util/toLower.h"
 
@@ -43,7 +44,13 @@ void ts::initMethodTree(Interpreter* interpreter, MethodTree** tree) {
 	*tree = nullptr;
 }
 
-Interpreter::Interpreter(ParsedArguments args) {
+void ts::initSchedule(Interpreter* interpreter, Schedule** schedule) {
+	*schedule = nullptr;
+}
+
+Interpreter::Interpreter(ParsedArguments args, bool isParallel) {
+	this->isParallel = isParallel;
+	
 	this->emptyEntry.setString(getEmptyString());
 
 	ts::sl::define(this);
@@ -53,6 +60,10 @@ Interpreter::Interpreter(ParsedArguments args) {
 	}
 
 	this->globalContext = VariableContext(this);
+
+	if(this->isParallel) {
+		this->tickThread = thread(&Interpreter::tick, this);
+	}
 }
 
 Interpreter::~Interpreter() {
@@ -213,6 +224,14 @@ void Interpreter::startInterpretation(Instruction* head) {
 }
 
 void Interpreter::execFile(string filename) {
+	if(this->isParallel) {
+		this->execFilenames.push(filename);
+		return;
+	}
+	this->actuallyExecFile(filename);
+}
+
+void Interpreter::actuallyExecFile(string filename) {
 	ParsedArguments args;
 	Tokenizer tokenizer(filename, args);
 	Parser parser(&tokenizer, args);
@@ -275,17 +294,108 @@ void Interpreter::warning(const char* format, ...) {
 	}
 }
 
+void Interpreter::tick() {
+	unsigned long long time = getMicrosecondsNow();
+
+	Schedule* schedule = this->schedules.top();
+	while(this->schedules.array.head > 0 && time > schedule->end) {
+		// set up function call frame
+		Function* foundFunction;
+		PackagedFunctionList* list;
+		int packagedFunctionListIndex = -1;
+		MethodTreeEntry* methodTreeEntry = nullptr;
+		int methodTreeEntryIndex = -1;
+
+		if(schedule->object != nullptr) {
+			Object* object = schedule->object->object;
+
+			if(object == nullptr) {
+				continue;
+			}
+			
+			bool found = false;
+			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->functionName));
+			if(methodNameIndex != this->methodNameToIndex.end()) {
+				auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
+				if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
+					methodTreeEntry = methodEntry->second;
+					methodTreeEntryIndex = methodTreeEntry->hasInitialMethod ? 0 : 1;
+					list = methodTreeEntry->list[methodTreeEntryIndex];
+					packagedFunctionListIndex = list->topValidIndex;
+					foundFunction = (*list)[packagedFunctionListIndex];
+					found = true;
+				}
+			}
+
+			if(!found) {
+				continue;
+			}
+		}
+		else {
+			if(this->nameToFunctionIndex.find(toLower(schedule->functionName)) != this->nameToFunctionIndex.end()) {
+				list = this->functions[this->nameToFunctionIndex[toLower(schedule->functionName)]];
+				packagedFunctionListIndex = list->topValidIndex;
+				foundFunction = (*list)[packagedFunctionListIndex];
+			}
+			else {
+				continue;
+			}
+		}
+
+		if(foundFunction->isTSSL) {
+			sl::Function* function = foundFunction->function;
+			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+			function->function(this, schedule->argumentCount, schedule->arguments);
+			this->popFunctionFrame();
+		}
+		else {
+			// push arguments onto the stack
+			for(size_t i = 0; i < schedule->argumentCount; i++) {
+				this->push(schedule->arguments[i]);
+			}
+
+			this->push((double)schedule->argumentCount);
+
+			// handle callback
+			this->pushFunctionFrame(
+				foundFunction,
+				list,
+				packagedFunctionListIndex,
+				methodTreeEntry,
+				methodTreeEntryIndex,
+				schedule->argumentCount + 1,
+				foundFunction->variableCount
+			);
+			this->interpret();
+		}
+
+		this->schedules.pop();
+		schedule = this->schedules.top();
+	}
+
+	// process queued files for parallel mode
+	if(this->isParallel) {
+		while(this->execFilenames.size() != 0) {
+			string filename = this->execFilenames.front();
+			this->execFilenames.pop();
+
+			this->actuallyExecFile(filename);
+		}
+
+		this_thread::sleep_for(chrono::milliseconds(this->tickRate));
+		this->tick();
+	}
+}
+
+void Interpreter::setTickRate(long tickRate) {
+	this->tickRate = tickRate;
+}
+
 void Interpreter::interpret() {
 	start:
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
 	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
-		if(!this->testing) {
-			size_t elapsed = (chrono::duration_cast<chrono::microseconds>(chrono::high_resolution_clock::now() - this->startTime)).count();
-			printf("ran in %lu us\n", elapsed);
-			this->topContext->print();
-			this->printStack();
-		}
 		this->popFunctionFrame();
 		return;
 	}
@@ -536,6 +646,11 @@ void Interpreter::interpret() {
 			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
 			// here so the original TSSL method can take over
 			if(this->frames[this->frames.head - 1].isTSSL) {
+				return;
+			}
+
+			// if we just ran out of instruction containers, just die here
+			if(this->topContainer == nullptr) {
 				return;
 			}
 
@@ -813,4 +928,15 @@ void Interpreter::addPackageMethod(
 	}
 
 	tree->addPackageMethod(name, index, container);
+}
+
+void Interpreter::addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object) {
+	this->schedules.insert(new Schedule(
+		time,
+		getMicrosecondsNow(),
+		functionName,
+		arguments,
+		argumentCount,
+		object
+	));
 }
