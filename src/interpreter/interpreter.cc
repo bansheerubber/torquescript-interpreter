@@ -687,10 +687,6 @@ void Interpreter::interpret() {
 				instruction.createObject.methodTreeIndex = tree->index;
 				instruction.createObject.isCached = true;
 			}
-			else {
-				printf("could not find method tree index\n");
-				exit(1);
-			}
 			
 			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
 			this->push(new ObjectReference(object));
@@ -984,8 +980,6 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 		namespace5
 	);
 
-	printf("complex namespace: %s\n", nameSpace.c_str());
-
 	MethodTree* tree = nullptr;
 	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
 	if(iterator == this->namespaceToMethodTreeIndex.end()) {
@@ -995,7 +989,6 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 		for(size_t i = 0; i < 5; i++) {
 			if(names[i].length() != 0 && names[i] != nameSpace) {
 				MethodTree* tree2 = this->createMethodTreeFromNamespace(names[i]);
-				tree2->print();
 				tree->addParent(tree2);
 			}
 		}
@@ -1003,8 +996,6 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 	else {
 		tree = this->methodTrees[iterator->second];
 	}
-	
-	tree->print();
 
 	return tree;
 }

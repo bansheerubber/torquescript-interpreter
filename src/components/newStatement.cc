@@ -143,6 +143,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	createObject->type = ts::instruction::CREATE_OBJECT;
 	ALLOCATE_STRING(this->className->print(), createObject->createObject.type);
 
+	string symbolName;
 	if(this->arguments->getElementCount() == 0) { // no name case
 		ALLOCATE_STRING("", createObject->createObject.symbolName);
 		createObject->createObject.symbolNameCached = true;
@@ -150,11 +151,13 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	else {
 		Component* firstComponent = this->arguments->getElement(0).component;
 		if(firstComponent->getType() == SYMBOL_STATEMENT) { // handle first literal type
-			ALLOCATE_STRING(((Symbol*)firstComponent)->print(), createObject->createObject.symbolName);
+			symbolName = ((Symbol*)firstComponent)->print();
+			ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
 			createObject->createObject.symbolNameCached = true;
 		}
 		else if(firstComponent->getType() == STRING_LITERAL) { // handle second literal type
-			ALLOCATE_STRING(((StringLiteral*)firstComponent)->getString(), createObject->createObject.symbolName);
+			symbolName = ((StringLiteral*)firstComponent)->getString();
+			ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
 			createObject->createObject.symbolNameCached = true;
 		}
 		else {
@@ -163,8 +166,20 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		}
 	}
 
-	createObject->createObject.methodTreeIndex = 0;
-	createObject->createObject.isCached = false;
+	bool canCacheMethodTree = createObject->createObject.symbolNameCached;
+	if(canCacheMethodTree) {
+		ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
+			symbolName,
+			this->className->print()
+		);
+		createObject->createObject.methodTreeIndex = tree->index;
+		createObject->createObject.isCached = true;
+	}
+	else {
+		createObject->createObject.methodTreeIndex = 0;
+		createObject->createObject.isCached = false;
+	}
+
 	output.add(createObject);
 
 	for(Component* component: this->children) {
