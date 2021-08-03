@@ -163,6 +163,8 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		else {
 			ALLOCATE_STRING("", createObject->createObject.symbolName);
 			createObject->createObject.symbolNameCached = false;
+
+			output.add(firstComponent->compile(interpreter, context));
 		}
 	}
 

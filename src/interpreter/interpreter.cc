@@ -677,15 +677,24 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			bool canCache = instruction.createObject.symbolNameCached;
 			if(!instruction.createObject.isCached) {
+				string symbolName;
+				if(!instruction.createObject.symbolNameCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* symbolNameCStr;
+					## type_conversion.py entry symbolNameCStr OBJECT_NUMBER_STRING STRING
+					symbolName = string(symbolNameCStr);
+				}
+				else {
+					symbolName = instruction.createObject.symbolName;
+				}
+
 				MethodTree* tree = this->createMethodTreeFromNamespaces(
-					instruction.createObject.symbolName,
+					symbolName,
 					instruction.createObject.type
 				);
 
 				instruction.createObject.methodTreeIndex = tree->index;
-				instruction.createObject.isCached = true;
 			}
 			
 			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
