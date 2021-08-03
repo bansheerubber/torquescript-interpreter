@@ -75,6 +75,16 @@ namespace ts {
 			void defineTSSLFunction(sl::Function* function);
 			void defineTSSLMethodTree(MethodTree* tree);
 
+			MethodTree* createMethodTreeFromNamespace(string nameSpace);
+
+			MethodTree* createMethodTreeFromNamespaces(
+				string namespace1,
+				string namespace2 = string(),
+				string namespace3 = string(),
+				string namespace4 = string(),
+				string namespace5 = string()
+			);
+
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 

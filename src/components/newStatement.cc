@@ -138,10 +138,31 @@ string NewStatement::printJSON() {
 
 ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
-	
+
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
 	ALLOCATE_STRING(this->className->print(), createObject->createObject.type);
+
+	if(this->arguments->getElementCount() == 0) { // no name case
+		ALLOCATE_STRING("", createObject->createObject.symbolName);
+		createObject->createObject.symbolNameCached = true;
+	}
+	else {
+		Component* firstComponent = this->arguments->getElement(0).component;
+		if(firstComponent->getType() == SYMBOL_STATEMENT) { // handle first literal type
+			ALLOCATE_STRING(((Symbol*)firstComponent)->print(), createObject->createObject.symbolName);
+			createObject->createObject.symbolNameCached = true;
+		}
+		else if(firstComponent->getType() == STRING_LITERAL) { // handle second literal type
+			ALLOCATE_STRING(((StringLiteral*)firstComponent)->getString(), createObject->createObject.symbolName);
+			createObject->createObject.symbolNameCached = true;
+		}
+		else {
+			ALLOCATE_STRING("", createObject->createObject.symbolName);
+			createObject->createObject.symbolNameCached = false;
+		}
+	}
+
 	createObject->createObject.methodTreeIndex = 0;
 	createObject->createObject.isCached = false;
 	output.add(createObject);

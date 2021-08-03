@@ -44,7 +44,7 @@ ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(function
 
 MethodTree* ts::sl::NAMESPACE_DEF(const char* name) {
 	string nameString(name);
-	return new MethodTree(nameString);
+	return new MethodTree(nameString, -1);
 }
 
 void ts::sl::define(Interpreter* interpreter) {

@@ -231,6 +231,8 @@ namespace ts {
 				string type;
 				size_t methodTreeIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
+				string symbolName;
+				bool symbolNameCached;
 			}	createObject;
 
 			struct {

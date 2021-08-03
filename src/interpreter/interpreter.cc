@@ -80,6 +80,7 @@ void Interpreter::defineTSSLMethodTree(MethodTree* tree) {
 	string nameSpace = tree->name;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree->index = this->methodTrees.head;
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -676,11 +677,14 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			if(
-				!instruction.createObject.isCached
-				&& this->namespaceToMethodTreeIndex.find(toLower(instruction.createObject.type)) != this->namespaceToMethodTreeIndex.end()
-			) {
-				instruction.createObject.methodTreeIndex = this->namespaceToMethodTreeIndex[toLower(instruction.createObject.type)];
+			bool canCache = instruction.createObject.symbolNameCached;
+			if(!instruction.createObject.isCached) {
+				MethodTree* tree = this->createMethodTreeFromNamespaces(
+					instruction.createObject.symbolName,
+					instruction.createObject.type
+				);
+
+				instruction.createObject.methodTreeIndex = tree->index;
 				instruction.createObject.isCached = true;
 			}
 			else {
@@ -853,7 +857,7 @@ void Interpreter::defineMethod(string &nameSpace, string &name, InstructionRetur
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(nameSpace);
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -909,7 +913,7 @@ void Interpreter::addPackageMethod(
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(nameSpace);
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -939,4 +943,68 @@ void Interpreter::addSchedule(unsigned long long time, string functionName, Entr
 		argumentCount,
 		object
 	));
+}
+
+MethodTree* Interpreter::createMethodTreeFromNamespace(string nameSpace) {
+	MethodTree* tree;
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+	else {
+		tree = this->methodTrees[iterator->second];
+	}
+
+	return tree;
+}
+
+MethodTree* Interpreter::createMethodTreeFromNamespaces(
+	string namespace1,
+	string namespace2,
+	string namespace3,
+	string namespace4,
+	string namespace5
+) {
+	string names[] = {
+		namespace1,
+		namespace2,
+		namespace3,
+		namespace4,
+		namespace5,
+	};
+	
+	string nameSpace = MethodTree::GetComplexNamespace(
+		namespace1,
+		namespace2,
+		namespace3,
+		namespace4,
+		namespace5
+	);
+
+	printf("complex namespace: %s\n", nameSpace.c_str());
+
+	MethodTree* tree = nullptr;
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		tree = this->createMethodTreeFromNamespace(nameSpace);
+
+		bool declared = false;
+		for(size_t i = 0; i < 5; i++) {
+			if(names[i].length() != 0 && names[i] != nameSpace) {
+				MethodTree* tree2 = this->createMethodTreeFromNamespace(names[i]);
+				tree2->print();
+				tree->addParent(tree2);
+			}
+		}
+	}
+	else {
+		tree = this->methodTrees[iterator->second];
+	}
+	
+	tree->print();
+
+	return tree;
 }
