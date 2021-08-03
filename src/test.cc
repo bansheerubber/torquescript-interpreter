@@ -34,6 +34,9 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	string resultsFile(filename);
 	resultsFile.replace(9, 7, "results").replace(resultsFile.find(".cs"), 3, ".json");
 
+	string errorsFile(filename);
+	errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
+
 	ParsedArguments empty;
 	Tokenizer* tokenizer = new Tokenizer(filename, empty);
 	Parser* parser = new Parser(tokenizer, empty);
@@ -55,6 +58,13 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	else {
 		printError("   failed test\n");
 		printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
+
+		filesystem::create_directories(filesystem::path(errorsFile).remove_filename());
+		ofstream file;
+		file.open(errorsFile);
+		file << json;
+		file.close();
+
 		return false;
 	}
 }
@@ -71,6 +81,9 @@ void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests,
 		if(entry.is_regular_file() && candidateFile.find(".cs") == candidateFile.length() - 3) {
 			string resultsFile(candidateFile);
 			resultsFile.replace(9, 7, "results").replace(resultsFile.find(".cs"), 3, ".json");
+
+			string errorsFile(candidateFile);
+			errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
 
 			(*totalTests)++;
 			Tokenizer* tokenizer = new Tokenizer(candidateFile, empty);
@@ -92,6 +105,12 @@ void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests,
 			}
 			else {
 				printError("   %s failed test\n", candidateFile.c_str());
+
+				filesystem::create_directories(filesystem::path(errorsFile).remove_filename());
+				ofstream file;
+				file.open(errorsFile);
+				file << json;
+				file.close();
 			}
 		}
 	}
@@ -113,6 +132,9 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			string resultsFile(candidateFile);
 			resultsFile.replace(9, 7, "results").replace(resultsFile.find(".cs"), 3, "");
 
+			string errorsFile(candidateFile);
+			errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
+
 			printf("   trying test %s\n", candidateFile.c_str());
 
 			ts::sl::mockStdout = string();
@@ -133,15 +155,13 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			else {
 				printError("     %s failed test\n", candidateFile.c_str());
 
-				// show diff
+				filesystem::create_directories(filesystem::path(errorsFile).remove_filename());
 				ofstream file;
-				file.open(resultsFile + "-diff");
+				file.open(errorsFile);
 				file << ts::sl::mockStdout;
 				file.close();
 
-				system(string("diff " + resultsFile + " " + resultsFile + "-diff").c_str());
-
-				filesystem::remove(resultsFile + "-diff");
+				system(string("diff " + resultsFile + " " + errorsFile).c_str());
 			}
 		}
 	}
