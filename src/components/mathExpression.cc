@@ -6,6 +6,7 @@
 #include "../interpreter/entry.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
+#include "symbol.h"
 
 map<TokenType, int> MathExpression::Precedence = MathExpression::CreatePrecedenceMap();
 
@@ -45,6 +46,7 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 					NumberLiteral::ShouldParse(tokenizer, parser)
 					|| StringLiteral::ShouldParse(tokenizer, parser)
 					|| BooleanLiteral::ShouldParse(tokenizer, parser)
+					|| Symbol::ShouldParse(tokenizer, parser)
 				)
 				&& MathExpression::IsOperator(tokenizer->peekToken(1).type)
 			)
@@ -62,7 +64,7 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
 	MathExpression* output = new MathExpression(parser);
 	output->parent = parent;
-	
+
 	if(lvalue != nullptr) {
 		output->elements.push_back((MathElement){
 			component: lvalue,

@@ -40,15 +40,25 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 		parser->error("invalid new object name");
 	}
 
-	// parse call list
-	if(InheritanceStatement::ShouldParse(tokenizer, parser)) {
-		output->arguments = InheritanceStatement::Parse(parent, tokenizer, parser);
-	}
-	else if(CallStatement::ShouldParse(tokenizer, parser)) {
-		output->arguments = CallStatement::Parse(parent, tokenizer, parser);
+	if(CallStatement::ShouldParse(tokenizer, parser)) {
+		output->arguments = CallStatement::Parse(output, tokenizer, parser);
 	}
 	else {
 		parser->error("invalid new object argument list");
+	}
+
+	if(output->arguments->getElementCount() > 0) {
+		// make sure we got a valid name for the object
+		Component* firstComponent = output->arguments->getElement(0).component;
+		if(
+			firstComponent->getType() != INHERITANCE_STATEMENT
+			&& firstComponent->getType() != STRING_LITERAL
+			&& firstComponent->getType() != SYMBOL_STATEMENT
+			&& firstComponent->getType() != ACCESS_STATEMENT
+			&& firstComponent->getType() != MATH_EXPRESSION
+		) {
+			parser->error("got invalid name for new object");
+		}
 	}
 
 	// expect something not a left bracket if we got no arguments in the body of the new object statement
@@ -65,8 +75,13 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			output->children.push_back(NewStatement::Parse(output, tokenizer, parser));
 			parser->expectToken(SEMICOLON);
 		}
-		else if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
-			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
+		else if(
+			Symbol::ShouldParse(tokenizer, parser)
+			|| Symbol::ShouldParseAlphabeticToken(tokenizer, parser)
+		) {
+			Symbol* symbol = Symbol::Parse(output, tokenizer, parser);
+			AccessStatement* access = AccessStatement::Parse(symbol, output, tokenizer, parser, true);
+			symbol->parent = access;
 			if(
 				access->hasChain()
 				|| access->hasCall()

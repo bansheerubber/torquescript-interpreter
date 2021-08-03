@@ -36,6 +36,7 @@ class Symbol : public Component {
 		string print();
 		string printJSON();
 		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParseAlphabeticToken(Tokenizer* tokenizer, Parser* parser);
 		static Symbol* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:

@@ -13,7 +13,10 @@ bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser, bool use
 	return (
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
-		|| token.type == SYMBOL
+		|| ( // handle functions
+			token.type == SYMBOL
+			&& tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+		)
 		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	);
 }
@@ -269,7 +272,6 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	ts::Instruction* lastInstruction = nullptr;
 	for(; iterator != this->elements.end(); ++iterator) {
 		AccessElement element = *iterator;
-
 		if(element.token.type == LOCAL_VARIABLE) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
@@ -363,6 +365,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
 			c.output.add(element.component->compile(interpreter, context));
 			lastInstruction = nullptr;
+		}
+		else if(element.component != nullptr && element.component->getType() == SYMBOL_STATEMENT) {
+			ts::InstructionReturn symbol = element.component->compile(interpreter, context);
+			c.lastAccess = symbol.first;
+			lastInstruction = symbol.first;
 		}
 		count++;
 	}

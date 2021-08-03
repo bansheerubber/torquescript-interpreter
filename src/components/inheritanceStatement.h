@@ -33,10 +33,10 @@ class InheritanceStatement : public Component {
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static InheritanceStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static InheritanceStatement* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 	
 	private:
-		Symbol* className = nullptr;
+		Component* className = nullptr;
 		Symbol* parentClass = nullptr;
 };
