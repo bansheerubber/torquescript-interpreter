@@ -141,7 +141,17 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
-	ALLOCATE_STRING(this->className->print(), createObject->createObject.type);
+
+	if(this->className->getType() == SYMBOL_STATEMENT) {
+		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
+		createObject->createObject.typeNameCached = true;
+	}
+	else {
+		ALLOCATE_STRING("", createObject->createObject.typeName);
+		createObject->createObject.typeNameCached = false;
+		
+		output.add(this->className->compile(interpreter, context));
+	}
 
 	string symbolName;
 	if(this->arguments->getElementCount() == 0) { // no name case
@@ -168,7 +178,9 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		}
 	}
 
-	bool canCacheMethodTree = createObject->createObject.symbolNameCached;
+	bool canCacheMethodTree = createObject->createObject.typeNameCached
+		&& createObject->createObject.symbolNameCached;
+
 	if(canCacheMethodTree) {
 		ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
 			symbolName,

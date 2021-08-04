@@ -228,7 +228,8 @@ namespace ts {
 			} callObject;
 
 			struct {
-				string type;
+				string typeName;
+				bool typeNameCached;
 				size_t methodTreeIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 				string symbolName;

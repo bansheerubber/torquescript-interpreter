@@ -677,27 +677,42 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
+			string typeName = instruction.createObject.typeName;
 			if(!instruction.createObject.isCached) {
+				// handle symbol name stuff
 				string symbolName;
 				if(!instruction.createObject.symbolNameCached) {
 					Entry &entry = this->stack[this->stack.head - 1];
 					char* symbolNameCStr;
 					## type_conversion.py entry symbolNameCStr OBJECT_NUMBER_STRING STRING
 					symbolName = string(symbolNameCStr);
+					this->pop();
 				}
 				else {
 					symbolName = instruction.createObject.symbolName;
 				}
 
+				// handle type name stuff
+				if(!instruction.createObject.typeNameCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* typeNameCStr;
+					## type_conversion.py entry typeNameCStr OBJECT_NUMBER_STRING STRING
+					typeName = string(typeNameCStr);
+					this->pop();
+				}
+				else {
+					typeName = instruction.createObject.typeName;
+				}
+
 				MethodTree* tree = this->createMethodTreeFromNamespaces(
 					symbolName,
-					instruction.createObject.type
+					typeName
 				);
 
 				instruction.createObject.methodTreeIndex = tree->index;
 			}
 			
-			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
+			Object* object = new Object(this, typeName, instruction.createObject.methodTreeIndex);
 			this->push(new ObjectReference(object));
 			break;
 		}
