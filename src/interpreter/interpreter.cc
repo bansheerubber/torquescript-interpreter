@@ -640,8 +640,14 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::RETURN: { // return from a function
-			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
-			this->pop(); // pop return value
+			if(instruction.functionReturn.hasValue) {
+				copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
+				this->pop(); // pop return value
+			}
+			else {
+				copyEntry(this->emptyEntry, this->returnRegister);
+			}
+
 			this->popFunctionFrame();
 
 			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit

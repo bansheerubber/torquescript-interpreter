@@ -251,6 +251,10 @@ namespace ts {
 				size_t cachedIndex;
 				bool isCached;
 			} callParent;
+
+			struct {
+				bool hasValue;
+			} functionReturn;
 		};
 
 		Instruction() {
