@@ -5,6 +5,7 @@
 #include "echo.h"
 #include "getWord.h"
 #include "../interpreter/interpreter.h"
+#include "isObject.h"
 #include "math.h"
 #include "../interpreter/methodTree.h"
 #include "schedule.h"
@@ -68,6 +69,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	vector<ts::sl::Function*> functions;
 	entry::EntryType* s = new entry::EntryType[TS_ARG_COUNT] { entry::STRING };
 	entry::EntryType* n = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER };
+	entry::EntryType* o = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT };
 	entry::EntryType* sn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER };
 	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
@@ -107,6 +109,8 @@ void ts::sl::define(Interpreter* interpreter) {
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));
+
+	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
 
 	for(ts::sl::Function* function: functions) {
 		interpreter->defineTSSLFunction(function);
