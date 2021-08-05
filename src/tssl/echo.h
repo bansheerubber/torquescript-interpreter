@@ -11,6 +11,7 @@ namespace ts {
 	
 	namespace sl {
 		Entry* echo(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* error(Interpreter* interpreter, size_t argc, Entry* args);
 
 		extern string mockStdout;
 		extern bool useMockStdout;

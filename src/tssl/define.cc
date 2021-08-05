@@ -11,6 +11,7 @@
 #include "schedule.h"
 #include "scriptObject.h"
 #include "simObject.h"
+#include "string.h"
 
 using namespace ts::sl;
 
@@ -75,10 +76,12 @@ void ts::sl::define(Interpreter* interpreter) {
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
 	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
+	entry::EntryType* ssn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::NUMBER };
 	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
 	entry::EntryType* ons = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::NUMBER, entry::STRING };
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &echo, "echo", 1, s));
+	functions.push_back(FUNC_DEF(entry::INVALID, &error, "error", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::STRING, &firstWord, "firstWord", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &restWords, "restWords", 1, s));
@@ -87,6 +90,9 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::NUMBER, &getWordCount, "getWordCount", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &removeWord, "removeWord", 2, sn));
 	functions.push_back(FUNC_DEF(entry::STRING, &setWord, "setWord", 3, sns));
+	functions.push_back(FUNC_DEF(entry::STRING, &strLen, "strLen", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
+	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));
