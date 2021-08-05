@@ -36,10 +36,26 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	ts::Instruction* instruction = compiled.lastAccess;
 
 	if(this->op.type == INCREMENT) {
-		instruction->type = ts::instruction::LOCAL_ASSIGN_INCREMENT;
+		if(instruction->type == ts::instruction::OBJECT_ACCESS) {
+			instruction->type = ts::instruction::OBJECT_ASSIGN_INCREMENT;
+		}
+		else if(instruction->type == ts::instruction::GLOBAL_ACCESS) {
+			instruction->type = ts::instruction::GLOBAL_ASSIGN_INCREMENT;
+		}
+		else if(instruction->type == ts::instruction::LOCAL_ACCESS) {
+			instruction->type = ts::instruction::LOCAL_ASSIGN_INCREMENT;
+		}
 	}
 	else {
-		instruction->type = ts::instruction::LOCAL_ASSIGN_DECREMENT;
+		if(instruction->type == ts::instruction::OBJECT_ACCESS) {
+			instruction->type = ts::instruction::OBJECT_ASSIGN_DECREMENT;
+		}
+		else if(instruction->type == ts::instruction::GLOBAL_ACCESS) {
+			instruction->type = ts::instruction::GLOBAL_ASSIGN_DECREMENT;
+		}
+		else if(instruction->type == ts::instruction::LOCAL_ACCESS) {
+			instruction->type = ts::instruction::LOCAL_ASSIGN_DECREMENT;
+		}
 	}
 
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
