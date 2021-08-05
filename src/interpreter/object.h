@@ -20,11 +20,14 @@ namespace ts {
 			void addReference(ObjectReference* reference);
 			void removeReference(ObjectReference* reference);
 
+			void setName(string &name);
+
 			string nameSpace;
 			size_t namespaceIndex;
 		
 		private:
 			ObjectReference* list = nullptr;
-			ObjectReference* top = nullptr;;
+			ObjectReference* top = nullptr;
+			string name;
 	};
 }

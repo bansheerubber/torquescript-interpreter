@@ -684,9 +684,9 @@ void Interpreter::interpret() {
 
 		case instruction::CREATE_OBJECT: {
 			string typeName = instruction.createObject.typeName;
+			string symbolName = instruction.createObject.symbolName;
 			if(!instruction.createObject.isCached) {
 				// handle symbol name stuff
-				string symbolName;
 				if(!instruction.createObject.symbolNameCached) {
 					Entry &entry = this->stack[this->stack.head - 1];
 					char* symbolNameCStr;
@@ -733,6 +733,11 @@ void Interpreter::interpret() {
 			}
 			
 			Object* object = new Object(this, typeName, instruction.createObject.methodTreeIndex);
+
+			if(symbolName.length() != 0) {
+				this->setObjectName(symbolName, object);
+			}
+
 			this->push(new ObjectReference(object));
 			break;
 		}
@@ -1050,4 +1055,13 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 	}
 
 	return tree;
+}
+
+void Interpreter::setObjectName(string &name, Object* object) {
+	this->stringToObject[name] = object;
+	object->setName(name);
+}
+
+void Interpreter::deleteObjectName(string &name) {
+	this->stringToObject.erase(name);
 }

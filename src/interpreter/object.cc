@@ -21,7 +21,8 @@ Object::~Object() {
 		reference->object = nullptr;
 		reference = reference->next;
 	}
-
+	
+	this->properties.interpreter->deleteObjectName(this->name);
 	this->properties.interpreter->objects.erase(this->id);
 }
 
@@ -53,4 +54,8 @@ void Object::removeReference(ObjectReference* reference) {
 		reference->previous->next = reference->next;
 		reference->next->previous = reference->previous;
 	}
+}
+
+void Object::setName(string &name) {
+	this->name = name;
 }

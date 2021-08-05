@@ -94,9 +94,12 @@ namespace ts {
 			void tick();
 			void setTickRate(long tickRate);
 
+			void setObjectName(string &name, Object* object);
+			void deleteObjectName(string &name);
+
 			Entry emptyEntry;
 
-			size_t highestObjectId = 0;
+			size_t highestObjectId = 1;
 
 			bool testing = false;
 		
