@@ -141,6 +141,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
+	createObject->createObject.canCreate = true;
 
 	if(this->className->getType() == SYMBOL_STATEMENT) {
 		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
@@ -182,12 +183,18 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		&& createObject->createObject.symbolNameCached;
 
 	if(canCacheMethodTree) {
-		ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
-			symbolName,
-			this->className->print()
-		);
-		createObject->createObject.methodTreeIndex = tree->index;
-		createObject->createObject.isCached = true;
+		ts::MethodTree* typeCheck = interpreter->getNamespace(this->className->print());
+		if(typeCheck != nullptr && typeCheck->isTSSL) {
+			ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
+				symbolName,
+				this->className->print()
+			);
+			createObject->createObject.methodTreeIndex = tree->index;
+			createObject->createObject.isCached = true;
+		}
+		else {
+			createObject->createObject.canCreate = false;
+		}
 	}
 	else {
 		createObject->createObject.methodTreeIndex = 0;

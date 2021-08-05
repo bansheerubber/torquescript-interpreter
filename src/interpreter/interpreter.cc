@@ -710,12 +710,26 @@ void Interpreter::interpret() {
 					typeName = instruction.createObject.typeName;
 				}
 
+				// check to make sure that the type name that we're using is defined by the TSSL. if not, we can't
+				// create the object
+				MethodTree* typeCheck = this->getNamespace(typeName);
+				if(typeCheck == nullptr || !typeCheck->isTSSL) {
+					this->warning("could not create object with type '%s'\n", typeName.c_str());
+					this->push(getEmptyString());
+					break;
+				}
+
 				MethodTree* tree = this->createMethodTreeFromNamespaces(
 					symbolName,
 					typeName
 				);
 
 				instruction.createObject.methodTreeIndex = tree->index;
+			}
+			else if(!instruction.createObject.canCreate) {
+				this->warning("could not create object with type '%s'\n", instruction.createObject.typeName.c_str());
+				this->push(getEmptyString());
+				break;
 			}
 			
 			Object* object = new Object(this, typeName, instruction.createObject.methodTreeIndex);
@@ -987,6 +1001,16 @@ MethodTree* Interpreter::createMethodTreeFromNamespace(string nameSpace) {
 	return tree;
 }
 
+MethodTree* Interpreter::getNamespace(string nameSpace) {
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		return nullptr;
+	}
+	else {
+		return this->methodTrees[iterator->second];
+	}
+}
+
 MethodTree* Interpreter::createMethodTreeFromNamespaces(
 	string namespace1,
 	string namespace2,
@@ -1014,8 +1038,6 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
 	if(iterator == this->namespaceToMethodTreeIndex.end()) {
 		tree = this->createMethodTreeFromNamespace(nameSpace);
-
-		bool declared = false;
 		for(size_t i = 0; i < 5; i++) {
 			if(names[i].length() != 0 && names[i] != nameSpace) {
 				MethodTree* tree2 = this->createMethodTreeFromNamespace(names[i]);

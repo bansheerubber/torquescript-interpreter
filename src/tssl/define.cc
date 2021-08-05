@@ -51,10 +51,12 @@ void ts::sl::define(Interpreter* interpreter) {
 	// define namespaces and their inheristance structure
 	vector<MethodTree*> methodTrees;
 
-	MethodTree* SimObject = NAMESPACE_DEF("SimObject");
+	MethodTree* SimObject = interpreter->createMethodTreeFromNamespace("SimObject");
+	SimObject->isTSSL = true;
 	methodTrees.push_back(SimObject);
 
-	MethodTree* ScriptObject = NAMESPACE_DEF("ScriptObject");
+	MethodTree* ScriptObject = interpreter->createMethodTreeFromNamespace("ScriptObject");
+	ScriptObject->isTSSL = true;
 	methodTrees.push_back(ScriptObject);
 	ScriptObject->addParent(SimObject);
 

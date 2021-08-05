@@ -76,6 +76,7 @@ namespace ts {
 			void defineTSSLMethodTree(MethodTree* tree);
 
 			MethodTree* createMethodTreeFromNamespace(string nameSpace);
+			MethodTree* getNamespace(string nameSpace);
 
 			MethodTree* createMethodTreeFromNamespaces(
 				string namespace1,

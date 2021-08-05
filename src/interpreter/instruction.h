@@ -234,6 +234,7 @@ namespace ts {
 				bool isCached; // whether or not namespaceIndex has been cached yet
 				string symbolName;
 				bool symbolNameCached;
+				bool canCreate;
 			}	createObject;
 
 			struct {

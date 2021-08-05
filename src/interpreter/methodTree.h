@@ -58,6 +58,8 @@ namespace ts {
 			void print();
 
 			size_t index;
+
+			bool isTSSL = false;
 		
 		private:
 			vector<class PackagedFunctionList*> buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex, bool addInitial = true);
