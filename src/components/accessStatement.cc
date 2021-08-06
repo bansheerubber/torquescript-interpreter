@@ -245,7 +245,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		ALLOCATE_STRING(this->elements[0].token.lexeme, callFunction->callFunction.name);
-		ALLOCATE_STRING("", callFunction->callFunction.nameSpace);
+		ALLOCATE_STRING(string(""), callFunction->callFunction.nameSpace);
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;

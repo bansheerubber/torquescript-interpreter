@@ -148,7 +148,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		createObject->createObject.typeNameCached = true;
 	}
 	else {
-		ALLOCATE_STRING("", createObject->createObject.typeName);
+		ALLOCATE_STRING(string(""), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = false;
 		
 		output.add(this->className->compile(interpreter, context));
@@ -156,7 +156,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 
 	string symbolName;
 	if(this->arguments->getElementCount() == 0) { // no name case
-		ALLOCATE_STRING("", createObject->createObject.symbolName);
+		ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
 		createObject->createObject.symbolNameCached = true;
 	}
 	else {
@@ -172,7 +172,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			createObject->createObject.symbolNameCached = true;
 		}
 		else {
-			ALLOCATE_STRING("", createObject->createObject.symbolName);
+			ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
 			createObject->createObject.symbolNameCached = false;
 
 			output.add(firstComponent->compile(interpreter, context));

@@ -159,9 +159,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToObjectOperator(this->assignmentToken.type);
 		instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-		ALLOCATE_STRING(instruction->localAccess.source, instruction->objectAssign.destination);
-		instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
-		instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
+		instruction->objectAssign.dimensions = instruction->objectAccess.dimensions;
 		instruction->objectAssign.fromStack = false;
 		instruction->objectAssign.pushResult = this->parent->shouldPushToStack(this);
 		instruction->objectAssign.popObject = true;
@@ -170,9 +168,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToGlobalOperator(this->assignmentToken.type);
 		instruction->globalAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		ALLOCATE_STRING(instruction->localAccess.source, instruction->globalAssign.destination);
-		instruction->globalAssign.hash = hash<string>{}(instruction->localAccess.source);
-		instruction->globalAssign.dimensions = instruction->localAccess.dimensions;
+		instruction->globalAssign.dimensions = instruction->globalAccess.dimensions;
 		instruction->globalAssign.fromStack = false;
 		instruction->globalAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
@@ -180,8 +176,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);
 		instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		ALLOCATE_STRING(instruction->localAccess.source, instruction->localAssign.destination);
-		instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;
 		instruction->localAssign.fromStack = false;
