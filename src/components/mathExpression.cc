@@ -4,6 +4,7 @@
 #include "accessStatement.h"
 #include "booleanLiteral.h"
 #include "../interpreter/entry.h"
+#include "inlineConditional.h"
 #include "numberLiteral.h"
 #include "stringLiteral.h"
 #include "symbol.h"
@@ -86,23 +87,48 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	bool expectingOperator = lvalue != nullptr;
 	while(!tokenizer->eof()) {
 		if(expectingOperator) {
-			Token token = tokenizer->getToken();
+			Token token = tokenizer->peekToken();
 			if(MathExpression::IsOperator(token.type)) {
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					op: token,
 				});
 				expectingOperator = false;
+				tokenizer->getToken();
+			}
+			else if(InlineConditional::ShouldParse(tokenizer, parser) && output->elements[0].specialOp == LEFT_PARENTHESIS_OPERATOR) {
+				output->elements.erase(output->elements.begin());
+				
+				MathExpression* newParent = new MathExpression(parser);
+				newParent->elements.push_back((MathElement){
+					component: nullptr,
+					specialOp: LEFT_PARENTHESIS_OPERATOR,
+				});
+
+				newParent->parent = parent;
+				output->parent = newParent;
+				newParent->elements.push_back((MathElement){
+					component: InlineConditional::Parse(output, newParent, tokenizer, parser)
+				});
+
+				parser->expectToken(RIGHT_PARENTHESIS);
+				newParent->elements.push_back((MathElement){
+					component: nullptr,
+					specialOp: RIGHT_PARENTHESIS_OPERATOR,
+				});
+
+				output = newParent;
+				break;
 			}
 			else if(parenthesis && token.type == RIGHT_PARENTHESIS) {
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: RIGHT_PARENTHESIS_OPERATOR,
 				});
+				tokenizer->getToken();
 				break; // quit out of loop since our statement is now over
 			}
 			else { // if we see an end to the statement, quit out
-				tokenizer->unGetToken();
 				break;
 			}
 		}

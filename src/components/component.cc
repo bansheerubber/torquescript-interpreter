@@ -37,7 +37,6 @@ bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* par
 		|| BooleanLiteral::ShouldParse(tokenizer, parser)
 		|| NewStatement::ShouldParse(tokenizer, parser)
 		|| NamespaceStatement::ShouldParse(tokenizer, parser)
-		|| InlineConditional::ShouldParse(tokenizer, parser)
 		|| InheritanceStatement::ShouldParse(nullptr, parent, tokenizer, parser)
 		|| Symbol::ShouldParse(tokenizer, parser);
 }
@@ -68,7 +67,7 @@ Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer
 	if(lvalue != nullptr && InheritanceStatement::ShouldParse(lvalue, parent, tokenizer, parser)) {
 		lvalue = InheritanceStatement::Parse(lvalue, parent, tokenizer, parser);
 	}
-	else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
+	else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr && parent->getType() != MATH_EXPRESSION) {
 		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
 	}
 
