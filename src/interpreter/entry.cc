@@ -15,28 +15,9 @@ Entry::Entry() {
 	this->stringData = nullptr;
 }
 
-Entry::Entry(const Entry &entry) {
+Entry::Entry(const Entry &source) {
 	this->type = entry::INVALID;
-	copyEntry(entry, *this);
-}
-
-Entry::Entry(Entry* copy) {
-	this->type = copy->type;
-	switch(this->type) {
-		case entry::INVALID: {
-			break;
-		}
-		
-		case entry::NUMBER: {
-			this->setNumber(copy->numberData);
-			break;
-		}
-
-		case entry::STRING: {
-			this->setString(cloneString(copy->stringData));
-			break;
-		}
-	}
+	copyEntry(source, *this);
 }
 
 Entry::Entry(double value) {
@@ -71,7 +52,7 @@ void Entry::setString(char* value) {
 	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
 		delete this->stringData;
 	}
-	
+
 	this->type = entry::STRING;
 	this->stringData = value;
 }

@@ -37,7 +37,6 @@ namespace ts {
 
 		Entry();
 		Entry(const Entry &entry);
-		Entry(Entry* copy);
 		Entry(double value);
 		Entry(char* value);
 		Entry(ObjectReference* value);
