@@ -39,4 +39,5 @@ class StringLiteral : public Component {
 	
 	private:
 		Token value;
+		string valueString;
 };
