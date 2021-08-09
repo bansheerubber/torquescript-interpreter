@@ -159,7 +159,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToObjectOperator(this->assignmentToken.type);
 		instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-		instruction->objectAssign.dimensions = instruction->objectAccess.dimensions;
 		instruction->objectAssign.fromStack = false;
 		instruction->objectAssign.pushResult = this->parent->shouldPushToStack(this);
 		instruction->objectAssign.popObject = true;
@@ -168,7 +167,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToGlobalOperator(this->assignmentToken.type);
 		instruction->globalAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		instruction->globalAssign.dimensions = instruction->globalAccess.dimensions;
 		instruction->globalAssign.fromStack = false;
 		instruction->globalAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
@@ -176,7 +174,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);
 		instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;
 		instruction->localAssign.fromStack = false;
 		instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);

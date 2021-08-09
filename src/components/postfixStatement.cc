@@ -61,8 +61,6 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
 	// copy access instruction to assign instruction
-	ALLOCATE_STRING(instruction->localAccess.source, instruction->localAssign.destination);
-	instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
