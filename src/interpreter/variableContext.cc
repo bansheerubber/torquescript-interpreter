@@ -59,12 +59,7 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 		}
 		else {
 			VariableContextEntry &entry = value.value();
-			if(entry.stackIndex < 0) {
-				return entry.entry;
-			}
-			else {
-				return this->interpreter->stack[entry.stackIndex + this->interpreter->stackFramePointer];
-			}
+			return entry.entry;
 		}
 	}
 	else {
@@ -94,12 +89,7 @@ void VariableContext::setVariableEntry(Instruction &instruction, string &name, s
 		}
 		else {
 			VariableContextEntry &variableEntry = value.value();
-			if(variableEntry.stackIndex < 0) {
-				copyEntry(entry, variableEntry.entry);
-			}
-			else {
-				copyEntry(entry, this->interpreter->stack[variableEntry.stackIndex + this->interpreter->stackFramePointer]);
-			}
+			copyEntry(entry, variableEntry.entry);
 		}
 	}
 	else {
