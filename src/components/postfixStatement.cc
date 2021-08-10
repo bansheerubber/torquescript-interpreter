@@ -64,6 +64,12 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
-	instruction->localAssign.stackIndex = context.scope->allocateVariable(instruction->localAssign.destination).stackIndex;
+
+	if(instruction->localAccess.dimensions > 0) {
+		instruction->localAssign.stackIndex = -1;
+	}
+	else {
+		instruction->localAssign.stackIndex = context.scope->allocateVariable(instruction->localAssign.destination).stackIndex;
+	}
 	return compiled.output;
 }
