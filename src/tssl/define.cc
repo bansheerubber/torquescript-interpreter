@@ -116,6 +116,7 @@ void ts::sl::define(Interpreter* interpreter) {
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &schedule, "schedule", 2, ns));
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__schedule, "SimObject", "schedule", 3, ons));
+	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__getId, "SimObject", "getId", 1, o));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));

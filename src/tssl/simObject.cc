@@ -11,5 +11,12 @@ namespace ts {
 			}
 			return nullptr;
 		}
+
+		Entry* SimObject__getId(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				return new Entry(args[0].objectData->id);
+			}
+			return nullptr;
+		}
 	}
 }
