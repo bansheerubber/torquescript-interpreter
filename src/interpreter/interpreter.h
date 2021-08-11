@@ -110,6 +110,7 @@ namespace ts {
 
 			bool warnings = true;
 			bool isParallel = false;
+			bool showTime = false;
 			
 			void push(Entry &entry) __attribute__((always_inline));
 			void push(double number) __attribute__((always_inline));
@@ -118,7 +119,7 @@ namespace ts {
 			void pop() __attribute__((always_inline));
 
 			size_t ranInstructions = 0;
-			chrono::high_resolution_clock::time_point startTime;
+			unsigned long long startTime;
 
 			// stacks
 			DynamicArray<Entry, Interpreter> stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);

@@ -59,6 +59,10 @@ Interpreter::Interpreter(ParsedArguments args, bool isParallel) {
 		this->warnings = false;
 	}
 
+	if(args.arguments["time"] != "") {
+		this->showTime = true;
+	}
+
 	this->globalContext = VariableContext(this);
 
 	if(this->isParallel) {
@@ -225,7 +229,7 @@ void Interpreter::pop() {
 
 void Interpreter::startInterpretation(Instruction* head) {
 	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
-	this->startTime = chrono::high_resolution_clock::now();
+	this->startTime = getMicrosecondsNow();
 	this->interpret();
 }
 
@@ -403,6 +407,11 @@ void Interpreter::interpret() {
 	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		this->popFunctionFrame();
+
+		if(this->showTime) {
+			printf("%lld\n", getMicrosecondsNow() - this->startTime);
+		}
+
 		return;
 	}
 

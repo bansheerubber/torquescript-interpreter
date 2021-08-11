@@ -29,6 +29,11 @@ vector<Argument> createArguments() {
 		hide: true
 	});
 
+	output.push_back((Argument){
+		name: "time",
+		hide: true
+	});
+
 	return output;
 }
 
