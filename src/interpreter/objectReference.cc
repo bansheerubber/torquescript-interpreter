@@ -20,7 +20,6 @@ ObjectReference::ObjectReference(ObjectReference* objectReference) {
 }
 
 ObjectReference::~ObjectReference() {
-	printf("deleted object reference\n");
 	if(this->object != nullptr) {
 		this->object->removeReference(this);
 		this->object = nullptr;

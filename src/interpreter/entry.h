@@ -52,3 +52,8 @@ namespace ts {
 	void convertToType(class Interpreter* interpreter, Entry &source, entry::EntryType type);
 	void initEntry(class Interpreter* interpreter, Entry* location);
 }
+
+namespace std {
+	template<> // specialization
+	void swap<ts::Entry>(ts::Entry &entry1, ts::Entry &entry2) noexcept;
+}

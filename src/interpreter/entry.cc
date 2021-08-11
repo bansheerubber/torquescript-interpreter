@@ -40,6 +40,20 @@ Entry::~Entry() {
 		delete this->stringData;
 		this->stringData = nullptr;
 	}
+
+	if(this->type == entry::OBJECT && this->objectData != nullptr) {
+		delete this->objectData;
+		this->objectData = nullptr;
+	}
+}
+
+namespace std {
+	template<>
+	void swap<Entry>(Entry &entry1, Entry &entry2) noexcept {
+		using std::swap;
+		swap(entry1.type, entry2.type);
+		swap(entry1.stringData, entry2.stringData);
+	}
 }
 
 void Entry::setNumber(double value) {
@@ -106,6 +120,11 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 	if(destination.type == entry::STRING && destination.stringData != nullptr) {
 		delete destination.stringData;
 		destination.stringData = nullptr;
+	}
+
+	if(destination.type == entry::OBJECT && destination.objectData != nullptr) {
+		delete destination.objectData;
+		destination.objectData = nullptr;
 	}
 	
 	destination.type = source.type;

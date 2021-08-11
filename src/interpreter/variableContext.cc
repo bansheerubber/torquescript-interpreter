@@ -8,6 +8,15 @@
 
 using namespace ts;
 
+namespace std {
+	template<>
+	void swap<VariableContextEntry>(VariableContextEntry &entry1, VariableContextEntry &entry2) noexcept {
+		using std::swap;
+		swap(entry1.stackIndex, entry2.stackIndex);
+		swap(entry1.entry, entry2.entry);
+	}
+}
+
 VariableContext::VariableContext() {
 
 }
@@ -46,7 +55,7 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 }
 
 Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name, size_t hash) {
-	if(instruction.localAssign.dimensions > 0) {
+	if(instruction.localAssign.dimensions > 0) {		
 		string computedString = computeVariableString(instruction, name);
 		auto value = this->variableMap.find(computedString);
 		if(value == this->variableMap.end()) { // initialize empty string
