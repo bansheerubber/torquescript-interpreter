@@ -75,6 +75,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
+	entry::EntryType* ss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING };
 	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
 	entry::EntryType* ssn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::NUMBER };
 	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
@@ -94,6 +95,8 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
 	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
 	functions.push_back(FUNC_DEF(entry::STRING, &trim, "trim", 1, s));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &strCmp, "strcmp", 2, ss));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &strICmp, "stricmp", 2, ss));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));

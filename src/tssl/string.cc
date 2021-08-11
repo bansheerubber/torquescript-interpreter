@@ -1,5 +1,7 @@
 #include "simObject.h"
 
+#include <string.h>
+
 #include "../interpreter/interpreter.h"
 #include "../util/stringToChars.h"
 
@@ -80,6 +82,22 @@ namespace ts {
 			}
 
 			return nullptr;
+		}
+
+		Entry* strCmp(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 2) {
+				return new Entry(strcmp(args[0].stringData, args[1].stringData));
+			}
+
+			return new Entry(0.0);
+		}
+
+		Entry* strICmp(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 2) {
+				return new Entry(strcasecmp(args[0].stringData, args[1].stringData));
+			}
+
+			return new Entry(0.0);
 		}
 	}
 }
