@@ -42,5 +42,44 @@ namespace ts {
 
 			return new Entry(-1);
 		}
+
+		Entry* trim(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				const char* words = args[0].stringData;
+				bool foundFirst = false;
+				size_t firstIndex = 0, secondIndex = 0, length = 0;
+				for(; *words; words++) {
+					char character = *words;
+
+					if(
+						character == ' '
+						|| character == '\t'
+						|| character == '\n'
+						|| character == '\r'
+					) {
+						secondIndex++;
+					}
+					else {
+						foundFirst = true;
+						secondIndex = 0;
+					}
+
+					if(!foundFirst) {
+						firstIndex++;
+					}
+
+					length++;
+				}
+
+				if(!foundFirst) {
+					secondIndex = 0;
+				}
+
+				string trimmed(&args[0].stringData[firstIndex], length - firstIndex - secondIndex);
+				return new Entry(stringToChars(trimmed));
+			}
+
+			return nullptr;
+		}
 	}
 }

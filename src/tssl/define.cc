@@ -93,6 +93,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &strLen, "strLen", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
 	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
+	functions.push_back(FUNC_DEF(entry::STRING, &trim, "trim", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));

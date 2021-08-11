@@ -10,5 +10,6 @@ namespace ts {
 		Entry* strLen(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* getSubStr(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* strPos(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* trim(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }
