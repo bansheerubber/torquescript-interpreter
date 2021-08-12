@@ -5,11 +5,13 @@
 #include "echo.h"
 #include "getWord.h"
 #include "../interpreter/interpreter.h"
+#include "isObject.h"
 #include "math.h"
 #include "../interpreter/methodTree.h"
 #include "schedule.h"
 #include "scriptObject.h"
 #include "simObject.h"
+#include "string.h"
 
 using namespace ts::sl;
 
@@ -44,17 +46,19 @@ ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(function
 
 MethodTree* ts::sl::NAMESPACE_DEF(const char* name) {
 	string nameString(name);
-	return new MethodTree(nameString);
+	return new MethodTree(nameString, -1);
 }
 
 void ts::sl::define(Interpreter* interpreter) {
 	// define namespaces and their inheristance structure
 	vector<MethodTree*> methodTrees;
 
-	MethodTree* SimObject = NAMESPACE_DEF("SimObject");
+	MethodTree* SimObject = interpreter->createMethodTreeFromNamespace("SimObject");
+	SimObject->isTSSL = true;
 	methodTrees.push_back(SimObject);
 
-	MethodTree* ScriptObject = NAMESPACE_DEF("ScriptObject");
+	MethodTree* ScriptObject = interpreter->createMethodTreeFromNamespace("ScriptObject");
+	ScriptObject->isTSSL = true;
 	methodTrees.push_back(ScriptObject);
 	ScriptObject->addParent(SimObject);
 
@@ -66,15 +70,19 @@ void ts::sl::define(Interpreter* interpreter) {
 	vector<ts::sl::Function*> functions;
 	entry::EntryType* s = new entry::EntryType[TS_ARG_COUNT] { entry::STRING };
 	entry::EntryType* n = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER };
+	entry::EntryType* o = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT };
 	entry::EntryType* sn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER };
 	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
+	entry::EntryType* ss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING };
 	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
+	entry::EntryType* ssn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::NUMBER };
 	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
 	entry::EntryType* ons = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::NUMBER, entry::STRING };
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &echo, "echo", 1, s));
+	functions.push_back(FUNC_DEF(entry::INVALID, &error, "error", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::STRING, &firstWord, "firstWord", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &restWords, "restWords", 1, s));
@@ -83,6 +91,12 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::NUMBER, &getWordCount, "getWordCount", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &removeWord, "removeWord", 2, sn));
 	functions.push_back(FUNC_DEF(entry::STRING, &setWord, "setWord", 3, sns));
+	functions.push_back(FUNC_DEF(entry::STRING, &strLen, "strLen", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
+	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
+	functions.push_back(FUNC_DEF(entry::STRING, &trim, "trim", 1, s));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &strCmp, "strcmp", 2, ss));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &strICmp, "stricmp", 2, ss));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));
@@ -102,9 +116,13 @@ void ts::sl::define(Interpreter* interpreter) {
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &schedule, "schedule", 2, ns));
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__schedule, "SimObject", "schedule", 3, ons));
+	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__getId, "SimObject", "getId", 1, o));
+	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__delete, "SimObject", "delete", 1, o));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));
+
+	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
 
 	for(ts::sl::Function* function: functions) {
 		interpreter->defineTSSLFunction(function);

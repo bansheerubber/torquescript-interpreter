@@ -19,5 +19,18 @@ namespace ts {
 			}
 			return nullptr;
 		}
+
+		Entry* error(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc >= 1) {
+				if(useMockStdout) {
+					mockStdout += args[0].stringData;
+					mockStdout += '\n';
+				}
+				else {
+					printf("%s\n", args[0].stringData);
+				}
+			}
+			return nullptr;
+		}
 	}
 }

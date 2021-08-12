@@ -27,8 +27,16 @@ namespace ts {
 	class MethodTree {
 		public:
 			MethodTree();
-			MethodTree(string name);
+			MethodTree(string name, size_t index);
 			~MethodTree();
+
+			static string GetComplexNamespace(
+				string name1,
+				string name2 = string(),
+				string name3 = string(),
+				string name4 = string(),
+				string name5 = string()
+			);
 
 			void defineInitialMethod(string name, size_t nameIndex, class Function* container);
 			void addPackageMethod(string name, size_t nameIndex, class Function* container);
@@ -46,9 +54,15 @@ namespace ts {
 			// still gets the same index as the rest of the methods with the same name
 			robin_map<size_t, MethodTreeEntry*> methodIndexToEntry;
 			string name;
+
+			void print();
+
+			size_t index;
+
+			bool isTSSL = false;
 		
 		private:
-			vector<class PackagedFunctionList*> buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex);
+			vector<class PackagedFunctionList*> buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex, bool addInitial = true);
 			DynamicArray<MethodTree*, MethodTree> parents = DynamicArray<MethodTree*, MethodTree>(this, 17, initMethodTree, nullptr);
 			DynamicArray<MethodTree*, MethodTree> children = DynamicArray<MethodTree*, MethodTree>(this, 16, initMethodTree, nullptr);
 	};

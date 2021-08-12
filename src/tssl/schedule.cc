@@ -12,7 +12,7 @@ namespace ts {
 			}
 			else if(argc == 2) {
 				string functionName(args[1].stringData);
-				interpreter->addSchedule((size_t)args[0].numberData * 1000, functionName, nullptr, 0);
+				interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, nullptr, 0);
 				return nullptr;
 			}
 
@@ -35,7 +35,7 @@ namespace ts {
 
 				Entry* arguments = new Entry[1];
 				copyEntry(args[0], arguments[0]);
-				interpreter->addSchedule((size_t)args[1].numberData * 1000, functionName, arguments, 1, new ObjectReference(args[0].objectData));
+				interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, arguments, 1, new ObjectReference(args[0].objectData));
 				return nullptr;
 			}
 

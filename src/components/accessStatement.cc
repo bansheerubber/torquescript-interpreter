@@ -13,7 +13,10 @@ bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser, bool use
 	return (
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
-		|| token.type == SYMBOL
+		|| ( // handle functions
+			token.type == SYMBOL
+			&& tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+		)
 		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	);
 }
@@ -242,7 +245,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
 		ALLOCATE_STRING(this->elements[0].token.lexeme, callFunction->callFunction.name);
-		ALLOCATE_STRING("", callFunction->callFunction.nameSpace);
+		ALLOCATE_STRING(string(""), callFunction->callFunction.nameSpace);
 		callFunction->callFunction.cachedFunctionList = nullptr;
 		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
@@ -269,13 +272,12 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 	ts::Instruction* lastInstruction = nullptr;
 	for(; iterator != this->elements.end(); ++iterator) {
 		AccessElement element = *iterator;
-
 		if(element.token.type == LOCAL_VARIABLE) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
 			instruction->localAccess.dimensions = 0;
-			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			ALLOCATE_STRING(element.token.lexeme, instruction->localAccess.source);
+			instruction->localAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->localAccess.source);
 			instruction->localAccess.stackIndex = -1;
 
 			c.lastAccess = instruction;
@@ -286,8 +288,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::GLOBAL_ACCESS;
 			instruction->globalAccess.dimensions = 0;
-			instruction->globalAccess.hash = hash<string>{}(element.token.lexeme);
-			ALLOCATE_STRING(element.token.lexeme, instruction->globalAccess.source);
+			instruction->globalAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->globalAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -297,8 +299,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::SYMBOL_ACCESS;
 			instruction->symbolAccess.dimensions = 0;
-			instruction->symbolAccess.hash = hash<string>{}(element.token.lexeme);
-			ALLOCATE_STRING(element.token.lexeme, instruction->symbolAccess.source);
+			instruction->symbolAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->symbolAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -319,8 +321,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::OBJECT_ACCESS;
 			instruction->objectAccess.dimensions = 0;
-			instruction->objectAccess.hash = hash<string>{}(element.token.lexeme);
-			ALLOCATE_STRING(element.token.lexeme, instruction->objectAccess.source);
+			instruction->objectAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->objectAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -363,6 +365,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
 			c.output.add(element.component->compile(interpreter, context));
 			lastInstruction = nullptr;
+		}
+		else if(element.component != nullptr && element.component->getType() == SYMBOL_STATEMENT) {
+			ts::InstructionReturn symbol = element.component->compile(interpreter, context);
+			c.lastAccess = symbol.first;
+			lastInstruction = symbol.first;
 		}
 		count++;
 	}

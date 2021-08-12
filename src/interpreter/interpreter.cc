@@ -59,6 +59,10 @@ Interpreter::Interpreter(ParsedArguments args, bool isParallel) {
 		this->warnings = false;
 	}
 
+	if(args.arguments["time"] != "") {
+		this->showTime = true;
+	}
+
 	this->globalContext = VariableContext(this);
 
 	if(this->isParallel) {
@@ -80,6 +84,7 @@ void Interpreter::defineTSSLMethodTree(MethodTree* tree) {
 	string nameSpace = tree->name;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree->index = this->methodTrees.head;
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -209,9 +214,14 @@ void Interpreter::push(ObjectReference* value) {
 
 void Interpreter::pop() {
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type != entry::NUMBER && test.stringData) {
+	if(test.type == entry::STRING && test.stringData) {
 		delete test.stringData;
 		test.stringData = nullptr;
+	}
+
+	if(test.type == entry::OBJECT && test.objectData) {
+		delete test.objectData;
+		test.objectData = nullptr;
 	}
 	
 	this->stack.popped();
@@ -219,7 +229,7 @@ void Interpreter::pop() {
 
 void Interpreter::startInterpretation(Instruction* head) {
 	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
-	this->startTime = chrono::high_resolution_clock::now();
+	this->startTime = getMicrosecondsNow();
 	this->interpret();
 }
 
@@ -397,6 +407,12 @@ void Interpreter::interpret() {
 	
 	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
 		this->popFunctionFrame();
+
+		if(this->showTime) {
+			printf("%lld\n", getMicrosecondsNow() - this->startTime);
+		}
+		this->stack.head = 0;
+
 		return;
 	}
 
@@ -639,8 +655,14 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::RETURN: { // return from a function
-			copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
-			this->pop(); // pop return value
+			if(instruction.functionReturn.hasValue) {
+				copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
+				this->pop(); // pop return value
+			}
+			else {
+				copyEntry(this->emptyEntry, this->returnRegister);
+			}
+
 			this->popFunctionFrame();
 
 			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
@@ -676,19 +698,66 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::CREATE_OBJECT: {
-			if(
-				!instruction.createObject.isCached
-				&& this->namespaceToMethodTreeIndex.find(toLower(instruction.createObject.type)) != this->namespaceToMethodTreeIndex.end()
-			) {
-				instruction.createObject.methodTreeIndex = this->namespaceToMethodTreeIndex[toLower(instruction.createObject.type)];
-				instruction.createObject.isCached = true;
+			string typeName = instruction.createObject.typeName;
+			string symbolName = instruction.createObject.symbolName;
+			if(!instruction.createObject.isCached) {
+				// handle symbol name stuff
+				if(!instruction.createObject.symbolNameCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* symbolNameCStr;
+					## type_conversion.py entry symbolNameCStr OBJECT_NUMBER_STRING STRING
+					symbolName = string(symbolNameCStr);
+					this->pop();
+				}
+				else {
+					symbolName = instruction.createObject.symbolName;
+				}
+
+				// handle type name stuff
+				if(!instruction.createObject.typeNameCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* typeNameCStr;
+					## type_conversion.py entry typeNameCStr OBJECT_NUMBER_STRING STRING
+					typeName = string(typeNameCStr);
+					this->pop();
+				}
+				else {
+					typeName = instruction.createObject.typeName;
+				}
+
+				// check to make sure that the type name that we're using is defined by the TSSL. if not, we can't
+				// create the object
+				MethodTree* typeCheck = this->getNamespace(typeName);
+				if(typeCheck == nullptr || !typeCheck->isTSSL) {
+					this->warning("could not create object with type '%s'\n", typeName.c_str());
+					this->push(getEmptyString());
+					break;
+				}
+
+				MethodTree* tree = this->createMethodTreeFromNamespaces(
+					symbolName,
+					typeName
+				);
+
+				instruction.createObject.methodTreeIndex = tree->index;
 			}
-			else {
-				printf("could not find method tree index\n");
-				exit(1);
+			else if(!instruction.createObject.canCreate) {
+				this->warning("could not create object with type '%s'\n", instruction.createObject.typeName.c_str());
+				this->push(getEmptyString());
+				break;
 			}
 			
-			Object* object = new Object(this, instruction.createObject.type, instruction.createObject.methodTreeIndex);
+			Object* object = new Object(
+				this,
+				typeName,
+				instruction.createObject.inheritedName,
+				instruction.createObject.methodTreeIndex
+			);
+
+			if(symbolName.length() != 0) {
+				this->setObjectName(symbolName, object);
+			}
+
 			this->push(new ObjectReference(object));
 			break;
 		}
@@ -853,7 +922,7 @@ void Interpreter::defineMethod(string &nameSpace, string &name, InstructionRetur
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(nameSpace);
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -909,7 +978,7 @@ void Interpreter::addPackageMethod(
 	MethodTree* tree;
 	if(this->namespaceToMethodTreeIndex.find(toLower(nameSpace)) == this->namespaceToMethodTreeIndex.end()) {
 		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
-		tree = new MethodTree(nameSpace);
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
 		this->methodTrees[this->methodTrees.head] = tree;
 		this->methodTrees.pushed();
 	}
@@ -939,4 +1008,80 @@ void Interpreter::addSchedule(unsigned long long time, string functionName, Entr
 		argumentCount,
 		object
 	));
+}
+
+MethodTree* Interpreter::createMethodTreeFromNamespace(string nameSpace) {
+	MethodTree* tree;
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		this->namespaceToMethodTreeIndex[toLower(nameSpace)] = this->methodTrees.head;
+		tree = new MethodTree(nameSpace, this->methodTrees.head);
+		this->methodTrees[this->methodTrees.head] = tree;
+		this->methodTrees.pushed();
+	}
+	else {
+		tree = this->methodTrees[iterator->second];
+	}
+
+	return tree;
+}
+
+MethodTree* Interpreter::getNamespace(string nameSpace) {
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		return nullptr;
+	}
+	else {
+		return this->methodTrees[iterator->second];
+	}
+}
+
+MethodTree* Interpreter::createMethodTreeFromNamespaces(
+	string namespace1,
+	string namespace2,
+	string namespace3,
+	string namespace4,
+	string namespace5
+) {
+	string names[] = {
+		namespace1,
+		namespace2,
+		namespace3,
+		namespace4,
+		namespace5,
+	};
+	
+	string nameSpace = MethodTree::GetComplexNamespace(
+		namespace1,
+		namespace2,
+		namespace3,
+		namespace4,
+		namespace5
+	);
+
+	MethodTree* tree = nullptr;
+	auto iterator = this->namespaceToMethodTreeIndex.find(toLower(nameSpace));
+	if(iterator == this->namespaceToMethodTreeIndex.end()) {
+		tree = this->createMethodTreeFromNamespace(nameSpace);
+		for(size_t i = 0; i < 5; i++) {
+			if(names[i].length() != 0 && names[i] != nameSpace) {
+				MethodTree* tree2 = this->createMethodTreeFromNamespace(names[i]);
+				tree->addParent(tree2);
+			}
+		}
+	}
+	else {
+		tree = this->methodTrees[iterator->second];
+	}
+
+	return tree;
+}
+
+void Interpreter::setObjectName(string &name, Object* object) {
+	this->stringToObject[name] = object;
+	object->setName(name);
+}
+
+void Interpreter::deleteObjectName(string &name) {
+	this->stringToObject.erase(name);
 }

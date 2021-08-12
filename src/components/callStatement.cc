@@ -25,7 +25,7 @@ CallStatement* CallStatement::Parse(Component* parent, Tokenizer* tokenizer, Par
 				break;
 			}
 			else {
-				parser->error("expected expression in call access");
+				parser->error("could not parse component in argument list");
 			}
 		}
 		else {
@@ -79,6 +79,10 @@ pair<
 	vector<CallElement>::iterator
 > CallStatement::getElements() {
 	return make_pair(this->elements.begin(), this->elements.end());
+}
+
+CallElement &CallStatement::getElement(size_t index) {
+	return this->elements[index];
 }
 
 size_t CallStatement::getElementCount() {

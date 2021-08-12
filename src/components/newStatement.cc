@@ -40,15 +40,25 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 		parser->error("invalid new object name");
 	}
 
-	// parse call list
-	if(InheritanceStatement::ShouldParse(tokenizer, parser)) {
-		output->arguments = InheritanceStatement::Parse(parent, tokenizer, parser);
-	}
-	else if(CallStatement::ShouldParse(tokenizer, parser)) {
-		output->arguments = CallStatement::Parse(parent, tokenizer, parser);
+	if(CallStatement::ShouldParse(tokenizer, parser)) {
+		output->arguments = CallStatement::Parse(output, tokenizer, parser);
 	}
 	else {
 		parser->error("invalid new object argument list");
+	}
+
+	if(output->arguments->getElementCount() > 0) {
+		// make sure we got a valid name for the object
+		Component* firstComponent = output->arguments->getElement(0).component;
+		if(
+			firstComponent->getType() != INHERITANCE_STATEMENT
+			&& firstComponent->getType() != STRING_LITERAL
+			&& firstComponent->getType() != SYMBOL_STATEMENT
+			&& firstComponent->getType() != ACCESS_STATEMENT
+			&& firstComponent->getType() != MATH_EXPRESSION
+		) {
+			parser->error("got invalid name for new object");
+		}
 	}
 
 	// expect something not a left bracket if we got no arguments in the body of the new object statement
@@ -65,8 +75,13 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			output->children.push_back(NewStatement::Parse(output, tokenizer, parser));
 			parser->expectToken(SEMICOLON);
 		}
-		else if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
-			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
+		else if(
+			Symbol::ShouldParse(tokenizer, parser)
+			|| Symbol::ShouldParseAlphabeticToken(tokenizer, parser)
+		) {
+			Symbol* symbol = Symbol::Parse(output, tokenizer, parser);
+			AccessStatement* access = AccessStatement::Parse(symbol, output, tokenizer, parser, true);
+			symbol->parent = access;
 			if(
 				access->hasChain()
 				|| access->hasCall()
@@ -123,12 +138,83 @@ string NewStatement::printJSON() {
 
 ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
-	
+
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
-	ALLOCATE_STRING(this->className->print(), createObject->createObject.type);
-	createObject->createObject.methodTreeIndex = 0;
-	createObject->createObject.isCached = false;
+	createObject->createObject.canCreate = true;
+	createObject->createObject.symbolNameCached = false;
+	ALLOCATE_STRING(string(""), createObject->createObject.inheritedName);
+
+	if(this->className->getType() == SYMBOL_STATEMENT) {
+		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
+		createObject->createObject.typeNameCached = true;
+	}
+	else {
+		ALLOCATE_STRING(string(""), createObject->createObject.typeName);
+		createObject->createObject.typeNameCached = false;
+		
+		output.add(this->className->compile(interpreter, context));
+	}
+
+	string symbolName;
+	if(this->arguments->getElementCount() == 0) { // no name case
+		ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
+		createObject->createObject.symbolNameCached = true;
+	}
+	else {
+		Component* firstComponent = this->arguments->getElement(0).component;
+		if(firstComponent->getType() == INHERITANCE_STATEMENT) {
+			ALLOCATE_STRING(((InheritanceStatement*)firstComponent)->parentClass->print(), createObject->createObject.inheritedName);	
+			firstComponent = ((InheritanceStatement*)firstComponent)->className;
+		}
+		
+		if(firstComponent != nullptr) {
+			if(firstComponent->getType() == SYMBOL_STATEMENT) { // handle first literal type
+				symbolName = ((Symbol*)firstComponent)->print();
+				ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
+				createObject->createObject.symbolNameCached = true;
+			}
+			else if(firstComponent->getType() == STRING_LITERAL) { // handle second literal type
+				symbolName = ((StringLiteral*)firstComponent)->getString();
+				ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
+				createObject->createObject.symbolNameCached = true;
+			}
+		}
+
+		if(!createObject->createObject.symbolNameCached) {
+			ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
+
+			if(firstComponent) {
+				output.add(firstComponent->compile(interpreter, context));
+			}
+			else {
+				createObject->createObject.symbolNameCached = true;
+			}
+		}
+	}
+
+	bool canCacheMethodTree = createObject->createObject.typeNameCached
+		&& createObject->createObject.symbolNameCached;
+
+	if(canCacheMethodTree) {
+		ts::MethodTree* typeCheck = interpreter->getNamespace(this->className->print());
+		if(typeCheck != nullptr && typeCheck->isTSSL) {
+			ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
+				symbolName,
+				this->className->print()
+			);
+			createObject->createObject.methodTreeIndex = tree->index;
+			createObject->createObject.isCached = true;
+		}
+		else {
+			createObject->createObject.canCreate = false;
+		}
+	}
+	else {
+		createObject->createObject.methodTreeIndex = 0;
+		createObject->createObject.isCached = false;
+	}
+
 	output.add(createObject);
 
 	for(Component* component: this->children) {

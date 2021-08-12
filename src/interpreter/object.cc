@@ -1,8 +1,17 @@
 #include "object.h"
 #include "interpreter.h"
 
-Object::Object(ts::Interpreter* interpreter, string nameSpace, size_t namespaceIndex) {
+Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex) {
 	this->properties.interpreter = interpreter;
+
+	if(inheritedName.length() != 0) {
+		// TODO hash
+		auto objectIterator = interpreter->stringToObject.find(inheritedName);
+		if(objectIterator != interpreter->stringToObject.end()) {
+			this->inherit(objectIterator->second);
+		}
+	}
+
 	this->id = interpreter->highestObjectId++;
 	interpreter->objects[this->id] = this;
 
@@ -21,8 +30,13 @@ Object::~Object() {
 		reference->object = nullptr;
 		reference = reference->next;
 	}
-
+	
+	this->properties.interpreter->deleteObjectName(this->name);
 	this->properties.interpreter->objects.erase(this->id);
+}
+
+void Object::inherit(Object* parent) {
+	this->properties.inherit(parent->properties);
 }
 
 void Object::addReference(ObjectReference* reference) {
@@ -53,4 +67,8 @@ void Object::removeReference(ObjectReference* reference) {
 		reference->previous->next = reference->next;
 		reference->next->previous = reference->previous;
 	}
+}
+
+void Object::setName(string &name) {
+	this->name = name;
 }

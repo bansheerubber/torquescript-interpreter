@@ -75,6 +75,17 @@ namespace ts {
 			void defineTSSLFunction(sl::Function* function);
 			void defineTSSLMethodTree(MethodTree* tree);
 
+			MethodTree* createMethodTreeFromNamespace(string nameSpace);
+			MethodTree* getNamespace(string nameSpace);
+
+			MethodTree* createMethodTreeFromNamespaces(
+				string namespace1,
+				string namespace2 = string(),
+				string namespace3 = string(),
+				string namespace4 = string(),
+				string namespace5 = string()
+			);
+
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
@@ -83,9 +94,12 @@ namespace ts {
 			void tick();
 			void setTickRate(long tickRate);
 
+			void setObjectName(string &name, Object* object);
+			void deleteObjectName(string &name);
+
 			Entry emptyEntry;
 
-			size_t highestObjectId = 0;
+			size_t highestObjectId = 1;
 
 			bool testing = false;
 		
@@ -96,6 +110,7 @@ namespace ts {
 
 			bool warnings = true;
 			bool isParallel = false;
+			bool showTime = false;
 			
 			void push(Entry &entry) __attribute__((always_inline));
 			void push(double number) __attribute__((always_inline));
@@ -104,7 +119,7 @@ namespace ts {
 			void pop() __attribute__((always_inline));
 
 			size_t ranInstructions = 0;
-			chrono::high_resolution_clock::time_point startTime;
+			unsigned long long startTime;
 
 			// stacks
 			DynamicArray<Entry, Interpreter> stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);

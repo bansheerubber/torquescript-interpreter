@@ -49,6 +49,8 @@ class CallStatement : public Component {
 			vector<CallElement>::iterator
 		> getElements();
 
+		CallElement &getElement(size_t index);
+
 		size_t getElementCount();
 	
 	private:

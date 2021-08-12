@@ -24,6 +24,7 @@ structs = {
 	"popArguments": ["POP_ARGUMENTS"],
 	"linkVariable": ["LINK_VARIABLE"],
 	"symbolAccess": ["SYMBOL_ACCESS"],
+	"functionReturn": ["RETURN"]
 }
 
 instruction_to_struct = {instruction: struct for struct in structs.keys() for instruction in structs[struct]}

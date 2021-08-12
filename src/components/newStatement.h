@@ -9,6 +9,8 @@
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
+#include "callStatement.h"
+
 // forward declare interpreter
 namespace ts {
 	class Interpreter;
@@ -42,5 +44,5 @@ class NewStatement : public Body {
 	
 	private:
 		Component* className = nullptr;
-		Component* arguments = nullptr;
+		CallStatement* arguments = nullptr;
 };

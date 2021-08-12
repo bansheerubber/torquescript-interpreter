@@ -11,7 +11,7 @@ using namespace ts;
 namespace ts {
 	class Object {
 		public:
-			Object(class ts::Interpreter* interpreter, string nameSpace, size_t namespaceIndex);
+			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex);
 			~Object();
 
 			VariableContext properties;
@@ -20,11 +20,15 @@ namespace ts {
 			void addReference(ObjectReference* reference);
 			void removeReference(ObjectReference* reference);
 
+			void setName(string &name);
+
 			string nameSpace;
 			size_t namespaceIndex;
 		
 		private:
+			void inherit(Object* parent);
 			ObjectReference* list = nullptr;
-			ObjectReference* top = nullptr;;
+			ObjectReference* top = nullptr;
+			string name;
 	};
 }

@@ -21,6 +21,7 @@
 #include "postfixStatement.h"
 #include "returnStatement.h"
 #include "stringLiteral.h"
+#include "symbol.h"
 #include "switchBody.h"
 #include "whileBody.h"
 
@@ -36,7 +37,8 @@ bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* par
 		|| BooleanLiteral::ShouldParse(tokenizer, parser)
 		|| NewStatement::ShouldParse(tokenizer, parser)
 		|| NamespaceStatement::ShouldParse(tokenizer, parser)
-		|| InlineConditional::ShouldParse(tokenizer, parser);
+		|| InheritanceStatement::ShouldParse(nullptr, parent, tokenizer, parser)
+		|| Symbol::ShouldParse(tokenizer, parser);
 }
 
 // handles member chaining, inline conditionals. basically, any tacked on stuff that we might
@@ -62,7 +64,10 @@ Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer
 		}
 	}
 
-	if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
+	if(lvalue != nullptr && InheritanceStatement::ShouldParse(lvalue, parent, tokenizer, parser)) {
+		lvalue = InheritanceStatement::Parse(lvalue, parent, tokenizer, parser);
+	}
+	else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr && parent->getType() != MATH_EXPRESSION) {
 		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
 	}
 
@@ -116,6 +121,12 @@ Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* par
 	}
 	else if(NewStatement::ShouldParse(tokenizer, parser)) {
 		output = NewStatement::Parse(parent, tokenizer, parser);
+	}
+	else if(InheritanceStatement::ShouldParse(nullptr, parent, tokenizer, parser)) {
+		output = InheritanceStatement::Parse(nullptr, parent, tokenizer, parser);
+	}
+	else if(Symbol::ShouldParse(tokenizer, parser)) {
+		output = Symbol::Parse(parent, tokenizer, parser);
 	}
 	
 	// additional support for edge cases

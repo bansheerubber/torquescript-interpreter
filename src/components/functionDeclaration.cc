@@ -128,16 +128,10 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 
 	output.addFirst(this->compileLinkVariables(interpreter));
 
-	// push the empty value if we do not actually use a return statement from earlier in the function body
-	ts::Instruction* pushEmpty = new ts::Instruction();
-	pushEmpty->type = ts::instruction::PUSH;
-	pushEmpty->push.entry = ts::Entry();
-	copyEntry(interpreter->emptyEntry, pushEmpty->push.entry);
-	output.add(pushEmpty);
-
 	// add a return statement that exits out from our function
 	ts::Instruction* returnInstruction = new ts::Instruction();
-	returnInstruction->type = ts::instruction::RETURN;	
+	returnInstruction->type = ts::instruction::RETURN;
+	returnInstruction->functionReturn.hasValue = false;
 	output.add(returnInstruction);
 
 	if(context.package == nullptr) {

@@ -228,9 +228,14 @@ namespace ts {
 			} callObject;
 
 			struct {
-				string type;
+				string inheritedName;
+				string typeName;
+				bool typeNameCached;
 				size_t methodTreeIndex;
 				bool isCached; // whether or not namespaceIndex has been cached yet
+				string symbolName;
+				bool symbolNameCached;
+				bool canCreate;
 			}	createObject;
 
 			struct {
@@ -248,6 +253,10 @@ namespace ts {
 				size_t cachedIndex;
 				bool isCached;
 			} callParent;
+
+			struct {
+				bool hasValue;
+			} functionReturn;
 		};
 
 		Instruction() {

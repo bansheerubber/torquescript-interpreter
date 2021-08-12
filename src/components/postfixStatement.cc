@@ -36,20 +36,40 @@ ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts
 	ts::Instruction* instruction = compiled.lastAccess;
 
 	if(this->op.type == INCREMENT) {
-		instruction->type = ts::instruction::LOCAL_ASSIGN_INCREMENT;
+		if(instruction->type == ts::instruction::OBJECT_ACCESS) {
+			instruction->type = ts::instruction::OBJECT_ASSIGN_INCREMENT;
+		}
+		else if(instruction->type == ts::instruction::GLOBAL_ACCESS) {
+			instruction->type = ts::instruction::GLOBAL_ASSIGN_INCREMENT;
+		}
+		else if(instruction->type == ts::instruction::LOCAL_ACCESS) {
+			instruction->type = ts::instruction::LOCAL_ASSIGN_INCREMENT;
+		}
 	}
 	else {
-		instruction->type = ts::instruction::LOCAL_ASSIGN_DECREMENT;
+		if(instruction->type == ts::instruction::OBJECT_ACCESS) {
+			instruction->type = ts::instruction::OBJECT_ASSIGN_DECREMENT;
+		}
+		else if(instruction->type == ts::instruction::GLOBAL_ACCESS) {
+			instruction->type = ts::instruction::GLOBAL_ASSIGN_DECREMENT;
+		}
+		else if(instruction->type == ts::instruction::LOCAL_ACCESS) {
+			instruction->type = ts::instruction::LOCAL_ASSIGN_DECREMENT;
+		}
 	}
 
 	instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
 	// copy access instruction to assign instruction
-	ALLOCATE_STRING(instruction->localAccess.source, instruction->localAssign.destination);
-	instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
 	instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 	instruction->localAssign.fromStack = false;
 	instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);
-	instruction->localAssign.stackIndex = context.scope->allocateVariable(instruction->localAssign.destination).stackIndex;
+
+	if(instruction->localAccess.dimensions > 0) {
+		instruction->localAssign.stackIndex = -1;
+	}
+	else {
+		instruction->localAssign.stackIndex = context.scope->allocateVariable(instruction->localAssign.destination).stackIndex;
+	}
 	return compiled.output;
 }

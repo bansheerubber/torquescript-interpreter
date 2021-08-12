@@ -12,5 +12,7 @@ namespace ts {
 		};
 
 		Entry* SimObject__test(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* SimObject__getId(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* SimObject__delete(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }
