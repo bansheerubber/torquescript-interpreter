@@ -404,26 +404,20 @@ void Interpreter::setTickRate(long tickRate) {
 void Interpreter::interpret() {
 	start:
 	Instruction &instruction = this->topContainer->array[*this->instructionPointer];
-	
-	if(*this->instructionPointer >= this->topContainer->size) { // quit once we run out of instructions
-		this->popFunctionFrame();
-
-		if(this->showTime) {
-			printf("%lld\n", getMicrosecondsNow() - this->startTime);
-		}
-		this->stack.head = 0;
-
-		return;
-	}
-
 	(*this->instructionPointer)++;
 
 	// PrintInstruction(instruction);
 	
 	switch(instruction.type) {
 		case instruction::INVALID_INSTRUCTION: {
-			printError("invalid instruction\n");
-			exit(1);
+			this->popFunctionFrame();
+
+			if(this->showTime) {
+				printf("%lld\n", getMicrosecondsNow() - this->startTime);
+			}
+			this->stack.head = 0;
+
+			return;	
 		}
 
 		// generate code for math instructions
