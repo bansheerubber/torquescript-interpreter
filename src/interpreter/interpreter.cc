@@ -411,6 +411,7 @@ void Interpreter::interpret() {
 		if(this->showTime) {
 			printf("%lld\n", getMicrosecondsNow() - this->startTime);
 		}
+		this->stack.head = 0;
 
 		return;
 	}
