@@ -6,30 +6,30 @@
 	// we have to define lvalue first when working with prefix
 	if(instruction.mathematics.lvalueEntry.type) {
 		Entry &lvalue = instruction.mathematics.lvalueEntry;
-		%%lvalueTypecheck%%
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 	else if(instruction.mathematics.lvalueStackIndex < 0) {
 		Entry &lvalue = this->stack[this->stack.head - 1];
-		%%lvalueTypecheck%%
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 		this->pop();
 	}
 	else {
 		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
-		%%lvalueTypecheck%%
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 
 	if(instruction.mathematics.rvalueEntry.type) {
 		Entry &rvalue = instruction.mathematics.rvalueEntry;
-		%%rvalueTypecheck%%
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 	else if(instruction.mathematics.rvalueStackIndex < 0) {
 		Entry &rvalue = this->stack[this->stack.head - 1];
-		%%rvalueTypecheck%%
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
-		%%lvalueTypecheck%%
+		Entry &rvalue = this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 #else
 	// final numbers after converting type
@@ -39,29 +39,29 @@
 	// we have to define rvalue first when working with postfix
 	if(instruction.mathematics.rvalueEntry.type) {
 		Entry &rvalue = instruction.mathematics.rvalueEntry;
-		%%rvalueTypecheck%%
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 	else if(instruction.mathematics.rvalueStackIndex < 0) {
 		Entry &rvalue = this->stack[this->stack.head - 1];
-		%%rvalueTypecheck%%
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 		this->pop();
 	}
 	else {
-		Entry &rvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
-		%%rvalueTypecheck%%
+		Entry &rvalue = this->stack[instruction.mathematics.rvalueStackIndex + this->stackFramePointer];
+		## type_conversion.py rvalue rvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 
 	if(instruction.mathematics.lvalueEntry.type) {
 		Entry &lvalue = instruction.mathematics.lvalueEntry;
-		%%lvalueTypecheck%%
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 	else if(instruction.mathematics.lvalueStackIndex < 0) {
 		Entry &lvalue = this->stack[this->stack.head - 1];
-		%%lvalueTypecheck%%
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 		this->pop();
 	}
 	else {
-		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer;
-		%%lvalueTypecheck%%
+		Entry &lvalue = this->stack[instruction.mathematics.lvalueStackIndex + this->stackFramePointer];
+		## type_conversion.py lvalue lvalueNumber NUMBER_STRING_OBJECT NUMBER
 	}
 #endif

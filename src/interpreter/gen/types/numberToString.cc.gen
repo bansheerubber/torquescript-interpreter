@@ -1,0 +1,4 @@
+%%conditional%%((%%entry%%).type == entry::NUMBER) {
+	%%output%% = numberToString((%%entry%%).numberData);
+	%%delete%%
+}

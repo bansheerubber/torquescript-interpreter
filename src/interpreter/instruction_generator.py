@@ -17,11 +17,14 @@ structs = {
 	"globalAccess": ["GLOBAL_ACCESS"],
 	"createObject": ["CREATE_OBJECT"],
 	"callFunction": ["CALL_FUNCTION"],
+	"callParent": ["CALL_PARENT"],
 	"callObject": ["CALL_OBJECT"],
 	"objectAssign": get_assignment_instructions("OBJECT_ASSIGN"),
 	"objectAccess": ["OBJECT_ACCESS"],
 	"popArguments": ["POP_ARGUMENTS"],
 	"linkVariable": ["LINK_VARIABLE"],
+	"symbolAccess": ["SYMBOL_ACCESS"],
+	"functionReturn": ["RETURN"]
 }
 
 instruction_to_struct = {instruction: struct for struct in structs.keys() for instruction in structs[struct]}
@@ -85,7 +88,7 @@ if sys.argv[1] == "instruction.cc":
 
 		for variable_type, variable_name in struct_to_types[key]:
 			if variable_type == "string":
-				print(f"	new((void*)&destination.{key}.{variable_name}) string(source.{key}.{variable_name});")
+				print(f"  ALLOCATE_STRING(source.{key}.{variable_name}, destination.{key}.{variable_name});")
 			elif variable_type == "Entry":
 				print(f"	destination.{key}.{variable_name} = ts::Entry();")
 				print(f"	copyEntry(source.{key}.{variable_name}, destination.{key}.{variable_name});")
@@ -139,6 +142,8 @@ elif sys.argv[1] == "debug.cc":
 	}}""")
 			elif variable_type == "size_t" or variable_type == "relative_stack_location" or variable_type == "stack_location": # handle size_t
 				print(f'	printf("   {variable_name}: %ld,\\n", instruction.{struct}.{variable_name});')
+			elif variable_type[-1] == "*": # handle pointers
+				print(f'	printf("   {variable_name}: %p,\\n", instruction.{struct}.{variable_name});')
 			else: # handle everything else
 				print(f'	printf("   {variable_name}: %d,\\n", instruction.{struct}.{variable_name});')
 		

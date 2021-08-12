@@ -14,6 +14,7 @@ class Parser {
 	public:
 		Parser(Tokenizer* tokenizer, ParsedArguments args);
 		void error(const char* format, ...);
+		void warning(const char* format, ...);
 		
 		// there's no clean way to do what i want to do here
 		Token expectToken(TokenType, TokenType = INVALID, TokenType = INVALID, TokenType = INVALID, TokenType = INVALID);

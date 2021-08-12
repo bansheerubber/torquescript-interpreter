@@ -9,9 +9,9 @@
 
 #include "args.h"
 #include "./compiler/compiler.h"
-#include "./tssl/define.h"
 #include "io.h"
 #include "./interpreter/interpreter.h"
+#include "./lib/lib.h"
 #include "./parser/parser.h"
 #include "test.h"
 #include "./tokenizer/tokenizer.h"
@@ -40,8 +40,6 @@ int main(int argc, char* argv[]) {
 
 	bool isPiped = isPipe();
 
-	ts::sl::define(); // define torquescript standard library
-
 	// parse arguments
 	ParsedArguments args = parseArguments(arguments, argc, argv);
 	if(args.arguments["help"] != "") {
@@ -66,7 +64,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	ts::Interpreter* interpreter = new ts::Interpreter(args);
+	ts::Interpreter* interpreter = new ts::Interpreter(args, false);
 	
 	if(isPiped) {
 		string file;

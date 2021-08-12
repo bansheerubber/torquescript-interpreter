@@ -66,8 +66,9 @@ class Component {
 		void setParent(Component* parent) {
 			this->parent = parent;
 		}
+
+		Component* parent = nullptr;
 	
 	protected:
-		Component* parent = nullptr;
 		Parser* parser = nullptr;
 };

@@ -4,29 +4,25 @@
 
 #include "../io.h"
 
-namespace ts {
-	#define DYNAMIC_ARRAY_MAX_SIZE 5000000
-	
-	template <typename T>
-	struct DynamicArray {
-		T* array;
-		size_t size;
+#define DYNAMIC_ARRAY_MAX_SIZE 5000000
+
+template <typename T, typename S>
+class DynamicArray {
+	public:
 		size_t head;
-		class Interpreter* interpreter;
-		void (*init) (class Interpreter* interpreter, T* location);
-		void (*onRealloc) (class Interpreter* interpreter);
 
 		DynamicArray() {
 			this->array = nullptr;
+			this->dontDelete = true;
 		}
 
 		DynamicArray(
-			class Interpreter* interpreter,
+			S* parent,
 			size_t size,
-			void (*init) (class Interpreter* interpreter, T* location),
-			void (*onRealloc) (class Interpreter* interpreter)
+			void (*init) (S* parent, T* location),
+			void (*onRealloc) (S* parent)
 		) {
-			this->interpreter = interpreter;
+			this->parent = parent;
 			this->size = size;
 			this->head = 0;
 			this->init = init;
@@ -40,7 +36,19 @@ namespace ts {
 			this->array = array;
 
 			for(size_t i = 0; i < this->size; i++) {
-				(*this->init)(this->interpreter, &this->array[i]);
+				(*this->init)(this->parent, &this->array[i]);
+			}
+		}
+
+		~DynamicArray() {
+			if(this->dontDelete) {
+				this->dontDelete = false;
+				return;
+			}
+			
+			if(this->array != nullptr) {
+				free(this->array);
+				this->array = nullptr;
 			}
 		}
 
@@ -61,12 +69,12 @@ namespace ts {
 				this->array = array;
 
 				for(size_t i = this->size; i < this->size * 2; i++) {
-					(*this->init)(this->interpreter, &this->array[i]);
+					(*this->init)(this->parent, &this->array[i]);
 				}
 				this->size *= 2;
 				
 				if(this->onRealloc != nullptr) {
-					(*this->onRealloc)(this->interpreter);
+					(*this->onRealloc)(this->parent);
 				}
 			}
 		}
@@ -78,5 +86,12 @@ namespace ts {
 		T& operator[](size_t index) {
 			return this->array[index];
 		}
-	};
-}
+	
+	private:
+		bool dontDelete = false;
+		T* array;
+		size_t size;
+		S* parent;
+		void (*init) (S* parent, T* location);
+		void (*onRealloc) (S* parent);
+};

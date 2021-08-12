@@ -90,6 +90,7 @@ ts::InstructionReturn ForBody::compile(ts::Interpreter* interpreter, ts::Compila
 	for(Component* component: this->children) {
 		output.add(component->compile(interpreter, (ts::CompilationContext){
 			loop: this,
+			package: nullptr,
 			scope: context.scope,
 		}));
 	}

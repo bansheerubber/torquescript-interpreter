@@ -1,6 +1,7 @@
 #include "assignStatement.h"
 
 #include "accessStatement.h"
+#include "../util/allocateString.h"
 #include "booleanLiteral.h"
 #include "../interpreter/interpreter.h"
 #include "numberLiteral.h"
@@ -158,9 +159,6 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToObjectOperator(this->assignmentToken.type);
 		instruction->objectAssign.entry = ts::Entry(); // initialize memory to avoid crash
 
-		new((void*)&instruction->objectAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
-		instruction->objectAssign.hash = hash<string>{}(instruction->localAccess.source);
-		instruction->objectAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->objectAssign.fromStack = false;
 		instruction->objectAssign.pushResult = this->parent->shouldPushToStack(this);
 		instruction->objectAssign.popObject = true;
@@ -169,19 +167,13 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		instruction->type = AssignStatement::TypeToGlobalOperator(this->assignmentToken.type);
 		instruction->globalAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		new((void*)&instruction->globalAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
-		instruction->globalAssign.hash = hash<string>{}(instruction->localAccess.source);
-		instruction->globalAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->globalAssign.fromStack = false;
 		instruction->globalAssign.pushResult = this->parent->shouldPushToStack(this);
 	}
-	else { // copy access instruction to assign instruction
+	else if(instruction->type == ts::instruction::LOCAL_ACCESS) { // copy access instruction to assign instruction
 		instruction->type = AssignStatement::TypeToLocalOperator(this->assignmentToken.type);
 		instruction->localAssign.entry = ts::Entry(); // initialize memory to avoid crash
 		
-		new((void*)&instruction->localAssign.destination) string(instruction->localAccess.source); // TODO move this initialization elsewhere
-		instruction->localAssign.hash = hash<string>{}(instruction->localAccess.source);
-		instruction->localAssign.dimensions = instruction->localAccess.dimensions;
 		instruction->localAssign.stackIndex = instruction->localAccess.stackIndex;
 		instruction->localAssign.fromStack = false;
 		instruction->localAssign.pushResult = this->parent->shouldPushToStack(this);

@@ -1,0 +1,4 @@
+%%conditional%%((%%entry%%).type == entry::OBJECT) {
+	%%output%% = numberToString((%%entry%%).objectData->id);
+	%%delete%%
+}

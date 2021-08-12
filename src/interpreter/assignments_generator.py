@@ -30,7 +30,7 @@ specific_operations = {
 			else {{
 				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
 			}}""",
-	"OBJECT_ASSIGN_EQUAL": """object->object->properties.setVariableEntry(
+	"OBJECT_ASSIGN_EQUAL": """object->properties.setVariableEntry(
 				instruction,
 				instruction.localAssign.destination,
 				instruction.localAssign.hash,

@@ -44,5 +44,5 @@ class DatablockDeclaration : public Body {
 	
 	private:
 		Symbol* typeName = nullptr; // type name of datablock
-		InheritanceStatement* className = nullptr; // class name or inheritence expression
+		class CallStatement* className = nullptr; // class name or inheritence expression
 };

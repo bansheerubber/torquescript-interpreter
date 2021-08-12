@@ -1,21 +1,36 @@
 #include "echo.h"
 
+#include "../interpreter/interpreter.h"
+
 namespace ts {
 	namespace sl {
 		string mockStdout = string();
 		bool useMockStdout = false;
 		
-		void* echo(size_t argc, void** args) {
+		Entry* echo(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc >= 1) {
 				if(useMockStdout) {
-					mockStdout += (const char*)args[0];
+					mockStdout += args[0].stringData;
 					mockStdout += '\n';
 				}
 				else {
-					printf("%s\n", ((const char*)args[0]));
+					printf("%s\n", args[0].stringData);
 				}
 			}
 			return nullptr;
-		}		
+		}
+
+		Entry* error(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc >= 1) {
+				if(useMockStdout) {
+					mockStdout += args[0].stringData;
+					mockStdout += '\n';
+				}
+				else {
+					printf("%s\n", args[0].stringData);
+				}
+			}
+			return nullptr;
+		}
 	}
 }

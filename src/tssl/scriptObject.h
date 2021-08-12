@@ -1,13 +1,16 @@
 #pragma once
 
+#include "../interpreter/entry.h"
 #include "../interpreter/object.h"
 
 namespace ts {
+	class Interpreter;
+
 	namespace sl {
 		class ScriptObject : public Object {
 
 		};
 
-		void* ScriptObject__test(size_t argc, void** args);
+		Entry* ScriptObject__test(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

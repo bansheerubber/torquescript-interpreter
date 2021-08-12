@@ -1,11 +1,19 @@
 #include "scriptObject.h"
 
-using namespace ts;
+#include "define.h"
+#include "../interpreter/interpreter.h"
 
-void* sl::ScriptObject__test(size_t argc, void** args) {
-	if(argc >= 2) {
-		printf("attemtping print because argc high\n");
-		printf("script object says: %s\n", ((const char*)args[1]));
+namespace ts {
+	namespace sl {
+		Entry* ScriptObject__test(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc >= 2) {
+				entry::EntryType* types = new entry::EntryType[2] { entry::OBJECT, entry::STRING };
+				PARENT(interpreter, "test", argc, args, types);
+				
+				printf("attemtping print because argc high\n");
+				printf("script object says: %s\n", args[1].stringData);
+			}
+			return nullptr;
+		}
 	}
-	return nullptr;
 }

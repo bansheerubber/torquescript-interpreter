@@ -3,6 +3,8 @@
 
 #include "accessStatement.h"
 #include "assignStatement.h"
+#include "callStatement.h"
+#include "symbol.h"
 
 bool DatablockDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
 	return tokenizer->peekToken().type == DATABLOCK;
@@ -20,16 +22,39 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 	output->typeName = Symbol::Parse(output, tokenizer, parser);
 
 	// parse inheritance statement
-	if(!InheritanceStatement::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid datablock class name");
+	if(CallStatement::ShouldParse(tokenizer, parser)) {
+		output->className = CallStatement::Parse(output, tokenizer, parser);
 	}
-	output->className = InheritanceStatement::Parse(output, tokenizer, parser);
+	else {
+		parser->error("got invalid name for datablock");
+	}
+
+	if(output->className->getElementCount() == 0) {
+		parser->error("got no name for datablock");
+	}
+
+	// make sure we got a valid name for the datablock
+	Component* firstComponent = output->className->getElement(0).component;
+	if(
+		firstComponent->getType() != INHERITANCE_STATEMENT
+		&& firstComponent->getType() != STRING_LITERAL
+		&& firstComponent->getType() != SYMBOL_STATEMENT
+		&& firstComponent->getType() != ACCESS_STATEMENT
+		&& firstComponent->getType() != MATH_EXPRESSION
+	) {
+		parser->error("got invalid name for datablock");
+	}
 	
 	parser->expectToken(LEFT_BRACKET);
 	// read assignment statements
 	while(!tokenizer->eof()) {
-		if(AccessStatement::ShouldParse(tokenizer, parser, true)) {
-			AccessStatement* access = AccessStatement::Parse(nullptr, output, tokenizer, parser, true);
+		if(
+			Symbol::ShouldParse(tokenizer, parser)
+			|| Symbol::ShouldParseAlphabeticToken(tokenizer, parser)
+		) {
+			Symbol* symbol = Symbol::Parse(output, tokenizer, parser);
+			AccessStatement* access = AccessStatement::Parse(symbol, output, tokenizer, parser, true);
+			symbol->parent = access;
 			if(
 				access->hasChain()
 				|| access->hasCall()

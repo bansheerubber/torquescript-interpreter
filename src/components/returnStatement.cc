@@ -46,11 +46,17 @@ string ReturnStatement::printJSON() {
 
 ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
 	ts::InstructionReturn output;
-	output.add(this->operation->compile(interpreter, context));
 
 	// add a return statement that exits out from our function
 	ts::Instruction* returnInstruction = new ts::Instruction();
-	returnInstruction->type = ts::instruction::RETURN;	
+	returnInstruction->type = ts::instruction::RETURN;
+	returnInstruction->functionReturn.hasValue = false;
+
+	if(this->operation != nullptr) {
+		output.add(this->operation->compile(interpreter, context));
+		returnInstruction->functionReturn.hasValue = true;
+	}
+
 	output.add(returnInstruction);
 	
 	return output;

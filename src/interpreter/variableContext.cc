@@ -8,6 +8,15 @@
 
 using namespace ts;
 
+namespace std {
+	template<>
+	void swap<VariableContextEntry>(VariableContextEntry &entry1, VariableContextEntry &entry2) noexcept {
+		using std::swap;
+		swap(entry1.stackIndex, entry2.stackIndex);
+		swap(entry1.entry, entry2.entry);
+	}
+}
+
 VariableContext::VariableContext() {
 
 }
@@ -18,6 +27,10 @@ VariableContext::VariableContext(Interpreter* interpreter) {
 
 void VariableContext::clear() {
 	this->variableMap.clear();
+}
+
+void VariableContext::inherit(VariableContext &parent) {
+	this->variableMap = parent.variableMap;
 }
 
 string VariableContext::computeVariableString(Instruction &instruction, string &variable) {
@@ -37,7 +50,7 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 			newVariable = newVariable + entry.stringData;
 		}
 		else if(entry.type == entry::OBJECT) {
-			newVariable = newVariable + numberToStdString(entry.objectData->object->id);
+			newVariable = newVariable + numberToStdString(entry.objectData->id);
 		}
 
 		firstDimensionSet = true;
@@ -46,7 +59,7 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 }
 
 Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name, size_t hash) {
-	if(instruction.localAssign.dimensions > 0) {
+	if(instruction.localAssign.dimensions > 0) {		
 		string computedString = computeVariableString(instruction, name);
 		auto value = this->variableMap.find(computedString);
 		if(value == this->variableMap.end()) { // initialize empty string
@@ -59,12 +72,7 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 		}
 		else {
 			VariableContextEntry &entry = value.value();
-			if(entry.stackIndex < 0) {
-				return entry.entry;
-			}
-			else {
-				return this->interpreter->stack[entry.stackIndex + this->interpreter->stackFramePointer];
-			}
+			return entry.entry;
 		}
 	}
 	else {
@@ -94,12 +102,7 @@ void VariableContext::setVariableEntry(Instruction &instruction, string &name, s
 		}
 		else {
 			VariableContextEntry &variableEntry = value.value();
-			if(variableEntry.stackIndex < 0) {
-				copyEntry(entry, variableEntry.entry);
-			}
-			else {
-				copyEntry(entry, this->interpreter->stack[variableEntry.stackIndex + this->interpreter->stackFramePointer]);
-			}
+			copyEntry(entry, variableEntry.entry);
 		}
 	}
 	else {

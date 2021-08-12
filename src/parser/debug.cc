@@ -26,6 +26,20 @@ void Parser::error(const char* format, ...) {
 	exit(1);
 }
 
+void Parser::warning(const char* format, ...) {
+	lock_guard<mutex> lock(errorLock());
+	
+	Token token = this->tokenizer->peekToken();
+	printWarning("%s:%d:%d: ", this->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
+	
+	va_list argptr;
+	va_start(argptr, format);
+	printWarning(format, argptr);
+	va_end(argptr);
+
+	printWarning("\n");
+}
+
 ## parser_debug.py
 
 const char* Parser::typeToName(ComponentType type) {

@@ -1,10 +1,12 @@
 // what the stack looks like:
 // {lvalue, object we're assigning to, dimensions...}
 Entry &objectEntry = this->stack[this->stack.head - 1 - instruction.objectAssign.dimensions];
-ObjectReference* object = objectEntry.objectData;
+Object* object = nullptr;
+
+## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
 
 // don't do anything if our reference is dead
-if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
+if(object == nullptr) {
 	if(instruction.objectAssign.popObject) {
 		this->pop(); // pop object from the stack
 	}
@@ -17,6 +19,5 @@ if(objectEntry.type != entry::OBJECT || object->object == nullptr) {
 		this->push(this->emptyEntry);
 	}
 
-	this->warning("trying to assign to deleted object\n");
 	break;
 }

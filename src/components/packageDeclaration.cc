@@ -45,6 +45,13 @@ string PackageDeclaration::printJSON() {
 }
 
 ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
+	for(Component* component: this->children) {
+		component->compile(interpreter, (ts::CompilationContext){
+			loop: nullptr,
+			package: this,
+			scope: nullptr,
+		});
+	}
+	
 	return {};
 }

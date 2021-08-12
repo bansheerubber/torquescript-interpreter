@@ -4,38 +4,41 @@
 #include <string>
 #include <vector>
 
+#include "../interpreter/entry.h"
 #include "../util/toLower.h"
 
 using namespace std;
 
-#define TS_FUNC(name)		void* (*name)(size_t argc, void** args)
-#define TS_ARG_COUNT		16
-
 namespace ts {
+	class MethodTree;
+	class Interpreter;
+
+	#define TS_FUNC(name)		Entry* (*name)(Interpreter* interpreter, size_t argc, Entry* args)
+	#define TS_ARG_COUNT		16
+	
 	namespace sl {
-		// types for working with the C++ <-> TS interface
-		enum type {
-			VOID,
-			STRING,
-			NUMBER,
-			OBJECT,
-		};
-		
 		struct Function {
-			type returnType;
+			entry::EntryType returnType;
 			string nameSpace;
 			string name;
 			size_t argumentCount;
 			TS_FUNC(function);
-			type* argumentTypes;
+			entry::EntryType* argumentTypes;
 		};
 
 		extern vector<Function*> functions;
 		extern unordered_map<string, size_t> nameToIndex;
 
-		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, type* argumentTypes);
-		void FUNC_DEF(type returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, type* argumentTypes);
+		extern vector<MethodTree*> methodTrees;
+		extern unordered_map<string, size_t> methodTreeNameToIndex;
+
+		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, entry::EntryType* argumentTypes);
+		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, entry::EntryType* argumentTypes);
+
+		MethodTree* NAMESPACE_DEF(const char* name);
+
+		Entry* PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 		
-		void define();
+		void define(Interpreter* interpreter);
 	}
 }

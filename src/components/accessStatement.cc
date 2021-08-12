@@ -1,8 +1,10 @@
 #include "accessStatement.h"
 #include "../interpreter/interpreter.h"
 
+#include "../util/allocateString.h"
 #include "arrayStatement.h"
 #include "callStatement.h"
+#include "../util/stringToChars.h"
 
 bool AccessStatement::DatablockAsSymbol = false;
 
@@ -11,7 +13,10 @@ bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser, bool use
 	return (
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
-		|| token.type == SYMBOL
+		|| ( // handle functions
+			token.type == SYMBOL
+			&& tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+		)
 		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
 	);
 }
@@ -239,13 +244,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		// build call instruction
 		ts::Instruction* callFunction = new ts::Instruction();
 		callFunction->type = ts::instruction::CALL_FUNCTION;
-		new((void*)&callFunction->callFunction.name) string(this->elements[0].token.lexeme); // TODO move this initialization elsewhere
-		new((void*)&callFunction->callFunction.nameSpace) string(""); // TODO move this initialization elsewhere
-		callFunction->callFunction.cachedIndex = 0;
-		callFunction->callFunction.cachedNamespaceIndex = 0;
+		ALLOCATE_STRING(this->elements[0].token.lexeme, callFunction->callFunction.name);
+		ALLOCATE_STRING(string(""), callFunction->callFunction.nameSpace);
+		callFunction->callFunction.cachedFunctionList = nullptr;
+		callFunction->callFunction.cachedEntry = nullptr;
 		callFunction->callFunction.isCached = false;
-		callFunction->callFunction.isNamespaceCached = false;
-		callFunction->callFunction.isTSSL = false;
 		c.output.add(callFunction);
 
 		if(this->parent->requiresSemicolon(this)) { // if we do not assign/need the value of the function, just pop it
@@ -258,17 +261,23 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		++iterator;
 	}
 
+
+	// special cases for strings at the start of the access statement
+	if(this->elements[0].component != nullptr && this->elements[0].component->getType() == STRING_LITERAL) {
+		c.output.add(this->elements[0].component->compile(interpreter, context));
+		++iterator;
+	}
+
 	int count = 0;
 	ts::Instruction* lastInstruction = nullptr;
 	for(; iterator != this->elements.end(); ++iterator) {
 		AccessElement element = *iterator;
-
 		if(element.token.type == LOCAL_VARIABLE) {
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::LOCAL_ACCESS;
 			instruction->localAccess.dimensions = 0;
-			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			instruction->localAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->localAccess.source);
 			instruction->localAccess.stackIndex = -1;
 
 			c.lastAccess = instruction;
@@ -279,8 +288,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::GLOBAL_ACCESS;
 			instruction->globalAccess.dimensions = 0;
-			instruction->globalAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->globalAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			instruction->globalAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->globalAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -288,10 +297,10 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.token.type == SYMBOL) {
 			ts::Instruction* instruction = new ts::Instruction();
-			instruction->type = ts::instruction::INVALID_INSTRUCTION; // TODO figure out a better way to do this
-			instruction->localAccess.dimensions = 0;
-			instruction->localAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->localAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			instruction->type = ts::instruction::SYMBOL_ACCESS;
+			instruction->symbolAccess.dimensions = 0;
+			instruction->symbolAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->symbolAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -312,8 +321,8 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::OBJECT_ACCESS;
 			instruction->objectAccess.dimensions = 0;
-			instruction->objectAccess.hash = hash<string>{}(element.token.lexeme);
-			new((void*)&instruction->objectAccess.source) string(element.token.lexeme); // TODO move this initialization elsewhere
+			instruction->objectAccess.hash = hash<string>{}(toLower(element.token.lexeme));
+			ALLOCATE_STRING(toLower(element.token.lexeme), instruction->objectAccess.source);
 
 			c.lastAccess = instruction;
 
@@ -338,7 +347,9 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			// compile the call instruction
 			ts::Instruction* instruction = new ts::Instruction();
 			instruction->type = ts::instruction::CALL_OBJECT;
-			new((void*)&instruction->callObject.name) string(lastInstruction->objectAccess.source); // TODO move this initialization elsewhere
+			ALLOCATE_STRING(lastInstruction->objectAccess.source, instruction->callObject.name);
+			instruction->callObject.cachedEntry = nullptr;
+			instruction->callObject.isCached = false;
 
 			c.output.add(instruction);
 
@@ -354,6 +365,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
 			c.output.add(element.component->compile(interpreter, context));
 			lastInstruction = nullptr;
+		}
+		else if(element.component != nullptr && element.component->getType() == SYMBOL_STATEMENT) {
+			ts::InstructionReturn symbol = element.component->compile(interpreter, context);
+			c.lastAccess = symbol.first;
+			lastInstruction = symbol.first;
 		}
 		count++;
 	}

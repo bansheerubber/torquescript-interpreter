@@ -2,11 +2,16 @@
 
 #include <string>
 
+#include "../interpreter/entry.h"
+
 using namespace std;
 
 namespace ts {
+	class Interpreter;
+	
 	namespace sl {
-		void* echo(size_t argc, void** args);
+		Entry* echo(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* error(Interpreter* interpreter, size_t argc, Entry* args);
 
 		extern string mockStdout;
 		extern bool useMockStdout;

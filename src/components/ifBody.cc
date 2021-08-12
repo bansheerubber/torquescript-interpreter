@@ -155,9 +155,14 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::Compilat
 			else if(next->getType() == ELSE_STATEMENT) {
 				ts::InstructionReturn compiled = next->compile(interpreter, context);
 				lastConditionalJump->jumpIfFalse.instruction = compiled.first;
+				lastConditionalJump = nullptr;
 				output.add(compiled);
 				next = nullptr;
 			}
+		}
+
+		if(lastConditionalJump) {
+			lastConditionalJump->jumpIfFalse.instruction = noop;
 		}
 	}
 

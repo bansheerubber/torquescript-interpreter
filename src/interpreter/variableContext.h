@@ -26,6 +26,7 @@ namespace ts {
 			void print();
 			void printWithTab(int tabs);
 			void clear();
+			void inherit(VariableContext &parent);
 		
 		private:
 			class Interpreter* interpreter;
@@ -35,4 +36,9 @@ namespace ts {
 	};
 
 	void initVariableContext(VariableContext* location);
+}
+
+namespace std {
+	template<> // specialization
+	void swap<ts::VariableContextEntry>(ts::VariableContextEntry &entry1, ts::VariableContextEntry &entry2) noexcept;
 }
