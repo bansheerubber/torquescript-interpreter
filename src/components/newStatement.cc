@@ -142,6 +142,8 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	ts::Instruction* createObject = new ts::Instruction();
 	createObject->type = ts::instruction::CREATE_OBJECT;
 	createObject->createObject.canCreate = true;
+	createObject->createObject.symbolNameCached = false;
+	ALLOCATE_STRING(string(""), createObject->createObject.inheritedName);
 
 	if(this->className->getType() == SYMBOL_STATEMENT) {
 		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
@@ -161,21 +163,33 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	}
 	else {
 		Component* firstComponent = this->arguments->getElement(0).component;
-		if(firstComponent->getType() == SYMBOL_STATEMENT) { // handle first literal type
-			symbolName = ((Symbol*)firstComponent)->print();
-			ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
-			createObject->createObject.symbolNameCached = true;
+		if(firstComponent->getType() == INHERITANCE_STATEMENT) {
+			ALLOCATE_STRING(((InheritanceStatement*)firstComponent)->parentClass->print(), createObject->createObject.inheritedName);	
+			firstComponent = ((InheritanceStatement*)firstComponent)->className;
 		}
-		else if(firstComponent->getType() == STRING_LITERAL) { // handle second literal type
-			symbolName = ((StringLiteral*)firstComponent)->getString();
-			ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
-			createObject->createObject.symbolNameCached = true;
+		
+		if(firstComponent != nullptr) {
+			if(firstComponent->getType() == SYMBOL_STATEMENT) { // handle first literal type
+				symbolName = ((Symbol*)firstComponent)->print();
+				ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
+				createObject->createObject.symbolNameCached = true;
+			}
+			else if(firstComponent->getType() == STRING_LITERAL) { // handle second literal type
+				symbolName = ((StringLiteral*)firstComponent)->getString();
+				ALLOCATE_STRING(symbolName, createObject->createObject.symbolName);
+				createObject->createObject.symbolNameCached = true;
+			}
 		}
-		else {
-			ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
-			createObject->createObject.symbolNameCached = false;
 
-			output.add(firstComponent->compile(interpreter, context));
+		if(!createObject->createObject.symbolNameCached) {
+			ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
+
+			if(firstComponent) {
+				output.add(firstComponent->compile(interpreter, context));
+			}
+			else {
+				createObject->createObject.symbolNameCached = true;
+			}
 		}
 	}
 

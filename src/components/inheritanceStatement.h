@@ -35,6 +35,8 @@ class InheritanceStatement : public Component {
 		string printJSON();
 		static bool ShouldParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
 		static InheritanceStatement* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
+
+		friend class NewStatement;
 	
 	private:
 		Component* className = nullptr;

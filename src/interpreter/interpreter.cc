@@ -747,7 +747,12 @@ void Interpreter::interpret() {
 				break;
 			}
 			
-			Object* object = new Object(this, typeName, instruction.createObject.methodTreeIndex);
+			Object* object = new Object(
+				this,
+				typeName,
+				instruction.createObject.inheritedName,
+				instruction.createObject.methodTreeIndex
+			);
 
 			if(symbolName.length() != 0) {
 				this->setObjectName(symbolName, object);

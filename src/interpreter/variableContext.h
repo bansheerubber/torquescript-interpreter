@@ -26,6 +26,7 @@ namespace ts {
 			void print();
 			void printWithTab(int tabs);
 			void clear();
+			void inherit(VariableContext &parent);
 		
 		private:
 			class Interpreter* interpreter;

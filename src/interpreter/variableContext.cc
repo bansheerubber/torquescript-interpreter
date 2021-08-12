@@ -29,6 +29,10 @@ void VariableContext::clear() {
 	this->variableMap.clear();
 }
 
+void VariableContext::inherit(VariableContext &parent) {
+	this->variableMap = parent.variableMap;
+}
+
 string VariableContext::computeVariableString(Instruction &instruction, string &variable) {
 	string newVariable(variable);
 

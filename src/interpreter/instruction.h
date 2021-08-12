@@ -228,6 +228,7 @@ namespace ts {
 			} callObject;
 
 			struct {
+				string inheritedName;
 				string typeName;
 				bool typeNameCached;
 				size_t methodTreeIndex;
