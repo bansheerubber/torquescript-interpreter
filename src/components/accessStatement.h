@@ -76,6 +76,8 @@ class AccessStatement : public Component {
 		static bool DatablockAsSymbol;
 
 		string getVariableName();
+
+		friend class NewStatement;
 	
 	private:
 		// the tokens that make this statement up

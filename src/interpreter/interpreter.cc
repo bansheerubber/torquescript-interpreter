@@ -694,7 +694,27 @@ void Interpreter::interpret() {
 		case instruction::CREATE_OBJECT: {
 			string typeName = instruction.createObject.typeName;
 			string symbolName = instruction.createObject.symbolName;
+			string classProperty = instruction.createObject.classProperty;
+			string superClassProperty = instruction.createObject.superClassProperty;
 			if(!instruction.createObject.isCached) {
+				// handle super class property stuff
+				if(!instruction.createObject.superClassPropertyCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* superClassPropertyCStr;
+					## type_conversion.py entry superClassPropertyCStr OBJECT_NUMBER_STRING STRING
+					superClassProperty = string(superClassPropertyCStr);
+					this->pop();
+				}
+
+				// handle class property stuff
+				if(!instruction.createObject.classPropertyCached) {
+					Entry &entry = this->stack[this->stack.head - 1];
+					char* classPropertyCStr;
+					## type_conversion.py entry classPropertyCStr OBJECT_NUMBER_STRING STRING
+					classProperty = string(classPropertyCStr);
+					this->pop();
+				}
+				
 				// handle symbol name stuff
 				if(!instruction.createObject.symbolNameCached) {
 					Entry &entry = this->stack[this->stack.head - 1];
@@ -702,9 +722,6 @@ void Interpreter::interpret() {
 					## type_conversion.py entry symbolNameCStr OBJECT_NUMBER_STRING STRING
 					symbolName = string(symbolNameCStr);
 					this->pop();
-				}
-				else {
-					symbolName = instruction.createObject.symbolName;
 				}
 
 				// handle type name stuff
@@ -714,9 +731,6 @@ void Interpreter::interpret() {
 					## type_conversion.py entry typeNameCStr OBJECT_NUMBER_STRING STRING
 					typeName = string(typeNameCStr);
 					this->pop();
-				}
-				else {
-					typeName = instruction.createObject.typeName;
 				}
 
 				// check to make sure that the type name that we're using is defined by the TSSL. if not, we can't
@@ -730,6 +744,8 @@ void Interpreter::interpret() {
 
 				MethodTree* tree = this->createMethodTreeFromNamespaces(
 					symbolName,
+					classProperty,
+					superClassProperty,
 					typeName
 				);
 
