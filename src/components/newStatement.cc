@@ -96,7 +96,19 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
 				parser->error("expected property assignment in new object");
 			}
-			output->children.push_back(AssignStatement::Parse(access, output, tokenizer, parser));
+
+			AssignStatement* assign = AssignStatement::Parse(access, output, tokenizer, parser);
+			output->children.push_back(assign);
+
+			if(access->elements[0].component->getType() == SYMBOL_STATEMENT) {
+				string variableName = ((Symbol*)access->elements[0].component)->print();
+				if(toLower(variableName) == "class") {
+					output->classProperty = assign->getRValue();
+				}
+				else if(toLower(variableName) == "superclass") {
+					output->superClassProperty = assign->getRValue();
+				}
+			}
 
 			parser->expectToken(SEMICOLON);
 		}
@@ -193,14 +205,66 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		}
 	}
 
+	string classProperty;
+	if(this->classProperty) {
+		if(this->classProperty->getType() == SYMBOL_STATEMENT) {
+			classProperty = ((Symbol*)this->classProperty)->print();
+			ALLOCATE_STRING(classProperty, createObject->createObject.classProperty);
+			createObject->createObject.classPropertyCached = true;
+		}
+		else if(this->classProperty->getType() == STRING_LITERAL) {
+			classProperty = ((StringLiteral*)this->classProperty)->getString();
+			ALLOCATE_STRING(classProperty, createObject->createObject.classProperty);
+			createObject->createObject.classPropertyCached = true;
+		}
+		else {
+			ALLOCATE_STRING(string(""), createObject->createObject.classProperty);
+			createObject->createObject.classPropertyCached = false;
+			
+			output.add(this->classProperty->compile(interpreter, context));
+		}
+	}
+	else {
+		ALLOCATE_STRING(string(""), createObject->createObject.classProperty);
+		createObject->createObject.classPropertyCached = true;
+	}
+
+	string superClassProperty;
+	if(this->superClassProperty) {
+		if(this->superClassProperty->getType() == SYMBOL_STATEMENT) {
+			superClassProperty = ((Symbol*)this->superClassProperty)->print();
+			ALLOCATE_STRING(superClassProperty, createObject->createObject.superClassProperty);
+			createObject->createObject.superClassPropertyCached = true;
+		}
+		else if(this->classProperty->getType() == STRING_LITERAL) {
+			superClassProperty = ((StringLiteral*)this->superClassProperty)->getString();
+			ALLOCATE_STRING(superClassProperty, createObject->createObject.superClassProperty);
+			createObject->createObject.superClassPropertyCached = true;
+		}
+		else {
+			ALLOCATE_STRING(string(""), createObject->createObject.superClassProperty);
+			createObject->createObject.superClassPropertyCached = false;
+			
+			output.add(this->superClassProperty->compile(interpreter, context));
+		}
+	}
+	else {
+		ALLOCATE_STRING(string(""), createObject->createObject.superClassProperty);
+		createObject->createObject.superClassPropertyCached = true;
+	}
+
 	bool canCacheMethodTree = createObject->createObject.typeNameCached
-		&& createObject->createObject.symbolNameCached;
+		&& createObject->createObject.symbolNameCached
+		&& createObject->createObject.classPropertyCached
+		&& createObject->createObject.superClassPropertyCached;
 
 	if(canCacheMethodTree) {
 		ts::MethodTree* typeCheck = interpreter->getNamespace(this->className->print());
 		if(typeCheck != nullptr && typeCheck->isTSSL) {
 			ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
 				symbolName,
+				classProperty,
+				superClassProperty,
 				this->className->print()
 			);
 			createObject->createObject.methodTreeIndex = tree->index;

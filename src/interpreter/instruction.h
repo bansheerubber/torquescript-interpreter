@@ -235,6 +235,10 @@ namespace ts {
 				bool isCached; // whether or not namespaceIndex has been cached yet
 				string symbolName;
 				bool symbolNameCached;
+				string classProperty;
+				bool classPropertyCached;
+				string superClassProperty;
+				bool superClassPropertyCached;
 				bool canCreate;
 			}	createObject;
 

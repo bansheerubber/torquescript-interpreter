@@ -19,6 +19,7 @@ InstructionContainer::InstructionContainer(Instruction* head) {
 	}
 
 	this->array = new Instruction[count + 1]; // allocate an empty slot at the end b/c of how we do bounds checking
+	this->array[count].type = instruction::INVALID_INSTRUCTION;
 	this->size = count;
 
 	instruction = head;
