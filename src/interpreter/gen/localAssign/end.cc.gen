@@ -8,5 +8,5 @@ if(instruction.localAssign.fromStack && !instruction.localAssign.pushResult) {
 }
 
 if(instruction.localAssign.pushResult && entry != nullptr && !instruction.localAssign.fromStack) {
-	this->push(*entry);
+	this->push(*entry, instruction.pushType);
 }

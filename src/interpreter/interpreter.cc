@@ -187,29 +187,50 @@ void Interpreter::pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int me
 }
 
 // push an entry onto the stack
-void Interpreter::push(Entry &entry) {
-	copyEntry(entry, this->stack[this->stack.head]);
-	this->stack.pushed();
+void Interpreter::push(Entry &entry, instruction::PushType type) {
+	if(type < 0) {
+		copyEntry(entry, this->stack[this->stack.head]);
+		this->stack.pushed();
+	}
+	else {
+		copyEntry(entry, this->returnRegister);
+	}
 }
 
 // push a number onto the stack
-void Interpreter::push(double number) {
-	// manually inline this b/c for some reason it doesn't want to by itself
-	this->stack[this->stack.head].type = entry::NUMBER;
-	this->stack[this->stack.head].numberData = number;
-	this->stack.pushed();
+void Interpreter::push(double number, instruction::PushType type) {
+	if(type < 0) {
+		// manually inline this b/c for some reason it doesn't want to by itself
+		this->stack[this->stack.head].type = entry::NUMBER;
+		this->stack[this->stack.head].numberData = number;
+		this->stack.pushed();	
+	}
+	else {
+		this->returnRegister.type = entry::NUMBER;
+		this->returnRegister.numberData = number;
+	}
 }
 
 // push a string onto the stack
-void Interpreter::push(char* value) {
-	this->stack[this->stack.head].setString(value);
-	this->stack.pushed();
+void Interpreter::push(char* value, instruction::PushType type) {
+	if(type < 0) {
+		this->stack[this->stack.head].setString(value);
+		this->stack.pushed();
+	}
+	else {
+		this->returnRegister.setString(value);
+	}
 }
 
 // push an object onto the stack
-void Interpreter::push(ObjectReference* value) {
-	this->stack[this->stack.head].setObject(value);
-	this->stack.pushed();
+void Interpreter::push(ObjectReference* value, instruction::PushType type) {
+	if(type < 0) {
+		this->stack[this->stack.head].setObject(value);
+		this->stack.pushed();
+	}
+	else {
+		this->returnRegister.setObject(value);
+	}
 }
 
 void Interpreter::pop() {
@@ -272,10 +293,10 @@ Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, ent
 		else {
 			// push arguments onto the stack
 			for(size_t i = 0; i < argc; i++) {
-				this->push(argv[i]);
+				this->push(argv[i], instruction::STACK);
 			}
 
-			this->push((double)argc);
+			this->push((double)argc, instruction::STACK);
 			
 			this->pushFunctionFrame(
 				foundFunction,
@@ -361,10 +382,10 @@ void Interpreter::tick() {
 		else {
 			// push arguments onto the stack
 			for(size_t i = 0; i < schedule->argumentCount; i++) {
-				this->push(schedule->arguments[i]);
+				this->push(schedule->arguments[i], instruction::STACK);
 			}
 
-			this->push((double)schedule->argumentCount);
+			this->push((double)schedule->argumentCount, instruction::STACK);
 
 			// handle callback
 			this->pushFunctionFrame(
@@ -431,7 +452,7 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::PUSH: { // push to the stack
-			this->push(instruction.push.entry);
+			this->push(instruction.push.entry, instruction.pushType);
 			break;
 		}
 
@@ -500,7 +521,7 @@ void Interpreter::interpret() {
 					break;
 				}
 			}
-			this->push(result);
+			this->push(result, instruction.pushType);
 			break;
 		}
 		
@@ -516,10 +537,10 @@ void Interpreter::interpret() {
 					this->pop(); // pop the dimensions if we have any
 				}
 
-				this->push(entry);
+				this->push(entry, instruction.pushType);
 			}
 			else {
-				this->push(this->stack[instruction.localAccess.stackIndex + this->stackFramePointer]);
+				this->push(this->stack[instruction.localAccess.stackIndex + this->stackFramePointer], instruction.pushType);
 			}
 
 			break;
@@ -536,7 +557,7 @@ void Interpreter::interpret() {
 				this->pop(); // pop the dimensions if we have any
 			}
 
-			this->push(entry);
+			this->push(entry, instruction.pushType);
 
 			break;
 		}
@@ -550,7 +571,7 @@ void Interpreter::interpret() {
 			// if the object is not alive anymore, push nothing to the stack
 			if(object == nullptr) {
 				this->pop(); // pop the object
-				this->push(this->emptyEntry);
+				this->push(this->emptyEntry, instruction.pushType);
 				break;
 			}
 			
@@ -566,7 +587,7 @@ void Interpreter::interpret() {
 
 			this->pop(); // pop the object
 
-			this->push(entry);
+			this->push(entry, instruction.pushType);
 
 			break;
 		}
@@ -575,10 +596,10 @@ void Interpreter::interpret() {
 			// try to look up the object's name
 			auto objectIterator = this->stringToObject.find(instruction.symbolAccess.source, instruction.symbolAccess.hash);
 			if(objectIterator == this->stringToObject.end()) {
-				this->push(emptyEntry);
+				this->push(emptyEntry, instruction.pushType);
 			}
 			else {
-				this->push(new ObjectReference(objectIterator->second));
+				this->push(new ObjectReference(objectIterator->second), instruction.pushType);
 			}
 			
 			break;
@@ -622,7 +643,7 @@ void Interpreter::interpret() {
 						this->pop();
 					}
 
-					this->push(this->emptyEntry);
+					this->push(this->emptyEntry, instruction.pushType);
 					break;
 				}
 			}
@@ -649,14 +670,6 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::RETURN: { // return from a function
-			if(instruction.functionReturn.hasValue) {
-				copyEntry(this->stack[this->stack.head - 1], this->returnRegister);
-				this->pop(); // pop return value
-			}
-			else {
-				copyEntry(this->emptyEntry, this->returnRegister);
-			}
-
 			this->popFunctionFrame();
 
 			// if the current function frame is TSSL, then we're in a C++ PARENT(...) operation and we need to quit
@@ -670,7 +683,12 @@ void Interpreter::interpret() {
 				return;
 			}
 
-			this->push(this->returnRegister); // push return register
+			if(instruction.functionReturn.hasValue) {
+				this->push(this->returnRegister, instruction::STACK); // push return register
+			}
+			else {
+				this->push(this->emptyEntry, instruction::STACK);
+			}
 			break;
 		}
 
@@ -685,7 +703,7 @@ void Interpreter::interpret() {
 			}
 
 			for(int i = 0; i < -number; i++) {
-				this->push(getEmptyString());
+				this->push(getEmptyString(), instruction.pushType);
 			}
 
 			break;
@@ -738,7 +756,7 @@ void Interpreter::interpret() {
 				MethodTree* typeCheck = this->getNamespace(typeName);
 				if(typeCheck == nullptr || !typeCheck->isTSSL) {
 					this->warning("could not create object with type '%s'\n", typeName.c_str());
-					this->push(getEmptyString());
+					this->push(getEmptyString(), instruction.pushType);
 					break;
 				}
 
@@ -753,7 +771,7 @@ void Interpreter::interpret() {
 			}
 			else if(!instruction.createObject.canCreate) {
 				this->warning("could not create object with type '%s'\n", instruction.createObject.typeName.c_str());
-				this->push(getEmptyString());
+				this->push(getEmptyString(), instruction.pushType);
 				break;
 			}
 			
@@ -768,7 +786,7 @@ void Interpreter::interpret() {
 				this->setObjectName(symbolName, object);
 			}
 
-			this->push(new ObjectReference(object));
+			this->push(new ObjectReference(object), instruction.pushType);
 			break;
 		}
 
@@ -789,7 +807,7 @@ void Interpreter::interpret() {
 					this->pop();
 				}
 
-				this->push(this->emptyEntry);
+				this->push(this->emptyEntry, instruction.pushType);
 				break;
 			}
 
@@ -816,7 +834,7 @@ void Interpreter::interpret() {
 						this->pop();
 					}
 
-					this->push(this->emptyEntry);
+					this->push(this->emptyEntry, instruction.pushType);
 					break;
 				}
 			}
@@ -861,7 +879,7 @@ void Interpreter::interpret() {
 						this->pop();
 					}
 
-					this->push(this->emptyEntry);
+					this->push(this->emptyEntry, instruction.pushType);
 					break;
 				}
 			}
@@ -877,7 +895,7 @@ void Interpreter::interpret() {
 					this->pop();
 				}
 
-				this->push(this->emptyEntry);
+				this->push(this->emptyEntry, instruction.pushType);
 				break;
 			}
 

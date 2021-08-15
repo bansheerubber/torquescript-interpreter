@@ -112,10 +112,10 @@ namespace ts {
 			bool isParallel = false;
 			bool showTime = false;
 			
-			void push(Entry &entry) __attribute__((always_inline));
-			void push(double number) __attribute__((always_inline));
-			void push(char* data) __attribute__((always_inline));
-			void push(ObjectReference* data) __attribute__((always_inline));
+			void push(Entry &entry, instruction::PushType type) __attribute__((always_inline));
+			void push(double number, instruction::PushType type) __attribute__((always_inline));
+			void push(char* data, instruction::PushType type) __attribute__((always_inline));
+			void push(ObjectReference* data, instruction::PushType) __attribute__((always_inline));
 			void pop() __attribute__((always_inline));
 
 			size_t ranInstructions = 0;

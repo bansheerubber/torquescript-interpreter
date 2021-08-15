@@ -8,5 +8,5 @@ if(instruction.globalAssign.fromStack && !instruction.globalAssign.pushResult) {
 }
 
 if(instruction.globalAssign.pushResult && entry != nullptr && !instruction.globalAssign.fromStack) {
-	this->push(*entry);
+	this->push(*entry, instruction.pushType);
 }

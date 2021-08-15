@@ -53,7 +53,9 @@ ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter, ts:
 	returnInstruction->functionReturn.hasValue = false;
 
 	if(this->operation != nullptr) {
-		output.add(this->operation->compile(interpreter, context));
+		ts::InstructionReturn operation = this->operation->compile(interpreter, context);
+		operation.last->pushType = ts::instruction::RETURN_REGISTER;
+		output.add(operation);
 		returnInstruction->functionReturn.hasValue = true;
 	}
 

@@ -16,7 +16,7 @@ if(object == nullptr) {
 	}
 	
 	if(instruction.objectAssign.pushResult) {
-		this->push(this->emptyEntry);
+		this->push(this->emptyEntry, instruction.pushType);
 	}
 
 	break;
