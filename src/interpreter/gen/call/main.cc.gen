@@ -28,10 +28,10 @@ if(foundFunction->isTSSL) {
 	}
 
 	if(returnValue == nullptr) {
-		this->push(getEmptyString());
+		this->push(getEmptyString(), instruction.pushType);
 	}
 	else {
-		this->push(*returnValue);
+		this->push(*returnValue, instruction.pushType);
 		delete returnValue;
 	}
 }

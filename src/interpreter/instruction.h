@@ -5,6 +5,11 @@
 
 namespace ts {
 	namespace instruction {
+		enum PushType {
+			STACK = -1,
+			RETURN_REGISTER,
+		};
+		
 		enum InstructionType {
 			INVALID_INSTRUCTION, // an instruction with an invalid type will cause the interpreter to stop
 			NOOP,
@@ -119,6 +124,7 @@ namespace ts {
 		instruction::InstructionType type;
 		Instruction* next; // next instruction in linked list
 		size_t index; // instruction's index in flat array
+		instruction::PushType pushType;
 
 		union {
 			struct {
@@ -265,6 +271,7 @@ namespace ts {
 
 		Instruction() {
 			this->type = instruction::INVALID_INSTRUCTION;
+			this->pushType = instruction::STACK;
 			this->next = nullptr;
 		}
 

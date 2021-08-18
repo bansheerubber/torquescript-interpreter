@@ -108,16 +108,17 @@ elif sys.argv[1] == "debug.cc":
 			continue
 		
 		print(f'	printf("{instruction} {{\\n");')
+		print(f'	printf("   pushType: %d,\\n", instruction.pushType);')
 		struct = instruction_to_struct[instruction]
 		for variable_type, variable_name in struct_to_types[struct]:
 			if "Instruction*" in variable_type: # handle things we don't want to print
 				pass
 			elif variable_type == "bool": # handle booleans
 				print(f"""	if(instruction.{struct}.{variable_name}) {{
-		printf("   {variable_name}: true;\\n");
+		printf("   {variable_name}: true,\\n");
 	}}
 	else {{
-		printf("   {variable_name}: false;\\n");
+		printf("   {variable_name}: false,\\n");
 	}}""")
 			elif variable_type == "string": # handle strings
 				print(f'	printf("   {variable_name}: %s,\\n", instruction.{struct}.{variable_name}.c_str());')
