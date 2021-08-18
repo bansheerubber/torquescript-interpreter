@@ -4,6 +4,6 @@
 	}
 	else {
 		string name((%%entry%%).stringData);
-		%%output%% = %%this%%->stringToObject[name];
+		%%output%% = %%this%%->stringToObject[toLower(name)];
 	}
 }
