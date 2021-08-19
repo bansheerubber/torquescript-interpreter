@@ -35,6 +35,9 @@ class Parser {
 		relative_stack_location nextLocation = 0;
 
 		Tokenizer* tokenizer;
+		string fileName;
+
+		vector<class ParseError*> errors;
 	
 	private:
 		SourceFile* sourceFile;

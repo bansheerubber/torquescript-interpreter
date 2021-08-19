@@ -6,6 +6,7 @@ Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
 	this->space = " ";
 	
 	this->tokenizer = tokenizer;
+	this->fileName = tokenizer->fileName;
 	this->sourceFile = new SourceFile(this);
 	Component::ParseBody(this->sourceFile, this->tokenizer, this);
 

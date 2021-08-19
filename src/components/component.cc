@@ -1,5 +1,6 @@
 #include "component.h"
 #include "body.h"
+#include "../parser/parseError.h"
 #include "../parser/parser.h"
 
 #include "accessStatement.h"
@@ -141,70 +142,83 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 			break;
 		}
 
-		if(Component::ShouldParse(body, tokenizer, parser)) {
-			body->addChild(Component::Parse(body, tokenizer, parser));
-			Token token = tokenizer->peekToken();
-			if(token.type == SEMICOLON) {
-				tokenizer->getToken(); // absorb the semicolon
+		try {
+			if(Component::ShouldParse(body, tokenizer, parser)) {
+				body->addChild(Component::Parse(body, tokenizer, parser));
+				Token token = tokenizer->peekToken();
+				if(token.type == SEMICOLON) {
+					tokenizer->getToken(); // absorb the semicolon
+				}
+				// see if we have an invalid lvalue
+				else if(AssignStatement::ShouldParse(nullptr, body, tokenizer, parser)) {
+					parser->error("invalid lvalue for assignment");
+				}
+				// see if unary operator is being weird
+				else if(PostfixStatement::ShouldParse(tokenizer, parser)) {
+					parser->error("invalid unary postfix operator");
+				}
+				else {
+					parser->error("no semicolon at end of line");
+				}
 			}
-			// see if we have an invalid lvalue
-			else if(AssignStatement::ShouldParse(nullptr, body, tokenizer, parser)) {
-				parser->error("invalid lvalue for assignment");
+			else if(Comment::ShouldParse(tokenizer, parser)) {
+				body->addChild(Comment::Parse(body, tokenizer, parser));
 			}
-			// see if unary operator is being weird
-			else if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-				parser->error("invalid unary postfix operator");
+			else if(IfBody::ShouldParse(tokenizer, parser)) {
+				body->addChild(IfBody::Parse(body, tokenizer, parser));
+			}
+			else if(FunctionDeclaration::ShouldParse(tokenizer, parser)) {
+				body->addChild(FunctionDeclaration::Parse(body, tokenizer, parser));
+			}
+			else if(ReturnStatement::ShouldParse(tokenizer, parser)) {
+				body->addChild(ReturnStatement::Parse(body, tokenizer, parser));
+			}
+			else if(DatablockDeclaration::ShouldParse(tokenizer, parser)) {
+				body->addChild(DatablockDeclaration::Parse(body, tokenizer, parser));
+			}
+			else if(ForBody::ShouldParse(tokenizer, parser)) {
+				body->addChild(ForBody::Parse(body, tokenizer, parser));
+			}
+			else if(WhileBody::ShouldParse(tokenizer, parser)) {
+				body->addChild(WhileBody::Parse(body, tokenizer, parser));
+			}
+			else if(SwitchBody::ShouldParse(tokenizer, parser)) {
+				body->addChild(SwitchBody::Parse(body, tokenizer, parser));
+			}
+			else if(PackageDeclaration::ShouldParse(tokenizer, parser)) {
+				body->addChild(PackageDeclaration::Parse(body, tokenizer, parser));
+			}
+			else if(ContinueStatement::ShouldParse(tokenizer, parser)) {
+				body->addChild(ContinueStatement::Parse(body, tokenizer, parser));
+			}
+			else if(BreakStatement::ShouldParse(tokenizer, parser)) {
+				body->addChild(BreakStatement::Parse(body, tokenizer, parser));
+			}
+			// error if we get something we don't recognize
+			else if(
+				tokenizer->peekToken().type != SEMICOLON
+				&& tokenizer->peekToken().type != RIGHT_BRACKET
+				&& tokenizer->peekToken().type != CASE
+				&& tokenizer->peekToken().type != DEFAULT
+			) {
+				parser->error("unexpected token '%s'", tokenizer->peekToken().lexeme.c_str());
 			}
 			else {
-				parser->error("no semicolon at end of line");
+				break;
+			}
+
+			count++;
+		}
+		catch(ParseError &error) {
+			printError("%s\n", error.what());
+			
+			if(error.type == SEMICOLON_RECOVER) {
+				Token token;
+				while((token = tokenizer->getToken()).type != SEMICOLON) {}
+			}
+			else {
+				exit(1); // no recover mode, really bad error
 			}
 		}
-		else if(Comment::ShouldParse(tokenizer, parser)) {
-			body->addChild(Comment::Parse(body, tokenizer, parser));
-		}
-		else if(IfBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(IfBody::Parse(body, tokenizer, parser));
-		}
-		else if(FunctionDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(FunctionDeclaration::Parse(body, tokenizer, parser));
-		}
-		else if(ReturnStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(ReturnStatement::Parse(body, tokenizer, parser));
-		}
-		else if(DatablockDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(DatablockDeclaration::Parse(body, tokenizer, parser));
-		}
-		else if(ForBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(ForBody::Parse(body, tokenizer, parser));
-		}
-		else if(WhileBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(WhileBody::Parse(body, tokenizer, parser));
-		}
-		else if(SwitchBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(SwitchBody::Parse(body, tokenizer, parser));
-		}
-		else if(PackageDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(PackageDeclaration::Parse(body, tokenizer, parser));
-		}
-		else if(ContinueStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(ContinueStatement::Parse(body, tokenizer, parser));
-		}
-		else if(BreakStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(BreakStatement::Parse(body, tokenizer, parser));
-		}
-		// error if we get something we don't recognize
-		else if(
-			tokenizer->peekToken().type != SEMICOLON
-			&& tokenizer->peekToken().type != RIGHT_BRACKET
-			&& tokenizer->peekToken().type != CASE
-			&& tokenizer->peekToken().type != DEFAULT
-		) {
-			parser->error("unexpected token '%s'", tokenizer->peekToken().lexeme.c_str());
-		}
-		else {
-			break;
-		}
-
-		count++;
 	}
 }

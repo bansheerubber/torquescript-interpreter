@@ -5,6 +5,7 @@
 #include "booleanLiteral.h"
 #include "../interpreter/interpreter.h"
 #include "numberLiteral.h"
+#include "../parser/parseError.h"
 #include "stringLiteral.h"
 #include "../util/stringToChars.h"
 
@@ -43,7 +44,7 @@ AssignStatement* AssignStatement::Parse(AccessStatement* lvalue, Component* pare
 		output->rvalue = Component::Parse(output, tokenizer, parser);
 	}
 	else {
-		parser->error("could not find valid rvalue for assign");
+		throw ParseError("could not find valid rvalue for assign", parser, SEMICOLON_RECOVER);
 	}
 
 	return output;
