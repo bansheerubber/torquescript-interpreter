@@ -237,7 +237,7 @@ namespace ts {
 				string inheritedName;
 				string typeName;
 				bool typeNameCached;
-				size_t methodTreeIndex;
+				class MethodTree* methodTree;
 				bool isCached; // whether or not namespaceIndex has been cached yet
 				string symbolName;
 				bool symbolNameCached;

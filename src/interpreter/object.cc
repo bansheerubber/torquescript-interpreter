@@ -1,7 +1,7 @@
 #include "object.h"
 #include "interpreter.h"
 
-Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex) {
+Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree) {
 	this->properties.interpreter = interpreter;
 
 	if(inheritedName.length() != 0) {
@@ -21,7 +21,7 @@ Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedN
 	this->properties.setVariableEntry(id, entry);
 
 	this->nameSpace = nameSpace;
-	this->namespaceIndex = namespaceIndex;
+	this->methodTree = methodTree;
 }
 
 Object::~Object() {

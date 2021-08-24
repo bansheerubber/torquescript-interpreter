@@ -267,7 +267,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 				superClassProperty,
 				this->className->print()
 			);
-			createObject->createObject.methodTreeIndex = tree->index;
+			createObject->createObject.methodTree = tree;
 			createObject->createObject.isCached = true;
 		}
 		else {
@@ -275,7 +275,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		}
 	}
 	else {
-		createObject->createObject.methodTreeIndex = 0;
+		createObject->createObject.methodTree = nullptr;
 		createObject->createObject.isCached = false;
 	}
 

@@ -11,7 +11,7 @@ using namespace ts;
 namespace ts {
 	class Object {
 		public:
-			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex);
+			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* namespaceIndex);
 			~Object();
 
 			VariableContext properties;
@@ -23,7 +23,7 @@ namespace ts {
 			void setName(string &name);
 
 			string nameSpace;
-			size_t namespaceIndex;
+			class MethodTree* methodTree;
 		
 		private:
 			void inherit(Object* parent);

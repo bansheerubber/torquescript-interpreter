@@ -347,8 +347,8 @@ void Interpreter::tick() {
 			bool found = false;
 			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->functionName));
 			if(methodNameIndex != this->methodNameToIndex.end()) {
-				auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
-				if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
+				auto methodEntry = object->methodTree->methodIndexToEntry.find(methodNameIndex->second);
+				if(methodEntry != object->methodTree->methodIndexToEntry.end()) {
 					methodTreeEntry = methodEntry->second;
 					methodTreeEntryIndex = methodTreeEntry->hasInitialMethod ? 0 : 1;
 					list = methodTreeEntry->list[methodTreeEntryIndex];
@@ -767,7 +767,7 @@ void Interpreter::interpret() {
 					typeName
 				);
 
-				instruction.createObject.methodTreeIndex = tree->index;
+				instruction.createObject.methodTree = tree;
 			}
 			else if(!instruction.createObject.canCreate) {
 				this->warning("could not create object with type '%s'\n", instruction.createObject.typeName.c_str());
@@ -779,7 +779,7 @@ void Interpreter::interpret() {
 				this,
 				typeName,
 				instruction.createObject.inheritedName,
-				instruction.createObject.methodTreeIndex
+				instruction.createObject.methodTree
 			);
 
 			if(symbolName.length() != 0) {
@@ -816,8 +816,8 @@ void Interpreter::interpret() {
 				bool found = false;
 				auto methodNameIndex = this->methodNameToIndex.find(toLower(instruction.callObject.name));
 				if(methodNameIndex != this->methodNameToIndex.end()) {
-					auto methodEntry = this->methodTrees[object->namespaceIndex]->methodIndexToEntry.find(methodNameIndex->second);
-					if(methodEntry != this->methodTrees[object->namespaceIndex]->methodIndexToEntry.end()) {
+					auto methodEntry = object->methodTree->methodIndexToEntry.find(methodNameIndex->second);
+					if(methodEntry != object->methodTree->methodIndexToEntry.end()) {
 						instruction.callObject.cachedEntry = methodEntry->second;
 						instruction.callObject.isCached = true;
 						found = true;

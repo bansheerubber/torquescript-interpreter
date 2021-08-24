@@ -63,7 +63,7 @@ namespace ts {
 		
 		private:
 			vector<class PackagedFunctionList*> buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex, bool addInitial = true);
-			DynamicArray<MethodTree*, MethodTree> parents = DynamicArray<MethodTree*, MethodTree>(this, 17, initMethodTree, nullptr);
-			DynamicArray<MethodTree*, MethodTree> children = DynamicArray<MethodTree*, MethodTree>(this, 16, initMethodTree, nullptr);
+			DynamicArray<MethodTree*, MethodTree> parents = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
+			DynamicArray<MethodTree*, MethodTree> children = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
 	};
 }
