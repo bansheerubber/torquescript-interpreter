@@ -338,11 +338,13 @@ void Interpreter::tick() {
 		int methodTreeEntryIndex = -1;
 
 		if(schedule->object != nullptr) {
-			Object* object = schedule->object->object;
-
-			if(object == nullptr) {
+			ObjectWrapper* objectWrapper = schedule->object->objectWrapper;
+			Object* object = nullptr;
+			if(objectWrapper == nullptr) {
 				continue;
 			}
+
+			object = objectWrapper->object;
 			
 			bool found = false;
 			auto methodNameIndex = this->methodNameToIndex.find(toLower(schedule->functionName));
@@ -564,18 +566,18 @@ void Interpreter::interpret() {
 
 		case instruction::OBJECT_ACCESS: { // push object property to stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - instruction.localAssign.dimensions];
-			Object* object = nullptr;
+			ObjectWrapper* objectWrapper = nullptr;
 
-			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
+			## type_conversion.py objectEntry objectWrapper OBJECT_NUMBER_STRING OBJECT
 
 			// if the object is not alive anymore, push nothing to the stack
-			if(object == nullptr) {
+			if(objectWrapper == nullptr) {
 				this->pop(); // pop the object
 				this->push(this->emptyEntry, instruction.pushType);
 				break;
 			}
 			
-			Entry &entry = object->properties.getVariableEntry(
+			Entry &entry = objectWrapper->object->properties.getVariableEntry(
 				instruction,
 				instruction.localAccess.source,
 				instruction.localAssign.hash
@@ -775,7 +777,7 @@ void Interpreter::interpret() {
 				break;
 			}
 			
-			Object* object = new Object(
+			ObjectWrapper* object = ts::CreateObject(
 				this,
 				typeName,
 				instruction.createObject.inheritedName,
@@ -796,10 +798,11 @@ void Interpreter::interpret() {
 			
 			// pull the object from the stack
 			Entry &objectEntry = this->stack[this->stack.head - 1 - argumentCount];
+			ObjectWrapper* objectWrapper = nullptr;
 			Object* object = nullptr;
-			## type_conversion.py objectEntry object OBJECT_NUMBER_STRING OBJECT
+			## type_conversion.py objectEntry objectWrapper OBJECT_NUMBER_STRING OBJECT
 
-			if(object == nullptr) {
+			if(objectWrapper == nullptr) {
 				// pop arguments that we didn't use
 				Entry &numberOfArguments = this->stack[this->stack.head - 1];
 				int number = (int)numberOfArguments.numberData;
@@ -810,6 +813,8 @@ void Interpreter::interpret() {
 				this->push(this->emptyEntry, instruction.pushType);
 				break;
 			}
+
+			object = objectWrapper->object;
 
 			// cache the method entry pointer in the instruction
 			if(instruction.callObject.isCached == false) {
@@ -1105,9 +1110,9 @@ MethodTree* Interpreter::createMethodTreeFromNamespaces(
 	return tree;
 }
 
-void Interpreter::setObjectName(string &name, Object* object) {
+void Interpreter::setObjectName(string &name, ObjectWrapper* object) {
 	this->stringToObject[name] = object;
-	object->setName(name);
+	object->object->setName(name);
 }
 
 void Interpreter::deleteObjectName(string &name) {

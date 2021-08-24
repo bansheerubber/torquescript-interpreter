@@ -30,5 +30,26 @@ namespace ts {
 			ObjectReference* list = nullptr;
 			ObjectReference* top = nullptr;
 			string name;
+			ObjectWrapper* wrapper;
 	};
+
+	struct ObjectWrapper {
+		Object* object;
+		void* data; // programmer-defined data for lib
+
+		friend class Object;
+
+		ObjectWrapper() {}
+		ObjectWrapper(Object* object, void* data = nullptr) {
+			this->object = object;
+			this->data = data;
+		}
+
+		~ObjectWrapper() {
+			delete this->object;
+			delete this->data;
+		}
+	};
+
+	ObjectWrapper* CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* namespaceIndex, void* data = nullptr);
 }

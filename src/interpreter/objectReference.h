@@ -7,10 +7,10 @@ using namespace std;
 namespace ts {
 	class ObjectReference {
 		public:
-			ObjectReference(class Object* object);
+			ObjectReference(struct ObjectWrapper* object);
 			ObjectReference(ObjectReference* objectReference);
 			~ObjectReference();
-			class Object* object = nullptr;
+			struct ObjectWrapper* objectWrapper = nullptr;
 
 			size_t id = 0;
 		

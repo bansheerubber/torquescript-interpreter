@@ -5,6 +5,11 @@ extern "C" {
 		const unsigned long id;
 		const int isParallel;
 	} tsInterpreter;
+
+	typedef struct tsObjectWrapper {
+		void* object;
+		void* customData;
+	} tsObjectWrapper;
 	
 	tsInterpreter tsCreateInterpreter(char isParallel);
 

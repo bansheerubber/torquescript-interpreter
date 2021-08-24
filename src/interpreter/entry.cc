@@ -102,10 +102,10 @@ void Entry::print(int tabs) const {
 		printf("%s   data: %f,\n", space.c_str(), this->numberData);
 	}
 	else if(this->type == entry::OBJECT) {
-		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData->object);
-		if(this->objectData->object != nullptr) {
+		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData->objectWrapper);
+		if(this->objectData->objectWrapper != nullptr) {
 			printf("%s   variables:\n", space.c_str());
-			this->objectData->object->properties.printWithTab(2 + tabs);
+			this->objectData->objectWrapper->object->properties.printWithTab(2 + tabs);
 		}
 	}
 	else {
@@ -144,7 +144,7 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 		}
 
 		case entry::OBJECT: {
-			destination.objectData = new ObjectReference(source.objectData->object);
+			destination.objectData = new ObjectReference(source.objectData);
 			break;
 		}
 	}
@@ -162,9 +162,9 @@ void ts::convertToType(Interpreter* interpreter, Entry &source, entry::EntryType
 		}
 
 		case entry::OBJECT: {
-			Object* object = nullptr;
-			## type_conversion.py source object NUMBER_STRING OBJECT "" interpreter
-			source.objectData = new ObjectReference(object);
+			ObjectWrapper* objectWrapper = nullptr;
+			## type_conversion.py source objectWrapper NUMBER_STRING OBJECT "" interpreter
+			source.objectData = new ObjectReference(objectWrapper);
 			break;
 		}
 

@@ -15,6 +15,7 @@
 #include "instructionContainer.h"
 #include "methodTree.h"
 #include "../util/minHeap.h"
+#include "object.h"
 #include "../compiler/package.h"
 #include "packagedFunctionList.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
@@ -94,7 +95,7 @@ namespace ts {
 			void tick();
 			void setTickRate(long tickRate);
 
-			void setObjectName(string &name, Object* object);
+			void setObjectName(string &name, ObjectWrapper* object);
 			void deleteObjectName(string &name);
 
 			Entry emptyEntry;
@@ -136,6 +137,7 @@ namespace ts {
 			friend VariableContext;
 			friend Object;
 			friend void convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type);
+			friend ObjectWrapper* CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* tree, void* data);
 
 			void pushFunctionFrame(
 				InstructionContainer* container,
@@ -164,8 +166,8 @@ namespace ts {
 			size_t currentMethodNameIndex = 0;
 
 			// used to lookup objects
-			robin_map<size_t, Object*> objects;
-			robin_map<string, Object*> stringToObject;
+			robin_map<size_t, ObjectWrapper*> objects;
+			robin_map<string, ObjectWrapper*> stringToObject;
 
 			// keep track of schedules
 			MinHeap<Schedule*, Interpreter> schedules = MinHeap<Schedule*, Interpreter>(this, initSchedule, nullptr);

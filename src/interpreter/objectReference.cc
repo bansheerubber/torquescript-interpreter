@@ -1,27 +1,27 @@
 #include "objectReference.h"
 #include "object.h"
 
-ObjectReference::ObjectReference(Object* object) {
-	this->object = object;
+ObjectReference::ObjectReference(ObjectWrapper* object) {
+	this->objectWrapper = object;
 	
-	if(this->object != nullptr) {
-		this->object->addReference(this);
-		this->id = this->object->id;
+	if(this->objectWrapper != nullptr) {
+		this->objectWrapper->object->addReference(this);
+		this->id = this->objectWrapper->object->id;
 	}
 }
 
 ObjectReference::ObjectReference(ObjectReference* objectReference) {
-	this->object = objectReference->object;
+	this->objectWrapper = objectReference->objectWrapper;
 
-	if(this->object != nullptr) {
-		this->object->addReference(this);
-		this->id = this->object->id;
+	if(this->objectWrapper != nullptr) {
+		this->objectWrapper->object->addReference(this);
+		this->id = this->objectWrapper->object->id;
 	}
 }
 
 ObjectReference::~ObjectReference() {
-	if(this->object != nullptr) {
-		this->object->removeReference(this);
-		this->object = nullptr;
+	if(this->objectWrapper != nullptr) {
+		this->objectWrapper->object->removeReference(this);
+		this->objectWrapper = nullptr;
 	}
 }

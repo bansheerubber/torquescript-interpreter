@@ -1,5 +1,14 @@
 #include "object.h"
+
 #include "interpreter.h"
+#include "methodTree.h"
+
+ObjectWrapper* ts::CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree, void* data) {
+	Object* object = new Object(interpreter, nameSpace, inheritedName, methodTree);
+	ObjectWrapper* wrapper = new ObjectWrapper(object, data);
+	interpreter->objects[object->id] = wrapper;
+	return wrapper;
+}
 
 Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree) {
 	this->properties.interpreter = interpreter;
@@ -8,12 +17,11 @@ Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedN
 		// TODO hash
 		auto objectIterator = interpreter->stringToObject.find(inheritedName);
 		if(objectIterator != interpreter->stringToObject.end()) {
-			this->inherit(objectIterator->second);
+			this->inherit(objectIterator->second->object);
 		}
 	}
 
 	this->id = interpreter->highestObjectId++;
-	interpreter->objects[this->id] = this;
 
 	string id = "id";
 	Entry entry;
@@ -27,7 +35,7 @@ Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedN
 Object::~Object() {
 	ObjectReference* reference = this->list;
 	while(reference != nullptr) {
-		reference->object = nullptr;
+		reference->objectWrapper = nullptr;
 		reference = reference->next;
 	}
 	

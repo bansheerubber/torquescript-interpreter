@@ -8,7 +8,7 @@ namespace ts {
 	namespace sl {
 		Entry* isObject(Interpreter* interpreter, size_t argc, Entry* args) {
 			if(argc == 1) {
-				if(args[0].objectData->object != nullptr) {
+				if(args[0].objectData->objectWrapper != nullptr) {
 					return new Entry(1.0);
 				}
 				else {
