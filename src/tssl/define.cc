@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "echo.h"
+#include "fileObject.h"
 #include "getWord.h"
 #include "../interpreter/interpreter.h"
 #include "isObject.h"
@@ -61,6 +62,12 @@ void ts::sl::define(Interpreter* interpreter) {
 	ScriptObject->isTSSL = true;
 	methodTrees.push_back(ScriptObject);
 	ScriptObject->addParent(SimObject);
+
+	MethodTree* FileObject = interpreter->createMethodTreeFromNamespace("FileObject");
+	FileObject->isTSSL = true;
+	methodTrees.push_back(FileObject);
+	FileObject->addParent(SimObject);
+	FileObject->tsslConstructor = &FileObject__constructor;
 
 	for(MethodTree* tree: methodTrees) {
 		interpreter->defineTSSLMethodTree(tree);
@@ -121,6 +128,14 @@ void ts::sl::define(Interpreter* interpreter) {
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__test, "SimObject", "test", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &ScriptObject__test, "ScriptObject", "test", 2, os));
+
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__openForRead, "FileObject", "openForRead", 2, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__openForWrite, "FileObject", "openForWrite", 2, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__openForAppend, "FileObject", "openForAppend", 2, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__close, "FileObject", "close", 1, o));
+	functions.push_back(FUNC_DEF(entry::STRING, &FileObject__readLine, "FileObject", "readLine", 1, o));
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__writeLine, "FileObject", "writeLine", 1, os));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &FileObject__isEOF, "FileObject", "isEOF", 1, o));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
 
