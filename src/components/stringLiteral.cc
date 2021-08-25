@@ -57,6 +57,21 @@ StringLiteral* StringLiteral::Parse(Component* parent, Tokenizer* tokenizer, Par
 					break;
 				}
 
+				case 'n': {
+					valueOutput += '\n';
+					break;
+				}
+
+				case 'r': {
+					valueOutput += '\r';
+					break;
+				}
+
+				case 't': {
+					valueOutput += '\t';
+					break;
+				}
+
 				default: {
 					// parser->warning("invalid escape sequence in string literal");
 					valueOutput += command;
