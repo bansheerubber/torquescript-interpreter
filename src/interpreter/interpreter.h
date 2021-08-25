@@ -137,7 +137,14 @@ namespace ts {
 			friend VariableContext;
 			friend Object;
 			friend void convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type);
-			friend ObjectWrapper* CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* tree, void* data);
+			friend ObjectWrapper* CreateObject(
+				class ts::Interpreter* interpreter,
+				string nameSpace,
+				string inheritedName,
+				MethodTree* methodTree,
+				MethodTree* typeMethodTree,
+				void* data
+			);
 
 			void pushFunctionFrame(
 				InstructionContainer* container,

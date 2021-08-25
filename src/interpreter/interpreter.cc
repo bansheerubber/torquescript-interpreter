@@ -762,6 +762,8 @@ void Interpreter::interpret() {
 					break;
 				}
 
+				instruction.createObject.typeMethodTree = typeCheck;
+
 				MethodTree* tree = this->createMethodTreeFromNamespaces(
 					symbolName,
 					classProperty,
@@ -781,7 +783,8 @@ void Interpreter::interpret() {
 				this,
 				typeName,
 				instruction.createObject.inheritedName,
-				instruction.createObject.methodTree
+				instruction.createObject.methodTree,
+				instruction.createObject.typeMethodTree
 			);
 
 			if(symbolName.length() != 0) {

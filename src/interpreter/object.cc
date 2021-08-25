@@ -3,14 +3,26 @@
 #include "interpreter.h"
 #include "methodTree.h"
 
-ObjectWrapper* ts::CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree, void* data) {
-	Object* object = new Object(interpreter, nameSpace, inheritedName, methodTree);
+ObjectWrapper* ts::CreateObject(
+	class ts::Interpreter* interpreter,
+	string nameSpace,
+	string inheritedName,
+	MethodTree* methodTree,
+	MethodTree* typeMethodTree,
+	void* data
+) {
+	Object* object = new Object(interpreter, nameSpace, inheritedName, methodTree, typeMethodTree);
 	ObjectWrapper* wrapper = new ObjectWrapper(object, data);
 	interpreter->objects[object->id] = wrapper;
+
+	if(typeMethodTree->tsslConstructor) {
+		(*typeMethodTree->tsslConstructor)(wrapper);
+	}
+
 	return wrapper;
 }
 
-Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree) {
+Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree, MethodTree* typeMethodTree) {
 	this->properties.interpreter = interpreter;
 
 	if(inheritedName.length() != 0) {
@@ -30,6 +42,7 @@ Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedN
 
 	this->nameSpace = nameSpace;
 	this->methodTree = methodTree;
+	this->typeMethodTree = typeMethodTree;
 }
 
 Object::~Object() {

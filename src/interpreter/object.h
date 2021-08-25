@@ -11,7 +11,7 @@ using namespace ts;
 namespace ts {
 	class Object {
 		public:
-			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* namespaceIndex);
+			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* methodTree, class MethodTree* typeMethodTree);
 			~Object();
 
 			VariableContext properties;
@@ -24,6 +24,7 @@ namespace ts {
 
 			string nameSpace;
 			class MethodTree* methodTree;
+			class MethodTree* typeMethodTree;
 		
 		private:
 			void inherit(Object* parent);
@@ -51,5 +52,13 @@ namespace ts {
 		}
 	};
 
-	ObjectWrapper* CreateObject(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* namespaceIndex, void* data = nullptr);
+	#define TS_OBJECT_CONSTRUCTOR(name)		void (*name)(ObjectWrapper* wrapper)
+	ObjectWrapper* CreateObject(
+		class ts::Interpreter* interpreter,
+		string nameSpace,
+		string inheritedName,
+		class MethodTree* methodTree,
+		class MethodTree* typeMethodTree,
+		void* data = nullptr
+	);
 }

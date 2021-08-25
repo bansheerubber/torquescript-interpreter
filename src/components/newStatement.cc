@@ -160,10 +160,12 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	if(this->className->getType() == SYMBOL_STATEMENT) {
 		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = true;
+		createObject->createObject.typeMethodTree = interpreter->getNamespace(createObject->createObject.typeName);
 	}
 	else {
 		ALLOCATE_STRING(string(""), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = false;
+		createObject->createObject.typeMethodTree = nullptr;
 		
 		output.add(this->className->compile(interpreter, context));
 	}
