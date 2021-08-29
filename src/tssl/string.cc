@@ -288,5 +288,39 @@ namespace ts {
 			
 			return nullptr;
 		}
+
+		Entry* strReplace(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 3) {
+				const char* words = args[0].stringData;
+				const char* search = args[1].stringData;
+				const char* replacement = args[2].stringData;
+				size_t searchLength = strlen(search);
+				string output;
+
+				char character, replacementCharacter;
+				size_t count = 0;
+				for(; (character = *words); words++) {
+					if((replacementCharacter = *search) == '\0') {
+						output = output.erase(count - searchLength, searchLength);
+						output += replacement;
+						search = args[1].stringData;
+						count = output.length();
+					}
+					else if(replacementCharacter == character) {
+						search++;
+					}
+					else {
+						search = args[1].stringData;
+					}
+
+					output += character;
+					count++;
+				}
+
+				return new Entry(stringToChars(output));
+			}
+
+			return nullptr;
+		}
 	}
 }

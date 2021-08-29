@@ -22,5 +22,6 @@ namespace ts {
 		Entry* stripChars(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* _collapseEscape(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* expandEscape(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* strReplace(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

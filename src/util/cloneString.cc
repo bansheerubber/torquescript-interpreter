@@ -3,7 +3,7 @@
 
 using namespace std;
 
-char* cloneString(char* input) {
+char* cloneString(const char* input) {
 	const size_t size = strlen(input);
 	char* output = new char[size + 1];
 	strncpy(output, input, size);

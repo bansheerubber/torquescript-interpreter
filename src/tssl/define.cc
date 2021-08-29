@@ -85,6 +85,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
 	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
 	entry::EntryType* ss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING };
+	entry::EntryType* sss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::STRING };
 	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
 	entry::EntryType* ssn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::NUMBER };
 	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
@@ -129,6 +130,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &stripChars, "stripChars", 2, ss));
 	functions.push_back(FUNC_DEF(entry::STRING, &expandEscape, "expandEscape", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &_collapseEscape, "collapseEscape", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &strReplace, "strReplace", 3, sss));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));
@@ -161,6 +163,11 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &FileObject__readLine, "FileObject", "readLine", 1, o));
 	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__writeLine, "FileObject", "writeLine", 1, os));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &FileObject__isEOF, "FileObject", "isEOF", 1, o));
+
+	functions.push_back(FUNC_DEF(entry::NUMBER, &fileBase, "fileBase", 1, s));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &fileExt, "fileExt", 1, s));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &fileName, "fileName", 1, s));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &filePath, "filePath", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
 

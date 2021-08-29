@@ -40,5 +40,10 @@ namespace ts {
 		Entry* FileObject__readLine(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* FileObject__writeLine(Interpreter* interpreter, size_t argc, Entry* args);
 		Entry* FileObject__isEOF(Interpreter* interpreter, size_t argc, Entry* args);
+
+		Entry* fileBase(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* fileExt(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* fileName(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* filePath(Interpreter* interpreter, size_t argc, Entry* args);
 	}
 }

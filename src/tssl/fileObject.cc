@@ -1,5 +1,6 @@
 #include "fileObject.h"
 
+#include "../util/cloneString.h"
 #include "../util/getEmptyString.h"
 #include "../interpreter/interpreter.h"
 #include "../util/stringToChars.h"
@@ -105,6 +106,83 @@ namespace ts {
 				return new Entry((double)((FileObject*)args[0].objectData->objectWrapper->data)->isEOF());
 			}
 			
+			return nullptr;
+		}
+
+		Entry* fileBase(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				const char* path = args[0].stringData;
+				const char* slashLocation = strrchr(path, '/');
+				if(slashLocation == nullptr) {
+					slashLocation = path;
+				}
+				else {
+					slashLocation++;
+				}
+
+				const char* dotLocation = strrchr(path, '.');
+				
+				size_t length = dotLocation
+					? dotLocation - slashLocation
+					: strlen(slashLocation);
+				
+				char* newString = new char[length + 1];
+				strncpy(newString, slashLocation, length);
+				newString[length] = '\0';
+				
+				return new Entry(newString);
+			}
+
+			return nullptr;
+		}
+
+		Entry* fileExt(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				const char* path = args[0].stringData;
+				const char* dotLocation = strrchr(path, '.');
+				if(dotLocation == nullptr) {
+					return new Entry(getEmptyString());
+				}
+
+				return new Entry(cloneString(dotLocation));
+			}
+
+			return nullptr;
+		}
+
+		Entry* fileName(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				const char* path = args[0].stringData;
+				const char* slashLocation = strrchr(path, '/');
+				if(slashLocation == nullptr) {
+					slashLocation = path;
+				}
+				else {
+					slashLocation++;
+				}
+
+				return new Entry(cloneString(slashLocation));
+			}
+
+			return nullptr;
+		}
+
+		Entry* filePath(Interpreter* interpreter, size_t argc, Entry* args) {
+			if(argc == 1) {
+				const char* path = args[0].stringData;
+				const char* slashLocation = strrchr(path, '/');
+				if(slashLocation == nullptr) {
+					return new Entry(cloneString(path));
+				}
+
+				size_t length = slashLocation - path;
+				char* newString = new char[length + 1];
+				strncpy(newString, path, length);
+				newString[length] = '\0';
+				
+				return new Entry(newString);
+			}
+
 			return nullptr;
 		}
 	}
