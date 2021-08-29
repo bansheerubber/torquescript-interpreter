@@ -1,0 +1,14 @@
+const char* words = %%words%%;
+string rest;
+bool copyDown = false;
+for(; *words; words++) {
+	char character = *words;
+
+	if(copyDown) {
+		rest += character;
+	}
+
+	if(%%comparison%%) {
+		copyDown = true;
+	}
+}

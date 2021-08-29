@@ -1,0 +1,33 @@
+const char* words = %%words%%;
+int count = %%index%%;
+const char* replace = %%replacement%%;
+string output;
+int spaceCount = 0;
+bool replaced = false;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		spaceCount++;
+
+		if(spaceCount == count) {
+			output += character;
+		}
+	}
+
+	if(spaceCount != count) {
+		output += character;
+	}
+	else if(replaced == false) {
+		replaced = true;
+		output += replace;
+	}
+}
+
+// edge case for when count >= getWordCount
+for(int i = 0; i < count - spaceCount; i++) {
+	output += ' ';
+}
+
+if(count > spaceCount) {
+	output += replace;
+}
