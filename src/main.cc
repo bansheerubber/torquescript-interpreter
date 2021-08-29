@@ -8,6 +8,7 @@
 #endif
 
 #include "args.h"
+#include "./util/collapseEscape.h"
 #include "./compiler/compiler.h"
 #include "io.h"
 #include "./interpreter/interpreter.h"

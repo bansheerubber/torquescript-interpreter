@@ -102,8 +102,17 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
 	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
 	functions.push_back(FUNC_DEF(entry::STRING, &trim, "trim", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &ltrim, "ltrim", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &rtrim, "rtrim", 1, s));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &strCmp, "strcmp", 2, ss));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &strICmp, "stricmp", 2, ss));
+	functions.push_back(FUNC_DEF(entry::STRING, &strLwr, "strLwr", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &strUpr, "strUpr", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &strChr, "strChr", 2, ss));
+	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strStr", 2, ss));
+	functions.push_back(FUNC_DEF(entry::STRING, &stripChars, "stripChars", 2, ss));
+	functions.push_back(FUNC_DEF(entry::STRING, &expandEscape, "expandEscape", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &_collapseEscape, "collapseEscape", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mAbs, "mAbs", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mACos, "mACos", 1, n));
