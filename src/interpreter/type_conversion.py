@@ -1,5 +1,6 @@
-from gen.gen import get_generated_code
 import sys
+sys.path.insert(0, "../../tools")
+from gen import get_generated_code
 
 entry_name = sys.argv[1]
 output_name = sys.argv[2]

@@ -31,8 +31,8 @@ library:
 	@"$(MAKE)" dist/$(library_target) --no-print-directory soflags="-fPIC" ldflags="-Wl,--version-script=libtorquescript.map"
 
 preprocessor:
-	@python3 tools/preprocessor.py
 	@echo -e "   PY      tools/preprocessor.py"
+	@python3 tools/preprocessor.py
 
 $(cpp_objects_tmp) : %.o : %.h
 $(cpp_objects_tmp) : %.o : %.cc

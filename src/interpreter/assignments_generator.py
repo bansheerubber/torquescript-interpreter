@@ -1,7 +1,10 @@
 # handles various assignment instructions
 
 from assignment_instructions import get_suffixes, get_prefixes
-from gen.gen import get_generated_code
+
+import sys
+sys.path.insert(0, "../../tools")
+from gen import get_generated_code
 
 operations = {
 	"INCREMENT": "++{0}",
