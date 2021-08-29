@@ -4,6 +4,7 @@
 
 #include "echo.h"
 #include "fileObject.h"
+#include "getField.h"
 #include "getWord.h"
 #include "../interpreter/interpreter.h"
 #include "isObject.h"
@@ -98,6 +99,13 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::NUMBER, &getWordCount, "getWordCount", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &removeWord, "removeWord", 2, sn));
 	functions.push_back(FUNC_DEF(entry::STRING, &setWord, "setWord", 3, sns));
+	functions.push_back(FUNC_DEF(entry::STRING, &firstField, "firstField", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &restFields, "restFields", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &getField, "getField", 2, sn));
+	functions.push_back(FUNC_DEF(entry::STRING, &getFields, "getFields", 3, snn));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &getFieldCount, "getFieldCount", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &removeField, "removeField", 2, sn));
+	functions.push_back(FUNC_DEF(entry::STRING, &setField, "setField", 3, sns));
 	functions.push_back(FUNC_DEF(entry::STRING, &strLen, "strLen", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
 	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
