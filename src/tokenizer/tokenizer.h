@@ -16,9 +16,9 @@ class Tokenizer {
 	public:
 		Tokenizer(string fileName, ParsedArguments args);
 		Tokenizer(string piped, bool isPiped, ParsedArguments args);
-		Token& getToken();
-		Token& unGetToken();
-		Token& peekToken(int offset = 0);
+		Token& getToken(bool whitespace = false);
+		Token& unGetToken(bool whitespace = false);
+		Token& peekToken(int offset = 0, bool whitespace = false);
 		bool eof();
 		void printToken(Token token);
 		const char* typeToName(TokenType type);

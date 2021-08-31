@@ -198,6 +198,7 @@ void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool
 			&& tokenizer->peekToken().type != RIGHT_BRACKET
 			&& tokenizer->peekToken().type != CASE
 			&& tokenizer->peekToken().type != DEFAULT
+			&& tokenizer->peekToken().type != END_OF_FILE
 		) {
 			parser->error("unexpected token '%s'", tokenizer->peekToken().lexeme.c_str());
 		}
