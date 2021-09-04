@@ -4,60 +4,60 @@
 #include "caseBody.h"
 #include "defaultBody.h"
 
-bool SwitchBody::ShouldParse(Tokenizer* tokenizer, class Parser* parser) {
-	Token token = tokenizer->peekToken();
+bool SwitchBody::ShouldParse(ts::Engine* engine) {
+	Token token = engine->tokenizer->peekToken();
 	return token.type == SWITCH || token.type == STRING_SWITCH;
 }
 
-SwitchBody* SwitchBody::Parse(Body* body, Tokenizer* tokenizer, class Parser* parser) {
-	SwitchBody* output = new SwitchBody(parser);
+SwitchBody* SwitchBody::Parse(Body* body, ts::Engine* engine) {
+	SwitchBody* output = new SwitchBody(engine);
 	output->parent = body;
 
-	output->switchType = parser->expectToken(SWITCH, STRING_SWITCH);
-	parser->expectToken(LEFT_PARENTHESIS);
+	output->switchType = engine->parser->expectToken(SWITCH, STRING_SWITCH);
+	engine->parser->expectToken(LEFT_PARENTHESIS);
 
-	if(!Component::ShouldParse(output, tokenizer, parser)) {
-		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'switch' conditional");
+	if(!Component::ShouldParse(output, engine)) {
+		engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'switch' conditional");
 	}
-	output->conditional = Component::Parse(output, tokenizer, parser);
+	output->conditional = Component::Parse(output, engine);
 	
-	parser->expectToken(RIGHT_PARENTHESIS);
-	parser->expectToken(LEFT_BRACKET);
+	engine->parser->expectToken(RIGHT_PARENTHESIS);
+	engine->parser->expectToken(LEFT_BRACKET);
 
-	while(!tokenizer->eof()) {
-		Token token = tokenizer->peekToken();
-		if(CaseBody::ShouldParse(tokenizer, parser)) {
-			output->children.push_back(CaseBody::Parse(output, tokenizer, parser));
+	while(!engine->tokenizer->eof()) {
+		Token token = engine->tokenizer->peekToken();
+		if(CaseBody::ShouldParse(engine)) {
+			output->children.push_back(CaseBody::Parse(output, engine));
 		}
-		else if(DefaultBody::ShouldParse(tokenizer, parser)) {
-			output->children.push_back(DefaultBody::Parse(output, tokenizer, parser));
+		else if(DefaultBody::ShouldParse(engine)) {
+			output->children.push_back(DefaultBody::Parse(output, engine));
 		}
 		else if(token.type == RIGHT_BRACKET) {
 			break;
 		}
 		else {
-			parser->error("unexpected token '%s' in switch statement body", token.lexeme.c_str());
+			engine->parser->error("unexpected token '%s' in switch statement body", token.lexeme.c_str());
 		}
 	}
 
-	parser->expectToken(RIGHT_BRACKET);
+	engine->parser->expectToken(RIGHT_BRACKET);
 
 	return output;
 }
 
 string SwitchBody::print() {
-	string output = "switch(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
+	string output = "switch(" + this->conditional->print() + ")" + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
+	output += "}" + this->engine->parser->newLine;
 	return output;
 }
 
 string SwitchBody::printJSON() {
-	string switchType = string(this->parser->tokenizer->typeToName(this->switchType.type));
+	string switchType = string(this->engine->tokenizer->typeToName(this->switchType.type));
 	return "{\"type\":\"SWITCH_STATEMENT\",\"switchType\":\"" + switchType + "\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn SwitchBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	vector<CaseBody*> caseBodies;
 	DefaultBody* defaultBody = nullptr;
@@ -78,17 +78,17 @@ ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::Comp
 	for(CaseBody* body: caseBodies) {
 		// for torquescript compatibility, we have to evaluate the switch main conditional every case statement
 		ts::InstructionReturn conditionals;
-		ts::InstructionReturn compiledBody = body->compile(interpreter, context);
+		ts::InstructionReturn compiledBody = body->compile(engine, context);
 		for(CaseElement element: body->conditionals) {
 			if(element.isOr) {
 				continue;
 			}
 
 			// should be a value that was pushed onto the stack
-			ts::InstructionReturn caseValue = element.component->compile(interpreter, context);
+			ts::InstructionReturn caseValue = element.component->compile(engine, context);
 
 			// should be a value that was also pushed onto the stack
-			ts::InstructionReturn switchConditional = this->conditional->compile(interpreter, context);
+			ts::InstructionReturn switchConditional = this->conditional->compile(engine, context);
 
 			ts::Instruction* comparison = new ts::Instruction();
 
@@ -140,7 +140,7 @@ ts::InstructionReturn SwitchBody::compile(ts::Interpreter* interpreter, ts::Comp
 	}
 
 	if(defaultBody != nullptr) {
-		ts::InstructionReturn compiledDefault = defaultBody->compile(interpreter, context);
+		ts::InstructionReturn compiledDefault = defaultBody->compile(engine, context);
 		output.add(compiledDefault);
 
 		if(lastConditionals.last != nullptr) {

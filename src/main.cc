@@ -10,6 +10,7 @@
 #include "args.h"
 #include "./util/collapseEscape.h"
 #include "./compiler/compiler.h"
+#include "./engine/engine.h"
 #include "io.h"
 #include "./interpreter/interpreter.h"
 #include "./lib/lib.h"
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	ts::Interpreter* interpreter = new ts::Interpreter(args, false);
+	ts::Engine engine(args);
 	
 	if(isPiped) {
 		string file;
@@ -76,10 +77,7 @@ int main(int argc, char* argv[]) {
 
 		args.arguments["piped"] = "true"; // tell parser that input was piped
 
-		Tokenizer* tokenizer = new Tokenizer(file, true, args);
-		Parser* parser = new Parser(tokenizer, args);
-		interpreter->startInterpretation(ts::Compile(parser, interpreter));
-		delete interpreter;
+		engine.interpretPiped(file);
 	}
 	else {
 		for(string fileName: args.files) {
@@ -87,16 +85,12 @@ int main(int argc, char* argv[]) {
 			error_code error;
 			
 			if(filesystem::is_regular_file(path, error)) {
-				Tokenizer* tokenizer = new Tokenizer(fileName, args);
-				Parser* parser = new Parser(tokenizer, args);
-				interpreter->startInterpretation(ts::Compile(parser, interpreter));
+				engine.interpretFile(fileName);
 			}
 			else {
 				printError("error opening file %s\n", fileName.c_str());
 			}
 		}
-
-		delete interpreter;
 	}
 	
 	return 0;

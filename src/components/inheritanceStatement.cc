@@ -1,7 +1,7 @@
 #include "inheritanceStatement.h"
 #include "../interpreter/interpreter.h"
 
-bool InheritanceStatement::ShouldParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
+bool InheritanceStatement::ShouldParse(Component* lvalue, Component* parent, ts::Engine* engine) {
 	if(
 		parent->parent == nullptr
 		|| (
@@ -13,7 +13,7 @@ bool InheritanceStatement::ShouldParse(Component* lvalue, Component* parent, Tok
 	}
 	
 	if(lvalue == nullptr) {
-		return tokenizer->peekToken(0).type == COLON && tokenizer->peekToken(1).type == SYMBOL;
+		return engine->tokenizer->peekToken(0).type == COLON && engine->tokenizer->peekToken(1).type == SYMBOL;
 	}
 	else {
 		return (
@@ -23,13 +23,13 @@ bool InheritanceStatement::ShouldParse(Component* lvalue, Component* parent, Tok
 				|| lvalue->getType() == MATH_EXPRESSION
 				|| lvalue->getType() == ACCESS_STATEMENT
 			)
-			&& tokenizer->peekToken(0).type == COLON && tokenizer->peekToken(1).type == SYMBOL
+			&& engine->tokenizer->peekToken(0).type == COLON && engine->tokenizer->peekToken(1).type == SYMBOL
 		);
 	}
 }
 
-InheritanceStatement* InheritanceStatement::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	InheritanceStatement* output = new InheritanceStatement(parser);
+InheritanceStatement* InheritanceStatement::Parse(Component* lvalue, Component* parent, ts::Engine* engine) {
+	InheritanceStatement* output = new InheritanceStatement(engine);
 	output->parent = parent;
 	output->className = lvalue;
 
@@ -40,12 +40,12 @@ InheritanceStatement* InheritanceStatement::Parse(Component* lvalue, Component* 
 			&& parent->parent->getType() != DATABLOCK_DECLARATION
 		)
 	) {
-		parser->error("invalid place for inheritance statement");
+		engine->parser->error("invalid place for inheritance statement");
 	}
 
-	if(tokenizer->peekToken().type == COLON) {
-		parser->expectToken(COLON);
-		output->parentClass = Symbol::Parse(output, tokenizer, parser);
+	if(engine->tokenizer->peekToken().type == COLON) {
+		engine->parser->expectToken(COLON);
+		output->parentClass = Symbol::Parse(output, engine);
 	}
 
 	return output;
@@ -53,10 +53,10 @@ InheritanceStatement* InheritanceStatement::Parse(Component* lvalue, Component* 
 
 string InheritanceStatement::print() {
 	if(this->className == nullptr && this->parentClass != nullptr) {
-		return "(" + this->parser->space + ":" + this->parser->space + this->parentClass->print() + ")";
+		return "(" + this->engine->parser->space + ":" + this->engine->parser->space + this->parentClass->print() + ")";
 	}
 	else if(this->parentClass != nullptr) {
-		return "(" + this->className->print() + this->parser->space + ":" + this->parser->space + this->parentClass->print() + ")";
+		return "(" + this->className->print() + this->engine->parser->space + ":" + this->engine->parser->space + this->parentClass->print() + ")";
 	}
 	return "(" + this->className->print() + ")";
 }
@@ -71,7 +71,7 @@ string InheritanceStatement::printJSON() {
 	return "{\"type\":\"INHERITANCE_STATEMENT\",\"className\":" + this->className->printJSON() + "}";
 }
 
-ts::InstructionReturn InheritanceStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
+ts::InstructionReturn InheritanceStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
+	this->engine->parser->error("%s not supported", this->engine->parser->typeToName(this->getType()));
 	return {};
 }

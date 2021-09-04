@@ -4,6 +4,7 @@
 #include "../compiler/compiler.h"
 #include "debug.h"
 #include "../tssl/define.h"
+#include "../engine/engine.h"
 #include "entry.h"
 #include "../util/getEmptyString.h"
 #include "../util/isInteger.h"
@@ -20,20 +21,18 @@
 using namespace ts;
 
 void ts::initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame) {
-	*frame = (FunctionFrame){
-		context: VariableContext(interpreter),
-		container: nullptr,
-		instructionPointer: 0,
-		stackPointer: 0,
-		stackPopCount: 0,
-	};
+	frame->context = new VariableContext(interpreter);
+	frame->container = nullptr;
+	frame->instructionPointer = 0;
+	frame->stackPointer = 0;
+	frame->stackPopCount = 0;
 }
 
 void ts::onFunctionFrameRealloc(Interpreter* interpreter) {
 	FunctionFrame &frame = interpreter->frames[interpreter->frames.head - 1];
 	interpreter->instructionPointer = &frame.instructionPointer;
 	interpreter->stackFramePointer = frame.stackPointer;
-	interpreter->topContext = &frame.context;
+	interpreter->topContext = frame.context;
 }
 
 void ts::initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list) {
@@ -48,7 +47,8 @@ void ts::initSchedule(Interpreter* interpreter, Schedule** schedule) {
 	*schedule = nullptr;
 }
 
-Interpreter::Interpreter(ParsedArguments args, bool isParallel) {
+Interpreter::Interpreter(Engine* engine, ParsedArguments args, bool isParallel) {
+	this->engine = engine;
 	this->isParallel = isParallel;
 	
 	this->emptyEntry.setString(getEmptyString());
@@ -150,7 +150,7 @@ void Interpreter::pushFunctionFrame(
 	this->topContainer = frame.container;
 	this->instructionPointer = &frame.instructionPointer;
 	this->stackFramePointer = frame.stackPointer;
-	this->topContext = &frame.context;
+	this->topContext = frame.context;
 	
 	this->frames.pushed();
 }
@@ -169,7 +169,7 @@ void Interpreter::popFunctionFrame() {
 		this->topContainer = frame.container;
 		this->instructionPointer = &frame.instructionPointer;
 		this->stackFramePointer = frame.stackPointer;
-		this->topContext = &frame.context;
+		this->topContext = frame.context;
 
 		for(size_t i = 0; i < this->frames[this->frames.head].stackPopCount; i++) {
 			this->pop();
@@ -263,12 +263,12 @@ void Interpreter::execFile(string filename) {
 }
 
 void Interpreter::actuallyExecFile(string filename) {
-	ParsedArguments args;
-	Tokenizer tokenizer(filename, args);
-	Parser parser(&tokenizer, args);
+	// ParsedArguments args;
+	// Tokenizer tokenizer(filename, args);
+	// Parser parser(&tokenizer, args);
 	
-	this->pushFunctionFrame(new InstructionContainer(ts::Compile(&parser, this)));
-	this->interpret();
+	// this->pushFunctionFrame(new InstructionContainer(ts::Compile(&parser, this)));
+	// this->interpret();
 }
 
 Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {

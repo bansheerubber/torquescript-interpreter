@@ -1,31 +1,31 @@
 #include "arrayStatement.h"
 #include "../interpreter/interpreter.h"
 
-bool ArrayStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == LEFT_BRACE;
+bool ArrayStatement::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == LEFT_BRACE;
 }
 
-ArrayStatement* ArrayStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ArrayStatement* output = new ArrayStatement(parser);
+ArrayStatement* ArrayStatement::Parse(Component* parent, ts::Engine* engine) {
+	ArrayStatement* output = new ArrayStatement(engine);
 	output->parent = parent;
 	
-	parser->expectToken(LEFT_BRACE);
+	engine->parser->expectToken(LEFT_BRACE);
 
 	bool expectingComma = false;
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		if(!expectingComma) {
-			if(Component::ShouldParse(output, tokenizer, parser)) {
+			if(Component::ShouldParse(output, engine)) {
 				output->elements.push_back((ArrayElement){
-					component: Component::Parse(output, tokenizer, parser),
+					component: Component::Parse(output, engine),
 				});
 				expectingComma = true;
 			}
 			else {
-				parser->error("expected expression in array access");
+				engine->parser->error("expected expression in array access");
 			}
 		}
 		else {
-			Token token = parser->expectToken(COMMA, RIGHT_BRACE);
+			Token token = engine->parser->expectToken(COMMA, RIGHT_BRACE);
 			if(token.type == COMMA) {
 				output->elements.push_back((ArrayElement){
 					isComma: true,
@@ -58,7 +58,7 @@ string ArrayStatement::print() {
 			output += element.component->print();
 		}
 		else if(element.isComma) {
-			output += "," + this->parser->space;
+			output += "," + this->engine->parser->space;
 		}
 	}
 	output += "]";
@@ -84,12 +84,12 @@ string ArrayStatement::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn ArrayStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn ArrayStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	for(ArrayElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile(interpreter, context));
+			output.add(element.component->compile(engine, context));
 		}
 	}
 

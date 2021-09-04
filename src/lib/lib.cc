@@ -18,16 +18,16 @@ void initInterpreterId(void* nothing, ts::Interpreter** value) {
 DynamicArray<ts::Interpreter*, void> interpreters(nullptr, 5, initInterpreterId, nullptr);
 
 tsInterpreter tsCreateInterpreter(char isParallel) {
-	ParsedArguments args = {};
-	ts::Interpreter* interpreter = new ts::Interpreter(args, isParallel);
+	// ParsedArguments args = {};
+	// ts::Interpreter* interpreter = new ts::Interpreter(args, isParallel);
 
-	size_t index = interpreters.head;
-	interpreters[index] = interpreter;
-	interpreters.pushed();
-	return {
-		id: index,
-		isParallel: isParallel,
-	};
+	// size_t index = interpreters.head;
+	// interpreters[index] = interpreter;
+	// interpreters.pushed();
+	// return {
+	// 	id: index,
+	// 	isParallel: isParallel,
+	// };
 }
 
 void tsTick(tsInterpreter interpreter) {

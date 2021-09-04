@@ -4,15 +4,11 @@
 #include <vector>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 using namespace std;
 
@@ -33,6 +29,8 @@ struct AccessStatementCompiled {
 // %ex, %ex.hey, %ex.hey[0], %ex[0]
 // $ex, $ex.hey, $ex.hey[0], $ex[0], $ex::ex2, $ex::ex2.hey, $ex::ex2.hey[0], $ex::ex2[0]
 class AccessStatement : public Component {
+	friend class NewStatement;
+	
 	public:
 		using Component::Component;
 		
@@ -48,17 +46,16 @@ class AccessStatement : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
-		AccessStatementCompiled compileAccess(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
+		AccessStatementCompiled compileAccess(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword = false);
+		static bool ShouldParse(ts::Engine* engine, bool useKeyword = false);
 		static AccessStatement* Parse(
 			Component* firstValue,
 			Component* parent,
-			Tokenizer* tokenizer,
-			Parser* parser,
+			ts::Engine* engine,
 			bool useKeyword = false
 		);
 
@@ -76,8 +73,6 @@ class AccessStatement : public Component {
 		static bool DatablockAsSymbol;
 
 		string getVariableName();
-
-		friend class NewStatement;
 	
 	private:
 		// the tokens that make this statement up

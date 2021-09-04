@@ -1,15 +1,15 @@
 #include "continueStatement.h"
 #include "../interpreter/interpreter.h"
 
-bool ContinueStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == CONTINUE;
+bool ContinueStatement::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == CONTINUE;
 }
 
-ContinueStatement* ContinueStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ContinueStatement* output = new ContinueStatement(parser);
+ContinueStatement* ContinueStatement::Parse(Component* parent, ts::Engine* engine) {
+	ContinueStatement* output = new ContinueStatement(engine);
 	output->parent = parent;
-	parser->expectToken(CONTINUE);
-	parser->expectToken(SEMICOLON);
+	engine->parser->expectToken(CONTINUE);
+	engine->parser->expectToken(SEMICOLON);
 	return output;
 }
 
@@ -21,9 +21,9 @@ string ContinueStatement::printJSON() {
 	return "{\"type\":\"CONTINUE_STATEMENT\"}";
 }
 
-ts::InstructionReturn ContinueStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn ContinueStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	if(context.loop == nullptr) {
-		this->parser->error("continue statement must be in loop body");
+		this->engine->parser->error("continue statement must be in loop body");
 		return {};
 	}
 	

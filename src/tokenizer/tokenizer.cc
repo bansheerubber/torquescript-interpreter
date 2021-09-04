@@ -1,9 +1,14 @@
 #include "tokenizer.h"
 #include "../io.h"
 
-Tokenizer::Tokenizer(string piped, bool isPiped, ParsedArguments args) {
+#include "../engine/engine.h"
+
+Tokenizer::Tokenizer(ts::Engine* engine, ParsedArguments args) {
+	this->engine = engine;
 	this->handleArgs(args);
-	
+}
+
+void Tokenizer::tokenizePiped(string piped) {
 	this->contentSize = piped.size();
 	this->contents = new char[this->contentSize];
 	strcpy(this->contents, piped.c_str());
@@ -11,9 +16,7 @@ Tokenizer::Tokenizer(string piped, bool isPiped, ParsedArguments args) {
 	this->tokenize();
 }
 
-Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
-	this->handleArgs(args);
-	
+void Tokenizer::tokenizeFile(string fileName) {
 	// read the file
 	ifstream file = ifstream(fileName, ios::binary | ios::ate);
 	this->fileName = fileName;
@@ -23,6 +26,7 @@ Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
 	}
 
 	// TODO this is probably insecure
+	// TODO test for directories here, or ensure that we test for directory somewhere along the exec path
 	contentSize = file.tellg();
 	this->contents = new char[this->contentSize];
 	file.seekg(0);

@@ -4,15 +4,22 @@
 #include <string>
 
 #include "../args.h"
-#include "../components/component.h"
+#include "../components/componentTypeEnum.h"
+#include "../interpreter/stack.h"
 #include "../tokenizer/tokenizer.h"
-#include "../components/sourceFile.h"
 
 using namespace std;
 
+namespace ts {
+	class Engine;
+}
+
 class Parser {
 	public:
-		Parser(Tokenizer* tokenizer, ParsedArguments args);
+		Parser(ts::Engine* engine, ParsedArguments args);
+
+		void startParse();
+
 		void error(const char* format, ...);
 		void warning(const char* format, ...);
 		
@@ -21,22 +28,21 @@ class Parser {
 
 		const char* typeToName(ComponentType type);
 
-		SourceFile* getSourceFile();
+		class SourceFile* getSourceFile();
 
 		string printJSON();
 
-		string newLine;
-		string tab;
-		string space;
+		string newLine = "\n";
+		string tab = "\t";
+		string space = " ";
 
 		bool minified = false;
 
 		unordered_map<string, relative_stack_location> variableToLocation; // TODO remove this
 		relative_stack_location nextLocation = 0;
-
-		Tokenizer* tokenizer;
 	
 	private:
-		SourceFile* sourceFile;
+		ts::Engine* engine;
+		class SourceFile* sourceFile;
 		ParsedArguments args;
 };

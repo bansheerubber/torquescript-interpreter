@@ -38,18 +38,18 @@ bool MathExpression::IsOperator(TokenType type) {
 		|| type == NL;
 }
 
-bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser) {
-	Token &token = tokenizer->peekToken();
+bool MathExpression::ShouldParse(Component* lvalue, ts::Engine* engine) {
+	Token &token = engine->tokenizer->peekToken();
 	if(lvalue == nullptr) {
 		return (
 			(
 				(
-					NumberLiteral::ShouldParse(tokenizer, parser)
-					|| StringLiteral::ShouldParse(tokenizer, parser)
-					|| BooleanLiteral::ShouldParse(tokenizer, parser)
-					|| Symbol::ShouldParse(tokenizer, parser)
+					NumberLiteral::ShouldParse(engine)
+					|| StringLiteral::ShouldParse(engine)
+					|| BooleanLiteral::ShouldParse(engine)
+					|| Symbol::ShouldParse(engine)
 				)
-				&& MathExpression::IsOperator(tokenizer->peekToken(1).type)
+				&& MathExpression::IsOperator(engine->tokenizer->peekToken(1).type)
 			)
 			|| token.type == LEFT_PARENTHESIS
 			|| token.type == LOGICAL_NOT
@@ -62,8 +62,8 @@ bool MathExpression::ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser
 	}
 }
 
-MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	MathExpression* output = new MathExpression(parser);
+MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, ts::Engine* engine) {
+	MathExpression* output = new MathExpression(engine);
 	output->parent = parent;
 
 	if(lvalue != nullptr) {
@@ -75,8 +75,8 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 
 	// if we start with a left parenthesis, make note of it
 	bool parenthesis = false;
-	if(tokenizer->peekToken().type == LEFT_PARENTHESIS) {
-		tokenizer->getToken(); // absorb parenthesis
+	if(engine->tokenizer->peekToken().type == LEFT_PARENTHESIS) {
+		engine->tokenizer->getToken(); // absorb parenthesis
 		output->elements.push_back((MathElement){
 			component: nullptr,
 			specialOp: LEFT_PARENTHESIS_OPERATOR,
@@ -85,21 +85,21 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	}
 
 	bool expectingOperator = lvalue != nullptr;
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		if(expectingOperator) {
-			Token token = tokenizer->peekToken();
+			Token token = engine->tokenizer->peekToken();
 			if(MathExpression::IsOperator(token.type)) {
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					op: token,
 				});
 				expectingOperator = false;
-				tokenizer->getToken();
+				engine->tokenizer->getToken();
 			}
-			else if(InlineConditional::ShouldParse(tokenizer, parser) && output->elements[0].specialOp == LEFT_PARENTHESIS_OPERATOR) {
+			else if(InlineConditional::ShouldParse(engine) && output->elements[0].specialOp == LEFT_PARENTHESIS_OPERATOR) {
 				output->elements.erase(output->elements.begin());
 				
-				MathExpression* newParent = new MathExpression(parser);
+				MathExpression* newParent = new MathExpression(engine);
 				newParent->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: LEFT_PARENTHESIS_OPERATOR,
@@ -108,10 +108,10 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 				newParent->parent = parent;
 				output->parent = newParent;
 				newParent->elements.push_back((MathElement){
-					component: InlineConditional::Parse(output, newParent, tokenizer, parser)
+					component: InlineConditional::Parse(output, newParent, engine)
 				});
 
-				parser->expectToken(RIGHT_PARENTHESIS);
+				engine->parser->expectToken(RIGHT_PARENTHESIS);
 				newParent->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: RIGHT_PARENTHESIS_OPERATOR,
@@ -125,7 +125,7 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 					component: nullptr,
 					specialOp: RIGHT_PARENTHESIS_OPERATOR,
 				});
-				tokenizer->getToken();
+				engine->tokenizer->getToken();
 				break; // quit out of loop since our statement is now over
 			}
 			else { // if we see an end to the statement, quit out
@@ -133,35 +133,30 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 			}
 		}
 		else {
-			if(tokenizer->peekToken().type == LEFT_PARENTHESIS) { // nested math expression
+			if(engine->tokenizer->peekToken().type == LEFT_PARENTHESIS) { // nested math expression
 				output->elements.push_back((MathElement){
-					component: Component::AfterParse(
-						MathExpression::Parse(nullptr, output, tokenizer, parser),
-						output,
-						tokenizer,
-						parser
-					),
+					component: Component::AfterParse(MathExpression::Parse(nullptr, output, engine), output, engine),
 				});
 				expectingOperator = true;
 			}
-			else if(tokenizer->peekToken().type == LOGICAL_NOT) {
-				tokenizer->getToken(); // absorb token
+			else if(engine->tokenizer->peekToken().type == LOGICAL_NOT) {
+				engine->tokenizer->getToken(); // absorb token
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: LOGICAL_NOT_OPERATOR,
 				});
 				expectingOperator = false;
 			}
-			else if(tokenizer->peekToken().type == BITWISE_NOT) {
-				tokenizer->getToken(); // absorb token
+			else if(engine->tokenizer->peekToken().type == BITWISE_NOT) {
+				engine->tokenizer->getToken(); // absorb token
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: BITWISE_NOT_OPERATOR,
 				});
 				expectingOperator = false;
 			}
-			else if(tokenizer->peekToken().type == MINUS) {
-				tokenizer->getToken(); // absorb token
+			else if(engine->tokenizer->peekToken().type == MINUS) {
+				engine->tokenizer->getToken(); // absorb token
 				output->elements.push_back((MathElement){
 					component: nullptr,
 					specialOp: MINUS_OPERATOR,
@@ -169,9 +164,9 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 				expectingOperator = false;
 			}
 			// handles literals, accesses, calls, etc
-			else if(Component::ShouldParse(output, tokenizer, parser)) {
+			else if(Component::ShouldParse(output, engine)) {
 				output->elements.push_back((MathElement){
-					component: Component::Parse(output, tokenizer, parser),
+					component: Component::Parse(output, engine),
 				});
 				expectingOperator = true;
 			}
@@ -182,15 +177,15 @@ MathExpression* MathExpression::Parse(Component* lvalue, Component* parent, Toke
 	}
 
 	// under this circumstance, we need to check if there is more math expression to parse
-	if(parenthesis && parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(output, tokenizer, parser)) {
-		return MathExpression::Parse(output, parent, tokenizer, parser);
+	if(parenthesis && parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(output, engine)) {
+		return MathExpression::Parse(output, parent, engine);
 	}
 	else if(parenthesis && output->elements.back().specialOp != RIGHT_PARENTHESIS_OPERATOR) {
-		parser->error("unclosed parenthesis");
+		engine->parser->error("unclosed parenthesis");
 	}
 
 	if(expectingOperator == false) {
-		parser->error("was expecting evaluatable expression, number literal, boolean literal, or string literal");
+		engine->parser->error("was expecting evaluatable expression, number literal, boolean literal, or string literal");
 	}
 
 	return output;
@@ -216,7 +211,7 @@ string MathExpression::print() {
 			output += "~";
 		}
 		else if(element.specialOp == MINUS_OPERATOR) {
-			if(this-parser->minified && lastElement.op.type == MINUS) {
+			if(this-engine->parser->minified && lastElement.op.type == MINUS) {
 				output += " -";
 			}
 			else {
@@ -224,13 +219,13 @@ string MathExpression::print() {
 			}
 		}
 		else {
-			if(this->parser->minified) {
+			if(this->engine->parser->minified) {
 				if(element.op.type == SPC || element.op.type == TAB || element.op.type == NL || element.op.type == MODULUS) {
 					output += " " + element.op.lexeme + " ";
 					continue;
 				}
 			}
-			output += this->parser->space + element.op.lexeme + this->parser->space;
+			output += this->engine->parser->space + element.op.lexeme + this->engine->parser->space;
 		}
 		lastElement = element;
 	}
@@ -449,7 +444,7 @@ vector<PostfixElement> MathExpression::convertToPostfix(vector<MathElement*>* li
 	return postfix;
 }
 
-ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	vector<PostfixElement> postfix = this->convertToPostfix(list, TS_INTERPRETER_PREFIX);
@@ -584,7 +579,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	// finally add instructions to output
 	for(Value* value: instructionList) {
 		if(value->component != nullptr) {
-			output.add(value->component->compile(interpreter, context));
+			output.add(value->component->compile(engine, context));
 
 			if(value->unary.size() != ts::instruction::INVALID_UNARY) {
 				for(ts::instruction::UnaryOperator operation: value->unary) {
@@ -603,7 +598,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	return output;
 }
 
-ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn MathExpression::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// split along logical operators
@@ -651,7 +646,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::
 					andList.push_back(element);
 				}
 				else {
-					output.add(this->compileList(&andList, interpreter, context));
+					output.add(this->compileList(&andList, engine, context));
 					andList.clear();
 
 					if(andNoop == nullptr) {
@@ -671,7 +666,7 @@ ts::InstructionReturn MathExpression::compile(ts::Interpreter* interpreter, ts::
 				}
 			}
 
-			output.add(this->compileList(&andList, interpreter, context));
+			output.add(this->compileList(&andList, engine, context));
 			andList.clear();
 
 			output.add(andNoop);

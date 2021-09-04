@@ -4,40 +4,40 @@
 #include "accessStatement.h"
 #include "../util/getEmptyString.h"
 
-bool FunctionDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == FUNCTION;
+bool FunctionDeclaration::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == FUNCTION;
 }
 
-FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokenizer, Parser* parser) {
+FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, ts::Engine* engine) {
 	if(parent->getType() != SOURCE_FILE && parent->getType() != PACKAGE_DECLARATION) {
-		parser->error("cannot declare scoped functions");
+		engine->parser->error("cannot declare scoped functions");
 	}
 	
-	FunctionDeclaration* output = new FunctionDeclaration(parser);
+	FunctionDeclaration* output = new FunctionDeclaration(engine);
 	output->parent = parent;
-	parser->expectToken(FUNCTION);
+	engine->parser->expectToken(FUNCTION);
 
 	// parse a symbol
-	if(!Symbol::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid function name");
+	if(!Symbol::ShouldParse(engine)) {
+		engine->parser->error("invalid function name");
 	}
-	output->name1 = Symbol::Parse(output, tokenizer, parser);
+	output->name1 = Symbol::Parse(output, engine);
 
-	if(tokenizer->peekToken().type == NAMESPACE) {
-		parser->expectToken(NAMESPACE);
+	if(engine->tokenizer->peekToken().type == NAMESPACE) {
+		engine->parser->expectToken(NAMESPACE);
 
 		// parse a symbol
-		if(!Symbol::ShouldParse(tokenizer, parser)) {
-			parser->error("invalid function name");
+		if(!Symbol::ShouldParse(engine)) {
+			engine->parser->error("invalid function name");
 		}
-		output->name2 = Symbol::Parse(output, tokenizer, parser);
+		output->name2 = Symbol::Parse(output, engine);
 	}
 
 	// parse the argument list
-	if(!CallStatement::ShouldParse(tokenizer, parser)) {
-		parser->error("expected arguments for function");
+	if(!CallStatement::ShouldParse(engine)) {
+		engine->parser->error("expected arguments for function");
 	}
-	output->args = CallStatement::Parse(output, tokenizer, parser);
+	output->args = CallStatement::Parse(output, engine);
 
 	// find errors in args
 	auto it = output->args->getElements();
@@ -51,27 +51,27 @@ FunctionDeclaration* FunctionDeclaration::Parse(Body* parent, Tokenizer* tokeniz
 				|| ((AccessStatement*)component)->chainSize() != 1
 			)
 		) {
-			parser->error("unexpected argument '%s' for function declaration", component->print().c_str());
+			engine->parser->error("unexpected argument '%s' for function declaration", component->print().c_str());
 		}
 	}
 
-	parser->expectToken(LEFT_BRACKET);
+	engine->parser->expectToken(LEFT_BRACKET);
 	
-	Component::ParseBody(output, tokenizer, parser);
+	Component::ParseBody(output, engine);
 
-	parser->expectToken(RIGHT_BRACKET);
+	engine->parser->expectToken(RIGHT_BRACKET);
 
 	return output;
 }
 
 string FunctionDeclaration::print() {
-	string output = "function " + this->name1->print() + this->args->print() + this->parser->space + "{" + this->parser->newLine;
+	string output = "function " + this->name1->print() + this->args->print() + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	if(this->name2 != nullptr) {
-		output = "function " + this->name1->print() + "::" + this->name2->print() + this->args->print() + this->parser->space + "{" + this->parser->newLine;
+		output = "function " + this->name1->print() + "::" + this->name2->print() + this->args->print() + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	}
 
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
+	output += "}" + this->engine->parser->newLine;
 	return output;
 }
 
@@ -84,7 +84,7 @@ string FunctionDeclaration::printJSON() {
 	}
 }
 
-ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn FunctionDeclaration::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// loop through the arguments and assign them from values on the stack
@@ -101,7 +101,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 
 	// compile the body of the function
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, (ts::CompilationContext){
+		output.add(component->compile(engine, (ts::CompilationContext){
 			loop: nullptr,
 			package: context.package,
 			scope: this,
@@ -126,7 +126,7 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 	instruction->popArguments.argumentCount = argumentCount;
 	output.addFirst(instruction);
 
-	output.addFirst(this->compileLinkVariables(interpreter));
+	output.addFirst(this->compileLinkVariables(engine));
 
 	// add a return statement that exits out from our function
 	ts::Instruction* returnInstruction = new ts::Instruction();
@@ -138,22 +138,22 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Interpreter* interpreter,
 		if(this->name2 != nullptr) {
 			string nameSpace = this->name1->print();
 			string name = this->name2->print();
-			interpreter->defineMethod(nameSpace, name, output, argumentCount, this->allocatedSize());
+			engine->interpreter->defineMethod(nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();
-			interpreter->defineFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
+			engine->interpreter->defineFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 		}
 	}
 	else {
 		if(this->name2 != nullptr) {
 			string nameSpace = this->name1->print();
 			string name = this->name2->print();
-			interpreter->addPackageMethod(context.package, nameSpace, name, output, argumentCount, this->allocatedSize());
+			engine->interpreter->addPackageMethod(context.package, nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();
-			interpreter->addPackageFunction(context.package, name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
+			engine->interpreter->addPackageFunction(context.package, name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 		}
 	}
 

@@ -6,31 +6,31 @@
 #include "callStatement.h"
 #include "symbol.h"
 
-bool DatablockDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == DATABLOCK;
+bool DatablockDeclaration::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == DATABLOCK;
 }
 
-DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* tokenizer, Parser* parser) {
-	DatablockDeclaration* output = new DatablockDeclaration(parser);
+DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, ts::Engine* engine) {
+	DatablockDeclaration* output = new DatablockDeclaration(engine);
 	output->parent = parent;
-	parser->expectToken(DATABLOCK);
+	engine->parser->expectToken(DATABLOCK);
 
 	// parse a symbol
-	if(!Symbol::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid datablock name");
+	if(!Symbol::ShouldParse(engine)) {
+		engine->parser->error("invalid datablock name");
 	}
-	output->typeName = Symbol::Parse(output, tokenizer, parser);
+	output->typeName = Symbol::Parse(output, engine);
 
 	// parse inheritance statement
-	if(CallStatement::ShouldParse(tokenizer, parser)) {
-		output->className = CallStatement::Parse(output, tokenizer, parser);
+	if(CallStatement::ShouldParse(engine)) {
+		output->className = CallStatement::Parse(output, engine);
 	}
 	else {
-		parser->error("got invalid name for datablock");
+		engine->parser->error("got invalid name for datablock");
 	}
 
 	if(output->className->getElementCount() == 0) {
-		parser->error("got no name for datablock");
+		engine->parser->error("got no name for datablock");
 	}
 
 	// make sure we got a valid name for the datablock
@@ -42,18 +42,18 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 		&& firstComponent->getType() != ACCESS_STATEMENT
 		&& firstComponent->getType() != MATH_EXPRESSION
 	) {
-		parser->error("got invalid name for datablock");
+		engine->parser->error("got invalid name for datablock");
 	}
 	
-	parser->expectToken(LEFT_BRACKET);
+	engine->parser->expectToken(LEFT_BRACKET);
 	// read assignment statements
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		if(
-			Symbol::ShouldParse(tokenizer, parser)
-			|| Symbol::ShouldParseAlphabeticToken(tokenizer, parser)
+			Symbol::ShouldParse(engine)
+			|| Symbol::ShouldParseAlphabeticToken(engine)
 		) {
-			Symbol* symbol = Symbol::Parse(output, tokenizer, parser);
-			AccessStatement* access = AccessStatement::Parse(symbol, output, tokenizer, parser, true);
+			Symbol* symbol = Symbol::Parse(output, engine);
+			AccessStatement* access = AccessStatement::Parse(symbol, output, engine, true);
 			symbol->parent = access;
 			if(
 				access->hasChain()
@@ -62,36 +62,36 @@ DatablockDeclaration* DatablockDeclaration::Parse(Body* parent, Tokenizer* token
 				|| access->isLocalVariable()
 				|| access->isGlobalVariable()
 			) {
-				parser->error("did not expect complex property assignment '%s' in datablock", access->print().c_str());
+				engine->parser->error("did not expect complex property assignment '%s' in datablock", access->print().c_str());
 			}
 
 			// now parse the assign statement
-			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
-				parser->error("expected property assignment in datablock");
+			if(!AssignStatement::ShouldParse(access, output, engine)) {
+				engine->parser->error("expected property assignment in datablock");
 			}
 
-			output->children.push_back(AssignStatement::Parse(access, output, tokenizer, parser));
+			output->children.push_back(AssignStatement::Parse(access, output, engine));
 
-			parser->expectToken(SEMICOLON);
+			engine->parser->expectToken(SEMICOLON);
 		}
-		else if(tokenizer->peekToken().type == RIGHT_BRACKET) {
+		else if(engine->tokenizer->peekToken().type == RIGHT_BRACKET) {
 			break;
 		}
 		else {
-			parser->error("expected property assignment in datablock");
+			engine->parser->error("expected property assignment in datablock");
 		}
 	}
 
-	parser->expectToken(RIGHT_BRACKET);
-	parser->expectToken(SEMICOLON);
+	engine->parser->expectToken(RIGHT_BRACKET);
+	engine->parser->expectToken(SEMICOLON);
 
 	return output;
 }
 
 string DatablockDeclaration::print() {
-	string output = "datablock " + this->typeName->print() + this->className->print() + this->parser->space + "{" + this->parser->newLine;
+	string output = "datablock " + this->typeName->print() + this->className->print() + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "};" + this->parser->newLine;
+	output += "};" + this->engine->parser->newLine;
 	return output;
 }
 
@@ -99,7 +99,7 @@ string DatablockDeclaration::printJSON() {
 	return "{\"type\":\"DATABLOCK_DECLARATION\",\"typeName\":" + this->typeName->printJSON() + ",\"className\":" + this->className->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn DatablockDeclaration::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	this->parser->error("%s not supported", this->parser->typeToName(this->getType()));
+ts::InstructionReturn DatablockDeclaration::compile(ts::Engine* engine, ts::CompilationContext context) {
+	this->engine->parser->error("%s not supported", this->engine->parser->typeToName(this->getType()));
 	return {};
 }

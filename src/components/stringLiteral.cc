@@ -4,21 +4,21 @@
 #include "../util/collapseEscape.h"
 #include "../util/stringToChars.h"
 
-bool StringLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == STRING || tokenizer->peekToken().type == TAGGED_STRING;
+bool StringLiteral::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == STRING || engine->tokenizer->peekToken().type == TAGGED_STRING;
 }
 
-StringLiteral* StringLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	StringLiteral* output = new StringLiteral(parser);
+StringLiteral* StringLiteral::Parse(Component* parent, ts::Engine* engine) {
+	StringLiteral* output = new StringLiteral(engine);
 	output->parent = parent;
-	output->value = tokenizer->getToken();
+	output->value = engine->tokenizer->getToken();
 
 	// handle escape sequences
 	try {
 		output->valueString = collapseEscape(output->value.lexeme, true);
 	}
 	catch(const exception &error) {
-		parser->error(error.what());
+		engine->parser->error(error.what());
 	}
 
 	return output;
@@ -37,7 +37,7 @@ string StringLiteral::printJSON() {
 	return "{\"type\":\"STRING_LITERAL\",\"value\":\"" + this->valueString + "\",\"isTagged\":" + (this->value.type == STRING ? "false" : "true") + "}";
 }
 
-ts::InstructionReturn StringLiteral::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn StringLiteral::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;
 	instruction->push.entry = ts::Entry();

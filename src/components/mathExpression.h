@@ -5,17 +5,13 @@
 #include <string>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
 #include "../interpreter/stack.h"
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 enum SpecialOperator {
 	INVALID_OPERATOR,
@@ -63,12 +59,12 @@ class MathExpression : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Component* lvalue, Tokenizer* tokenizer, Parser* parser);
-		static MathExpression* Parse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(Component* lvalue, ts::Engine* engine);
+		static MathExpression* Parse(Component* lvalue, Component* parent, ts::Engine* engine);
 		static bool IsOperator(TokenType type);
 	
 	private:
@@ -78,6 +74,6 @@ class MathExpression : public Component {
 		static ts::instruction::InstructionType TypeToOperator(TokenType type);
 		static map<TokenType, int> Precedence;
 
-		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compileList(vector<MathElement*>* list, ts::Engine* engine, ts::CompilationContext context);
 		vector<PostfixElement> convertToPostfix(vector<MathElement*>* list, bool prefixMod = false);
 };

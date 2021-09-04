@@ -25,182 +25,182 @@
 #include "switchBody.h"
 #include "whileBody.h"
 
-Component::Component(Parser* parser) {
-	this->parser = parser;
+Component::Component(ts::Engine* engine) {
+	this->engine = engine;
 }
 
-bool Component::ShouldParse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	return AccessStatement::ShouldParse(tokenizer, parser)
-		|| NumberLiteral::ShouldParse(tokenizer, parser)
-		|| StringLiteral::ShouldParse(tokenizer, parser)
-		|| MathExpression::ShouldParse(nullptr, tokenizer, parser)
-		|| BooleanLiteral::ShouldParse(tokenizer, parser)
-		|| NewStatement::ShouldParse(tokenizer, parser)
-		|| NamespaceStatement::ShouldParse(tokenizer, parser)
-		|| InheritanceStatement::ShouldParse(nullptr, parent, tokenizer, parser)
-		|| Symbol::ShouldParse(tokenizer, parser);
+bool Component::ShouldParse(Component* parent, ts::Engine* engine) {
+	return AccessStatement::ShouldParse(engine)
+		|| NumberLiteral::ShouldParse(engine)
+		|| StringLiteral::ShouldParse(engine)
+		|| MathExpression::ShouldParse(nullptr, engine)
+		|| BooleanLiteral::ShouldParse(engine)
+		|| NewStatement::ShouldParse(engine)
+		|| NamespaceStatement::ShouldParse(engine)
+		|| InheritanceStatement::ShouldParse(nullptr, parent, engine)
+		|| Symbol::ShouldParse(engine);
 }
 
 // handles member chaining, inline conditionals. basically, any tacked on stuff that we might
 // expect at the end of any component
-Component* Component::AfterParse(Component* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	if(tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
-		Component* access = AccessStatement::Parse(lvalue, parent, tokenizer, parser);
+Component* Component::AfterParse(Component* lvalue, Component* parent, ts::Engine* engine) {
+	if(engine->tokenizer->peekToken().type == MEMBER_CHAIN) { // we have an access statement
+		Component* access = AccessStatement::Parse(lvalue, parent, engine);
 		
 		bool isPostfix = false;
-		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-			access = PostfixStatement::Parse((AccessStatement*)access, parent, tokenizer, parser);
+		if(PostfixStatement::ShouldParse(engine)) {
+			access = PostfixStatement::Parse((AccessStatement*)access, parent, engine);
 			isPostfix = true;
 		}
 
-		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)access, parent, tokenizer, parser)) {
-			lvalue = AssignStatement::Parse((AccessStatement*)access, parent, tokenizer, parser);
+		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)access, parent, engine)) {
+			lvalue = AssignStatement::Parse((AccessStatement*)access, parent, engine);
 		}
-		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(access, tokenizer, parser)) {
-			lvalue = MathExpression::Parse(access, parent, tokenizer, parser); // let math expression take over parsing
+		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(access, engine)) {
+			lvalue = MathExpression::Parse(access, parent, engine); // let math expression take over parsing
 		}
 		else {
 			lvalue = access;
 		}
 	}
 
-	if(lvalue != nullptr && InheritanceStatement::ShouldParse(lvalue, parent, tokenizer, parser)) {
-		lvalue = InheritanceStatement::Parse(lvalue, parent, tokenizer, parser);
+	if(lvalue != nullptr && InheritanceStatement::ShouldParse(lvalue, parent, engine)) {
+		lvalue = InheritanceStatement::Parse(lvalue, parent, engine);
 	}
-	else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr && parent->getType() != MATH_EXPRESSION) {
-		lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
+	else if(InlineConditional::ShouldParse(engine) && lvalue != nullptr && parent->getType() != MATH_EXPRESSION) {
+		lvalue = InlineConditional::Parse(lvalue, parent, engine);
 	}
 
 	return lvalue;
 }
 
-Component* Component::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
+Component* Component::Parse(Component* parent, ts::Engine* engine) {
 	Component* output = nullptr;
 
-	if(NamespaceStatement::ShouldParse(tokenizer, parser)) {
-		output = NamespaceStatement::Parse(parent, tokenizer, parser);
+	if(NamespaceStatement::ShouldParse(engine)) {
+		output = NamespaceStatement::Parse(parent, engine);
 
-		if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(output, tokenizer, parser)) {
-			output = MathExpression::Parse(output, parent, tokenizer, parser); // let math expression take over parsing
+		if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(output, engine)) {
+			output = MathExpression::Parse(output, parent, engine); // let math expression take over parsing
 		}
 	}
-	else if(AccessStatement::ShouldParse(tokenizer, parser)) {
-		Component* lvalue = AccessStatement::Parse(nullptr, parent, tokenizer, parser);
+	else if(AccessStatement::ShouldParse(engine)) {
+		Component* lvalue = AccessStatement::Parse(nullptr, parent, engine);
 		
 		bool isPostfix = false;
-		if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-			lvalue = PostfixStatement::Parse((AccessStatement*)lvalue, parent, tokenizer, parser);
+		if(PostfixStatement::ShouldParse(engine)) {
+			lvalue = PostfixStatement::Parse((AccessStatement*)lvalue, parent, engine);
 			isPostfix = true;
 		}
 		// handle inline conditionals here
-		else if(InlineConditional::ShouldParse(tokenizer, parser) && lvalue != nullptr) {
-			lvalue = InlineConditional::Parse(lvalue, parent, tokenizer, parser);
+		else if(InlineConditional::ShouldParse(engine) && lvalue != nullptr) {
+			lvalue = InlineConditional::Parse(lvalue, parent, engine);
 		}
 
-		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)lvalue, parent, tokenizer, parser)) {
-			output = AssignStatement::Parse((AccessStatement*)lvalue, parent, tokenizer, parser);
+		if(!isPostfix && AssignStatement::ShouldParse((AccessStatement*)lvalue, parent, engine)) {
+			output = AssignStatement::Parse((AccessStatement*)lvalue, parent, engine);
 		}
-		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(lvalue, tokenizer, parser)) {
-			output = MathExpression::Parse(lvalue, parent, tokenizer, parser); // let math expression take over parsing
+		else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(lvalue, engine)) {
+			output = MathExpression::Parse(lvalue, parent, engine); // let math expression take over parsing
 		}
 		else {
 			output = lvalue;
 		}
 	}
-	else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(nullptr, tokenizer, parser)) {
-		output = MathExpression::Parse(nullptr, parent, tokenizer, parser);
+	else if(parent->getType() != MATH_EXPRESSION && MathExpression::ShouldParse(nullptr, engine)) {
+		output = MathExpression::Parse(nullptr, parent, engine);
 	}
-	else if(NumberLiteral::ShouldParse(tokenizer, parser)) {
-		output = NumberLiteral::Parse(parent, tokenizer, parser);
+	else if(NumberLiteral::ShouldParse(engine)) {
+		output = NumberLiteral::Parse(parent, engine);
 	}
-	else if(StringLiteral::ShouldParse(tokenizer, parser)) {
-		output = StringLiteral::Parse(parent, tokenizer, parser);
+	else if(StringLiteral::ShouldParse(engine)) {
+		output = StringLiteral::Parse(parent, engine);
 	}
-	else if(BooleanLiteral::ShouldParse(tokenizer, parser)) {
-		output = BooleanLiteral::Parse(parent, tokenizer, parser);
+	else if(BooleanLiteral::ShouldParse(engine)) {
+		output = BooleanLiteral::Parse(parent, engine);
 	}
-	else if(NewStatement::ShouldParse(tokenizer, parser)) {
-		output = NewStatement::Parse(parent, tokenizer, parser);
+	else if(NewStatement::ShouldParse(engine)) {
+		output = NewStatement::Parse(parent, engine);
 	}
-	else if(InheritanceStatement::ShouldParse(nullptr, parent, tokenizer, parser)) {
-		output = InheritanceStatement::Parse(nullptr, parent, tokenizer, parser);
+	else if(InheritanceStatement::ShouldParse(nullptr, parent, engine)) {
+		output = InheritanceStatement::Parse(nullptr, parent, engine);
 	}
-	else if(Symbol::ShouldParse(tokenizer, parser)) {
-		output = Symbol::Parse(parent, tokenizer, parser);
+	else if(Symbol::ShouldParse(engine)) {
+		output = Symbol::Parse(parent, engine);
 	}
 	
 	// additional support for edge cases
-	return Component::AfterParse(output, parent, tokenizer, parser);
+	return Component::AfterParse(output, parent, engine);
 }
 
 // handle recursive body parsing
-void Component::ParseBody(Body* body, Tokenizer* tokenizer, Parser* parser, bool oneLine) {
+void Component::ParseBody(Body* body, ts::Engine* engine, bool oneLine) {
 	int count = 0;
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		if(oneLine && count > 0) {
 			break;
 		}
 
-		if(Component::ShouldParse(body, tokenizer, parser)) {
-			body->addChild(Component::Parse(body, tokenizer, parser));
-			Token token = tokenizer->peekToken();
+		if(Component::ShouldParse(body, engine)) {
+			body->addChild(Component::Parse(body, engine));
+			Token token = engine->tokenizer->peekToken();
 			if(token.type == SEMICOLON) {
-				tokenizer->getToken(); // absorb the semicolon
+				engine->tokenizer->getToken(); // absorb the semicolon
 			}
 			// see if we have an invalid lvalue
-			else if(AssignStatement::ShouldParse(nullptr, body, tokenizer, parser)) {
-				parser->error("invalid lvalue for assignment");
+			else if(AssignStatement::ShouldParse(nullptr, body, engine)) {
+				engine->parser->error("invalid lvalue for assignment");
 			}
 			// see if unary operator is being weird
-			else if(PostfixStatement::ShouldParse(tokenizer, parser)) {
-				parser->error("invalid unary postfix operator");
+			else if(PostfixStatement::ShouldParse(engine)) {
+				engine->parser->error("invalid unary postfix operator");
 			}
 			else {
-				parser->error("no semicolon at end of line");
+				engine->parser->error("no semicolon at end of line");
 			}
 		}
-		else if(Comment::ShouldParse(tokenizer, parser)) {
-			body->addChild(Comment::Parse(body, tokenizer, parser));
+		else if(Comment::ShouldParse(engine)) {
+			body->addChild(Comment::Parse(body, engine));
 		}
-		else if(IfBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(IfBody::Parse(body, tokenizer, parser));
+		else if(IfBody::ShouldParse(engine)) {
+			body->addChild(IfBody::Parse(body, engine));
 		}
-		else if(FunctionDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(FunctionDeclaration::Parse(body, tokenizer, parser));
+		else if(FunctionDeclaration::ShouldParse(engine)) {
+			body->addChild(FunctionDeclaration::Parse(body, engine));
 		}
-		else if(ReturnStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(ReturnStatement::Parse(body, tokenizer, parser));
+		else if(ReturnStatement::ShouldParse(engine)) {
+			body->addChild(ReturnStatement::Parse(body, engine));
 		}
-		else if(DatablockDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(DatablockDeclaration::Parse(body, tokenizer, parser));
+		else if(DatablockDeclaration::ShouldParse(engine)) {
+			body->addChild(DatablockDeclaration::Parse(body, engine));
 		}
-		else if(ForBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(ForBody::Parse(body, tokenizer, parser));
+		else if(ForBody::ShouldParse(engine)) {
+			body->addChild(ForBody::Parse(body, engine));
 		}
-		else if(WhileBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(WhileBody::Parse(body, tokenizer, parser));
+		else if(WhileBody::ShouldParse(engine)) {
+			body->addChild(WhileBody::Parse(body, engine));
 		}
-		else if(SwitchBody::ShouldParse(tokenizer, parser)) {
-			body->addChild(SwitchBody::Parse(body, tokenizer, parser));
+		else if(SwitchBody::ShouldParse(engine)) {
+			body->addChild(SwitchBody::Parse(body, engine));
 		}
-		else if(PackageDeclaration::ShouldParse(tokenizer, parser)) {
-			body->addChild(PackageDeclaration::Parse(body, tokenizer, parser));
+		else if(PackageDeclaration::ShouldParse(engine)) {
+			body->addChild(PackageDeclaration::Parse(body, engine));
 		}
-		else if(ContinueStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(ContinueStatement::Parse(body, tokenizer, parser));
+		else if(ContinueStatement::ShouldParse(engine)) {
+			body->addChild(ContinueStatement::Parse(body, engine));
 		}
-		else if(BreakStatement::ShouldParse(tokenizer, parser)) {
-			body->addChild(BreakStatement::Parse(body, tokenizer, parser));
+		else if(BreakStatement::ShouldParse(engine)) {
+			body->addChild(BreakStatement::Parse(body, engine));
 		}
 		// error if we get something we don't recognize
 		else if(
-			tokenizer->peekToken().type != SEMICOLON
-			&& tokenizer->peekToken().type != RIGHT_BRACKET
-			&& tokenizer->peekToken().type != CASE
-			&& tokenizer->peekToken().type != DEFAULT
-			&& tokenizer->peekToken().type != END_OF_FILE
+			engine->tokenizer->peekToken().type != SEMICOLON
+			&& engine->tokenizer->peekToken().type != RIGHT_BRACKET
+			&& engine->tokenizer->peekToken().type != CASE
+			&& engine->tokenizer->peekToken().type != DEFAULT
+			&& engine->tokenizer->peekToken().type != END_OF_FILE
 		) {
-			parser->error("unexpected token '%s'", tokenizer->peekToken().lexeme.c_str());
+			engine->parser->error("unexpected token '%s'", engine->tokenizer->peekToken().lexeme.c_str());
 		}
 		else {
 			break;
