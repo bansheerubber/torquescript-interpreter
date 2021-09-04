@@ -90,19 +90,19 @@ void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests,
 
 			(*totalTests)++;
 
-			Engine* engine = new Engine(empty);
-			engine->tokenizer->tokenizeFile(candidateFile);
-			engine->parser->startParse();
+			Engine engine(empty);
+			engine.tokenizer->tokenizeFile(candidateFile);
+			engine.parser->startParse();
 
-			string json = engine->parser->printJSON();
-			totalLines += engine->tokenizer->getTotalLineCount();
+			string json = engine.parser->printJSON();
+			totalLines += engine.tokenizer->getTotalLineCount();
 
 			// overwrite old results if we need to regenerate unit test results
 			if(overwriteResults) {
 				filesystem::create_directories(filesystem::path(resultsFile).remove_filename());
 				ofstream file;
 				file.open(resultsFile);
-				file << engine->parser->printJSON();
+				file << engine.parser->printJSON();
 				file.close();
 			}
 
@@ -147,11 +147,11 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 
 			(*totalTests)++;
 
-			Engine* engine = new Engine(empty);
-			engine->interpreter->testing = true;
-			engine->interpretFile(candidateFile);
+			Engine engine(empty);
+			engine.interpreter->testing = true;
+			engine.interpretFile(candidateFile);
 
-			totalLines += engine->tokenizer->getTotalLineCount();
+			totalLines += engine.tokenizer->getTotalLineCount();
 
 			if(isFileEqual(ts::sl::mockStdout, resultsFile)) {
 				(*passedTests)++;

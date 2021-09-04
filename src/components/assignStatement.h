@@ -14,6 +14,7 @@ using namespace std;
 class AssignStatement : public Component {
 	public:
 		using Component::Component;
+		~AssignStatement() {}
 		
 		ComponentType getType() {
 			return ASSIGN_STATEMENT;

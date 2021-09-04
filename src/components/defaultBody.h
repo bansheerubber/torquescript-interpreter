@@ -15,6 +15,7 @@ using namespace std;
 class DefaultBody : public Body {
 	public:
 		using Body::Body;
+		~DefaultBody() {}
 		
 		ComponentType getType() {
 			return DEFAULT_STATEMENT;

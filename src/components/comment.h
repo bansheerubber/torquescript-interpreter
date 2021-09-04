@@ -12,6 +12,7 @@
 class Comment : public Component {
 	public:
 		using Component::Component;
+		~Comment() {}
 		
 		ComponentType getType() {
 			return COMMENT_STATEMENT;

@@ -15,6 +15,7 @@
 class NewStatement : public Body {
 	public:
 		using Body::Body;
+		~NewStatement() {}
 		
 		ComponentType getType() {
 			return NEW_STATEMENT;

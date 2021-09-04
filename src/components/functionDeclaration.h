@@ -18,6 +18,7 @@ using namespace std;
 class FunctionDeclaration : public Body, public ts::Scope {
 	public:
 		using Body::Body;
+		~FunctionDeclaration() {}
 		
 		ComponentType getType() {
 			return FUNCTION_DECLARATION;

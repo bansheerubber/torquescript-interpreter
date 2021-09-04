@@ -13,6 +13,7 @@ namespace ts {
 	class Engine {
 		public:
 			Engine(ParsedArguments args);
+			~Engine();
 
 			Tokenizer* tokenizer;
 			Parser* parser;

@@ -16,6 +16,7 @@ using namespace std;
 class ForBody : public Body, public ts::LoopsContext {
 	public:
 		using Body::Body;
+		~ForBody() {}
 		
 		ComponentType getType() {
 			return FOR_STATEMENT;

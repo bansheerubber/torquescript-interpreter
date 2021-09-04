@@ -10,6 +10,7 @@
 class BreakStatement : public Component {
 	public:
 		using Component::Component;
+		~BreakStatement() {}
 		
 		ComponentType getType() {
 			return BREAK_STATEMENT;

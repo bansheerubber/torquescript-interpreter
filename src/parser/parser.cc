@@ -7,6 +7,12 @@ Parser::Parser(ts::Engine* engine, ParsedArguments args) {
 	this->args = args;
 }
 
+Parser::~Parser() {
+	for(Component* component: this->components) {
+		delete component;	
+	}
+}
+
 void Parser::startParse() {
 	this->sourceFile = new SourceFile(this->engine);
 	Component::ParseBody(this->sourceFile, this->engine);

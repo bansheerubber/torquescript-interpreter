@@ -46,6 +46,7 @@ struct Operation { // used for math evaluation algorithm
 class MathExpression : public Component {
 	public:
 		using Component::Component;
+		~MathExpression() {}
 		
 		ComponentType getType() {
 			return MATH_EXPRESSION;

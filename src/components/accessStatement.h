@@ -33,6 +33,7 @@ class AccessStatement : public Component {
 	
 	public:
 		using Component::Component;
+		~AccessStatement() {}
 		
 		ComponentType getType() {
 			return ACCESS_STATEMENT;

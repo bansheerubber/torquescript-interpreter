@@ -11,6 +11,7 @@ using namespace std;
 class SourceFile : public Body, public ts::Scope {
 	public:
 		using Body::Body;
+		~SourceFile() {}
 		
 		ComponentType getType() {
 			return SOURCE_FILE;

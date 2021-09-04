@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include "../args.h"
 #include "../components/componentTypeEnum.h"
@@ -15,8 +16,11 @@ namespace ts {
 }
 
 class Parser {
+	friend class Component;
+	
 	public:
 		Parser(ts::Engine* engine, ParsedArguments args);
+		~Parser();
 
 		void startParse();
 
@@ -45,4 +49,5 @@ class Parser {
 		ts::Engine* engine;
 		class SourceFile* sourceFile;
 		ParsedArguments args;
+		vector<class Component*> components;
 };

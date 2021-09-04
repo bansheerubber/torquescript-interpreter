@@ -12,6 +12,7 @@
 class BooleanLiteral : public Component {
 	public:
 		using Component::Component;
+		~BooleanLiteral() {}
 		
 		ComponentType getType() {
 			return BOOLEAN_LITERAL;

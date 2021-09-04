@@ -13,6 +13,12 @@ Engine::Engine(ParsedArguments args) {
 	this->interpreter = new Interpreter(this, args, false);
 }
 
+Engine::~Engine() {
+	delete this->tokenizer;
+	delete this->parser;
+	delete this->interpreter;
+}
+
 void Engine::interpretFile(string fileName) {
 	this->tokenizer->tokenizeFile(fileName);
 	this->parser->startParse();

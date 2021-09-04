@@ -27,6 +27,7 @@
 
 Component::Component(ts::Engine* engine) {
 	this->engine = engine;
+	engine->parser->components.push_back(this);
 }
 
 bool Component::ShouldParse(Component* parent, ts::Engine* engine) {
