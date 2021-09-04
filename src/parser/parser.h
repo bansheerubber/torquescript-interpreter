@@ -41,9 +41,6 @@ class Parser {
 		string space = " ";
 
 		bool minified = false;
-
-		unordered_map<string, relative_stack_location> variableToLocation; // TODO remove this
-		relative_stack_location nextLocation = 0;
 	
 	private:
 		ts::Engine* engine;
