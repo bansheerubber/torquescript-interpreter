@@ -2,15 +2,15 @@
 
 #include <string>
 
+#include "../engine/engine.h"
 #include "../util/getEmptyString.h"
-#include "../interpreter/interpreter.h"
 #include "../util/stringToChars.h"
 
 using namespace std;
 
 namespace ts {
 	namespace sl {
-		Entry* firstRecord(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* firstRecord(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 1) {
 				## tokenizing.py first "\n" args[0].stringData
 				return new Entry(stringToChars(first));
@@ -19,7 +19,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* restRecords(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* restRecords(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 1) {
 				## tokenizing.py rest "\n" args[0].stringData
 				return new Entry(stringToChars(rest));
@@ -28,7 +28,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getRecord(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* getRecord(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py getSingle "\n" args[0].stringData args[1].numberData
 				return new Entry(stringToChars(word));
@@ -37,7 +37,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getRecords(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* getRecords(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py getMultiple "\n" args[0].stringData args[1].numberData args[2].numberData
 				return new Entry(stringToChars(output));
@@ -46,7 +46,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getRecordCount(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* getRecordCount(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				## tokenizing.py getCount "\n" args[0].stringData
 				return new Entry((double)count);
@@ -55,7 +55,7 @@ namespace ts {
 			return new Entry((double)0);
 		}
 
-		Entry* removeRecord(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* removeRecord(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py remove "\n" args[0].stringData args[1].numberData
 
@@ -70,7 +70,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* setRecord(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* setRecord(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 3) {
 				## tokenizing.py set "\n" args[0].stringData args[1].numberData args[2].stringData
 				return new Entry(stringToChars(output));

@@ -1,8 +1,8 @@
 #include "fileObject.h"
 
 #include "../util/cloneString.h"
+#include "../engine/engine.h"
 #include "../util/getEmptyString.h"
-#include "../interpreter/interpreter.h"
 #include "../util/stringToChars.h"
 
 namespace ts {
@@ -53,7 +53,7 @@ namespace ts {
 			wrapper->data = new FileObject();
 		}
 
-		Entry* FileObject__openForRead(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__openForRead(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 2 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				((FileObject*)args[0].objectData->objectWrapper->data)->open(args[1].stringData, READ);
 			}
@@ -61,7 +61,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__openForWrite(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__openForWrite(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 2 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				((FileObject*)args[0].objectData->objectWrapper->data)->open(args[1].stringData, WRITE);
 			}
@@ -69,7 +69,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__openForAppend(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__openForAppend(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 2 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				((FileObject*)args[0].objectData->objectWrapper->data)->open(args[1].stringData, APPEND);
 			}
@@ -77,7 +77,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__close(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__close(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				((FileObject*)args[0].objectData->objectWrapper->data)->close();
 			}
@@ -85,7 +85,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__readLine(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__readLine(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				return new Entry(((FileObject*)args[0].objectData->objectWrapper->data)->readLine());
 			}
@@ -93,7 +93,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__writeLine(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__writeLine(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 2 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				((FileObject*)args[0].objectData->objectWrapper->data)->writeLine(args[1].stringData);
 			}
@@ -101,7 +101,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* FileObject__isEOF(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* FileObject__isEOF(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1 && args[0].objectData->objectWrapper->object->typeMethodTree->name == "FileObject") {
 				return new Entry((double)((FileObject*)args[0].objectData->objectWrapper->data)->isEOF());
 			}
@@ -109,7 +109,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* fileBase(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* fileBase(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				const char* path = args[0].stringData;
 				const char* slashLocation = strrchr(path, '/');
@@ -136,7 +136,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* fileExt(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* fileExt(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				const char* path = args[0].stringData;
 				const char* dotLocation = strrchr(path, '.');
@@ -150,7 +150,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* fileName(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* fileName(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				const char* path = args[0].stringData;
 				const char* slashLocation = strrchr(path, '/');
@@ -167,7 +167,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* filePath(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* filePath(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				const char* path = args[0].stringData;
 				const char* slashLocation = strrchr(path, '/');

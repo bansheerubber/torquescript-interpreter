@@ -4,24 +4,24 @@
 #include "../interpreter/object.h"
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 
 	namespace sl {
-		Entry* strLen(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* getSubStr(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strPos(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* trim(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* ltrim(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* rtrim(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strCmp(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strICmp(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strLwr(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strUpr(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strChr(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strStr(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* stripChars(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* _collapseEscape(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* expandEscape(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* strReplace(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* strLen(Engine* engine, size_t argc, Entry* args);
+		Entry* getSubStr(Engine* engine, size_t argc, Entry* args);
+		Entry* strPos(Engine* engine, size_t argc, Entry* args);
+		Entry* trim(Engine* engine, size_t argc, Entry* args);
+		Entry* ltrim(Engine* engine, size_t argc, Entry* args);
+		Entry* rtrim(Engine* engine, size_t argc, Entry* args);
+		Entry* strCmp(Engine* engine, size_t argc, Entry* args);
+		Entry* strICmp(Engine* engine, size_t argc, Entry* args);
+		Entry* strLwr(Engine* engine, size_t argc, Entry* args);
+		Entry* strUpr(Engine* engine, size_t argc, Entry* args);
+		Entry* strChr(Engine* engine, size_t argc, Entry* args);
+		Entry* strStr(Engine* engine, size_t argc, Entry* args);
+		Entry* stripChars(Engine* engine, size_t argc, Entry* args);
+		Entry* _collapseEscape(Engine* engine, size_t argc, Entry* args);
+		Entry* expandEscape(Engine* engine, size_t argc, Entry* args);
+		Entry* strReplace(Engine* engine, size_t argc, Entry* args);
 	}
 }

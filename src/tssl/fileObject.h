@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 
 	namespace sl {
 		enum FileObjectMode {
@@ -33,17 +33,17 @@ namespace ts {
 		};
 
 		void FileObject__constructor(ObjectWrapper* wrapper);
-		Entry* FileObject__openForRead(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__openForWrite(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__openForAppend(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__close(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__readLine(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__writeLine(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* FileObject__isEOF(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* FileObject__openForRead(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__openForWrite(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__openForAppend(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__close(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__readLine(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__writeLine(Engine* engine, size_t argc, Entry* args);
+		Entry* FileObject__isEOF(Engine* engine, size_t argc, Entry* args);
 
-		Entry* fileBase(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* fileExt(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* fileName(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* filePath(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* fileBase(Engine* engine, size_t argc, Entry* args);
+		Entry* fileExt(Engine* engine, size_t argc, Entry* args);
+		Entry* fileName(Engine* engine, size_t argc, Entry* args);
+		Entry* filePath(Engine* engine, size_t argc, Entry* args);
 	}
 }

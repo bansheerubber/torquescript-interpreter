@@ -14,7 +14,7 @@ namespace ts {
 	class Interpreter;
 	class Engine;
 
-	#define TS_FUNC(name)		Entry* (*name)(Interpreter* interpreter, size_t argc, Entry* args)
+	#define TS_FUNC(name)		Entry* (*name)(Engine* engine, size_t argc, Entry* args)
 	#define TS_ARG_COUNT		16
 	
 	namespace sl {
@@ -38,7 +38,7 @@ namespace ts {
 
 		MethodTree* NAMESPACE_DEF(const char* name);
 
-		Entry* PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+		Entry* PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 		
 		void define(Engine* engine);
 	}

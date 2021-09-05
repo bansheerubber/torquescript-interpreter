@@ -1,13 +1,13 @@
 #include "echo.h"
 
-#include "../interpreter/interpreter.h"
+#include "../engine/engine.h"
 
 namespace ts {
 	namespace sl {
 		string mockStdout = string();
 		bool useMockStdout = false;
 		
-		Entry* echo(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* echo(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 1) {
 				if(useMockStdout) {
 					mockStdout += args[0].stringData;
@@ -20,7 +20,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* error(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* error(Engine* engine, size_t argc, Entry* args) {
 			if(argc >= 1) {
 				if(useMockStdout) {
 					mockStdout += args[0].stringData;

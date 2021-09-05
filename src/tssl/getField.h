@@ -8,15 +8,15 @@ using namespace std;
 
 // *Word(s) function implementations
 namespace ts {
-	class Interpreter;
+	class Engine;
 
 	namespace sl {
-		Entry* firstField(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* restFields(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* getField(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* getFields(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* getFieldCount(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* removeField(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* setField(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* firstField(Engine* engine, size_t argc, Entry* args);
+		Entry* restFields(Engine* engine, size_t argc, Entry* args);
+		Entry* getField(Engine* engine, size_t argc, Entry* args);
+		Entry* getFields(Engine* engine, size_t argc, Entry* args);
+		Entry* getFieldCount(Engine* engine, size_t argc, Entry* args);
+		Entry* removeField(Engine* engine, size_t argc, Entry* args);
+		Entry* setField(Engine* engine, size_t argc, Entry* args);
 	}
 }

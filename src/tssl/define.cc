@@ -177,7 +177,7 @@ void ts::sl::define(Engine* engine) {
 	}
 }
 
-Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
+Entry* ts::sl::PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
 	string methodNameString(methodName);
-	return interpreter->handleTSSLParent(methodNameString, argc, argv, argumentTypes);
+	return engine->interpreter->handleTSSLParent(methodNameString, argc, argv, argumentTypes);
 }

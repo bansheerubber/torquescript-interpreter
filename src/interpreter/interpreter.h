@@ -28,18 +28,6 @@
 using namespace std;
 
 namespace ts {
-	struct NamespaceFunctions {
-		robin_map<string, int> nameToIndex;
-		robin_map<string, Function*> nameToFunction;
-		vector<Function*> functions;
-
-		NamespaceFunctions() {
-			this->nameToIndex = robin_map<string, int>();
-			this->nameToFunction = robin_map<string, Function*>();
-			this->functions = vector<Function*>();
-		}
-	};
-
 	struct FunctionFrame {
 		VariableContext* context;
 		InstructionContainer* container;
@@ -62,6 +50,21 @@ namespace ts {
 		class, which serves as the global state for the tokenizer/parser/interpreter system
 	*/
 	class Interpreter {
+		friend void onFunctionFrameRealloc(Interpreter* interpreter);
+		friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
+		friend VariableContext;
+		friend Object;
+		friend void convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type);
+		friend ObjectWrapper* CreateObject(
+			class ts::Interpreter* interpreter,
+			string nameSpace,
+			string inheritedName,
+			MethodTree* methodTree,
+			MethodTree* typeMethodTree,
+			void* data
+		);
+		friend Entry* ts::sl::PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+		
 		public:
 			Interpreter();
 			Interpreter(class Engine* engine, ParsedArguments args, bool isParallel);
@@ -116,20 +119,6 @@ namespace ts {
 			Entry returnRegister;
 			VariableContext globalContext;
 
-			friend void onFunctionFrameRealloc(Interpreter* interpreter);
-			friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
-			friend VariableContext;
-			friend Object;
-			friend void convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type);
-			friend ObjectWrapper* CreateObject(
-				class ts::Interpreter* interpreter,
-				string nameSpace,
-				string inheritedName,
-				MethodTree* methodTree,
-				MethodTree* typeMethodTree,
-				void* data
-			);
-
 			void pushFunctionFrame(
 				InstructionContainer* container,
 				PackagedFunctionList* list = nullptr,
@@ -142,7 +131,6 @@ namespace ts {
 			void popFunctionFrame() __attribute__((always_inline));
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
-			friend Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 			Entry* handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 
 			// used to lookup objects

@@ -219,7 +219,7 @@ Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, ent
 		if(foundFunction->isTSSL) {
 			sl::Function* function = foundFunction->function;
 			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-			Entry* returnValue = function->function(this, argc, argv);
+			Entry* returnValue = function->function(this->engine, argc, argv);
 			this->popFunctionFrame();
 			return returnValue;
 		}
@@ -311,7 +311,7 @@ void Interpreter::tick() {
 		if(foundFunction->isTSSL) {
 			sl::Function* function = foundFunction->function;
 			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-			function->function(this, schedule->argumentCount, schedule->arguments);
+			function->function(this->engine, schedule->argumentCount, schedule->arguments);
 			this->popFunctionFrame();
 		}
 		else {
