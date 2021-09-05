@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
 		args.arguments["piped"] = "true"; // tell parser that input was piped
 
-		engine.interpretPiped(file);
+		engine.execPiped(file);
 	}
 	else {
 		for(string fileName: args.files) {
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 			error_code error;
 			
 			if(filesystem::is_regular_file(path, error)) {
-				engine.interpretFile(fileName);
+				engine.execFile(fileName);
 			}
 			else {
 				printError("error opening file %s\n", fileName.c_str());

@@ -57,6 +57,7 @@ Interpreter::Interpreter(Engine* engine, ParsedArguments args, bool isParallel) 
 
 	if(this->isParallel) {
 		this->tickThread = thread(&Interpreter::tick, this);
+		this->startTime = getMicrosecondsNow();
 	}
 }
 
@@ -258,7 +259,7 @@ void Interpreter::warning(const char* format, ...) {
 	}
 }
 
-void Interpreter::tick() {
+bool Interpreter::tick() {
 	unsigned long long time = getMicrosecondsNow();
 
 	Schedule* schedule = this->schedules.top();
@@ -341,16 +342,19 @@ void Interpreter::tick() {
 
 	// process queued files for parallel mode
 	if(this->isParallel) {
-		while(this->execFilenames.size() != 0) {
-			string filename = this->execFilenames.front();
-			this->execFilenames.pop();
+		while(this->engine->fileQueue.size() != 0) {
+			string filename = this->engine->fileQueue.front();
+			this->engine->fileQueue.pop();
 
-			this->actuallyExecFile(filename);
+			this->engine->execFile(filename, true);
 		}
 
 		this_thread::sleep_for(chrono::milliseconds(this->tickRate));
 		this->tick();
 	}
+
+	// return false if we have schedules left, return true if there's none left
+	return this->schedules.array.head == 0;
 }
 
 void Interpreter::setTickRate(long tickRate) {

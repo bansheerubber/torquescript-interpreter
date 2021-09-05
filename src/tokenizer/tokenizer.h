@@ -38,6 +38,8 @@ class Tokenizer {
 		string fileName;
 	
 	private:
+		void reset();
+		
 		ParsedArguments args;
 		void handleArgs(ParsedArguments args);
 

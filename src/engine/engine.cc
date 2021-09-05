@@ -15,13 +15,13 @@ void ts::initMethodTree(Engine* engine, MethodTree** tree) {
 	*tree = nullptr;
 }
 
-Engine::Engine(ParsedArguments args) {
+Engine::Engine(ParsedArguments args, bool isParallel) {
 	ts::sl::define(this);
 	
 	this->args = args;
 	this->tokenizer = new Tokenizer(this, args);
 	this->parser = new Parser(this, args);
-	this->interpreter = new Interpreter(this, args, false);
+	this->interpreter = new Interpreter(this, args, isParallel);
 }
 
 Engine::~Engine() {
@@ -38,20 +38,31 @@ Engine::~Engine() {
 	}
 }
 
-void Engine::interpretFile(string fileName) {
-	this->tokenizer->tokenizeFile(fileName);
-	this->parser->startParse();
+void Engine::execFile(string fileName, bool forceExecution) {
+	if(!this->interpreter->isParallel || forceExecution) {
+		this->tokenizer->tokenizeFile(fileName);
+		this->parser->startParse();
 
-	// compile
-	InstructionReturn result = parser->getSourceFile()->compile(this, {
-		loop: nullptr,
-		scope: nullptr,
-	});
-
-	this->interpreter->startInterpretation(result.first);
+		// compile
+		InstructionReturn result = parser->getSourceFile()->compile(this, {
+			loop: nullptr,
+			scope: nullptr,
+		});
+		
+		if(this->interpreter->startTime == 0) {
+			this->interpreter->startInterpretation(result.first);
+		}
+		else {
+			this->interpreter->pushFunctionFrame(new InstructionContainer(result.first));
+			this->interpreter->interpret();
+		}
+	}
+	else if(this->interpreter->isParallel) {
+		this->fileQueue.push(fileName);
+	}
 }
 
-void Engine::interpretPiped(string piped) {
+void Engine::execPiped(string piped) {
 	this->tokenizer->tokenizePiped(piped);
 	this->parser->startParse();
 

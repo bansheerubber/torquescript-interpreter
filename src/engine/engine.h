@@ -29,18 +29,20 @@ namespace ts {
 		friend void sl::define(Engine* engine);
 
 		public:
-			Engine(ParsedArguments args);
+			Engine(ParsedArguments args, bool isParallel = false);
 			~Engine();
 
 			Tokenizer* tokenizer;
 			Parser* parser;
 			Interpreter* interpreter;
 
-			void interpretFile(string fileName);
-			void interpretPiped(string piped);
+			void execFile(string fileName, bool forceExecution = false);
+			void execPiped(string piped);
 		
 		private:
 			ParsedArguments args;
+
+			queue<string> fileQueue; // queue for parallel interpreter file execution
 
 			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);

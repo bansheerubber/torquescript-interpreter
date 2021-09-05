@@ -13,6 +13,7 @@
 #include "../io.h"
 #include "instruction.h"
 #include "instructionContainer.h"
+#include "../lib/libSymbols.h"
 #include "methodTree.h"
 #include "../util/minHeap.h"
 #include "object.h"
@@ -50,6 +51,7 @@ namespace ts {
 		class, which serves as the global state for the tokenizer/parser/interpreter system
 	*/
 	class Interpreter {
+		friend class Engine;
 		friend void onFunctionFrameRealloc(Interpreter* interpreter);
 		friend string VariableContext::computeVariableString(Instruction &instruction, string &variable);
 		friend VariableContext;
@@ -64,6 +66,7 @@ namespace ts {
 			void* data
 		);
 		friend Entry* ts::sl::PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+		friend bool tsTick(tsEngine engine);
 		
 		public:
 			Interpreter();
@@ -77,7 +80,7 @@ namespace ts {
 
 			void addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object = nullptr);
 
-			void tick();
+			bool tick();
 			void setTickRate(long tickRate);
 
 			void setObjectName(string &name, ObjectWrapper* object);
@@ -90,6 +93,8 @@ namespace ts {
 			bool testing = false;
 
 			class Engine* engine = nullptr;
+
+			bool isParallel = false;
 		
 		private:
 			void interpret(); // interprets the next instruction
@@ -97,7 +102,6 @@ namespace ts {
 			void actuallyExecFile(string filename);
 
 			bool warnings = true;
-			bool isParallel = false;
 			bool showTime = false;
 			
 			void push(Entry &entry, instruction::PushType type) __attribute__((always_inline));
@@ -107,7 +111,7 @@ namespace ts {
 			void pop() __attribute__((always_inline));
 
 			size_t ranInstructions = 0;
-			unsigned long long startTime;
+			unsigned long long startTime = 0;
 
 			// stacks
 			DynamicArray<Entry, Interpreter> stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
@@ -127,7 +131,7 @@ namespace ts {
 				int methodTreeEntryIndex = -1,
 				size_t argumentCount = 0,
 				size_t popCount = 0
-			) __attribute__((always_inline));
+			);
 			void popFunctionFrame() __attribute__((always_inline));
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 

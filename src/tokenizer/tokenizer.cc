@@ -8,7 +8,21 @@ Tokenizer::Tokenizer(ts::Engine* engine, ParsedArguments args) {
 	this->handleArgs(args);
 }
 
+void Tokenizer::reset() {
+	// reset state
+	this->lineNumber = 1;
+	this->characterNumber = 1;
+	this->freezeKeywordTest = false;
+	this->failedKeyword = false;
+	this->overrun = 0;
+	this->fileIndex = 0;
+	this->tokenIndex = 0;
+	this->tokens.clear();
+}
+
 void Tokenizer::tokenizePiped(string piped) {
+	this->reset();
+	
 	this->contentSize = piped.size();
 	this->contents = new char[this->contentSize];
 	strcpy(this->contents, piped.c_str());
@@ -17,6 +31,8 @@ void Tokenizer::tokenizePiped(string piped) {
 }
 
 void Tokenizer::tokenizeFile(string fileName) {
+	this->reset();
+	
 	// read the file
 	ifstream file = ifstream(fileName, ios::binary | ios::ate);
 	this->fileName = fileName;

@@ -39,11 +39,11 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
 
 	ParsedArguments empty;
-	Engine* engine = new Engine(empty);
-	engine->tokenizer->tokenizeFile(filename);
-	engine->parser->startParse();
+	Engine engine(empty);
+	engine.tokenizer->tokenizeFile(filename);
+	engine.parser->startParse();
 
-	string json = engine->parser->printJSON();
+	string json = engine.parser->printJSON();
 
 	if(overwriteResults) {
 		filesystem::create_directories(filesystem::path(resultsFile).remove_filename());
@@ -55,12 +55,12 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 
 	if(isFileEqual(json, resultsFile)) {
 		printf("   passed test\n");
-		printf("parsed %ld lines\n", engine->tokenizer->getTotalLineCount());
+		printf("parsed %ld lines\n", engine.tokenizer->getTotalLineCount());
 		return true;
 	}
 	else {
 		printError("   failed test\n");
-		printf("parsed %ld lines\n", engine->tokenizer->getTotalLineCount());
+		printf("parsed %ld lines\n", engine.tokenizer->getTotalLineCount());
 
 		filesystem::create_directories(filesystem::path(errorsFile).remove_filename());
 		ofstream file;
@@ -149,7 +149,7 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 
 			Engine engine(empty);
 			engine.interpreter->testing = true;
-			engine.interpretFile(candidateFile);
+			engine.execFile(candidateFile);
 
 			totalLines += engine.tokenizer->getTotalLineCount();
 
