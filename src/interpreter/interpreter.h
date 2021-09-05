@@ -55,14 +55,15 @@ namespace ts {
 
 	void initFunctionFrame(Interpreter* interpreter, FunctionFrame* frame);
 	void onFunctionFrameRealloc(Interpreter* interpreter);
-	void initPackagedFunctionList(Interpreter* interpreter, PackagedFunctionList** list);
-	void initMethodTree(Interpreter* interpreter, MethodTree** tree);
 	void initSchedule(Interpreter* interpreter, Schedule** schedule);
 	
+	/*
+		the virtual machine manages the stack, variables, and objects. things like functions/classes/etc are handled via the engine
+		class, which serves as the global state for the tokenizer/parser/interpreter system
+	*/
 	class Interpreter {
 		public:
 			Interpreter();
-			~Interpreter();
 			Interpreter(class Engine* engine, ParsedArguments args, bool isParallel);
 
 			void startInterpretation(Instruction* head);
@@ -70,25 +71,6 @@ namespace ts {
 			
 			void printStack();
 			void warning(const char* format, ...);
-
-			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
-			void defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
-			void defineTSSLFunction(sl::Function* function);
-			void defineTSSLMethodTree(MethodTree* tree);
-
-			MethodTree* createMethodTreeFromNamespace(string nameSpace);
-			MethodTree* getNamespace(string nameSpace);
-
-			MethodTree* createMethodTreeFromNamespaces(
-				string namespace1,
-				string namespace2 = string(),
-				string namespace3 = string(),
-				string namespace4 = string(),
-				string namespace5 = string()
-			);
-
-			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
-			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 
 			void addSchedule(unsigned long long time, string functionName, Entry* arguments, size_t argumentCount, ObjectReference* object = nullptr);
 
@@ -162,17 +144,6 @@ namespace ts {
 
 			friend Entry* ts::sl::PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 			Entry* handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
-
-			// function data structures
-			robin_map<string, size_t> nameToFunctionIndex;
-			DynamicArray<PackagedFunctionList*, Interpreter> functions = DynamicArray<PackagedFunctionList*, Interpreter>(this, 1024, initPackagedFunctionList, nullptr);
-
-			robin_map<string, size_t> namespaceToMethodTreeIndex;
-			DynamicArray<MethodTree*, Interpreter> methodTrees = DynamicArray<MethodTree*, Interpreter>(this, 1024, initMethodTree, nullptr);
-
-			// used to index into a method tree
-			robin_map<string, size_t> methodNameToIndex;
-			size_t currentMethodNameIndex = 0;
 
 			// used to lookup objects
 			robin_map<size_t, ObjectWrapper*> objects;

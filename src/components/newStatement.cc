@@ -160,7 +160,7 @@ ts::InstructionReturn NewStatement::compile(ts::Engine* engine, ts::CompilationC
 	if(this->className->getType() == SYMBOL_STATEMENT) {
 		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = true;
-		createObject->createObject.typeMethodTree = engine->interpreter->getNamespace(createObject->createObject.typeName);
+		createObject->createObject.typeMethodTree = engine->getNamespace(createObject->createObject.typeName);
 	}
 	else {
 		ALLOCATE_STRING(string(""), createObject->createObject.typeName);
@@ -261,9 +261,9 @@ ts::InstructionReturn NewStatement::compile(ts::Engine* engine, ts::CompilationC
 		&& createObject->createObject.superClassPropertyCached;
 
 	if(canCacheMethodTree) {
-		ts::MethodTree* typeCheck = engine->interpreter->getNamespace(this->className->print());
+		ts::MethodTree* typeCheck = engine->getNamespace(this->className->print());
 		if(typeCheck != nullptr && typeCheck->isTSSL) {
-			ts::MethodTree* tree = engine->interpreter->createMethodTreeFromNamespaces(
+			ts::MethodTree* tree = engine->createMethodTreeFromNamespaces(
 				symbolName,
 				classProperty,
 				superClassProperty,

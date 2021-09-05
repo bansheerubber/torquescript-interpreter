@@ -12,6 +12,7 @@ using namespace std;
 namespace ts {
 	class MethodTree;
 	class Interpreter;
+	class Engine;
 
 	#define TS_FUNC(name)		Entry* (*name)(Interpreter* interpreter, size_t argc, Entry* args)
 	#define TS_ARG_COUNT		16
@@ -39,6 +40,6 @@ namespace ts {
 
 		Entry* PARENT(Interpreter* interpreter, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
 		
-		void define(Interpreter* interpreter);
+		void define(Engine* engine);
 	}
 }

@@ -138,22 +138,22 @@ ts::InstructionReturn FunctionDeclaration::compile(ts::Engine* engine, ts::Compi
 		if(this->name2 != nullptr) {
 			string nameSpace = this->name1->print();
 			string name = this->name2->print();
-			engine->interpreter->defineMethod(nameSpace, name, output, argumentCount, this->allocatedSize());
+			engine->defineMethod(nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();
-			engine->interpreter->defineFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
+			engine->defineFunction(name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 		}
 	}
 	else {
 		if(this->name2 != nullptr) {
 			string nameSpace = this->name1->print();
 			string name = this->name2->print();
-			engine->interpreter->addPackageMethod(context.package, nameSpace, name, output, argumentCount, this->allocatedSize());
+			engine->addPackageMethod(context.package, nameSpace, name, output, argumentCount, this->allocatedSize());
 		}
 		else {
 			string name = this->name1->print();
-			engine->interpreter->addPackageFunction(context.package, name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
+			engine->addPackageFunction(context.package, name, output, argumentCount, this->allocatedSize()); // tell the interpreter to add a function under our name
 		}
 	}
 

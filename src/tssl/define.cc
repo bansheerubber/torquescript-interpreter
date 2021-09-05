@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "echo.h"
+#include "../engine/engine.h"
 #include "fileObject.h"
 #include "getField.h"
 #include "getRecord.h"
@@ -52,27 +53,27 @@ MethodTree* ts::sl::NAMESPACE_DEF(const char* name) {
 	return new MethodTree(nameString, -1);
 }
 
-void ts::sl::define(Interpreter* interpreter) {
+void ts::sl::define(Engine* engine) {
 	// define namespaces and their inheristance structure
 	vector<MethodTree*> methodTrees;
 
-	MethodTree* SimObject = interpreter->createMethodTreeFromNamespace("SimObject");
+	MethodTree* SimObject = engine->createMethodTreeFromNamespace("SimObject");
 	SimObject->isTSSL = true;
 	methodTrees.push_back(SimObject);
 
-	MethodTree* ScriptObject = interpreter->createMethodTreeFromNamespace("ScriptObject");
+	MethodTree* ScriptObject = engine->createMethodTreeFromNamespace("ScriptObject");
 	ScriptObject->isTSSL = true;
 	methodTrees.push_back(ScriptObject);
 	ScriptObject->addParent(SimObject);
 
-	MethodTree* FileObject = interpreter->createMethodTreeFromNamespace("FileObject");
+	MethodTree* FileObject = engine->createMethodTreeFromNamespace("FileObject");
 	FileObject->isTSSL = true;
 	methodTrees.push_back(FileObject);
 	FileObject->addParent(SimObject);
 	FileObject->tsslConstructor = &FileObject__constructor;
 
 	for(MethodTree* tree: methodTrees) {
-		interpreter->defineTSSLMethodTree(tree);
+		engine->defineTSSLMethodTree(tree);
 	}
 	
 	// define functions/methods
@@ -172,7 +173,7 @@ void ts::sl::define(Interpreter* interpreter) {
 	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
 
 	for(ts::sl::Function* function: functions) {
-		interpreter->defineTSSLFunction(function);
+		engine->defineTSSLFunction(function);
 	}
 }
 
