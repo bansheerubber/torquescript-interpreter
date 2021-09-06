@@ -4,17 +4,13 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 struct ElseIfBodyCompiled {
 	ts::InstructionReturn output;
@@ -25,6 +21,7 @@ struct ElseIfBodyCompiled {
 class ElseIfBody : public Body {
 	public:
 		using Body::Body;
+		~ElseIfBody() {}
 		
 		ComponentType getType() {
 			return ELSE_IF_STATEMENT;
@@ -46,13 +43,13 @@ class ElseIfBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
-		ElseIfBodyCompiled compileElseIf(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
+		ElseIfBodyCompiled compileElseIf(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
-		static ElseIfBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static ElseIfBody* Parse(Body* body, ts::Engine* engine);
 
 		Body* next = nullptr;
 	

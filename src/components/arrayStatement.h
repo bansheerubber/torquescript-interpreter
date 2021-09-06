@@ -3,17 +3,13 @@
 #include <vector>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 struct ArrayElement {
 	Component* component;
@@ -24,6 +20,7 @@ struct ArrayElement {
 class ArrayStatement : public Component {
 	public:
 		using Component::Component;
+		~ArrayStatement() {}
 		
 		ComponentType getType() {
 			return ARRAY_STATEMENT;
@@ -37,12 +34,12 @@ class ArrayStatement : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static ArrayStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static ArrayStatement* Parse(Component* parent, ts::Engine* engine);
 
 		int getDimensions();
 	

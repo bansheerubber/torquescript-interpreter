@@ -3,18 +3,15 @@
 #include <string>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
-
 class StringLiteral : public Component {
 	public:
 		using Component::Component;
+		~StringLiteral() {}
 		
 		ComponentType getType() {
 			return STRING_LITERAL;
@@ -28,12 +25,12 @@ class StringLiteral : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static StringLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static StringLiteral* Parse(Component* parent, ts::Engine* engine);
 
 		string getString();
 	

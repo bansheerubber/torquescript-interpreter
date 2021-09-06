@@ -3,6 +3,8 @@
 #include <string>
 
 #include "component.h"
+#include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
@@ -13,14 +15,10 @@
 
 using namespace std;
 
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
-
 class FunctionDeclaration : public Body, public ts::Scope {
 	public:
 		using Body::Body;
+		~FunctionDeclaration() {}
 		
 		ComponentType getType() {
 			return FUNCTION_DECLARATION;
@@ -37,12 +35,12 @@ class FunctionDeclaration : public Body, public ts::Scope {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static FunctionDeclaration* Parse(Body* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static FunctionDeclaration* Parse(Body* parent, ts::Engine* engine);
 	
 	private:
 		Symbol* name1 = nullptr; // left hand side of namespace

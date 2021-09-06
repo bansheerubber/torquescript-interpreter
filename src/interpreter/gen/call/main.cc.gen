@@ -19,7 +19,7 @@ if(foundFunction->isTSSL) {
 	}
 
 	this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-	Entry* returnValue = function->function(this, actualArgumentCount, argv);
+	Entry* returnValue = function->function(this->engine, actualArgumentCount, argv);
 	this->popFunctionFrame();
 
 	// pop the data

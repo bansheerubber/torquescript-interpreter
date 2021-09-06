@@ -3,18 +3,18 @@
 
 #include "../util/allocateString.h"
 
-bool PostfixStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	Token token = tokenizer->peekToken();
+bool PostfixStatement::ShouldParse(ts::Engine* engine) {
+	Token token = engine->tokenizer->peekToken();
 	return token.type == INCREMENT
 		|| token.type == DECREMENT;
 }
 
-PostfixStatement* PostfixStatement::Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	PostfixStatement* output = new PostfixStatement(parser);
+PostfixStatement* PostfixStatement::Parse(AccessStatement* lvalue, Component* parent, ts::Engine* engine) {
+	PostfixStatement* output = new PostfixStatement(engine);
 	output->parent = parent;
 	output->lvalue = lvalue;
 	lvalue->setParent(output);
-	output->op = parser->expectToken(INCREMENT, DECREMENT);
+	output->op = engine->parser->expectToken(INCREMENT, DECREMENT);
 	return output;
 }
 
@@ -30,8 +30,8 @@ string PostfixStatement::printJSON() {
 	return "{\"type\":\"POSTFIX_STATEMENT\",\"lvalue\":" + this->lvalue->printJSON() + ",\"operation\":\"" + this->op.lexeme + "\"}";
 }
 
-ts::InstructionReturn PostfixStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	AccessStatementCompiled compiled = this->lvalue->compileAccess(interpreter, context);
+ts::InstructionReturn PostfixStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
+	AccessStatementCompiled compiled = this->lvalue->compileAccess(engine, context);
 
 	ts::Instruction* instruction = compiled.lastAccess;
 

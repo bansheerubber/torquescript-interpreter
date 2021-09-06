@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "component.h"
+#include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
@@ -14,14 +16,10 @@
 
 using namespace std;
 
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
-
 class DatablockDeclaration : public Body {
 	public:
 		using Body::Body;
+		~DatablockDeclaration() {}
 		
 		ComponentType getType() {
 			return DATABLOCK_DECLARATION;
@@ -35,12 +33,12 @@ class DatablockDeclaration : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static DatablockDeclaration* Parse(Body* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static DatablockDeclaration* Parse(Body* parent, ts::Engine* engine);
 	
 	private:
 		Symbol* typeName = nullptr; // type name of datablock

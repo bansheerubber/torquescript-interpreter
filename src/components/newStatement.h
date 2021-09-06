@@ -4,6 +4,7 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
@@ -11,14 +12,10 @@
 
 #include "callStatement.h"
 
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
-
 class NewStatement : public Body {
 	public:
 		using Body::Body;
+		~NewStatement() {}
 		
 		ComponentType getType() {
 			return NEW_STATEMENT;
@@ -35,12 +32,12 @@ class NewStatement : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static NewStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static NewStatement* Parse(Component* parent, ts::Engine* engine);
 	
 	private:
 		Component* className = nullptr;

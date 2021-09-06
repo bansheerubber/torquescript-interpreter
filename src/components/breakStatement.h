@@ -1,19 +1,16 @@
 #pragma once
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
 
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
-
 class BreakStatement : public Component {
 	public:
 		using Component::Component;
+		~BreakStatement() {}
 		
 		ComponentType getType() {
 			return BREAK_STATEMENT;
@@ -27,10 +24,10 @@ class BreakStatement : public Component {
 			return false;
 		}
 		
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static BreakStatement* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static BreakStatement* Parse(Component* parent, ts::Engine* engine);
 };

@@ -1,18 +1,18 @@
 #include "schedule.h"
 
 #include "define.h"
-#include "../interpreter/interpreter.h"
+#include "../engine/engine.h"
 #include "../interpreter/objectReference.h"
 
 namespace ts {
 	namespace sl {
-		Entry* schedule(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* schedule(Engine* engine, size_t argc, Entry* args) {
 			if(argc < 2) {
 				return nullptr;
 			}
 			else if(argc == 2) {
 				string functionName(args[1].stringData);
-				interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, nullptr, 0);
+				engine->interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, nullptr, 0);
 				return nullptr;
 			}
 
@@ -22,11 +22,11 @@ namespace ts {
 			}
 			
 			string functionName(args[1].stringData);
-			interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, copiedArguments, argc - 2);
+			engine->interpreter->addSchedule((unsigned long long)args[0].numberData * 1000, functionName, copiedArguments, argc - 2);
 			return nullptr;
 		}
 
-		Entry* SimObject__schedule(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* SimObject__schedule(Engine* engine, size_t argc, Entry* args) {
 			if(argc < 3) {
 				return nullptr;
 			}
@@ -35,7 +35,7 @@ namespace ts {
 
 				Entry* arguments = new Entry[1];
 				copyEntry(args[0], arguments[0]);
-				interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, arguments, 1, new ObjectReference(args[0].objectData));
+				engine->interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, arguments, 1, new ObjectReference(args[0].objectData));
 				return nullptr;
 			}
 
@@ -46,7 +46,7 @@ namespace ts {
 			}
 			
 			string functionName(args[2].stringData);
-			interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, copiedArguments, argc - 2, new ObjectReference(args[0].objectData));
+			engine->interpreter->addSchedule((unsigned long long)args[1].numberData * 1000, functionName, copiedArguments, argc - 2, new ObjectReference(args[0].objectData));
 			return nullptr;
 		}
 	}

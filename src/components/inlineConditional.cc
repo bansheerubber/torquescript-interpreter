@@ -1,44 +1,44 @@
 #include "inlineConditional.h"
 #include "../interpreter/interpreter.h"
 
-bool InlineConditional::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == QUESTION_MARK;
+bool InlineConditional::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == QUESTION_MARK;
 }
 
-InlineConditional* InlineConditional::Parse(Component* leftHandSide, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	InlineConditional* output = new InlineConditional(parser);
+InlineConditional* InlineConditional::Parse(Component* leftHandSide, Component* parent, ts::Engine* engine) {
+	InlineConditional* output = new InlineConditional(engine);
 	output->parent = parent;
 	output->leftHandSide = leftHandSide;
 	leftHandSide->setParent(output->leftHandSide);
 
-	parser->expectToken(QUESTION_MARK);
+	engine->parser->expectToken(QUESTION_MARK);
 
 	// parse a component
-	if(!Component::ShouldParse(output, tokenizer, parser)) {
-		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for inline conditional true condition");
+	if(!Component::ShouldParse(output, engine)) {
+		engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for inline conditional true condition");
 	}
-	output->ifTrue = Component::Parse(output, tokenizer, parser);
+	output->ifTrue = Component::Parse(output, engine);
 
-	parser->expectToken(COLON);
+	engine->parser->expectToken(COLON);
 
 	// parse a component
-	if(!Component::ShouldParse(output, tokenizer, parser)) {
-		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for inline conditional false condition");
+	if(!Component::ShouldParse(output, engine)) {
+		engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for inline conditional false condition");
 	}
-	output->ifFalse = Component::Parse(output, tokenizer, parser);
+	output->ifFalse = Component::Parse(output, engine);
 
 	return output;
 }
 
 string InlineConditional::print() {
-	return this->leftHandSide->print() + this->parser->space + "?" + this->parser->space + this->ifTrue->print() + " : " + this->ifFalse->print();
+	return this->leftHandSide->print() + this->engine->parser->space + "?" + this->engine->parser->space + this->ifTrue->print() + " : " + this->ifFalse->print();
 }
 
 string InlineConditional::printJSON() {
 	return "{\"type\":\"INLINE_CONDITIONAL\",\"conditional\":" + this->leftHandSide->printJSON() + ",\"ifTrue\":" + this->ifTrue->printJSON() + ",\"ifFalse\":" + this->ifFalse->printJSON() + "}";
 }
 
-ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn InlineConditional::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in inline statement
@@ -46,10 +46,10 @@ ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, t
 	noop->type = ts::instruction::NOOP;
 
 	// compile if true statement
-	ts::InstructionReturn ifTrue = this->ifTrue->compile(interpreter, context);
+	ts::InstructionReturn ifTrue = this->ifTrue->compile(engine, context);
 
 	// compile if false statement
-	ts::InstructionReturn ifFalse = this->ifFalse->compile(interpreter, context);
+	ts::InstructionReturn ifFalse = this->ifFalse->compile(engine, context);
 
 	// conditional statement for inline statement
 	ts::Instruction* conditionalJump = new ts::Instruction();
@@ -57,7 +57,7 @@ ts::InstructionReturn InlineConditional::compile(ts::Interpreter* interpreter, t
 	conditionalJump->jumpIfFalse.instruction = ifFalse.first;
 	conditionalJump->jumpIfFalse.pop = true;
 
-	output.add(this->leftHandSide->compile(interpreter, context));
+	output.add(this->leftHandSide->compile(engine, context));
 	output.add(conditionalJump);
 
 	output.add(ifTrue);

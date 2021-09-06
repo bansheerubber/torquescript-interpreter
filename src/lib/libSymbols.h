@@ -1,19 +1,16 @@
 #pragma once
 
 extern "C" {	
-	typedef struct tsInterpreter {
-		const unsigned long id;
-		const int isParallel;
-	} tsInterpreter;
+	typedef void* tsEngine;
 
 	typedef struct tsObjectWrapper {
 		void* object;
 		void* customData;
 	} tsObjectWrapper;
 	
-	tsInterpreter tsCreateInterpreter(char isParallel);
+	tsEngine tsCreateEngine(char isParallel);
 
-	void tsTick(tsInterpreter interpreter);
-	void tsSetTickRate(tsInterpreter interpreter, long tickRate);
-	void tsExecFile(tsInterpreter interpreter, const char* filename);
+	bool tsTick(tsEngine engine);
+	void tsSetTickRate(tsEngine engine, long tickRate);
+	void tsExecFile(tsEngine engine, const char* filename);
 }

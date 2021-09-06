@@ -4,41 +4,39 @@
 #include "elseIfBody.h"
 #include "elseBody.h"
 
-bool IfBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == IF;
+bool IfBody::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == IF;
 }
 
-IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	IfBody* output = new IfBody(parser);
+IfBody* IfBody::Parse(Body* body, ts::Engine* engine) {
+	IfBody* output = new IfBody(engine);
 	output->parent = body;
 	
-	parser->expectToken(IF);
-	parser->expectToken(LEFT_PARENTHESIS);
+	engine->parser->expectToken(IF);
+	engine->parser->expectToken(LEFT_PARENTHESIS);
 
-	if(!Component::ShouldParse(output, tokenizer, parser)) {
-		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'if' conditional");
+	if(!Component::ShouldParse(output, engine)) {
+		engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'if' conditional");
 	}
-	output->conditional = Component::Parse(output, tokenizer, parser);
+	output->conditional = Component::Parse(output, engine);
 	
-	parser->expectToken(RIGHT_PARENTHESIS);
+	engine->parser->expectToken(RIGHT_PARENTHESIS);
 
 	// handle one line if statements
-	if(
-		tokenizer->peekToken().type != LEFT_BRACKET
-	) {
-		Component::ParseBody(output, tokenizer, parser, true);
+	if(engine->tokenizer->peekToken().type != LEFT_BRACKET) {
+		Component::ParseBody(output, engine, true);
 	}
 	else {
-		tokenizer->getToken(); // absorb bracket
-		Component::ParseBody(output, tokenizer, parser); // parse the body of the if statement
-		parser->expectToken(RIGHT_BRACKET);
+		engine->tokenizer->getToken(); // absorb bracket
+		Component::ParseBody(output, engine); // parse the body of the if statement
+		engine->parser->expectToken(RIGHT_BRACKET);
 	}
 
 	// see if we have else/else if stuff
 	Body* next = output;
-	while(!tokenizer->eof()) {
-		if(ElseIfBody::ShouldParse(tokenizer, parser)) {
-			Body* component = ElseIfBody::Parse(body, tokenizer, parser);
+	while(!engine->tokenizer->eof()) {
+		if(ElseIfBody::ShouldParse(engine)) {
+			Body* component = ElseIfBody::Parse(body, engine);
 
 			// set next
 			if(next->getType() == ELSE_IF_STATEMENT) {
@@ -50,8 +48,8 @@ IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 
 			next = component;
 		}
-		else if(ElseBody::ShouldParse(tokenizer, parser)) {
-			Body* component = ElseBody::Parse(body, tokenizer, parser);
+		else if(ElseBody::ShouldParse(engine)) {
+			Body* component = ElseBody::Parse(body, engine);
 
 			// set next
 			if(next->getType() == ELSE_IF_STATEMENT) {
@@ -72,9 +70,9 @@ IfBody* IfBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
 }
 
 string IfBody::print() {
-	string output = "if(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
+	string output = "if(" + this->conditional->print() + ")" + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
+	output += "}" + this->engine->parser->newLine;
 
 	Body* next = this->next;
 	while(next != nullptr) {
@@ -112,7 +110,7 @@ string IfBody::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn IfBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// final NOOP statement in if statement
@@ -125,11 +123,11 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::Compilat
 	conditionalJump->jumpIfFalse.instruction = noop;
 	conditionalJump->jumpIfFalse.pop = true;
 
-	output.add(this->conditional->compile(interpreter, context));
+	output.add(this->conditional->compile(engine, context));
 	output.add(conditionalJump);
 	
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, context));
+		output.add(component->compile(engine, context));
 	}
 
 	if(this->next != nullptr) {
@@ -144,7 +142,7 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::Compilat
 		Body* next = this->next;
 		while(next != nullptr) {
 			if(next->getType() == ELSE_IF_STATEMENT) {
-				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf(interpreter, context);
+				ElseIfBodyCompiled compiled = ((ElseIfBody*)next)->compileElseIf(engine, context);
 				compiled.lastJump->jump.instruction = noop;
 				output.add(compiled.output);
 
@@ -153,7 +151,7 @@ ts::InstructionReturn IfBody::compile(ts::Interpreter* interpreter, ts::Compilat
 				next = ((ElseIfBody*)next)->next;
 			}
 			else if(next->getType() == ELSE_STATEMENT) {
-				ts::InstructionReturn compiled = next->compile(interpreter, context);
+				ts::InstructionReturn compiled = next->compile(engine, context);
 				lastConditionalJump->jumpIfFalse.instruction = compiled.first;
 				lastConditionalJump = nullptr;
 				output.add(compiled);

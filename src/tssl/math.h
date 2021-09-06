@@ -7,23 +7,23 @@
 using namespace std;
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 	
 	namespace sl {
-		Entry* mAbs(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mACos(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mASin(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mATan(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mCeil(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mFloor(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mCos(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mSin(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mTan(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mPow(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mSqrt(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mDegToRad(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mRadToDeg(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mLog(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* mFloatLength(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* mAbs(Engine* engine, size_t argc, Entry* args);
+		Entry* mACos(Engine* engine, size_t argc, Entry* args);
+		Entry* mASin(Engine* engine, size_t argc, Entry* args);
+		Entry* mATan(Engine* engine, size_t argc, Entry* args);
+		Entry* mCeil(Engine* engine, size_t argc, Entry* args);
+		Entry* mFloor(Engine* engine, size_t argc, Entry* args);
+		Entry* mCos(Engine* engine, size_t argc, Entry* args);
+		Entry* mSin(Engine* engine, size_t argc, Entry* args);
+		Entry* mTan(Engine* engine, size_t argc, Entry* args);
+		Entry* mPow(Engine* engine, size_t argc, Entry* args);
+		Entry* mSqrt(Engine* engine, size_t argc, Entry* args);
+		Entry* mDegToRad(Engine* engine, size_t argc, Entry* args);
+		Entry* mRadToDeg(Engine* engine, size_t argc, Entry* args);
+		Entry* mLog(Engine* engine, size_t argc, Entry* args);
+		Entry* mFloatLength(Engine* engine, size_t argc, Entry* args);
 	}
 }

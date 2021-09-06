@@ -17,9 +17,7 @@ namespace std {
 	}
 }
 
-VariableContext::VariableContext() {
-
-}
+VariableContext::VariableContext() {}
 
 VariableContext::VariableContext(Interpreter* interpreter) {
 	this->interpreter = interpreter;

@@ -13,6 +13,10 @@ namespace ts {
 	};
 	
 	class VariableContext {
+		friend class Interpreter;
+		friend class Object;
+		friend void initFunctionFrame(Interpreter* interpreter, class FunctionFrame* frame);
+		
 		public:
 			VariableContext();
 			VariableContext(class Interpreter* interpreter);
@@ -30,8 +34,6 @@ namespace ts {
 		
 		private:
 			class Interpreter* interpreter;
-			friend class Interpreter;
-			friend class Object;
 			robin_map<string, VariableContextEntry> variableMap;
 	};
 

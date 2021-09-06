@@ -1,35 +1,33 @@
 #include "elseBody.h"
 #include "../interpreter/interpreter.h"
 
-bool ElseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == ELSE;
+bool ElseBody::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == ELSE;
 }
 
-ElseBody* ElseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	ElseBody* output = new ElseBody(parser);
+ElseBody* ElseBody::Parse(Body* body, ts::Engine* engine) {
+	ElseBody* output = new ElseBody(engine);
 	output->parent = body;
 
-	parser->expectToken(ELSE);
+	engine->parser->expectToken(ELSE);
 
 	// handle one line else statements
-	if(
-		tokenizer->peekToken().type != LEFT_BRACKET
-	) {
-		Component::ParseBody(output, tokenizer, parser, true);
+	if(engine->tokenizer->peekToken().type != LEFT_BRACKET) {
+		Component::ParseBody(output, engine, true);
 	}
 	else {
-		tokenizer->getToken(); // absorb bracket
-		Component::ParseBody(output, tokenizer, parser); // parse the body of the else statement
-		parser->expectToken(RIGHT_BRACKET);
+		engine->tokenizer->getToken(); // absorb bracket
+		Component::ParseBody(output, engine); // parse the body of the else statement
+		engine->parser->expectToken(RIGHT_BRACKET);
 	}
 	
 	return output;
 }
 
 string ElseBody::print() {
-	string output = "else" + this->parser->space + "{" + this->parser->newLine;
+	string output = "else" + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
+	output += "}" + this->engine->parser->newLine;
 	return output;
 }
 
@@ -37,7 +35,7 @@ string ElseBody::printJSON() {
 	return "{\"type\":\"ELSE_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn ElseBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	if(this->children.size() == 0) {
 		ts::Instruction* noop = new ts::Instruction();
@@ -46,7 +44,7 @@ ts::InstructionReturn ElseBody::compile(ts::Interpreter* interpreter, ts::Compil
 	}
 	else {
 		for(Component* component: this->children) {
-			output.add(component->compile(interpreter, context));
+			output.add(component->compile(engine, context));
 		}
 	}
 	return output;

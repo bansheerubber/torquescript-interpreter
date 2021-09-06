@@ -1,14 +1,14 @@
 #include "comment.h"
 #include "../interpreter/interpreter.h"
 
-bool Comment::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == COMMENT;
+bool Comment::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == COMMENT;
 }
 
-Comment* Comment::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	Comment* output = new Comment(parser);
+Comment* Comment::Parse(Component* parent, ts::Engine* engine) {
+	Comment* output = new Comment(engine);
 	output->parent = parent;
-	output->comment = tokenizer->getToken().lexeme;
+	output->comment = engine->tokenizer->getToken().lexeme;
 	return output;
 }
 
@@ -20,6 +20,6 @@ string Comment::printJSON() {
 	return "{\"type\":\"COMMENT_STATEMENT\",\"value\":\"" + this->comment + "\"}";
 }
 
-ts::InstructionReturn Comment::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn Comment::compile(ts::Engine* engine, ts::CompilationContext context) {
 	return {};
 }

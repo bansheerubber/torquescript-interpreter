@@ -13,38 +13,38 @@
 #include "../util/stringToChars.h"
 #include "symbol.h"
 
-bool NewStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
+bool NewStatement::ShouldParse(ts::Engine* engine) {
 	return (
-		tokenizer->peekToken().type == NEW
+		engine->tokenizer->peekToken().type == NEW
 		&& (
-			tokenizer->peekToken(1).type == SYMBOL
-			|| tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+			engine->tokenizer->peekToken(1).type == SYMBOL
+			|| engine->tokenizer->peekToken(1).type == LEFT_PARENTHESIS
 		)
 	);
 }
 
-NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NewStatement* output = new NewStatement(parser);
+NewStatement* NewStatement::Parse(Component* parent, ts::Engine* engine) {
+	NewStatement* output = new NewStatement(engine);
 	output->parent = parent;
 
-	parser->expectToken(NEW);
+	engine->parser->expectToken(NEW);
 
 	// parse a symbol
-	if(Symbol::ShouldParse(tokenizer, parser)) {
-		output->className = Symbol::Parse(output, tokenizer, parser);
+	if(Symbol::ShouldParse(engine)) {
+		output->className = Symbol::Parse(output, engine);
 	}
-	else if(MathExpression::ShouldParse(nullptr, tokenizer, parser)) {
-		output->className = MathExpression::Parse(nullptr, output, tokenizer, parser);
+	else if(MathExpression::ShouldParse(nullptr, engine)) {
+		output->className = MathExpression::Parse(nullptr, output, engine);
 	}
 	else {
-		parser->error("invalid new object name");
+		engine->parser->error("invalid new object name");
 	}
 
-	if(CallStatement::ShouldParse(tokenizer, parser)) {
-		output->arguments = CallStatement::Parse(output, tokenizer, parser);
+	if(CallStatement::ShouldParse(engine)) {
+		output->arguments = CallStatement::Parse(output, engine);
 	}
 	else {
-		parser->error("invalid new object argument list");
+		engine->parser->error("invalid new object argument list");
 	}
 
 	if(output->arguments->getElementCount() > 0) {
@@ -57,30 +57,30 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 			&& firstComponent->getType() != ACCESS_STATEMENT
 			&& firstComponent->getType() != MATH_EXPRESSION
 		) {
-			parser->error("got invalid name for new object");
+			engine->parser->error("got invalid name for new object");
 		}
 	}
 
 	// expect something not a left bracket if we got no arguments in the body of the new object statement
-	if(tokenizer->peekToken().type != LEFT_BRACKET) {
+	if(engine->tokenizer->peekToken().type != LEFT_BRACKET) {
 		return output;
 	}
 
-	parser->expectToken(LEFT_BRACKET);
+	engine->parser->expectToken(LEFT_BRACKET);
 
 	// parse property declaration
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		// new statements can be nested, apparently
-		if(NewStatement::ShouldParse(tokenizer, parser)) {
-			output->children.push_back(NewStatement::Parse(output, tokenizer, parser));
-			parser->expectToken(SEMICOLON);
+		if(NewStatement::ShouldParse(engine)) {
+			output->children.push_back(NewStatement::Parse(output, engine));
+			engine->parser->expectToken(SEMICOLON);
 		}
 		else if(
-			Symbol::ShouldParse(tokenizer, parser)
-			|| Symbol::ShouldParseAlphabeticToken(tokenizer, parser)
+			Symbol::ShouldParse(engine)
+			|| Symbol::ShouldParseAlphabeticToken(engine)
 		) {
-			Symbol* symbol = Symbol::Parse(output, tokenizer, parser);
-			AccessStatement* access = AccessStatement::Parse(symbol, output, tokenizer, parser, true);
+			Symbol* symbol = Symbol::Parse(output, engine);
+			AccessStatement* access = AccessStatement::Parse(symbol, output, engine, true);
 			symbol->parent = access;
 			if(
 				access->hasChain()
@@ -89,15 +89,15 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 				|| access->isLocalVariable()
 				|| access->isGlobalVariable()
 			) {
-				parser->error("did not expect complex property assignment '%s' in new object", access->print().c_str());
+				engine->parser->error("did not expect complex property assignment '%s' in new object", access->print().c_str());
 			}
 
 			// now parse the assign statement
-			if(!AssignStatement::ShouldParse(access, output, tokenizer, parser)) {
-				parser->error("expected property assignment in new object");
+			if(!AssignStatement::ShouldParse(access, output, engine)) {
+				engine->parser->error("expected property assignment in new object");
 			}
 
-			AssignStatement* assign = AssignStatement::Parse(access, output, tokenizer, parser);
+			AssignStatement* assign = AssignStatement::Parse(access, output, engine);
 			output->children.push_back(assign);
 
 			if(access->elements[0].component->getType() == SYMBOL_STATEMENT) {
@@ -110,17 +110,17 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 				}
 			}
 
-			parser->expectToken(SEMICOLON);
+			engine->parser->expectToken(SEMICOLON);
 		}
-		else if(tokenizer->peekToken().type == RIGHT_BRACKET) {
+		else if(engine->tokenizer->peekToken().type == RIGHT_BRACKET) {
 			break;
 		}
 		else {
-			parser->error("expected property assignment in new object");
+			engine->parser->error("expected property assignment in new object");
 		}
 	}
 
-	parser->expectToken(RIGHT_BRACKET);
+	engine->parser->expectToken(RIGHT_BRACKET);
 
 	return output;
 }
@@ -128,7 +128,7 @@ NewStatement* NewStatement::Parse(Component* parent, Tokenizer* tokenizer, Parse
 string NewStatement::print() {
 	string output = "new " + this->className->print() + this->arguments->print();
 	if(this->children.size() != 0) {
-		output += this->parser->space + "{" + this->parser->newLine;
+		output += this->engine->parser->space + "{" + this->engine->parser->newLine;
 		output += this->printBody();
 		output += "}";
 	}
@@ -148,7 +148,7 @@ string NewStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn NewStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	ts::Instruction* createObject = new ts::Instruction();
@@ -160,14 +160,14 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 	if(this->className->getType() == SYMBOL_STATEMENT) {
 		ALLOCATE_STRING(this->className->print(), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = true;
-		createObject->createObject.typeMethodTree = interpreter->getNamespace(createObject->createObject.typeName);
+		createObject->createObject.typeMethodTree = engine->getNamespace(createObject->createObject.typeName);
 	}
 	else {
 		ALLOCATE_STRING(string(""), createObject->createObject.typeName);
 		createObject->createObject.typeNameCached = false;
 		createObject->createObject.typeMethodTree = nullptr;
 		
-		output.add(this->className->compile(interpreter, context));
+		output.add(this->className->compile(engine, context));
 	}
 
 	string symbolName;
@@ -199,7 +199,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			ALLOCATE_STRING(string(""), createObject->createObject.symbolName);
 
 			if(firstComponent) {
-				output.add(firstComponent->compile(interpreter, context));
+				output.add(firstComponent->compile(engine, context));
 			}
 			else {
 				createObject->createObject.symbolNameCached = true;
@@ -223,7 +223,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			ALLOCATE_STRING(string(""), createObject->createObject.classProperty);
 			createObject->createObject.classPropertyCached = false;
 			
-			output.add(this->classProperty->compile(interpreter, context));
+			output.add(this->classProperty->compile(engine, context));
 		}
 	}
 	else {
@@ -247,7 +247,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 			ALLOCATE_STRING(string(""), createObject->createObject.superClassProperty);
 			createObject->createObject.superClassPropertyCached = false;
 			
-			output.add(this->superClassProperty->compile(interpreter, context));
+			output.add(this->superClassProperty->compile(engine, context));
 		}
 	}
 	else {
@@ -261,9 +261,9 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		&& createObject->createObject.superClassPropertyCached;
 
 	if(canCacheMethodTree) {
-		ts::MethodTree* typeCheck = interpreter->getNamespace(this->className->print());
+		ts::MethodTree* typeCheck = engine->getNamespace(this->className->print());
 		if(typeCheck != nullptr && typeCheck->isTSSL) {
-			ts::MethodTree* tree = interpreter->createMethodTreeFromNamespaces(
+			ts::MethodTree* tree = engine->createMethodTreeFromNamespaces(
 				symbolName,
 				classProperty,
 				superClassProperty,
@@ -287,7 +287,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 		if(component->getType() == ASSIGN_STATEMENT) {
 			AssignStatement* assignStatement = (AssignStatement*)component;
 
-			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(interpreter, context);
+			AccessStatementCompiled c = assignStatement->getLValue()->compileAccess(engine, context);
 			ts::Instruction* instruction = c.lastAccess;
 			
 			instruction->type = ts::instruction::OBJECT_ASSIGN_EQUAL;
@@ -317,7 +317,7 @@ ts::InstructionReturn NewStatement::compile(ts::Interpreter* interpreter, ts::Co
 				|| assignStatement->getRValue()->getType() == ASSIGN_STATEMENT
 				|| assignStatement->getRValue()->getType() == NEW_STATEMENT
 			) {
-				output.add(assignStatement->getRValue()->compile(interpreter, context));
+				output.add(assignStatement->getRValue()->compile(engine, context));
 				instruction->objectAssign.fromStack = true;
 			}
 

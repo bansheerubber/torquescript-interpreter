@@ -36,7 +36,7 @@ class DynamicArray {
 			this->array = array;
 
 			for(size_t i = 0; i < this->size; i++) {
-				(*this->init)(this->parent, &this->array[i]);
+				(*this->init)(this->parent, &(this->array[i]));
 			}
 		}
 

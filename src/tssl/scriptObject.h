@@ -4,13 +4,13 @@
 #include "../interpreter/object.h"
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 
 	namespace sl {
 		class ScriptObject : public Object {
 
 		};
 
-		Entry* ScriptObject__test(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* ScriptObject__test(Engine* engine, size_t argc, Entry* args);
 	}
 }
