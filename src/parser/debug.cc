@@ -15,14 +15,14 @@ void Parser::error(const char* format, ...) {
 	lock_guard<mutex> lock(errorLock());
 	
 	Token token = this->engine->tokenizer->peekToken();
-	printError("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
+	(*this->engine->errorFunction)("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
-	printError(format, argptr);
+	(*this->engine->vErrorFunction)(format, argptr);
 	va_end(argptr);
 
-	printError("\n");
+	(*this->engine->errorFunction)("\n");
 
 	exit(1);
 }
@@ -31,14 +31,14 @@ void Parser::warning(const char* format, ...) {
 	lock_guard<mutex> lock(errorLock());
 	
 	Token token = this->engine->tokenizer->peekToken();
-	printWarning("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
+	(*this->engine->warningFunction)("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
-	printWarning(format, argptr);
+	(*this->engine->vWarningFunction)(format, argptr);
 	va_end(argptr);
 
-	printWarning("\n");
+	(*this->engine->warningFunction)("\n");
 }
 
 ## parser_debug.py

@@ -1,8 +1,11 @@
 #include "engine.h"
 
+#include <mutex>
+
 #include "../compiler/compiler.h"
 #include "../tssl/define.h"
 #include "../interpreter/instruction.h"
+#include "shell.h"
 #include "../components/sourceFile.h"
 
 using namespace ts;
@@ -38,7 +41,15 @@ Engine::~Engine() {
 	}
 }
 
+// lock for executing files, shells, etc since we share the same tokenizer/parser
+std::mutex& execLock() {
+	static std::mutex m;
+	return m;
+}
+
 void Engine::execFile(string fileName, bool forceExecution) {
+	lock_guard<mutex> lock(execLock());
+	
 	if(!this->interpreter->isParallel || forceExecution) {
 		this->tokenizer->tokenizeFile(fileName);
 		this->parser->startParse();
@@ -63,6 +74,8 @@ void Engine::execFile(string fileName, bool forceExecution) {
 }
 
 void Engine::execPiped(string piped) {
+	lock_guard<mutex> lock(execLock());
+	
 	this->tokenizer->tokenizePiped(piped);
 	this->parser->startParse();
 
@@ -73,6 +86,21 @@ void Engine::execPiped(string piped) {
 	});
 
 	this->interpreter->startInterpretation(result.first);	
+}
+
+void Engine::execShell(string shell) {
+	lock_guard<mutex> lock(execLock());
+	
+	this->tokenizer->tokenizePiped(shell);
+	this->parser->startParse();
+
+	// compile
+	InstructionReturn result = parser->getSourceFile()->compile(this, {
+		loop: nullptr,
+		scope: nullptr,
+	});
+	this->interpreter->pushFunctionFrame(new InstructionContainer(result.first));
+	this->interpreter->interpret();
 }
 
 void Engine::defineTSSLMethodTree(MethodTree* tree) {

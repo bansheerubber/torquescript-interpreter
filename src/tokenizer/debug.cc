@@ -1,29 +1,31 @@
 #include "tokenizer.h"
 #include "../io.h"
 
+#include "../engine/engine.h"
+
 void Tokenizer::error(const char* format, ...) {
-	printError("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
+	(*this->engine->errorFunction)("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
-	printError(format, argptr);
+	(*this->engine->vErrorFunction)(format, argptr);
 	va_end(argptr);
 
-	printError("\n");
+	(*this->engine->errorFunction)("\n");
 
 	exit(1);
 }
 
 void Tokenizer::warning(const char* format, ...) {
 	if(this->showWarnings) {
-		printWarning("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
+		(*this->engine->warningFunction)("%s:%ld:%ld: ", this->fileName.c_str(), this->lineNumber, this->characterNumber);
 		
 		va_list argptr;
 		va_start(argptr, format);
-		printWarning(format, argptr);
+		(*this->engine->vWarningFunction)(format, argptr);
 		va_end(argptr);
 
-		printWarning("\n");
+		(*this->engine->warningFunction)("\n");
 	}
 }
 

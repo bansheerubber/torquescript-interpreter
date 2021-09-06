@@ -2,10 +2,15 @@
 
 #include <string>
 
+#ifdef __linux__
+#include <termios.h>
+#endif
+
 #include "../args.h"
 #include "../util/dynamicArray.h"
 #include "../interpreter/function.h"
 #include "../interpreter/interpreter.h"
+#include "../io.h"
 #include "../interpreter/methodTree.h"
 #include "../compiler/package.h"
 #include "../interpreter/packagedFunctionList.h"
@@ -17,6 +22,10 @@ using namespace std;
 
 class FunctionDeclaration;
 class NewStatement;
+
+extern struct termios originalTerminalAttributes;
+
+void disableRawMode();
 
 namespace ts {
 	void initPackagedFunctionList(class Engine* engine, PackagedFunctionList** list);
@@ -38,9 +47,24 @@ namespace ts {
 
 			void execFile(string fileName, bool forceExecution = false);
 			void execPiped(string piped);
+			void execShell(string shell);
+
+			tsPrintFunction(printFunction) = &printf;
+			tsPrintFunction(warningFunction) = &printWarning;
+			tsPrintFunction(errorFunction) = &printError;
+
+			tsVPrintFunction(vPrintFunction) = &vprintf;
+			tsVPrintFunction(vWarningFunction) = &printWarning;
+			tsVPrintFunction(vErrorFunction) = &printError;
+
+			void enterShell();
 		
 		private:
 			ParsedArguments args;
+
+			string shellBuffer = "";
+
+			void shellPrintBuffer();
 
 			queue<string> fileQueue; // queue for parallel interpreter file execution
 

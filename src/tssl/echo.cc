@@ -14,7 +14,7 @@ namespace ts {
 					mockStdout += '\n';
 				}
 				else {
-					printf("%s\n", args[0].stringData);
+					(*engine->printFunction)("%s\n", args[0].stringData);
 				}
 			}
 			return nullptr;
@@ -27,7 +27,7 @@ namespace ts {
 					mockStdout += '\n';
 				}
 				else {
-					printf("%s\n", args[0].stringData);
+					(*engine->errorFunction)("%s\n", args[0].stringData);
 				}
 			}
 			return nullptr;

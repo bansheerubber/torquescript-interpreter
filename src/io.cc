@@ -19,7 +19,7 @@ class WindowsColor {
 };
 #endif
 
-void printError(const char* format, ...) {
+int printError(const char* format, ...) {
 	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
@@ -37,9 +37,11 @@ void printError(const char* format, ...) {
 	#ifdef __APPLE__
 	cout << "\e[91m" << output << "\e[0m";
 	#endif
+
+	return 0;
 }
 
-void printError(const char* format, va_list &argptr) {
+int printError(const char* format, va_list argptr) {
 	char output[1024];
 	vsnprintf(output, 1024, format, argptr);
 
@@ -54,9 +56,11 @@ void printError(const char* format, va_list &argptr) {
 	#ifdef __APPLE__
 	cout << "\e[91m" << output << "\e[0m";
 	#endif
+
+	return 0;
 }
 
-void printWarning(const char* format, ...) {
+int printWarning(const char* format, ...) {
 	char output[1024];
 	va_list argptr;
 	va_start(argptr, format);
@@ -74,9 +78,11 @@ void printWarning(const char* format, ...) {
 	#ifdef __APPLE__
 	cout << "\e[93m" << output << "\e[0m";
 	#endif
+
+	return 0;
 }
 
-void printWarning(const char* format, va_list &argptr) {
+int printWarning(const char* format, va_list argptr) {
 	char output[1024];
 	vsnprintf(output, 1024, format, argptr);
 
@@ -91,4 +97,6 @@ void printWarning(const char* format, va_list &argptr) {
 	#ifdef __APPLE__
 	cout << "\e[93m" << output << "\e[0m";
 	#endif
+
+	return 0;
 }

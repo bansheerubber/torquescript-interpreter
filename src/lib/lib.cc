@@ -32,3 +32,15 @@ void tsSetTickRate(tsEngine engine, long tickRate) {
 void tsExecFile(tsEngine engine, const char* filename) {
 	((ts::Engine*)engine)->execFile(string(filename));
 }
+
+void tsSetPrintFunction(tsEngine engine, tsPrintFunction(print), tsPrintFunction(warning), tsPrintFunction(error)) {
+	((ts::Engine*)engine)->printFunction = print;
+	((ts::Engine*)engine)->warningFunction = warning;
+	((ts::Engine*)engine)->errorFunction = error;
+}
+
+void tsVSetPrintFunction(tsEngine engine, tsVPrintFunction(print), tsVPrintFunction(warning), tsVPrintFunction(error)) {
+	((ts::Engine*)engine)->vPrintFunction = print;
+	((ts::Engine*)engine)->vWarningFunction = warning;
+	((ts::Engine*)engine)->vErrorFunction = error;
+}

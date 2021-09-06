@@ -61,9 +61,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(args.files.size() == 0 && !isPiped) {
-		printError("error: expected files\n\n");
-		printHelp(arguments);
-		return 1;
+		ts::Engine engine(args);
+		engine.enterShell();
+		return 0;
 	}
 
 	ts::Engine engine(args);
