@@ -34,6 +34,11 @@ namespace ts {
 			
 			string output;
 			getline(this->file, output);
+
+			if(output.length() > 0 && output[output.length() - 1] == '\r') {
+				output.pop_back();
+			}
+
 			return stringToChars(output);
 		}
 
