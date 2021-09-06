@@ -145,5 +145,31 @@ namespace ts {
 			}
 			return nullptr;
 		}
+
+		Entry* getRandom(Engine* engine, size_t argc, Entry* args) {
+			if(argc == 0) {
+				return new Entry(engine->getRandom());
+			}
+			else if(argc == 1) {
+				return new Entry((int)(engine->getRandom() * args[0].numberData));
+			}
+			else if(argc == 2) {
+				return new Entry((int)(engine->getRandom() * (args[1].numberData - args[0].numberData + 1) + args[0].numberData));
+			}
+
+			return nullptr;
+		}
+
+		Entry* setRandomSeed(Engine* engine, size_t argc, Entry* args) {
+			if(argc == 1) {
+				engine->setRandomSeed((int)args[0].numberData);
+			}
+
+			return nullptr;
+		}
+
+		Entry* getRandomSeed(Engine* engine, size_t argc, Entry* args) {
+			return new Entry(engine->getRandomSeed());
+		}
 	}
 }

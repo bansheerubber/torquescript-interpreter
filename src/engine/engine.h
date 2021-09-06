@@ -58,6 +58,10 @@ namespace ts {
 			tsVPrintFunction(vErrorFunction) = &printError;
 
 			void enterShell();
+
+			double getRandom();
+			void setRandomSeed(int seed);
+			int getRandomSeed();
 		
 		private:
 			ParsedArguments args;
@@ -67,6 +71,8 @@ namespace ts {
 			void shellPrintBuffer();
 
 			queue<string> fileQueue; // queue for parallel interpreter file execution
+
+			int randomSeed;
 
 			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);

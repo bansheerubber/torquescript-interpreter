@@ -162,15 +162,19 @@ void ts::sl::define(Engine* engine) {
 	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__openForAppend, "FileObject", "openForAppend", 2, os));
 	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__close, "FileObject", "close", 1, o));
 	functions.push_back(FUNC_DEF(entry::STRING, &FileObject__readLine, "FileObject", "readLine", 1, o));
-	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__writeLine, "FileObject", "writeLine", 1, os));
+	functions.push_back(FUNC_DEF(entry::INVALID, &FileObject__writeLine, "FileObject", "writeLine", 2, os));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &FileObject__isEOF, "FileObject", "isEOF", 1, o));
 
-	functions.push_back(FUNC_DEF(entry::NUMBER, &fileBase, "fileBase", 1, s));
-	functions.push_back(FUNC_DEF(entry::NUMBER, &fileExt, "fileExt", 1, s));
-	functions.push_back(FUNC_DEF(entry::NUMBER, &fileName, "fileName", 1, s));
-	functions.push_back(FUNC_DEF(entry::NUMBER, &filePath, "filePath", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &fileBase, "fileBase", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &fileExt, "fileExt", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &fileName, "fileName", 1, s));
+	functions.push_back(FUNC_DEF(entry::STRING, &filePath, "filePath", 1, s));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &isObject, "isObject", 1, o));
+
+	functions.push_back(FUNC_DEF(entry::INVALID, &getRandom, "getRandom", 2, nn));
+	functions.push_back(FUNC_DEF(entry::INVALID, &setRandomSeed, "setRandomSeed", 1, n));
+	functions.push_back(FUNC_DEF(entry::NUMBER, &getRandomSeed, "getRandomSeed", 0, nullptr));
 
 	for(ts::sl::Function* function: functions) {
 		engine->defineTSSLFunction(function);

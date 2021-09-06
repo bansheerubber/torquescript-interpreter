@@ -25,5 +25,9 @@ namespace ts {
 		Entry* mRadToDeg(Engine* engine, size_t argc, Entry* args);
 		Entry* mLog(Engine* engine, size_t argc, Entry* args);
 		Entry* mFloatLength(Engine* engine, size_t argc, Entry* args);
+
+		Entry* getRandom(Engine* engine, size_t argc, Entry* args);
+		Entry* setRandomSeed(Engine* engine, size_t argc, Entry* args);
+		Entry* getRandomSeed(Engine* engine, size_t argc, Entry* args);
 	}
 }
