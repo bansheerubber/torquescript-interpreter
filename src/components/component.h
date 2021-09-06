@@ -13,7 +13,6 @@ using namespace std;
 class Component {
 	public:
 		Component(ts::Engine* engine);
-		virtual ~Component() {}
 		
 		virtual ComponentType getType() = 0; // gets the type of the component
 		virtual string print() = 0; // prints valid torquescript

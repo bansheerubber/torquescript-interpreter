@@ -14,7 +14,6 @@ using namespace std;
 class Symbol : public Component {
 	public:
 		using Component::Component;
-		~Symbol() {}
 		
 		ComponentType getType() {
 			return SYMBOL_STATEMENT;

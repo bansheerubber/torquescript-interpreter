@@ -11,7 +11,6 @@
 class StringLiteral : public Component {
 	public:
 		using Component::Component;
-		~StringLiteral() {}
 		
 		ComponentType getType() {
 			return STRING_LITERAL;

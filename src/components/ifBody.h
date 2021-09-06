@@ -15,7 +15,6 @@ using namespace std;
 class IfBody : public Body {
 	public:
 		using Body::Body;
-		~IfBody() {}
 		
 		ComponentType getType() {
 			return IF_STATEMENT;

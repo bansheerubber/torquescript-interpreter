@@ -12,7 +12,6 @@
 class NumberLiteral : public Component {
 	public:
 		using Component::Component;
-		~NumberLiteral() {}
 		
 		ComponentType getType() {
 			return NUMBER_LITERAL;

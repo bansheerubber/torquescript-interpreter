@@ -20,7 +20,6 @@ struct CaseElement {
 class CaseBody : public Body {
 	public:
 		using Body::Body;
-		~CaseBody() {}
 		
 		ComponentType getType() {
 			return CASE_STATEMENT;

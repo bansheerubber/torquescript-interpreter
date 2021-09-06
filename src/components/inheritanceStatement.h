@@ -12,7 +12,6 @@
 class InheritanceStatement : public Component {
 	public:
 		using Component::Component;
-		~InheritanceStatement() {}
 		
 		ComponentType getType() {
 			return INHERITANCE_STATEMENT;

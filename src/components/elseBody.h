@@ -15,7 +15,6 @@ using namespace std;
 class ElseBody : public Body {
 	public:
 		using Body::Body;
-		~ElseBody() {}
 
 		ComponentType getType() {
 			return ELSE_STATEMENT;

@@ -10,7 +10,6 @@
 class ReturnStatement : public Component {
 	public:
 		using Component::Component;
-		~ReturnStatement() {}
 		
 		ComponentType getType() {
 			return RETURN_STATEMENT;

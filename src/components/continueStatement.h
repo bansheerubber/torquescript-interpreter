@@ -10,7 +10,6 @@
 class ContinueStatement : public Component {
 	public:
 		using Component::Component;
-		~ContinueStatement() {}
 		
 		ComponentType getType() {
 			return CONTINUE_STATEMENT;

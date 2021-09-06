@@ -16,7 +16,6 @@ using namespace std;
 class WhileBody : public Body, public ts::LoopsContext {
 	public:
 		using Body::Body;
-		~WhileBody() {}
 		
 		ComponentType getType() {
 			return WHILE_STATEMENT;

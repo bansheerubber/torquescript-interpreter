@@ -20,7 +20,6 @@ struct CallElement {
 class CallStatement : public Component {
 	public:
 		using Component::Component;
-		~CallStatement() {}
 		
 		ComponentType getType() {
 			return CALL_STATEMENT;

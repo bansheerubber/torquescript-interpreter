@@ -20,7 +20,6 @@ struct ArrayElement {
 class ArrayStatement : public Component {
 	public:
 		using Component::Component;
-		~ArrayStatement() {}
 		
 		ComponentType getType() {
 			return ARRAY_STATEMENT;

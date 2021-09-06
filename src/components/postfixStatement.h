@@ -12,7 +12,6 @@
 class PostfixStatement : public Component {
 	public:
 		using Component::Component;
-		~PostfixStatement() {}
 		
 		ComponentType getType() {
 			return POSTFIX_STATEMENT;

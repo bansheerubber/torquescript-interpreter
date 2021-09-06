@@ -13,7 +13,6 @@
 class NamespaceStatement : public Component {
 	public:
 		using Component::Component;
-		~NamespaceStatement() {}
 		
 		ComponentType getType() {
 			return PARENT_STATEMENT;

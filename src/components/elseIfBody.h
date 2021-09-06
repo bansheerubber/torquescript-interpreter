@@ -21,7 +21,6 @@ struct ElseIfBodyCompiled {
 class ElseIfBody : public Body {
 	public:
 		using Body::Body;
-		~ElseIfBody() {}
 		
 		ComponentType getType() {
 			return ELSE_IF_STATEMENT;

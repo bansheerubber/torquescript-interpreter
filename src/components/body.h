@@ -13,7 +13,6 @@ using namespace std;
 class Body : public Component {
 	public:
 		using Component::Component;
-		virtual ~Body() {}
 		
 		ComponentType getType() {
 			return INVALID_STATEMENT;

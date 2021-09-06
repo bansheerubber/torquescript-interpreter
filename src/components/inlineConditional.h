@@ -12,7 +12,6 @@
 class InlineConditional : public Component {
 	public:
 		using Component::Component;
-		~InlineConditional() {}
 		
 		ComponentType getType() {
 			return INLINE_CONDITIONAL;

@@ -17,7 +17,6 @@ using namespace std;
 class PackageDeclaration : public Body, public ts::Package {
 	public:
 		using Body::Body;
-		~PackageDeclaration() {}
 		
 		ComponentType getType() {
 			return PACKAGE_DECLARATION;
