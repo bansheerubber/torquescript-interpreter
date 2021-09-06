@@ -4,6 +4,7 @@
 
 #include "echo.h"
 #include "../engine/engine.h"
+#include "eval.h"
 #include "fileObject.h"
 #include "getField.h"
 #include "getRecord.h"
@@ -175,6 +176,8 @@ void ts::sl::define(Engine* engine) {
 	functions.push_back(FUNC_DEF(entry::INVALID, &getRandom, "getRandom", 2, nn));
 	functions.push_back(FUNC_DEF(entry::INVALID, &setRandomSeed, "setRandomSeed", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &getRandomSeed, "getRandomSeed", 0, nullptr));
+
+	functions.push_back(FUNC_DEF(entry::INVALID, &eval, "eval", 1, s));
 
 	for(ts::sl::Function* function: functions) {
 		engine->defineTSSLFunction(function);

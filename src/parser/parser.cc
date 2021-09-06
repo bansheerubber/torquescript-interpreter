@@ -9,11 +9,17 @@ Parser::Parser(ts::Engine* engine, ParsedArguments args) {
 
 Parser::~Parser() {
 	for(Component* component: this->components) {
-		delete component;	
+		delete component;
 	}
 }
 
 void Parser::startParse() {
+	for(Component* component: this->components) {
+		delete component;
+	}
+
+	this->components.clear();
+	
 	this->sourceFile = new SourceFile(this->engine);
 	Component::ParseBody(this->sourceFile, this->engine);
 

@@ -48,8 +48,6 @@ std::mutex& execLock() {
 }
 
 void Engine::execFile(string fileName, bool forceExecution) {
-	lock_guard<mutex> lock(execLock());
-	
 	if(!this->interpreter->isParallel || forceExecution) {
 		this->tokenizer->tokenizeFile(fileName);
 		this->parser->startParse();
@@ -74,8 +72,6 @@ void Engine::execFile(string fileName, bool forceExecution) {
 }
 
 void Engine::execPiped(string piped) {
-	lock_guard<mutex> lock(execLock());
-	
 	this->tokenizer->tokenizePiped(piped);
 	this->parser->startParse();
 
@@ -89,8 +85,6 @@ void Engine::execPiped(string piped) {
 }
 
 void Engine::execShell(string shell) {
-	lock_guard<mutex> lock(execLock());
-	
 	this->tokenizer->tokenizePiped(shell);
 	this->parser->startParse();
 
