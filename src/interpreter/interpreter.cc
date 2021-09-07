@@ -260,6 +260,8 @@ void Interpreter::warning(const char* format, ...) {
 }
 
 bool Interpreter::tick() {
+	start_tick:
+	
 	unsigned long long time = getMicrosecondsNow();
 
 	Schedule* schedule = this->schedules.top();
@@ -350,7 +352,7 @@ bool Interpreter::tick() {
 		}
 
 		this_thread::sleep_for(chrono::milliseconds(this->tickRate));
-		this->tick();
+		goto start_tick;
 	}
 
 	// return false if we have schedules left, return true if there's none left
