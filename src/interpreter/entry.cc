@@ -37,7 +37,7 @@ Entry::Entry(ObjectReference* value) {
 
 Entry::~Entry() {
 	if(this->type == entry::STRING && this->stringData != nullptr) {
-		delete this->stringData;
+		delete[] this->stringData;
 		this->stringData = nullptr;
 	}
 
@@ -64,7 +64,7 @@ void Entry::setNumber(double value) {
 void Entry::setString(char* value) {
 	// TODO possible wild pointer free
 	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
-		delete this->stringData;
+		delete[] this->stringData;
 	}
 
 	this->type = entry::STRING;
@@ -118,7 +118,7 @@ void Entry::print(int tabs) const {
 void ts::copyEntry(const Entry &source, Entry &destination) {
 	// delete string data if we're going to copy an entry (prevents memory leak)
 	if(destination.type == entry::STRING && destination.stringData != nullptr) {
-		delete destination.stringData;
+		delete[] destination.stringData;
 		destination.stringData = nullptr;
 	}
 

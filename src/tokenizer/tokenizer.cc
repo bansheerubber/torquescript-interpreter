@@ -24,8 +24,9 @@ void Tokenizer::tokenizePiped(string piped) {
 	this->reset();
 	
 	this->contentSize = piped.size();
-	this->contents = new char[this->contentSize];
+	this->contents = new char[this->contentSize + 1];
 	strcpy(this->contents, piped.c_str());
+	this->contents[this->contentSize] = '\0';
 
 	this->tokenize();
 }

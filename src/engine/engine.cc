@@ -84,17 +84,22 @@ void Engine::execPiped(string piped) {
 	this->interpreter->startInterpretation(result.first);	
 }
 
-void Engine::execShell(string shell) {
-	this->tokenizer->tokenizePiped(shell);
-	this->parser->startParse();
+void Engine::execShell(string shell, bool forceExecution) {
+	if(!this->interpreter->isParallel || forceExecution) {
+		this->tokenizer->tokenizePiped(shell);
+		this->parser->startParse();
 
-	// compile
-	InstructionReturn result = parser->getSourceFile()->compile(this, {
-		loop: nullptr,
-		scope: nullptr,
-	});
-	this->interpreter->pushFunctionFrame(new InstructionContainer(result.first));
-	this->interpreter->interpret();
+		// compile
+		InstructionReturn result = parser->getSourceFile()->compile(this, {
+			loop: nullptr,
+			scope: nullptr,
+		});
+		this->interpreter->pushFunctionFrame(new InstructionContainer(result.first));
+		this->interpreter->interpret();
+	}
+	else {
+		this->shellQueue.push(shell);
+	}
 }
 
 void Engine::defineTSSLMethodTree(MethodTree* tree) {

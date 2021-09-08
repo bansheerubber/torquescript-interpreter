@@ -7,7 +7,7 @@ namespace ts {
 		Entry* exec(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				string fileName(args[0].stringData);
-				engine->execFile(fileName);
+				engine->execFile(fileName, true);
 			}
 			
 			return nullptr;

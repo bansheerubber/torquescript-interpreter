@@ -115,7 +115,7 @@ namespace ts {
 
 			// stacks
 			DynamicArray<Entry, Interpreter> stack = DynamicArray<Entry, Interpreter>(this, 10000, initEntry, nullptr);
-			DynamicArray<FunctionFrame, Interpreter> frames = DynamicArray<FunctionFrame, Interpreter>(this, 1, initFunctionFrame, onFunctionFrameRealloc);
+			DynamicArray<FunctionFrame, Interpreter> frames = DynamicArray<FunctionFrame, Interpreter>(this, 100, initFunctionFrame, onFunctionFrameRealloc);
 			VariableContext* topContext;
 			InstructionContainer* topContainer; // the current container we're executing code from, taken from frames
 			size_t* instructionPointer; // the current instruction pointer, taken from frames

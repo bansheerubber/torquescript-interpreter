@@ -47,7 +47,7 @@ namespace ts {
 
 			void execFile(string fileName, bool forceExecution = false);
 			void execPiped(string piped);
-			void execShell(string shell);
+			void execShell(string shell, bool forceExecution = false);
 
 			tsPrintFunction(printFunction) = &printf;
 			tsPrintFunction(warningFunction) = &printWarning;
@@ -71,6 +71,7 @@ namespace ts {
 			void shellPrintBuffer();
 
 			queue<string> fileQueue; // queue for parallel interpreter file execution
+			queue<string> shellQueue; // queue for parallel interpreter shell execution
 
 			int randomSeed;
 

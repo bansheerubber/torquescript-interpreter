@@ -170,7 +170,7 @@ void Interpreter::push(ObjectReference* value, instruction::PushType type) {
 void Interpreter::pop() {
 	Entry &test = this->stack[this->stack.head - 1];
 	if(test.type == entry::STRING && test.stringData) {
-		delete test.stringData;
+		delete[] test.stringData;
 		test.stringData = nullptr;
 	}
 
@@ -349,6 +349,13 @@ bool Interpreter::tick() {
 			this->engine->fileQueue.pop();
 
 			this->engine->execFile(filename, true);
+		}
+
+		while(this->engine->shellQueue.size() != 0) {
+			string shell = this->engine->shellQueue.front();
+			this->engine->shellQueue.pop();
+
+			this->engine->execShell(shell, true);
 		}
 
 		this_thread::sleep_for(chrono::milliseconds(this->tickRate));

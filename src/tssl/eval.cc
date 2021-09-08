@@ -7,7 +7,7 @@ namespace ts {
 		Entry* eval(Engine* engine, size_t argc, Entry* args) {
 			if(argc == 1) {
 				string shell(args[0].stringData);
-				engine->execShell(shell);
+				engine->execShell(shell, true);
 			}
 			
 			return nullptr;
