@@ -70,6 +70,10 @@ void Interpreter::pushFunctionFrame(
 	size_t argumentCount,
 	size_t popCount
 ) {
+	if(this->frames.head == 0) {
+		this->startTime = getMicrosecondsNow();
+	}
+	
 	FunctionFrame &frame = this->frames[this->frames.head];
 	frame.container = container;
 	frame.instructionPointer = 0;
@@ -381,8 +385,8 @@ void Interpreter::interpret() {
 		case instruction::INVALID_INSTRUCTION: {
 			this->popFunctionFrame();
 
-			if(this->showTime) {
-				printf("%lld\n", getMicrosecondsNow() - this->startTime);
+			if(this->showTime && this->frames.head == 0) {
+				(*this->engine->printFunction)("exec time: %lld\n", getMicrosecondsNow() - this->startTime);
 			}
 			// this->stack.head = 0;
 
