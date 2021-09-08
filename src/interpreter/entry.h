@@ -43,6 +43,7 @@ namespace ts {
 		~Entry();
 		void setNumber(double value);
 		void setString(char* value);
+		void setString(string value);
 		void setObject(ObjectReference* value);
 		void print(int tabs = 0) const;
 		const char* typeToString() const;

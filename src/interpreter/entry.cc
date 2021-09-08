@@ -71,6 +71,16 @@ void Entry::setString(char* value) {
 	this->stringData = value;
 }
 
+void Entry::setString(string value) {
+	// TODO possible wild pointer free
+	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
+		delete[] this->stringData;
+	}
+
+	this->type = entry::STRING;
+	this->stringData = stringToChars(value);
+}
+
 void Entry::setObject(ObjectReference* object) {
 	if(this->type != entry::NUMBER && this->objectData != nullptr) { // delete old string data
 		delete this->objectData;
