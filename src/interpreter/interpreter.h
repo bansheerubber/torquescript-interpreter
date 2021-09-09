@@ -70,6 +70,7 @@ namespace ts {
 		
 		public:
 			Interpreter();
+			~Interpreter();
 			Interpreter(class Engine* engine, ParsedArguments args, bool isParallel);
 
 			void startInterpretation(Instruction* head);

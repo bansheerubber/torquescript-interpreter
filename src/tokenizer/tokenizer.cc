@@ -8,6 +8,10 @@ Tokenizer::Tokenizer(ts::Engine* engine, ParsedArguments args) {
 	this->handleArgs(args);
 }
 
+Tokenizer::~Tokenizer() {
+	this->reset();
+}
+
 void Tokenizer::reset() {
 	// reset state
 	this->lineNumber = 1;
@@ -18,6 +22,10 @@ void Tokenizer::reset() {
 	this->fileIndex = 0;
 	this->tokenIndex = 0;
 	this->tokens.clear();
+
+	if(this->contents != nullptr) {
+		delete[] this->contents;
+	}
 }
 
 void Tokenizer::tokenizePiped(string piped) {

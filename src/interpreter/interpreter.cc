@@ -61,6 +61,12 @@ Interpreter::Interpreter(Engine* engine, ParsedArguments args, bool isParallel) 
 	}
 }
 
+Interpreter::~Interpreter() {
+	for(size_t i = 0; i < this->frames.size; i++) {
+		delete this->frames[i].context;
+	}
+}
+
 void Interpreter::pushFunctionFrame(
 	InstructionContainer* container,
 	PackagedFunctionList* list,
@@ -187,9 +193,11 @@ void Interpreter::pop() {
 }
 
 void Interpreter::startInterpretation(Instruction* head) {
-	this->pushFunctionFrame(new InstructionContainer(head)); // create the instructions
+	InstructionContainer* container = new InstructionContainer(head);
+	this->pushFunctionFrame(container); // create the instructions
 	this->startTime = getMicrosecondsNow();
 	this->interpret();
+	delete container;
 }
 
 void Interpreter::execFile(string filename) {
@@ -315,7 +323,7 @@ bool Interpreter::tick() {
 			}
 		}
 
-		if(foundFunction->isTSSL) {
+		if(foundFunction->isTSSL) { // TODO handle argument type conversion
 			sl::Function* function = foundFunction->function;
 			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
 			function->function(this->engine, schedule->argumentCount, schedule->arguments);

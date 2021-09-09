@@ -574,6 +574,7 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	// erase values we swapped for literals
 	for(Value* value: eraseList) {
 		instructionList.erase(find(instructionList.begin(), instructionList.end(), value));
+		delete value;
 	}
 
 	// finally add instructions to output
@@ -593,6 +594,8 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 		else if(value->math != nullptr) {
 			output.add(value->math);
 		}
+
+		delete value;
 	}
 
 	return output;
@@ -689,6 +692,8 @@ ts::InstructionReturn MathExpression::compile(ts::Engine* engine, ts::Compilatio
 		}
 	}
 	output.add(noop);
+
+	delete current;
 
 	return output;
 }

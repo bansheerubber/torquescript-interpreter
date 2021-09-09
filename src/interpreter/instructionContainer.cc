@@ -70,3 +70,10 @@ void InstructionContainer::print() {
 	}
 	printf("-----------------------------------------------------------------\n");
 }
+
+InstructionContainer::~InstructionContainer() {
+	if(this->array != nullptr) {
+		delete[] this->array;
+		this->array = nullptr;
+	}
+}

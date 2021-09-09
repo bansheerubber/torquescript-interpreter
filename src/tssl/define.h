@@ -15,7 +15,6 @@ namespace ts {
 	class Engine;
 
 	#define TS_FUNC(name)		Entry* (*name)(Engine* engine, size_t argc, Entry* args)
-	#define TS_ARG_COUNT		16
 	
 	namespace sl {
 		struct Function {
@@ -25,6 +24,10 @@ namespace ts {
 			size_t argumentCount;
 			TS_FUNC(function);
 			entry::EntryType* argumentTypes;
+
+			~Function() { 
+				delete[] this->argumentTypes;
+			}
 		};
 
 		extern vector<Function*> functions;

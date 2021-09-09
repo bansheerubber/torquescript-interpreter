@@ -62,8 +62,10 @@ void Engine::execFile(string fileName, bool forceExecution) {
 			this->interpreter->startInterpretation(result.first);
 		}
 		else {
-			this->interpreter->pushFunctionFrame(new InstructionContainer(result.first));
+			InstructionContainer* container = new InstructionContainer(result.first);
+			this->interpreter->pushFunctionFrame(container);
 			this->interpreter->interpret();
+			delete container;
 		}
 	}
 	else if(this->interpreter->isParallel) {

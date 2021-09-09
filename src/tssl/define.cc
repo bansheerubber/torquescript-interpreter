@@ -33,7 +33,11 @@ ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(function
 	function->name = string(name);
 	function->argumentCount = argumentCount;
 	function->function = functionPointer;
-	function->argumentTypes = argumentTypes;
+
+	function->argumentTypes = new entry::EntryType[argumentCount];
+	for(size_t i = 0; i < argumentCount; i++) {
+		function->argumentTypes[i] = argumentTypes[i];
+	}
 
 	return function;
 }
@@ -45,7 +49,11 @@ ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(function
 	function->name = string(name);
 	function->argumentCount = argumentCount;
 	function->function = functionPointer;
-	function->argumentTypes = argumentTypes;
+	
+	function->argumentTypes = new entry::EntryType[argumentCount];
+	for(size_t i = 0; i < argumentCount; i++) {
+		function->argumentTypes[i] = argumentTypes[i];
+	}
 	
 	return function;
 }
@@ -80,19 +88,19 @@ void ts::sl::define(Engine* engine) {
 	
 	// define functions/methods
 	vector<ts::sl::Function*> functions;
-	entry::EntryType* s = new entry::EntryType[TS_ARG_COUNT] { entry::STRING };
-	entry::EntryType* n = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER };
-	entry::EntryType* o = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT };
-	entry::EntryType* sn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER };
-	entry::EntryType* nn = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::NUMBER };
-	entry::EntryType* os = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::STRING };
-	entry::EntryType* ns = new entry::EntryType[TS_ARG_COUNT] { entry::NUMBER, entry::STRING };
-	entry::EntryType* ss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING };
-	entry::EntryType* sss = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::STRING };
-	entry::EntryType* snn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::NUMBER };
-	entry::EntryType* ssn = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::STRING, entry::NUMBER };
-	entry::EntryType* sns = new entry::EntryType[TS_ARG_COUNT] { entry::STRING, entry::NUMBER, entry::STRING };
-	entry::EntryType* ons = new entry::EntryType[TS_ARG_COUNT] { entry::OBJECT, entry::NUMBER, entry::STRING };
+	entry::EntryType s[1] = { entry::STRING };
+	entry::EntryType n[1] = { entry::NUMBER };
+	entry::EntryType o[1] = { entry::OBJECT };
+	entry::EntryType sn[2] = { entry::STRING, entry::NUMBER };
+	entry::EntryType nn[2] = { entry::NUMBER, entry::NUMBER };
+	entry::EntryType os[2] = { entry::OBJECT, entry::STRING };
+	entry::EntryType ns[2] = { entry::NUMBER, entry::STRING };
+	entry::EntryType ss[2] = { entry::STRING, entry::STRING };
+	entry::EntryType sss[3] = { entry::STRING, entry::STRING, entry::STRING };
+	entry::EntryType snn[3] = { entry::STRING, entry::NUMBER, entry::NUMBER };
+	entry::EntryType ssn[3] = { entry::STRING, entry::STRING, entry::NUMBER };
+	entry::EntryType sns[3] = { entry::STRING, entry::NUMBER, entry::STRING };
+	entry::EntryType ons[3] = { entry::OBJECT, entry::NUMBER, entry::STRING };
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &echo, "echo", 1, s));
 	functions.push_back(FUNC_DEF(entry::INVALID, &error, "error", 1, s));
@@ -119,7 +127,7 @@ void ts::sl::define(Engine* engine) {
 	functions.push_back(FUNC_DEF(entry::STRING, &removeRecord, "removeRecord", 2, sn));
 	functions.push_back(FUNC_DEF(entry::STRING, &setRecord, "setRecord", 3, sns));
 	functions.push_back(FUNC_DEF(entry::STRING, &strLen, "strLen", 1, s));
-	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 1, snn));
+	functions.push_back(FUNC_DEF(entry::STRING, &getSubStr, "getSubStr", 3, snn));
 	functions.push_back(FUNC_DEF(entry::STRING, &strPos, "strPos", 3, ssn));
 	functions.push_back(FUNC_DEF(entry::STRING, &trim, "trim", 1, s));
 	functions.push_back(FUNC_DEF(entry::STRING, &ltrim, "ltrim", 1, s));
@@ -149,7 +157,7 @@ void ts::sl::define(Engine* engine) {
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mDegToRad, "mDegToRad", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mRadToDeg, "mRadToDeg", 1, n));
 	functions.push_back(FUNC_DEF(entry::NUMBER, &mLog, "mLog", 1, n));
-	functions.push_back(FUNC_DEF(entry::STRING, &mFloatLength, "mFloatLength", 2, n));
+	functions.push_back(FUNC_DEF(entry::STRING, &mFloatLength, "mFloatLength", 2, nn));
 
 	functions.push_back(FUNC_DEF(entry::INVALID, &schedule, "schedule", 2, ns));
 	functions.push_back(FUNC_DEF(entry::INVALID, &SimObject__schedule, "SimObject", "schedule", 3, ons));

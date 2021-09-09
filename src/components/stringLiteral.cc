@@ -42,7 +42,7 @@ ts::InstructionReturn StringLiteral::compile(ts::Engine* engine, ts::Compilation
 	instruction->type = ts::instruction::PUSH;
 	instruction->push.entry = ts::Entry();
 	instruction->push.entry.type = ts::entry::STRING;
-	instruction->push.entry.setString(stringToChars(this->valueString));
+	instruction->push.entry.setString(this->valueString);
 	return ts::InstructionReturn(instruction, instruction);
 }
 

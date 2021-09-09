@@ -33,11 +33,11 @@ for entry_type1 in entry_types:
 		except:
 			pass
 
-def get_delete_line(variable_name, entry_type):
+def get_delete_line(variable_name, output_type, entry_type):
 	if variable_name == None or variable_name == "":
 		return ""
 	
-	value = "true" if output_type != "STRING" else "false"
+	value = "true" if output_type == "STRING" and entry_type != "STRING" else "false"
 	return f"{variable_name} = {value};"
 
 if "_" in source_type:
@@ -50,7 +50,7 @@ if "_" in source_type:
 			.replace("%%conditional%%", conditional)\
 			.replace("%%entry%%", entry_name)\
 			.replace("%%output%%", output_name)\
-			.replace("%%delete%%", get_delete_line(additional, entry_type))\
+			.replace("%%delete%%", get_delete_line(additional, output_type, entry_type))\
 			.replace("%%this%%", interpreter)
 		
 		print(code)
@@ -62,7 +62,7 @@ else:
 		.replace("%%conditional%%", "if")\
 		.replace("%%entry%%", entry_name)\
 		.replace("%%output%%", output_name)\
-		.replace("%%delete%%", get_delete_line(additional, output_type))\
+		.replace("%%delete%%", get_delete_line(additional, output_type, entry_type))\
 		.replace("%%this%%", interpreter)
 	
 	print(code)

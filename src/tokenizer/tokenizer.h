@@ -23,6 +23,7 @@ class Tokenizer {
 	
 	public:
 		Tokenizer(ts::Engine* engine, ParsedArguments args);
+		~Tokenizer();
 
 		Token& getToken(bool whitespace = false);
 		Token& unGetToken(bool whitespace = false);

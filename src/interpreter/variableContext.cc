@@ -45,7 +45,9 @@ string VariableContext::computeVariableString(Instruction &instruction, string &
 			newVariable = newVariable + numberToStdString(entry.numberData);
 		}
 		else if(entry.type == entry::STRING) {
-			newVariable = newVariable + toLower(entry.stringData);
+			char* lowered = toLower(entry.stringData);
+			newVariable = newVariable + lowered;
+			delete[] lowered;
 		}
 		else if(entry.type == entry::OBJECT) {
 			newVariable = newVariable + numberToStdString(entry.objectData->id);
