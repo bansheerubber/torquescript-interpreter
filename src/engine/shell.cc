@@ -110,8 +110,7 @@ void Engine::enterShell() {
 	this->warningFunction = &shellPrintWarning;
 	this->errorFunction = &shellPrintError;
 	
-	delete this->interpreter;
-	this->interpreter = new Interpreter(this, this->args, true);
+	this->interpreter->enterParallel();
 	
 	rl_bind_key('\t', rl_insert);
 

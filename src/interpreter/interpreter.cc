@@ -56,7 +56,7 @@ Interpreter::Interpreter(Engine* engine, ParsedArguments args, bool isParallel) 
 	this->globalContext = VariableContext(this);
 
 	if(this->isParallel) {
-		this->tickThread = thread(&Interpreter::tick, this);
+		this->enterParallel();
 		this->startTime = getMicrosecondsNow();
 	}
 }
@@ -65,6 +65,10 @@ Interpreter::~Interpreter() {
 	for(size_t i = 0; i < this->frames.size; i++) {
 		delete this->frames[i].context;
 	}
+}
+
+void Interpreter::enterParallel() { 
+	this->tickThread = thread(&Interpreter::tick, this);
 }
 
 void Interpreter::pushFunctionFrame(

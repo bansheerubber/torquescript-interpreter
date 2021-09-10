@@ -102,6 +102,8 @@ namespace ts {
 
 			void actuallyExecFile(string filename);
 
+			void enterParallel();
+
 			bool warnings = true;
 			bool showTime = false;
 			

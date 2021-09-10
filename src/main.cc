@@ -92,6 +92,11 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+
+	if(args.arguments["interactive"] != "") {
+		engine.enterShell();
+		printf("enter shell\n");
+	}
 	
 	return 0;
 }
