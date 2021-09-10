@@ -539,6 +539,10 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 					value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
 					eraseList.push_back(lvalue);
 				}
+				else if(lvalue->unary.size() == 0 && lvalue->component->getType() == STRING_LITERAL) {
+					value->math->mathematics.lvalueEntry.setString(((StringLiteral*)lvalue->component)->getString());
+					eraseList.push_back(lvalue);
+				}
 				else if(
 					lvalue->component->getType() == ACCESS_STATEMENT
 					&& ((AccessStatement*)(lvalue->component))->isLocalVariable()
@@ -552,6 +556,10 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			if(rvalue->component != nullptr) {
 				if(rvalue->unary.size() == 0 && rvalue->component->getType() == NUMBER_LITERAL) {
 					value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
+					eraseList.push_back(rvalue);
+				}
+				else if(rvalue->unary.size() == 0 && rvalue->component->getType() == STRING_LITERAL) {
+					value->math->mathematics.rvalueEntry.setString(((StringLiteral*)rvalue->component)->getString());
 					eraseList.push_back(rvalue);
 				}
 				else if(

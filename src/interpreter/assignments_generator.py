@@ -30,6 +30,9 @@ specific_operations = {
 					*entry
 				);
 			}}
+			else if(instruction.localAssign.fromStack) {{
+				greedyCopyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
+			}}
 			else {{
 				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
 			}}""",

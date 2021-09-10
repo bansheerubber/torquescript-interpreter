@@ -8,7 +8,7 @@ if(foundFunction->isTSSL) {
 	for(size_t i = 0; i < actualArgumentCount; i++) {
 		if(i < actualArgumentCount) {
 			relative_stack_location location = head - 1 - (actualArgumentCount - i);
-			copyEntry(this->stack[location], argv[i]);
+			greedyCopyEntry(this->stack[location], argv[i]);
 			if(i < function->argumentCount) {
 				convertToType(this, argv[i], function->argumentTypes[i]);
 			}

@@ -50,6 +50,7 @@ namespace ts {
 	};
 
 	void copyEntry(const Entry &source, Entry &destination);
+	void greedyCopyEntry(Entry &source, Entry &destination);
 	void convertToType(class Interpreter* interpreter, Entry &source, entry::EntryType type);
 	void initEntry(class Interpreter* interpreter, Entry* location);
 }

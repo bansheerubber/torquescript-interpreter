@@ -160,6 +160,42 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 	}
 }
 
+void ts::greedyCopyEntry(Entry &source, Entry &destination) {
+	// delete string data if we're going to copy an entry (prevents memory leak)
+	if(destination.type == entry::STRING && destination.stringData != nullptr) {
+		delete[] destination.stringData;
+		destination.stringData = nullptr;
+	}
+
+	if(destination.type == entry::OBJECT && destination.objectData != nullptr) {
+		delete destination.objectData;
+		destination.objectData = nullptr;
+	}
+	
+	destination.type = source.type;
+	switch(destination.type) {
+		case entry::INVALID: {
+			break;
+		}
+		
+		case entry::NUMBER: {
+			destination.numberData = source.numberData;
+			break;
+		}
+
+		case entry::STRING: {
+			destination.stringData = source.stringData;
+			source.stringData = nullptr;
+			break;
+		}
+
+		case entry::OBJECT: {
+			destination.objectData = new ObjectReference(source.objectData);
+			break;
+		}
+	}
+}
+
 void ts::convertToType(Interpreter* interpreter, Entry &source, entry::EntryType type) {
 	if(source.type == type) {
 		return;
