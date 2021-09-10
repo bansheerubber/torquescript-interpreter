@@ -657,7 +657,7 @@ void Interpreter::interpret() {
 			}
 
 			if(instruction.functionReturn.hasValue) {
-				this->push(this->returnRegister, instruction::STACK); // push return register
+				this->push(this->returnRegister, instruction::STACK, true); // push return register
 			}
 			else {
 				this->push(this->emptyEntry, instruction::STACK);

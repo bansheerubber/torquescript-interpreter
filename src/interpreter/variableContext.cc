@@ -91,34 +91,36 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 	}
 }
 
-void VariableContext::setVariableEntry(Instruction &instruction, string &name, size_t hash, Entry &entry) {
+void VariableContext::setVariableEntry(Instruction &instruction, string &name, size_t hash, Entry &entry, bool greedy) {
 	if(instruction.localAssign.dimensions > 0) {
 		string computedString = computeVariableString(instruction, name);
 		auto value = this->variableMap.find(computedString);
 		if(value == this->variableMap.end()) { // uninitialized
 			VariableContextEntry &variableEntry = this->variableMap[computedString];
-			copyEntry(entry, variableEntry.entry);
+			greedy ? greedyCopyEntry(entry, variableEntry.entry) : copyEntry(entry, variableEntry.entry);
 			variableEntry.stackIndex = -1;
 		}
 		else {
 			VariableContextEntry &variableEntry = value.value();
-			copyEntry(entry, variableEntry.entry);
+			greedy ? greedyCopyEntry(entry, variableEntry.entry) : copyEntry(entry, variableEntry.entry);
 		}
 	}
 	else {
 		auto value = this->variableMap.find(name, hash);
 		if(value == this->variableMap.end()) { // uninitialized
 			VariableContextEntry &variableEntry = this->variableMap[name];
-			copyEntry(entry, variableEntry.entry);
+			greedy ? greedyCopyEntry(entry, variableEntry.entry) : copyEntry(entry, variableEntry.entry);
 			variableEntry.stackIndex = -1;
 		}
 		else {
 			VariableContextEntry &variableEntry = value.value();
 			if(variableEntry.stackIndex < 0) {
-				copyEntry(entry, variableEntry.entry);
+				greedy ? greedyCopyEntry(entry, variableEntry.entry) : copyEntry(entry, variableEntry.entry);
 			}
 			else {
-				copyEntry(entry, this->interpreter->stack[variableEntry.stackIndex + this->interpreter->stackFramePointer]);
+				greedy
+					? greedyCopyEntry(entry, this->interpreter->stack[variableEntry.stackIndex + this->interpreter->stackFramePointer])
+					: copyEntry(entry, this->interpreter->stack[variableEntry.stackIndex + this->interpreter->stackFramePointer]);
 			}
 		}
 	}

@@ -27,7 +27,8 @@ specific_operations = {
 					instruction,
 					instruction.localAssign.destination,
 					instruction.localAssign.hash,
-					*entry
+					*entry,
+					instruction.localAssign.fromStack
 				);
 			}}
 			else if(instruction.localAssign.fromStack) {{
@@ -40,13 +41,15 @@ specific_operations = {
 				instruction,
 				instruction.localAssign.destination,
 				instruction.localAssign.hash,
-				*entry
+				*entry,
+				instruction.localAssign.fromStack
 			);""",
 	"GLOBAL_ASSIGN_EQUAL": """this->globalContext.setVariableEntry(
 				instruction,
 				instruction.globalAssign.destination,
 				instruction.globalAssign.hash,
-				*entry
+				*entry,
+				instruction.localAssign.fromStack
 			);""",
 }
 

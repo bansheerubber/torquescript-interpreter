@@ -23,7 +23,7 @@ namespace ts {
 			
 			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			Entry& getVariableEntry(string &name);
-			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
+			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry, bool greedy);
 			void setVariableEntry(string &name, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void linkVariable(string &name, size_t hash, int stackIndex);
