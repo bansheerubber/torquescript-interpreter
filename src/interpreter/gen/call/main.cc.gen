@@ -31,7 +31,7 @@ if(foundFunction->isTSSL) {
 		this->push(getEmptyString(), instruction.pushType);
 	}
 	else {
-		this->push(*returnValue, instruction.pushType);
+		this->push(*returnValue, instruction.pushType, true);
 		delete returnValue;
 	}
 }

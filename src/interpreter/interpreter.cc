@@ -141,6 +141,17 @@ void Interpreter::push(Entry &entry, instruction::PushType type) {
 	}
 }
 
+// push an entry onto the stack, greedily
+void Interpreter::push(Entry &entry, instruction::PushType type, bool greedy) {
+	if(type < 0) {
+		greedyCopyEntry(entry, this->stack[this->stack.head]);
+		this->stack.pushed();
+	}
+	else {
+		greedyCopyEntry(entry, this->returnRegister);
+	}
+}
+
 // push a number onto the stack
 void Interpreter::push(double number, instruction::PushType type) {
 	if(type < 0) {

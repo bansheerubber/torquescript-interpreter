@@ -105,6 +105,7 @@ namespace ts {
 			bool warnings = true;
 			bool showTime = false;
 			
+			void push(Entry &entry, instruction::PushType type, bool greedy) __attribute__((always_inline));
 			void push(Entry &entry, instruction::PushType type) __attribute__((always_inline));
 			void push(double number, instruction::PushType type) __attribute__((always_inline));
 			void push(char* data, instruction::PushType type) __attribute__((always_inline));
