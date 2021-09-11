@@ -41,7 +41,6 @@ void ts::initSchedule(Interpreter* interpreter, Schedule** schedule) {
 
 Interpreter::Interpreter(Engine* engine, ParsedArguments args, bool isParallel) {
 	this->engine = engine;
-	this->isParallel = isParallel;
 	
 	this->emptyEntry.setString(getEmptyString());
 
@@ -69,6 +68,7 @@ Interpreter::~Interpreter() {
 
 void Interpreter::enterParallel() { 
 	this->tickThread = thread(&Interpreter::tick, this);
+	this->isParallel = true;
 }
 
 void Interpreter::pushFunctionFrame(
