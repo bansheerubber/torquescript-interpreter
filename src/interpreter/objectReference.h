@@ -12,7 +12,7 @@ namespace ts {
 			~ObjectReference();
 			struct ObjectWrapper* objectWrapper = nullptr;
 
-			size_t id = 0;
+			unsigned long id = 0;
 		
 		private:
 			friend class Object;

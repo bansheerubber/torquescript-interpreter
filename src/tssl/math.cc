@@ -17,7 +17,7 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		Entry* mAbs(Engine* engine, size_t argc, Entry* args) {
+		Entry* mAbs(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				double number = args[0].numberData;
 				if(number < 0) {
@@ -30,35 +30,35 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* mACos(Engine* engine, size_t argc, Entry* args) {
+		Entry* mACos(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(acos(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mASin(Engine* engine, size_t argc, Entry* args) {
+		Entry* mASin(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(asin(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mATan(Engine* engine, size_t argc, Entry* args) {
+		Entry* mATan(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(atan2(args[0].numberData, args[1].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mCeil(Engine* engine, size_t argc, Entry* args) {
+		Entry* mCeil(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(ceil(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mFloor(Engine* engine, size_t argc, Entry* args) {
+		Entry* mFloor(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				double number = args[0].numberData;
 				if(number < 0) {
@@ -71,63 +71,63 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* mCos(Engine* engine, size_t argc, Entry* args) {
+		Entry* mCos(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(cos(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mSin(Engine* engine, size_t argc, Entry* args) {
+		Entry* mSin(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(sin(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mTan(Engine* engine, size_t argc, Entry* args) {
+		Entry* mTan(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(tan(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mPow(Engine* engine, size_t argc, Entry* args) {
+		Entry* mPow(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(pow(args[0].numberData, args[1].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mSqrt(Engine* engine, size_t argc, Entry* args) {
+		Entry* mSqrt(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(sqrt(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mDegToRad(Engine* engine, size_t argc, Entry* args) {
+		Entry* mDegToRad(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(args[0].numberData * M_PI / 180.0);
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mRadToDeg(Engine* engine, size_t argc, Entry* args) {
+		Entry* mRadToDeg(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(args[0].numberData * 180.0 / M_PI);
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mLog(Engine* engine, size_t argc, Entry* args) {
+		Entry* mLog(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(log(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mFloatLength(Engine* engine, size_t argc, Entry* args) {
+		Entry* mFloatLength(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				int precision = (int)args[1].numberData;
 				if(precision < 0) {
@@ -146,7 +146,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getRandom(Engine* engine, size_t argc, Entry* args) {
+		Entry* getRandom(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 0) {
 				return new Entry(engine->getRandom());
 			}
@@ -160,7 +160,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* setRandomSeed(Engine* engine, size_t argc, Entry* args) {
+		Entry* setRandomSeed(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				engine->setRandomSeed((int)args[0].numberData);
 			}
@@ -168,7 +168,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getRandomSeed(Engine* engine, size_t argc, Entry* args) {
+		Entry* getRandomSeed(Engine* engine, unsigned int argc, Entry* args) {
 			return new Entry(engine->getRandomSeed());
 		}
 	}

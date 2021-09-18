@@ -8,6 +8,6 @@ namespace ts {
 	class Engine;
 	
 	namespace sl {
-		Entry* eval(Engine* engine, size_t argc, Entry* args);
+		Entry* eval(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

@@ -10,6 +10,6 @@ namespace ts {
 	class Engine;
 	
 	namespace sl {
-		Entry* isObject(Engine* engine, size_t argc, Entry* args);
+		Entry* isObject(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

@@ -15,8 +15,13 @@ ObjectWrapper* ts::CreateObject(
 	ObjectWrapper* wrapper = new ObjectWrapper(object, data);
 	interpreter->objects[object->id] = wrapper;
 
-	if(typeMethodTree->tsslConstructor) {
-		(*typeMethodTree->tsslConstructor)(wrapper);
+	if(data == nullptr) {
+		if(typeMethodTree->tsslConstructor) {
+			(*typeMethodTree->tsslConstructor)(wrapper);
+		}
+	}
+	else {
+		wrapper->data = data;
 	}
 
 	return wrapper;

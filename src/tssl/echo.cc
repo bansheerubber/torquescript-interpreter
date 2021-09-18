@@ -7,7 +7,7 @@ namespace ts {
 		string mockStdout = string();
 		bool useMockStdout = false;
 		
-		Entry* echo(Engine* engine, size_t argc, Entry* args) {
+		Entry* echo(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 1) {
 				if(useMockStdout) {
 					mockStdout += args[0].stringData;
@@ -20,7 +20,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* error(Engine* engine, size_t argc, Entry* args) {
+		Entry* error(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 1) {
 				if(useMockStdout) {
 					mockStdout += args[0].stringData;

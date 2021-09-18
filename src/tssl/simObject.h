@@ -11,8 +11,8 @@ namespace ts {
 
 		};
 
-		Entry* SimObject__test(Engine* engine, size_t argc, Entry* args);
-		Entry* SimObject__getId(Engine* engine, size_t argc, Entry* args);
-		Entry* SimObject__delete(Engine* engine, size_t argc, Entry* args);
+		Entry* SimObject__test(Engine* engine, unsigned int argc, Entry* args);
+		Entry* SimObject__getId(Engine* engine, unsigned int argc, Entry* args);
+		Entry* SimObject__delete(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

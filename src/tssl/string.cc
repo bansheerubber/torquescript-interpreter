@@ -10,14 +10,14 @@
 
 namespace ts {
 	namespace sl {
-		Entry* strLen(Engine* engine, size_t argc, Entry* args) {
+		Entry* strLen(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(string(args[0].stringData).length());
 			}
 			return nullptr;
 		}
 
-		Entry* getSubStr(Engine* engine, size_t argc, Entry* args) {
+		Entry* getSubStr(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 3) {
 				string substr = string(args[0].stringData).substr(args[1].numberData, args[2].numberData);
 				return new Entry(stringToChars(substr));
@@ -25,7 +25,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* strPos(Engine* engine, size_t argc, Entry* args) {
+		Entry* strPos(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				size_t position = string(args[0].stringData).find(args[1].stringData);
 				if (position == std::string::npos) {
@@ -48,7 +48,7 @@ namespace ts {
 			return new Entry(-1);
 		}
 
-		Entry* trim(Engine* engine, size_t argc, Entry* args) {
+		Entry* trim(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* words = args[0].stringData;
 				bool foundFirst = false;
@@ -87,7 +87,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* ltrim(Engine* engine, size_t argc, Entry* args) {
+		Entry* ltrim(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* words = args[0].stringData;
 				bool foundFirst = false;
@@ -115,7 +115,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* rtrim(Engine* engine, size_t argc, Entry* args) {
+		Entry* rtrim(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* words = args[0].stringData;
 				bool foundFirst = false;
@@ -149,7 +149,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* strCmp(Engine* engine, size_t argc, Entry* args) {
+		Entry* strCmp(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(strcmp(args[0].stringData, args[1].stringData));
 			}
@@ -157,7 +157,7 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* strICmp(Engine* engine, size_t argc, Entry* args) {
+		Entry* strICmp(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(strcasecmp(args[0].stringData, args[1].stringData));
 			}
@@ -165,7 +165,7 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* strLwr(Engine* engine, size_t argc, Entry* args) {
+		Entry* strLwr(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* words = args[0].stringData;
 				string output;
@@ -178,7 +178,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* strUpr(Engine* engine, size_t argc, Entry* args) {
+		Entry* strUpr(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* words = args[0].stringData;
 				string output;
@@ -191,7 +191,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* strChr(Engine* engine, size_t argc, Entry* args) {
+		Entry* strChr(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				const char search = args[1].stringData[0];
 				if(!search) {
@@ -207,7 +207,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* stripChars(Engine* engine, size_t argc, Entry* args) {
+		Entry* stripChars(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				string output;
 				const char* source = args[0].stringData;
@@ -234,7 +234,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* _collapseEscape(Engine* engine, size_t argc, Entry* args) {
+		Entry* _collapseEscape(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				string value(args[0].stringData);
 				string collapsed = collapseEscape(value);
@@ -244,7 +244,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* expandEscape(Engine* engine, size_t argc, Entry* args) {
+		Entry* expandEscape(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				const char* lookup[18] = {
 					"",			// 0x00
@@ -289,7 +289,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* strReplace(Engine* engine, size_t argc, Entry* args) {
+		Entry* strReplace(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 3) {
 				const char* words = args[0].stringData;
 				const char* search = args[1].stringData;

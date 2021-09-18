@@ -62,18 +62,6 @@ namespace ts {
 			double getRandom();
 			void setRandomSeed(int seed);
 			int getRandomSeed();
-		
-		private:
-			ParsedArguments args;
-
-			string shellBuffer = "";
-
-			void shellPrintBuffer();
-
-			queue<string> fileQueue; // queue for parallel interpreter file execution
-			queue<string> shellQueue; // queue for parallel interpreter shell execution
-
-			int randomSeed;
 
 			void defineFunction(string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void defineMethod(string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
@@ -90,6 +78,18 @@ namespace ts {
 				string namespace4 = string(),
 				string namespace5 = string()
 			);
+		
+		private:
+			ParsedArguments args;
+
+			string shellBuffer = "";
+
+			void shellPrintBuffer();
+
+			queue<string> fileQueue; // queue for parallel interpreter file execution
+			queue<string> shellQueue; // queue for parallel interpreter shell execution
+
+			int randomSeed;
 
 			void addPackageFunction(Package* package, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);
 			void addPackageMethod(Package* package, string &nameSpace, string &name, InstructionReturn output, size_t argumentCount, size_t variableCount);

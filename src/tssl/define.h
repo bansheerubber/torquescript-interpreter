@@ -14,7 +14,7 @@ namespace ts {
 	class Interpreter;
 	class Engine;
 
-	#define TS_FUNC(name)		Entry* (*name)(Engine* engine, size_t argc, Entry* args)
+	typedef Entry* (*ts_func)(Engine* engine, unsigned int argc, Entry* args);
 	
 	namespace sl {
 		struct Function {
@@ -22,7 +22,7 @@ namespace ts {
 			string nameSpace;
 			string name;
 			size_t argumentCount;
-			TS_FUNC(function);
+			ts_func function;
 			entry::EntryType* argumentTypes;
 
 			~Function() { 
@@ -36,12 +36,12 @@ namespace ts {
 		extern vector<MethodTree*> methodTrees;
 		extern unordered_map<string, size_t> methodTreeNameToIndex;
 
-		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, entry::EntryType* argumentTypes);
-		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, entry::EntryType* argumentTypes);
+		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, ts_func functionPointer, const char* nameSpace, const char* name, unsigned int argumentCount, entry::EntryType* argumentTypes);
+		ts::sl::Function* FUNC_DEF(entry::EntryType returnType, ts_func functionPointer, const char* name, unsigned int argumentCount, entry::EntryType* argumentTypes);
 
 		MethodTree* NAMESPACE_DEF(const char* name);
 
-		Entry* PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+		Entry* PARENT(Engine* engine, const char* methodName, unsigned int argc, Entry* argv, entry::EntryType* argumentTypes);
 		
 		void define(Engine* engine);
 	}

@@ -10,7 +10,7 @@ using namespace std;
 
 namespace ts {
 	namespace sl {
-		Entry* firstField(Engine* engine, size_t argc, Entry* args) {
+		Entry* firstField(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 1) {
 				## tokenizing.py first "\t\n" args[0].stringData
 				return new Entry(stringToChars(first));
@@ -19,7 +19,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* restFields(Engine* engine, size_t argc, Entry* args) {
+		Entry* restFields(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 1) {
 				## tokenizing.py rest "\t\n" args[0].stringData
 				return new Entry(stringToChars(rest));
@@ -28,7 +28,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getField(Engine* engine, size_t argc, Entry* args) {
+		Entry* getField(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py getSingle "\t\n" args[0].stringData args[1].numberData
 				return new Entry(stringToChars(word));
@@ -37,7 +37,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getFields(Engine* engine, size_t argc, Entry* args) {
+		Entry* getFields(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py getMultiple "\t\n" args[0].stringData args[1].numberData args[2].numberData
 				return new Entry(stringToChars(output));
@@ -46,7 +46,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* getFieldCount(Engine* engine, size_t argc, Entry* args) {
+		Entry* getFieldCount(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				## tokenizing.py getCount "\t\n" args[0].stringData
 				return new Entry((double)count);
@@ -55,7 +55,7 @@ namespace ts {
 			return new Entry((double)0);
 		}
 
-		Entry* removeField(Engine* engine, size_t argc, Entry* args) {
+		Entry* removeField(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 2) {
 				## tokenizing.py remove "\t\n" args[0].stringData args[1].numberData
 
@@ -70,7 +70,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* setField(Engine* engine, size_t argc, Entry* args) {
+		Entry* setField(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 3) {
 				## tokenizing.py set "\t\n" args[0].stringData args[1].numberData args[2].stringData
 				return new Entry(stringToChars(output));

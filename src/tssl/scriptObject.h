@@ -11,6 +11,6 @@ namespace ts {
 
 		};
 
-		Entry* ScriptObject__test(Engine* engine, size_t argc, Entry* args);
+		Entry* ScriptObject__test(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

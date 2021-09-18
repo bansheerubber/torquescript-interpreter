@@ -5,7 +5,7 @@
 
 namespace ts {
 	namespace sl {
-		Entry* ScriptObject__test(Engine* engine, size_t argc, Entry* args) {
+		Entry* ScriptObject__test(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc >= 2) {
 				entry::EntryType* types = new entry::EntryType[2] { entry::OBJECT, entry::STRING };
 				PARENT(engine, "test", argc, args, types);

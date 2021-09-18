@@ -232,7 +232,7 @@ void Interpreter::actuallyExecFile(string filename) {
 	// this->interpret();
 }
 
-Entry* Interpreter::handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
+Entry* Interpreter::handleTSSLParent(string &name, unsigned int argc, Entry* argv, entry::EntryType* argumentTypes) {
 	FunctionFrame &frame = this->frames[this->frames.head - 1];
 	MethodTreeEntry* methodTreeEntry = frame.methodTreeEntry;
 	int methodTreeEntryIndex = frame.methodTreeEntryIndex + 1; // always go up in the method tree

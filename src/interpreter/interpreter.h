@@ -65,8 +65,8 @@ namespace ts {
 			MethodTree* typeMethodTree,
 			void* data
 		);
-		friend Entry* ts::sl::PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
-		friend bool tsTick(tsEngine engine);
+		friend Entry* ts::sl::PARENT(Engine* engine, const char* methodName, unsigned int argc, Entry* argv, entry::EntryType* argumentTypes);
+		friend bool tsTick(tsEnginePtr engine);
 		
 		public:
 			Interpreter();
@@ -139,7 +139,7 @@ namespace ts {
 			void popFunctionFrame() __attribute__((always_inline));
 			void pushTSSLFunctionFrame(MethodTreeEntry* methodTreeEntry, int methodTreeEntryIndex);
 
-			Entry* handleTSSLParent(string &name, size_t argc, Entry* argv, entry::EntryType* argumentTypes);
+			Entry* handleTSSLParent(string &name, unsigned int argc, Entry* argv, entry::EntryType* argumentTypes);
 
 			// used to lookup objects
 			robin_map<size_t, ObjectWrapper*> objects;

@@ -27,7 +27,7 @@ unordered_map<string, size_t> ts::sl::nameToIndex;
 vector<MethodTree*> ts::sl::methodTrees;
 unordered_map<string, size_t> ts::sl::methodTreeNameToIndex;
 
-ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* name, size_t argumentCount, entry::EntryType* argumentTypes) {
+ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, ts_func functionPointer, const char* name, unsigned int argumentCount, entry::EntryType* argumentTypes) {
 	ts::sl::Function* function = new ts::sl::Function;
 	function->returnType = returnType;
 	function->name = string(name);
@@ -42,7 +42,7 @@ ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(function
 	return function;
 }
 
-ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, TS_FUNC(functionPointer), const char* nameSpace, const char* name, size_t argumentCount, entry::EntryType* argumentTypes) {
+ts::sl::Function* ts::sl::FUNC_DEF(entry::EntryType returnType, ts_func functionPointer, const char* nameSpace, const char* name, unsigned int argumentCount, entry::EntryType* argumentTypes) {
 	ts::sl::Function* function = new ts::sl::Function;
 	function->returnType = returnType;
 	function->nameSpace = string(nameSpace);
@@ -194,7 +194,7 @@ void ts::sl::define(Engine* engine) {
 	}
 }
 
-Entry* ts::sl::PARENT(Engine* engine, const char* methodName, size_t argc, Entry* argv, entry::EntryType* argumentTypes) {
+Entry* ts::sl::PARENT(Engine* engine, const char* methodName, unsigned int argc, Entry* argv, entry::EntryType* argumentTypes) {
 	string methodNameString(methodName);
 	return engine->interpreter->handleTSSLParent(methodNameString, argc, argv, argumentTypes);
 }

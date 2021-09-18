@@ -6,7 +6,7 @@
 
 namespace ts {
 	namespace sl {
-		Entry* schedule(Engine* engine, size_t argc, Entry* args) {
+		Entry* schedule(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc < 2) {
 				return nullptr;
 			}
@@ -26,7 +26,7 @@ namespace ts {
 			return nullptr;
 		}
 
-		Entry* SimObject__schedule(Engine* engine, size_t argc, Entry* args) {
+		Entry* SimObject__schedule(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc < 3) {
 				return nullptr;
 			}
