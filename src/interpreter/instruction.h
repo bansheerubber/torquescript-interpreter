@@ -163,6 +163,7 @@ namespace ts {
 
 			struct {
 				instruction::UnaryOperator operation; // the operator this instruction will perform
+				int stackIndex;
 			} unaryMathematics;
 
 			struct {

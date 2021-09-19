@@ -534,12 +534,12 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 			}
 
 			// figure out if we should cache literal in instruction
-			if(lvalue->component != nullptr) {
-				if(lvalue->unary.size() == 0 && lvalue->component->getType() == NUMBER_LITERAL) {
+			if(lvalue->component != nullptr && lvalue->unary.size() == 0) {
+				if(lvalue->component->getType() == NUMBER_LITERAL) {
 					value->math->mathematics.lvalueEntry.setNumber(((NumberLiteral*)lvalue->component)->getNumber());
 					eraseList.push_back(lvalue);
 				}
-				else if(lvalue->unary.size() == 0 && lvalue->component->getType() == STRING_LITERAL) {
+				else if(lvalue->component->getType() == STRING_LITERAL) {
 					value->math->mathematics.lvalueEntry.setString(((StringLiteral*)lvalue->component)->getString());
 					eraseList.push_back(lvalue);
 				}
@@ -553,12 +553,12 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 				}
 			}
 
-			if(rvalue->component != nullptr) {
-				if(rvalue->unary.size() == 0 && rvalue->component->getType() == NUMBER_LITERAL) {
+			if(rvalue->component != nullptr && rvalue->unary.size() == 0) {
+				if(rvalue->component->getType() == NUMBER_LITERAL) {
 					value->math->mathematics.rvalueEntry.setNumber(((NumberLiteral*)rvalue->component)->getNumber());
 					eraseList.push_back(rvalue);
 				}
-				else if(rvalue->unary.size() == 0 && rvalue->component->getType() == STRING_LITERAL) {
+				else if(rvalue->component->getType() == STRING_LITERAL) {
 					value->math->mathematics.rvalueEntry.setString(((StringLiteral*)rvalue->component)->getString());
 					eraseList.push_back(rvalue);
 				}
@@ -588,15 +588,30 @@ ts::InstructionReturn MathExpression::compileList(vector<MathElement*>* list, ts
 	// finally add instructions to output
 	for(Value* value: instructionList) {
 		if(value->component != nullptr) {
-			output.add(value->component->compile(engine, context));
-
-			if(value->unary.size() != ts::instruction::INVALID_UNARY) {
+			if(value->unary.size() != 0) {
+				int stackIndex = -1;
+				if(
+					value->component->getType() == ACCESS_STATEMENT
+					&& ((AccessStatement*)(value->component))->isLocalVariable()
+					&& ((AccessStatement*)(value->component))->chainSize() == 1
+				) {
+					stackIndex = ((AccessStatement*)(value->component))->getStackIndex(context.scope);
+				}
+				else {
+					output.add(value->component->compile(engine, context));
+				}
+				
 				for(ts::instruction::UnaryOperator operation: value->unary) {
 					ts::Instruction* unaryInstruction = new ts::Instruction();
 					unaryInstruction->type = ts::instruction::UNARY_MATHEMATICS;
 					unaryInstruction->unaryMathematics.operation = operation;
+					unaryInstruction->unaryMathematics.stackIndex = stackIndex;
 					output.add(unaryInstruction);
+					stackIndex = -1;
 				}
+			}
+			else {
+				output.add(value->component->compile(engine, context));
 			}
 		}
 		else if(value->math != nullptr) {

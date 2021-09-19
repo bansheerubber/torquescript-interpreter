@@ -472,10 +472,17 @@ void Interpreter::interpret() {
 		}
 
 		case instruction::UNARY_MATHEMATICS: {
-			Entry &value = this->stack[this->stack.head - 1];
+			Entry* value;
+			if(instruction.unaryMathematics.stackIndex < 0) {
+				value = &this->stack[this->stack.head - 1];
+			}
+			else {
+				value = &this->stack[instruction.unaryMathematics.stackIndex + this->stackFramePointer];
+			}
+
 			double valueNumber = 0;
 
-			## type_conversion.py value valueNumber NUMBER_STRING_OBJECT NUMBER
+			## type_conversion.py *value valueNumber NUMBER_STRING_OBJECT NUMBER
 			
 			this->pop();
 
