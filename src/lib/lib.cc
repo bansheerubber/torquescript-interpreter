@@ -68,6 +68,13 @@ tsObjectReferencePtr tsCreateObject(tsEnginePtr engine, const char* nameSpace, v
 	);
 }
 
+void tsDeleteObject(tsObjectReferencePtr objectReference) {
+	// only delete the object if its already deleted
+	if(((ObjectReference*)objectReference)->objectWrapper != nullptr) {
+		delete ((ObjectReference*)objectReference)->objectWrapper->object;
+	}
+}
+
 const char* tsGetNamespaceFromObject(tsObjectReferencePtr object) {
 	return ((ts::ObjectWrapper*)object->objectWrapper)->object->typeMethodTree->name.c_str();
 }

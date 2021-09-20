@@ -51,6 +51,7 @@ extern "C" {
 	void tsRegisterNamespace(tsEnginePtr engine, const char* nameSpace);
 	void tsNamespaceInherit(tsEnginePtr engine, const char* parent, const char* child);
 	tsObjectReferencePtr tsCreateObject(tsEnginePtr engine, const char* nameSpace, void* data);
+	void tsDeleteObject(tsObjectReferencePtr objectReference);
 	const char* tsGetNamespaceFromObject(tsObjectReferencePtr object);
 	int tsCompareNamespaceToObject(tsObjectReferencePtr object, const char* nameSpace);
 	void tsRegisterFunction(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* name, unsigned int argCount, tsEntryType* argTypes);
