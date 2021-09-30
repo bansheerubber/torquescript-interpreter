@@ -984,3 +984,73 @@ Entry* Interpreter::callFunction(string functionName, Entry* arguments, size_t a
 		return new Entry(this->returnRegister);
 	}
 }
+
+Entry* Interpreter::callMethod(ObjectReference* objectReference, string methodName, Entry* arguments, size_t argumentCount) {
+	// set up function call frame
+	Function* foundFunction;
+	PackagedFunctionList* list;
+	int packagedFunctionListIndex = -1;
+	MethodTreeEntry* methodTreeEntry = nullptr;
+	int methodTreeEntryIndex = -1;
+
+	ObjectWrapper* objectWrapper = objectReference->objectWrapper;
+	Object* object = nullptr;
+	if(objectWrapper == nullptr) {
+		return new Entry(getEmptyString());
+	}
+
+	object = objectWrapper->object;
+	
+	bool found = false;
+	auto methodNameIndex = this->engine->methodNameToIndex.find(toLower(methodName));
+	if(methodNameIndex != this->engine->methodNameToIndex.end()) {
+		auto methodEntry = object->methodTree->methodIndexToEntry.find(methodNameIndex->second);
+		if(methodEntry != object->methodTree->methodIndexToEntry.end()) {
+			methodTreeEntry = methodEntry->second;
+			methodTreeEntryIndex = methodTreeEntry->hasInitialMethod ? 0 : 1;
+			list = methodTreeEntry->list[methodTreeEntryIndex];
+			packagedFunctionListIndex = list->topValidIndex;
+			foundFunction = (*list)[packagedFunctionListIndex];
+			found = true;
+		}
+	}
+
+	if(!found) {
+		this->warning("could not find function with name '%s::%s'\n", object->nameSpace.c_str(), methodName.c_str());
+		return new Entry(getEmptyString());
+	}
+
+	if(foundFunction->isTSSL) { // TODO handle argument type conversion
+		sl::Function* function = foundFunction->function;
+		this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+		Entry* output = function->function(this->engine, argumentCount, arguments);
+		this->popFunctionFrame();
+
+		if(output == nullptr) {
+			return new Entry(getEmptyString());
+		}
+		return output;
+	}
+	else {
+		// push arguments onto the stack
+		for(size_t i = 0; i < argumentCount; i++) {
+			this->push(arguments[i], instruction::STACK);
+		}
+
+		this->push((double)argumentCount, instruction::STACK);
+
+		// handle callback
+		this->pushFunctionFrame(
+			foundFunction,
+			list,
+			packagedFunctionListIndex,
+			methodTreeEntry,
+			methodTreeEntryIndex,
+			argumentCount + 1,
+			foundFunction->variableCount
+		);
+		this->interpret();
+
+		return new Entry(this->returnRegister);
+	}
+}

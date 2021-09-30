@@ -88,6 +88,7 @@ namespace ts {
 			void deleteObjectName(string &name);
 
 			Entry* callFunction(string functionName, Entry* arguments, size_t argumentCount);
+			Entry* callMethod(ObjectReference* objectReference, string methodName, Entry* arguments, size_t argumentCount);
 
 			Entry emptyEntry;
 

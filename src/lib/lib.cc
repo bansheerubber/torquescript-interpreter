@@ -100,5 +100,5 @@ tsEntryPtr tsCallFunction(tsEnginePtr engine, const char* functionName, unsigned
 }
 
 tsEntryPtr tsCallMethod(tsEnginePtr engine, tsObjectReferencePtr object, const char* functionName, unsigned int argumentCount, tsEntryPtr arguments) {
-	return nullptr;	
+	return (tsEntryPtr)((ts::Engine*)engine)->interpreter->callMethod((ts::ObjectReference*)object, string(functionName), (ts::Entry*)arguments, argumentCount);
 }
