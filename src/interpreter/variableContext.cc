@@ -72,7 +72,12 @@ Entry& VariableContext::getVariableEntry(Instruction &instruction, string &name,
 		}
 		else {
 			VariableContextEntry &entry = value.value();
-			return entry.entry;
+			if(entry.stackIndex < 0) {
+				return entry.entry;
+			}
+			else {
+				return this->interpreter->stack[entry.stackIndex + this->interpreter->stackFramePointer];
+			}
 		}
 	}
 	else {
