@@ -87,6 +87,8 @@ namespace ts {
 			void setObjectName(string &name, ObjectWrapper* object);
 			void deleteObjectName(string &name);
 
+			Entry* callFunction(string functionName, Entry* arguments, size_t argumentCount);
+
 			Entry emptyEntry;
 
 			size_t highestObjectId = 1;

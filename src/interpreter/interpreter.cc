@@ -932,3 +932,55 @@ void Interpreter::setObjectName(string &name, ObjectWrapper* object) {
 void Interpreter::deleteObjectName(string &name) {
 	this->stringToObject.erase(name);
 }
+
+Entry* Interpreter::callFunction(string functionName, Entry* arguments, size_t argumentCount) {
+	// set up function call frame
+	Function* foundFunction;
+	PackagedFunctionList* list;
+	int packagedFunctionListIndex = -1;
+	MethodTreeEntry* methodTreeEntry = nullptr;
+	int methodTreeEntryIndex = -1;
+
+	if(this->engine->nameToFunctionIndex.find(toLower(functionName)) != this->engine->nameToFunctionIndex.end()) {
+		list = this->engine->functions[this->engine->nameToFunctionIndex[toLower(functionName)]];
+		packagedFunctionListIndex = list->topValidIndex;
+		foundFunction = (*list)[packagedFunctionListIndex];
+	}
+	else {
+		this->warning("could not find function with name '%s'\n", functionName.c_str());
+		return new Entry(getEmptyString());
+	}
+
+	if(foundFunction->isTSSL) { // TODO handle argument type conversion
+		sl::Function* function = foundFunction->function;
+		this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
+		Entry* result = function->function(this->engine, argumentCount, arguments);
+		this->popFunctionFrame();
+
+		if(result == nullptr) {
+			return new Entry(getEmptyString());
+		}
+		return result;
+	}
+	else {
+		// push arguments onto the stack
+		for(size_t i = 0; i < argumentCount; i++) {
+			this->push(arguments[i], instruction::STACK);
+		}
+
+		this->push((double)argumentCount, instruction::STACK);
+
+		// handle callback
+		this->pushFunctionFrame(
+			foundFunction,
+			list,
+			packagedFunctionListIndex,
+			methodTreeEntry,
+			methodTreeEntryIndex,
+			argumentCount + 1,
+			foundFunction->variableCount
+		);
+		this->interpret();
+		return new Entry(this->returnRegister);
+	}
+}

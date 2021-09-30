@@ -54,6 +54,8 @@ extern "C" {
 	void tsDeleteObject(tsObjectReferencePtr objectReference);
 	const char* tsGetNamespaceFromObject(tsObjectReferencePtr object);
 	int tsCompareNamespaceToObject(tsObjectReferencePtr object, const char* nameSpace);
-	void tsRegisterFunction(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* name, unsigned int argCount, tsEntryType* argTypes);
-	void tsRegisterMethod(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* nameSpace, const char* name, unsigned int argCount, tsEntryType* argTypes);
+	void tsRegisterFunction(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* name, unsigned int argumentCount, tsEntryType* argTypes);
+	void tsRegisterMethod(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* nameSpace, const char* name, unsigned int argumentCount, tsEntryType* argTypes);
+	tsEntryPtr tsCallFunction(tsEnginePtr engine, const char* functionName, unsigned int argumentCount, tsEntryPtr arguments);
+	tsEntryPtr tsCallMethod(tsEnginePtr engine, tsObjectReferencePtr object, const char* functionName, unsigned int argumentCount, tsEntryPtr arguments);
 }

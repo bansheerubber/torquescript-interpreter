@@ -83,14 +83,22 @@ int tsCompareNamespaceToObject(tsObjectReferencePtr object, const char* nameSpac
 	return string(((ts::ObjectWrapper*)object->objectWrapper)->object->typeMethodTree->name) == string(nameSpace);
 }
 
-void tsRegisterFunction(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* name, unsigned int argCount, tsEntryType* argTypes) {
+void tsRegisterFunction(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* name, unsigned int argumentCount, tsEntryType* argTypes) {
 	((ts::Engine*)engine)->defineTSSLFunction(
-		ts::sl::FUNC_DEF((ts::entry::EntryType)returnType, (ts_func)function, name, argCount, (ts::entry::EntryType*)argTypes)
+		ts::sl::FUNC_DEF((ts::entry::EntryType)returnType, (ts_func)function, name, argumentCount, (ts::entry::EntryType*)argTypes)
 	);
 }
 
-void tsRegisterMethod(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* nameSpace, const char* name, unsigned int argCount, tsEntryType* argTypes) {
+void tsRegisterMethod(tsEnginePtr engine, tsEntryType returnType, tsFunctionPtr function, const char* nameSpace, const char* name, unsigned int argumentCount, tsEntryType* argTypes) {
 	((ts::Engine*)engine)->defineTSSLFunction(
-		ts::sl::FUNC_DEF((ts::entry::EntryType)returnType, (ts_func)function, nameSpace, name, argCount, (ts::entry::EntryType*)argTypes)
+		ts::sl::FUNC_DEF((ts::entry::EntryType)returnType, (ts_func)function, nameSpace, name, argumentCount, (ts::entry::EntryType*)argTypes)
 	);
+}
+
+tsEntryPtr tsCallFunction(tsEnginePtr engine, const char* functionName, unsigned int argumentCount, tsEntryPtr arguments) {
+	return (tsEntryPtr)((ts::Engine*)engine)->interpreter->callFunction(string(functionName), (ts::Entry*)arguments, argumentCount);
+}
+
+tsEntryPtr tsCallMethod(tsEnginePtr engine, tsObjectReferencePtr object, const char* functionName, unsigned int argumentCount, tsEntryPtr arguments) {
+	return nullptr;	
 }
