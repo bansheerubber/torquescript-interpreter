@@ -293,76 +293,11 @@ bool Interpreter::tick() {
 
 	Schedule* schedule = this->schedules.top();
 	while(this->schedules.array.head > 0 && time > schedule->end) {
-		// set up function call frame
-		Function* foundFunction;
-		PackagedFunctionList* list;
-		int packagedFunctionListIndex = -1;
-		MethodTreeEntry* methodTreeEntry = nullptr;
-		int methodTreeEntryIndex = -1;
-
 		if(schedule->object != nullptr) {
-			ObjectWrapper* objectWrapper = schedule->object->objectWrapper;
-			Object* object = nullptr;
-			if(objectWrapper == nullptr) {
-				continue;
-			}
-
-			object = objectWrapper->object;
-			
-			bool found = false;
-			auto methodNameIndex = this->engine->methodNameToIndex.find(toLower(schedule->functionName));
-			if(methodNameIndex != this->engine->methodNameToIndex.end()) {
-				auto methodEntry = object->methodTree->methodIndexToEntry.find(methodNameIndex->second);
-				if(methodEntry != object->methodTree->methodIndexToEntry.end()) {
-					methodTreeEntry = methodEntry->second;
-					methodTreeEntryIndex = methodTreeEntry->hasInitialMethod ? 0 : 1;
-					list = methodTreeEntry->list[methodTreeEntryIndex];
-					packagedFunctionListIndex = list->topValidIndex;
-					foundFunction = (*list)[packagedFunctionListIndex];
-					found = true;
-				}
-			}
-
-			if(!found) {
-				continue;
-			}
+			this->callMethod(schedule->object, schedule->functionName, schedule->arguments, schedule->argumentCount);
 		}
 		else {
-			if(this->engine->nameToFunctionIndex.find(toLower(schedule->functionName)) != this->engine->nameToFunctionIndex.end()) {
-				list = this->engine->functions[this->engine->nameToFunctionIndex[toLower(schedule->functionName)]];
-				packagedFunctionListIndex = list->topValidIndex;
-				foundFunction = (*list)[packagedFunctionListIndex];
-			}
-			else {
-				continue;
-			}
-		}
-
-		if(foundFunction->isTSSL) { // TODO handle argument type conversion
-			sl::Function* function = foundFunction->function;
-			this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-			function->function(this->engine, schedule->argumentCount, schedule->arguments);
-			this->popFunctionFrame();
-		}
-		else {
-			// push arguments onto the stack
-			for(size_t i = 0; i < schedule->argumentCount; i++) {
-				this->push(schedule->arguments[i], instruction::STACK);
-			}
-
-			this->push((double)schedule->argumentCount, instruction::STACK);
-
-			// handle callback
-			this->pushFunctionFrame(
-				foundFunction,
-				list,
-				packagedFunctionListIndex,
-				methodTreeEntry,
-				methodTreeEntryIndex,
-				schedule->argumentCount + 1,
-				foundFunction->variableCount
-			);
-			this->interpret();
+			this->callFunction(schedule->functionName, schedule->arguments, schedule->argumentCount);
 		}
 
 		this->schedules.pop();
