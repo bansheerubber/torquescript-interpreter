@@ -1,0 +1,26 @@
+const char* words = %%words%%;
+int startCount = %%start%%;
+
+if(startCount < 0) {
+	return nullptr;
+}
+
+int endCount = -1;
+if(argc >= 3) {
+	endCount = %%end%%;
+}
+
+string output;
+int spaceCount = 0;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		if(spaceCount >= startCount && (spaceCount < endCount || endCount == -1)) {
+			output += character;
+		}
+		spaceCount++;
+	}
+	else if(spaceCount >= startCount && (spaceCount <= endCount || endCount == -1)) {
+		output += character;
+	}
+}

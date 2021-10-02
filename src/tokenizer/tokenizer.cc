@@ -1,18 +1,46 @@
 #include "tokenizer.h"
 #include "../io.h"
 
-Tokenizer::Tokenizer(string piped, bool isPiped, ParsedArguments args) {
+#include "../engine/engine.h"
+
+Tokenizer::Tokenizer(ts::Engine* engine, ParsedArguments args) {
+	this->engine = engine;
 	this->handleArgs(args);
+}
+
+Tokenizer::~Tokenizer() {
+	this->reset();
+}
+
+void Tokenizer::reset() {
+	// reset state
+	this->lineNumber = 1;
+	this->characterNumber = 1;
+	this->freezeKeywordTest = false;
+	this->failedKeyword = false;
+	this->overrun = 0;
+	this->fileIndex = 0;
+	this->tokenIndex = 0;
+	this->tokens.clear();
+
+	if(this->contents != nullptr) {
+		delete[] this->contents;
+	}
+}
+
+void Tokenizer::tokenizePiped(string piped) {
+	this->reset();
 	
 	this->contentSize = piped.size();
-	this->contents = new char[this->contentSize];
+	this->contents = new char[this->contentSize + 1];
 	strcpy(this->contents, piped.c_str());
+	this->contents[this->contentSize] = '\0';
 
 	this->tokenize();
 }
 
-Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
-	this->handleArgs(args);
+void Tokenizer::tokenizeFile(string fileName) {
+	this->reset();
 	
 	// read the file
 	ifstream file = ifstream(fileName, ios::binary | ios::ate);
@@ -23,6 +51,7 @@ Tokenizer::Tokenizer(string fileName, ParsedArguments args) {
 	}
 
 	// TODO this is probably insecure
+	// TODO test for directories here, or ensure that we test for directory somewhere along the exec path
 	contentSize = file.tellg();
 	this->contents = new char[this->contentSize];
 	file.seekg(0);
@@ -47,8 +76,10 @@ void Tokenizer::tokenize() {
 	// initialize keyword tables
 	this->initializeKeywords();
 
+	bool lastCharacterWhitespace = false;
 	char character;
 	while(!this->isFileEOF() && (character = this->getChar())) {
+		bool foundWhitespace = false;
 		this->failedKeyword = false;
 		
 		// read a number
@@ -121,11 +152,34 @@ void Tokenizer::tokenize() {
 		else if(!this->isWhitespace(character)) {
 			this->error("unexpected character '%c'", character);
 		}
+		else {
+			if(!lastCharacterWhitespace) {
+				this->tokens.push_back(Token {
+					lexeme: " ",
+					type: WHITESPACE,
+					lineNumber: this->lineNumber,
+					characterNumber: this->characterNumber,
+				});
+				lastCharacterWhitespace = true;
+			}
+			foundWhitespace = true;
+		}
+
+		if(!foundWhitespace) {
+			lastCharacterWhitespace = false;
+		}
 
 		if(!this->failedKeyword) {
 			this->freezeKeywordTest = false;
 		}
 	}
+
+	this->tokens.push_back(Token {
+		lexeme: "EOF",
+		type: END_OF_FILE,
+		lineNumber: this->lineNumber,
+		characterNumber: this->characterNumber,
+	});
 
 	// print the tokens
 	/*for(Token token: this->tokens) {
@@ -133,30 +187,76 @@ void Tokenizer::tokenize() {
 	}*/
 }
 
-Token& Tokenizer::getToken() {
+Token& Tokenizer::getToken(bool whitespace) {
 	if(this->tokenIndex >= this->tokens.size()) {
 		return this->emptyToken;
 	}
+
+	if(!whitespace) {
+		Token* token = &this->tokens[this->tokenIndex++];
+		while(token->type == WHITESPACE) {
+			if(this->tokenIndex >= this->tokens.size()) {
+				return this->emptyToken;
+			}
+			
+			token = &this->tokens[this->tokenIndex++];
+		}
+		return *token;
+	}
+
 	return this->tokens[this->tokenIndex++];
 }
 
-Token& Tokenizer::unGetToken() {
+Token& Tokenizer::unGetToken(bool whitespace) {
 	if(this->tokenIndex <= 0) {
 		return this->emptyToken;
 	}
+
+	if(!whitespace) {
+		Token* token = &this->tokens[--this->tokenIndex];
+		while(token->type == WHITESPACE) {
+			if(this->tokenIndex <= 0) {
+				return this->emptyToken;
+			}
+			
+			token = &this->tokens[--this->tokenIndex];
+		}
+		return *token;
+	}
+
 	return this->tokens[--this->tokenIndex];
 }
 
-Token& Tokenizer::peekToken(int offset) {
-	if(this->tokenIndex + offset >= this->tokens.size()) {
-		return this->emptyToken;
-	}
+Token& Tokenizer::peekToken(int offset, bool whitespace) {
+	if(!whitespace) {
+		Token* token = &this->tokens[this->tokenIndex];
+		int index = 0, count = 0;
+		while(count <= offset) {
+			if(this->tokenIndex + index >= this->tokens.size()) {
+				return this->emptyToken;	
+			}
 
-	if(this->tokenIndex + offset < 0) {
-		printError("token index is somehow below 0");
-	}
+			token = &this->tokens[this->tokenIndex + index];			
+			if(token->type != WHITESPACE) {
+				count++;
+			}
 
-	return this->tokens[this->tokenIndex + offset];
+			index++;
+		}
+
+		return *token;
+	}
+	else {
+		if(this->tokenIndex + offset >= this->tokens.size()) {
+			return this->emptyToken;
+		}
+
+		if(this->tokenIndex + offset < 0) {
+			printError("token index is somehow below 0");
+		}
+
+		return this->tokens[this->tokenIndex + offset];
+	}
 }
 
 bool Tokenizer::eof() {

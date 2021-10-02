@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, "../../tools")
 from preprocessor import preprocess
 
 def get_generated_code(folder, file, number_of_tabs):

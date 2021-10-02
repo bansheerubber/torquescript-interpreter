@@ -1,26 +1,26 @@
 #include "returnStatement.h"
 #include "../interpreter/interpreter.h"
 
-bool ReturnStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == RETURN;
+bool ReturnStatement::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == RETURN;
 }
 
-ReturnStatement* ReturnStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	ReturnStatement* output = new ReturnStatement(parser);
+ReturnStatement* ReturnStatement::Parse(Component* parent, ts::Engine* engine) {
+	ReturnStatement* output = new ReturnStatement(engine);
 	output->parent = parent;
-	parser->expectToken(RETURN);
+	engine->parser->expectToken(RETURN);
 
 	// parse an expression
-	if(tokenizer->peekToken().type != SEMICOLON) {
-		if(!Component::ShouldParse(output, tokenizer, parser)) {
-			parser->error("need valid expression for 'return' statement");
+	if(engine->tokenizer->peekToken().type != SEMICOLON) {
+		if(!Component::ShouldParse(output, engine)) {
+			engine->parser->error("need valid expression for 'return' statement");
 		}
-		output->operation = Component::Parse(output, tokenizer, parser);
+		output->operation = Component::Parse(output, engine);
 
-		parser->expectToken(SEMICOLON);
+		engine->parser->expectToken(SEMICOLON);
 	}
 	else {
-		tokenizer->getToken(); // absorb semicolon
+		engine->tokenizer->getToken(); // absorb semicolon
 	}
 
 	return output;
@@ -44,7 +44,7 @@ string ReturnStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn ReturnStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
 	// add a return statement that exits out from our function
@@ -53,7 +53,9 @@ ts::InstructionReturn ReturnStatement::compile(ts::Interpreter* interpreter, ts:
 	returnInstruction->functionReturn.hasValue = false;
 
 	if(this->operation != nullptr) {
-		output.add(this->operation->compile(interpreter, context));
+		ts::InstructionReturn operation = this->operation->compile(engine, context);
+		operation.last->pushType = ts::instruction::RETURN_REGISTER;
+		output.add(operation);
 		returnInstruction->functionReturn.hasValue = true;
 	}
 

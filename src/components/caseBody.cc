@@ -1,46 +1,46 @@
 #include "caseBody.h"
 #include "../interpreter/interpreter.h"
 
-bool CaseBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == CASE;
+bool CaseBody::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == CASE;
 }
 
-CaseBody* CaseBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	CaseBody* output = new CaseBody(parser);
+CaseBody* CaseBody::Parse(Body* body, ts::Engine* engine) {
+	CaseBody* output = new CaseBody(engine);
 	output->parent = body;
 	
-	parser->expectToken(CASE);
+	engine->parser->expectToken(CASE);
 
 	bool expectingOr = false;
-	while(!tokenizer->eof()) {
-		Token token = tokenizer->peekToken();
+	while(!engine->tokenizer->eof()) {
+		Token token = engine->tokenizer->peekToken();
 		if(!expectingOr) {
-			if(!Component::ShouldParse(output, tokenizer, parser)) {
-				parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'case' conditional");
+			if(!Component::ShouldParse(output, engine)) {
+				engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'case' conditional");
 			}
 			
 			output->conditionals.push_back((CaseElement){
-				component: Component::Parse(output, tokenizer, parser),
+				component: Component::Parse(output, engine),
 			});
 			expectingOr = true;
 		}
 		else if(token.type == OR) {
-			tokenizer->getToken(); // absorb or
+			engine->tokenizer->getToken(); // absorb or
 			output->conditionals.push_back((CaseElement){
 				isOr: true,
 			});
 			expectingOr = false;
 		}
 		else if(token.type == COLON) {
-			parser->expectToken(COLON);
+			engine->parser->expectToken(COLON);
 			break;
 		}
 		else {
-			parser->error("unexpected token '%s' while parsing case statement conditional", token.lexeme.c_str());
+			engine->parser->error("unexpected token '%s' while parsing case statement conditional", token.lexeme.c_str());
 		}
 	}
 
-	Component::ParseBody(output, tokenizer, parser); // parse the body of the case statement
+	Component::ParseBody(output, engine); // parse the body of the case statement
 	
 	return output;
 }
@@ -55,7 +55,7 @@ string CaseBody::print() {
 			output += " or ";
 		}
 	}
-	output += ":" + this->parser->newLine;
+	output += ":" + this->engine->parser->newLine;
 	output += this->printBody();
 	return output;
 }
@@ -77,10 +77,10 @@ string CaseBody::printJSON() {
 	return output;
 }
 
-ts::InstructionReturn CaseBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn CaseBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, context));
+		output.add(component->compile(engine, context));
 	}
 
 	if(output.first == nullptr) {

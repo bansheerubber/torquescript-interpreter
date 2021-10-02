@@ -3,44 +3,44 @@
 
 #include "../util/allocateString.h"
 
-bool NamespaceStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
+bool NamespaceStatement::ShouldParse(ts::Engine* engine) {
 	return (
-		tokenizer->peekToken().type == PARENT
+		engine->tokenizer->peekToken().type == PARENT
 		|| (
-			tokenizer->peekToken().type == SYMBOL
-			&& tokenizer->peekToken(1).type == NAMESPACE
+			engine->tokenizer->peekToken().type == SYMBOL
+			&& engine->tokenizer->peekToken(1).type == NAMESPACE
 		)
 	);
 }
 
-NamespaceStatement* NamespaceStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NamespaceStatement* output = new NamespaceStatement(parser);
+NamespaceStatement* NamespaceStatement::Parse(Component* parent, ts::Engine* engine) {
+	NamespaceStatement* output = new NamespaceStatement(engine);
 	output->parent = parent;
 
-	if(tokenizer->peekToken().type == PARENT) {
-		parser->expectToken(PARENT);
+	if(engine->tokenizer->peekToken().type == PARENT) {
+		engine->parser->expectToken(PARENT);
 	}
 	else {
 		// parse a symbol
-		if(!Symbol::ShouldParse(tokenizer, parser)) {
-			parser->error("invalid namespace operation");
+		if(!Symbol::ShouldParse(engine)) {
+			engine->parser->error("invalid namespace operation");
 		}
-		output->name = Symbol::Parse(output, tokenizer, parser);	
+		output->name = Symbol::Parse(output, engine);
 	}
 
-	parser->expectToken(NAMESPACE);
+	engine->parser->expectToken(NAMESPACE);
 
 	// parse a symbol
-	if(!Symbol::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid namespace operation");
+	if(!Symbol::ShouldParse(engine)) {
+		engine->parser->error("invalid namespace operation");
 	}
-	output->operation = Symbol::Parse(output, tokenizer, parser);
+	output->operation = Symbol::Parse(output, engine);
 
 	// parse call statement
-	if(!CallStatement::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid namespace operation");
+	if(!CallStatement::ShouldParse(engine)) {
+		engine->parser->error("invalid namespace operation");
 	}
-	output->call = CallStatement::Parse(parent, tokenizer, parser);
+	output->call = CallStatement::Parse(parent, engine);
 
 	return output;
 }
@@ -67,11 +67,11 @@ string NamespaceStatement::printJSON() {
 	}
 }
 
-ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn NamespaceStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	if(this->name != nullptr) {
-		output.add(this->call->compile(interpreter, context)); // push arguments
+		output.add(this->call->compile(engine, context)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();
@@ -98,7 +98,7 @@ ts::InstructionReturn NamespaceStatement::compile(ts::Interpreter* interpreter, 
 		}
 	}
 	else {
-		output.add(this->call->compile(interpreter, context)); // push arguments
+		output.add(this->call->compile(engine, context)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();

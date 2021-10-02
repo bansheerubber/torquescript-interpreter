@@ -1,6 +1,7 @@
 #include "scope.h"
 
 #include "../util/allocateString.h"
+#include "../engine/engine.h"
 
 using namespace ts;
 
@@ -15,7 +16,7 @@ BoundVariable& Scope::allocateVariable(string &variableName, bool isArgument) {
 	return this->variables[toLower(variableName)];
 }
 
-ts::InstructionReturn Scope::compileLinkVariables(ts::Interpreter* interpreter) {
+ts::InstructionReturn Scope::compileLinkVariables(ts::Engine* engine) {
 	ts::InstructionReturn output;
 
 	for(auto const& [name, value]: this->variables) {

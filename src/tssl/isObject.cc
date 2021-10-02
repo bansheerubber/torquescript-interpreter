@@ -1,14 +1,14 @@
 #include "isObject.h"
 
-#include "../interpreter/interpreter.h"
+#include "../engine/engine.h"
 
 using namespace std;
 
 namespace ts {
 	namespace sl {
-		Entry* isObject(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* isObject(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
-				if(args[0].objectData->object != nullptr) {
+				if(args[0].objectData->objectWrapper != nullptr) {
 					return new Entry(1.0);
 				}
 				else {

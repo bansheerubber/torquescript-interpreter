@@ -1,9 +1,12 @@
 #include "compiler.h"
 
+#include "../engine/engine.h"
+#include "../components/sourceFile.h"
+
 using namespace ts;
 
-Instruction* ts::Compile(Parser* parser, Interpreter* interpreter) {
-	InstructionReturn result = parser->getSourceFile()->compile(interpreter, {
+Instruction* Compile(Parser* parser, Engine* engine) {
+	InstructionReturn result = parser->getSourceFile()->compile(engine, {
 		loop: nullptr,
 		scope: nullptr,
 	});

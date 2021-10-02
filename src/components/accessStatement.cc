@@ -8,30 +8,29 @@
 
 bool AccessStatement::DatablockAsSymbol = false;
 
-bool AccessStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser, bool useKeyword) {
-	Token token = tokenizer->peekToken();
+bool AccessStatement::ShouldParse(ts::Engine* engine, bool useKeyword) {
+	Token token = engine->tokenizer->peekToken();
 	return (
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
 		|| ( // handle functions
 			token.type == SYMBOL
-			&& tokenizer->peekToken(1).type == LEFT_PARENTHESIS
+			&& engine->tokenizer->peekToken(1).type == LEFT_PARENTHESIS
 		)
-		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
+		|| (useKeyword && engine->tokenizer->isAlphabeticalKeyword(token.type))
 	);
 }
 
 AccessStatement* AccessStatement::Parse(
 	Component* firstValue,
 	Component* parent,
-	Tokenizer* tokenizer,
-	Parser* parser,
+	ts::Engine* engine,
 	bool useKeyword
 ) {
-	AccessStatement* output = new AccessStatement(parser);
+	AccessStatement* output = new AccessStatement(engine);
 	output->parent = parent;
 
-	Token &token = tokenizer->peekToken();
+	Token &token = engine->tokenizer->peekToken();
 	if(firstValue != nullptr) {
 		output->elements.push_back((AccessElement){
 			component: firstValue,
@@ -42,42 +41,42 @@ AccessStatement* AccessStatement::Parse(
 		token.type == LOCAL_VARIABLE
 		|| token.type == GLOBAL_VARIABLE
 		|| token.type == SYMBOL
-		|| (useKeyword && tokenizer->isAlphabeticalKeyword(token.type))
+		|| (useKeyword && engine->tokenizer->isAlphabeticalKeyword(token.type))
 	) { // we read in a single variable at the start of the chain
 		output->elements.push_back((AccessElement){
-			token: tokenizer->getToken(),
+			token: engine->tokenizer->getToken(),
 		});
 	}
 	
 	bool expectingArrayOrCall = true;
-	while(!tokenizer->eof()) {
-		token = tokenizer->peekToken();
+	while(!engine->tokenizer->eof()) {
+		token = engine->tokenizer->peekToken();
 		if(token.type == LEFT_BRACE) {
 			if(expectingArrayOrCall) {
 				output->elements.push_back((AccessElement){
 					isArray: true,
-					component: ArrayStatement::Parse(output, tokenizer, parser),
+					component: ArrayStatement::Parse(output, engine),
 				});
 				expectingArrayOrCall = false;
 			}
 			else {
-				parser->error("was not expecting array access");
+				engine->parser->error("was not expecting array access");
 			}
 		}
 		else if(token.type == LEFT_PARENTHESIS) {
 			if(expectingArrayOrCall) {
 				output->elements.push_back((AccessElement){
 					isCall: true,
-					component: CallStatement::Parse(output, tokenizer, parser),
+					component: CallStatement::Parse(output, engine),
 				});
 				expectingArrayOrCall = false;
 			}
 			else {
-				parser->error("was not expecting call");
+				engine->parser->error("was not expecting call");
 			}
 		}
 		else if(token.type == MEMBER_CHAIN) {
-			tokenizer->getToken(); // absorb the token we peeked
+			engine->tokenizer->getToken(); // absorb the token we peeked
 			output->elements.push_back((AccessElement){
 				token: token,
 			});
@@ -221,18 +220,18 @@ size_t AccessStatement::getStackIndex(ts::Scope* scope) {
 	}
 }
 
-ts::InstructionReturn AccessStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
-	return this->compileAccess(interpreter, context).output;
+ts::InstructionReturn AccessStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
+	return this->compileAccess(engine, context).output;
 }
 
 // create instructions that set up the stack for an array access/object property access instruction
-AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpreter, ts::CompilationContext context) {
+AccessStatementCompiled AccessStatement::compileAccess(ts::Engine* engine, ts::CompilationContext context) {
 	AccessStatementCompiled c;
 
 	auto iterator = this->elements.begin();
 
 	if(this->startsWithFunction()) { // compile a function call
-		c.output.add(this->elements[1].component->compile(interpreter, context)); // push arguments
+		c.output.add(this->elements[1].component->compile(engine, context)); // push arguments
 
 		// push the amount of arguments we just found
 		ts::Instruction* instruction = new ts::Instruction();
@@ -264,7 +263,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 
 	// special cases for strings at the start of the access statement
 	if(this->elements[0].component != nullptr && this->elements[0].component->getType() == STRING_LITERAL) {
-		c.output.add(this->elements[0].component->compile(interpreter, context));
+		c.output.add(this->elements[0].component->compile(engine, context));
 		++iterator;
 	}
 
@@ -308,7 +307,7 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 		}
 		else if(element.isArray) {
 			lastInstruction->localAccess.dimensions = ((ArrayStatement*)element.component)->getDimensions();
-			c.output.add(element.component->compile(interpreter, context));
+			c.output.add(element.component->compile(engine, context));
 		}
 		else if(element.token.type == MEMBER_CHAIN) {
 			if(lastInstruction != nullptr) {
@@ -329,12 +328,12 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = instruction;
 		}
 		else if(element.component != nullptr && element.component->getType() == PARENT_STATEMENT) {
-			c.output.add(element.component->compile(interpreter, context));
+			c.output.add(element.component->compile(engine, context));
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == CALL_STATEMENT) {
 			// at this point, the object should already be on the stack. no need to push it. push the args
-			c.output.add(element.component->compile(interpreter, context));
+			c.output.add(element.component->compile(engine, context));
 
 			// push the amount of arguments we just found
 			ts::Instruction* pushArgumentCount = new ts::Instruction();
@@ -363,11 +362,11 @@ AccessStatementCompiled AccessStatement::compileAccess(ts::Interpreter* interpre
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == MATH_EXPRESSION) {
-			c.output.add(element.component->compile(interpreter, context));
+			c.output.add(element.component->compile(engine, context));
 			lastInstruction = nullptr;
 		}
 		else if(element.component != nullptr && element.component->getType() == SYMBOL_STATEMENT) {
-			ts::InstructionReturn symbol = element.component->compile(interpreter, context);
+			ts::InstructionReturn symbol = element.component->compile(engine, context);
 			c.lastAccess = symbol.first;
 			lastInstruction = symbol.first;
 		}

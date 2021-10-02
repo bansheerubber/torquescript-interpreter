@@ -1,0 +1,15 @@
+const char* words = %%words%%;
+double count = 0;
+
+bool foundLast = false;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		count++;
+		foundLast = false;
+	}
+	else {
+		foundLast = true;
+	}
+}
+count += foundLast;

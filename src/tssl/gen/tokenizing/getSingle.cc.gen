@@ -1,0 +1,13 @@
+const char* words = %%words%%;
+int count = %%index%%;
+string word;
+int spaceCount = 0;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		spaceCount++;
+	}
+	else if(spaceCount == count) {
+		word += character;
+	}
+}

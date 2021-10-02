@@ -6,6 +6,7 @@ using namespace std;
 
 enum TokenType {
 	INVALID = 0,
+	WHITESPACE,
 	END_OF_FILE,
 	PLUS, // +
 	MINUS, // -

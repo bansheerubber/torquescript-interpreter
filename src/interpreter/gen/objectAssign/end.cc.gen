@@ -12,5 +12,5 @@ if(instruction.objectAssign.fromStack && !instruction.objectAssign.pushResult) {
 }
 
 if(instruction.objectAssign.pushResult && entry != nullptr && !instruction.objectAssign.fromStack) {
-	this->push(*entry);
+	this->push(*entry, instruction.pushType);
 }

@@ -1,42 +1,42 @@
 #include "packageDeclaration.h"
 #include "../interpreter/interpreter.h"
 
-bool PackageDeclaration::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == PACKAGE;
+bool PackageDeclaration::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == PACKAGE;
 }
 
-PackageDeclaration* PackageDeclaration::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	PackageDeclaration* output = new PackageDeclaration(parser);
+PackageDeclaration* PackageDeclaration::Parse(Component* parent, ts::Engine* engine) {
+	PackageDeclaration* output = new PackageDeclaration(engine);
 
-	parser->expectToken(PACKAGE);
+	engine->parser->expectToken(PACKAGE);
 
 	// parse a symbol
-	if(!Symbol::ShouldParse(tokenizer, parser)) {
-		parser->error("invalid package name");
+	if(!Symbol::ShouldParse(engine)) {
+		engine->parser->error("invalid package name");
 	}
-	output->packageName = Symbol::Parse(output, tokenizer, parser);
+	output->packageName = Symbol::Parse(output, engine);
 
-	parser->expectToken(LEFT_BRACKET);
+	engine->parser->expectToken(LEFT_BRACKET);
 
-	Component::ParseBody(output, tokenizer, parser);
+	Component::ParseBody(output, engine);
 
 	// make sure our children are functions
 	for(Component* child: output->children) {
 		if(child->getType() != FUNCTION_DECLARATION) {
-			parser->error("only functions allowed inside of package");
+			engine->parser->error("only functions allowed inside of package");
 		}
 	}
 
-	parser->expectToken(RIGHT_BRACKET);
-	parser->expectToken(SEMICOLON);
+	engine->parser->expectToken(RIGHT_BRACKET);
+	engine->parser->expectToken(SEMICOLON);
 
 	return output;
 }
 
 string PackageDeclaration::print() {
-	string output = "package " + this->packageName->print() + this->parser->space + "{" + this->parser->newLine;
+	string output = "package " + this->packageName->print() + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "};" + this->parser->newLine;
+	output += "};" + this->engine->parser->newLine;
 	return output;
 }
 
@@ -44,9 +44,9 @@ string PackageDeclaration::printJSON() {
 	return "{\"type\":\"PACKAGE_DECLARATION\",\"name\":" + this->packageName->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn PackageDeclaration::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn PackageDeclaration::compile(ts::Engine* engine, ts::CompilationContext context) {
 	for(Component* component: this->children) {
-		component->compile(interpreter, (ts::CompilationContext){
+		component->compile(engine, (ts::CompilationContext){
 			loop: nullptr,
 			package: this,
 			scope: nullptr,

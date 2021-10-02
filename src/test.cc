@@ -4,6 +4,7 @@
 
 #include "compiler/compiler.h"
 #include "tssl/echo.h"
+#include "engine/engine.h"
 #include "interpreter/interpreter.h"
 #include "io.h"
 #include "test.h"
@@ -38,9 +39,11 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 	errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
 
 	ParsedArguments empty;
-	Tokenizer* tokenizer = new Tokenizer(filename, empty);
-	Parser* parser = new Parser(tokenizer, empty);
-	string json = parser->printJSON();
+	Engine engine(empty);
+	engine.tokenizer->tokenizeFile(filename);
+	engine.parser->startParse();
+
+	string json = engine.parser->printJSON();
 
 	if(overwriteResults) {
 		filesystem::create_directories(filesystem::path(resultsFile).remove_filename());
@@ -52,12 +55,12 @@ bool parseFileTest(string name, string filename, bool overwriteResults) {
 
 	if(isFileEqual(json, resultsFile)) {
 		printf("   passed test\n");
-		printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
+		printf("parsed %ld lines\n", engine.tokenizer->getTotalLineCount());
 		return true;
 	}
 	else {
 		printError("   failed test\n");
-		printf("parsed %ld lines\n", tokenizer->getTotalLineCount());
+		printf("parsed %ld lines\n", engine.tokenizer->getTotalLineCount());
 
 		filesystem::create_directories(filesystem::path(errorsFile).remove_filename());
 		ofstream file;
@@ -86,17 +89,20 @@ void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests,
 			errorsFile.replace(9, 7, "errors").replace(errorsFile.find(".cs"), 3, ".json");
 
 			(*totalTests)++;
-			Tokenizer* tokenizer = new Tokenizer(candidateFile, empty);
-			Parser* parser = new Parser(tokenizer, empty);
-			string json = parser->printJSON();
-			totalLines += tokenizer->getTotalLineCount();
+
+			Engine engine(empty);
+			engine.tokenizer->tokenizeFile(candidateFile);
+			engine.parser->startParse();
+
+			string json = engine.parser->printJSON();
+			totalLines += engine.tokenizer->getTotalLineCount();
 
 			// overwrite old results if we need to regenerate unit test results
 			if(overwriteResults) {
 				filesystem::create_directories(filesystem::path(resultsFile).remove_filename());
 				ofstream file;
 				file.open(resultsFile);
-				file << parser->printJSON();
+				file << engine.parser->printJSON();
 				file.close();
 			}
 
@@ -140,13 +146,12 @@ void interpretDirectoryTest(string filename, int* totalTests, int* passedTests) 
 			ts::sl::mockStdout = string();
 
 			(*totalTests)++;
-			Tokenizer* tokenizer = new Tokenizer(candidateFile, empty);
-			Parser* parser = new Parser(tokenizer, empty);
-			ts::Interpreter* interpreter = new ts::Interpreter(empty, false);
-			interpreter->testing = true;
-			interpreter->startInterpretation(ts::Compile(parser, interpreter));
 
-			totalLines += tokenizer->getTotalLineCount();
+			Engine engine(empty);
+			engine.interpreter->testing = true;
+			engine.execFile(candidateFile);
+
+			totalLines += engine.tokenizer->getTotalLineCount();
 
 			if(isFileEqual(ts::sl::mockStdout, resultsFile)) {
 				(*passedTests)++;

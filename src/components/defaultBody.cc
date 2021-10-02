@@ -1,24 +1,24 @@
 #include "defaultBody.h"
 #include "../interpreter/interpreter.h"
 
-bool DefaultBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == DEFAULT;
+bool DefaultBody::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == DEFAULT;
 }
 
-DefaultBody* DefaultBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	DefaultBody* output = new DefaultBody(parser);
+DefaultBody* DefaultBody::Parse(Body* body, ts::Engine* engine) {
+	DefaultBody* output = new DefaultBody(engine);
 	output->parent = body;
 	
-	parser->expectToken(DEFAULT);
-	parser->expectToken(COLON);
+	engine->parser->expectToken(DEFAULT);
+	engine->parser->expectToken(COLON);
 
-	Component::ParseBody(output, tokenizer, parser); // parse the body of the case statement
+	Component::ParseBody(output, engine); // parse the body of the case statement
 	
 	return output;
 }
 
 string DefaultBody::print() {
-	string output = "default:" + this->parser->newLine;
+	string output = "default:" + this->engine->parser->newLine;
 	output += this->printBody();
 	return output;
 }
@@ -27,10 +27,10 @@ string DefaultBody::printJSON() {
 	return "{\"type\":\"DEFAULT_STATEMENT\",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn DefaultBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn DefaultBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, context));
+		output.add(component->compile(engine, context));
 	}
 
 	if(output.first == nullptr) {

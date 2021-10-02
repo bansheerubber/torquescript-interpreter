@@ -9,15 +9,15 @@
 #include "../include/fmt/include/fmt/format.h"
 #include <string>
 
+#include "../engine/engine.h"
 #include "../util/getEmptyString.h"
-#include "../interpreter/interpreter.h"
 #include "../util/stringToChars.h"
 
 using namespace std;
 
 namespace ts {
 	namespace sl {
-		Entry* mAbs(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mAbs(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				double number = args[0].numberData;
 				if(number < 0) {
@@ -30,35 +30,35 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* mACos(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mACos(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(acos(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mASin(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mASin(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(asin(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mATan(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mATan(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(atan2(args[0].numberData, args[1].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mCeil(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mCeil(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(ceil(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mFloor(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mFloor(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				double number = args[0].numberData;
 				if(number < 0) {
@@ -71,63 +71,63 @@ namespace ts {
 			return new Entry(0.0);
 		}
 
-		Entry* mCos(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mCos(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(cos(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mSin(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mSin(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(sin(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mTan(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mTan(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(tan(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mPow(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mPow(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				return new Entry(pow(args[0].numberData, args[1].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mSqrt(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mSqrt(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(sqrt(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mDegToRad(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mDegToRad(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(args[0].numberData * M_PI / 180.0);
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mRadToDeg(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mRadToDeg(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(args[0].numberData * 180.0 / M_PI);
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mLog(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mLog(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 1) {
 				return new Entry(log(args[0].numberData));
 			}
 			return new Entry(0.0);
 		}
 
-		Entry* mFloatLength(Interpreter* interpreter, size_t argc, Entry* args) {
+		Entry* mFloatLength(Engine* engine, unsigned int argc, Entry* args) {
 			if(argc == 2) {
 				int precision = (int)args[1].numberData;
 				if(precision < 0) {
@@ -144,6 +144,32 @@ namespace ts {
 				return new Entry(stringToChars(formatted));
 			}
 			return nullptr;
+		}
+
+		Entry* getRandom(Engine* engine, unsigned int argc, Entry* args) {
+			if(argc == 0) {
+				return new Entry(engine->getRandom());
+			}
+			else if(argc == 1) {
+				return new Entry((int)(engine->getRandom() * args[0].numberData));
+			}
+			else if(argc == 2) {
+				return new Entry((int)(engine->getRandom() * (args[1].numberData - args[0].numberData + 1) + args[0].numberData));
+			}
+
+			return nullptr;
+		}
+
+		Entry* setRandomSeed(Engine* engine, unsigned int argc, Entry* args) {
+			if(argc == 1) {
+				engine->setRandomSeed((int)args[0].numberData);
+			}
+
+			return nullptr;
+		}
+
+		Entry* getRandomSeed(Engine* engine, unsigned int argc, Entry* args) {
+			return new Entry(engine->getRandomSeed());
 		}
 	}
 }

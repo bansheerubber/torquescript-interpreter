@@ -1,31 +1,33 @@
-from gen.gen import get_generated_code
+import sys
+sys.path.insert(0, "../../tools")
+from gen import get_generated_code
 
 number_operations = {
-	"MATH_ADDITION": "this->push({0} + {1});",
-	"MATH_SUBTRACT": "this->push({0} - {1});",
-	"MATH_MULTIPLY": "this->push({0} * {1});",
-	"MATH_DIVISION": "this->push({0} / {1});",
-	"MATH_MODULUS": "this->push((int){0} % (int){1});",
-	"MATH_SHIFT_LEFT": "this->push((int){0} << (int){1});",
-	"MATH_SHIFT_RIGHT": "this->push((int){0} >> (int){1});",
-	"MATH_EQUAL": "this->push({0} == {1});",
-	"MATH_NOT_EQUAL": "this->push({0} != {1});",
-	"MATH_LESS_THAN_EQUAL": "this->push({0} <= {1});",
-	"MATH_GREATER_THAN_EQUAL": "this->push({0} >= {1});",
-	"MATH_LESS_THAN": "this->push({0} < {1});",
-	"MATH_GREATER_THAN": "this->push({0} > {1});",
-	"MATH_BITWISE_AND": "this->push((int){0} & (int){1});",
-	"MATH_BITWISE_OR": "this->push((int){0} | (int){1});",
-	"MATH_BITWISE_XOR": "this->push((int){0} ^ (int){1});",
+	"MATH_ADDITION": "this->push({0} + {1}, instruction.pushType);",
+	"MATH_SUBTRACT": "this->push({0} - {1}, instruction.pushType);",
+	"MATH_MULTIPLY": "this->push({0} * {1}, instruction.pushType);",
+	"MATH_DIVISION": "this->push({0} / {1}, instruction.pushType);",
+	"MATH_MODULUS": "this->push((int){0} % (int){1}, instruction.pushType);",
+	"MATH_SHIFT_LEFT": "this->push((int){0} << (int){1}, instruction.pushType);",
+	"MATH_SHIFT_RIGHT": "this->push((int){0} >> (int){1}, instruction.pushType);",
+	"MATH_EQUAL": "this->push({0} == {1}, instruction.pushType);",
+	"MATH_NOT_EQUAL": "this->push({0} != {1}, instruction.pushType);",
+	"MATH_LESS_THAN_EQUAL": "this->push({0} <= {1}, instruction.pushType);",
+	"MATH_GREATER_THAN_EQUAL": "this->push({0} >= {1}, instruction.pushType);",
+	"MATH_LESS_THAN": "this->push({0} < {1}, instruction.pushType);",
+	"MATH_GREATER_THAN": "this->push({0} > {1}, instruction.pushType);",
+	"MATH_BITWISE_AND": "this->push((int){0} & (int){1}, instruction.pushType);",
+	"MATH_BITWISE_OR": "this->push((int){0} | (int){1}, instruction.pushType);",
+	"MATH_BITWISE_XOR": "this->push((int){0} ^ (int){1}, instruction.pushType);",
 }
 
 string_operations = {
 	"MATH_STRING_EQUAL": """bool result = stringCompareInsensitive({0}, {1}) == true;
 			%%popStrings%%
-			this->push(result);""",
+			this->push(result, instruction.pushType);""",
 	"MATH_STRING_NOT_EQUAL": """bool result = stringCompareInsensitive({0}, {1}) == false;
 			%%popStrings%%
-			this->push(result);""",
+			this->push(result, instruction.pushType);""",
 	"MATH_APPEND": """size_t firstSize = strlen({0}), secondSize = strlen({1});
 			char* stringResult = new char[firstSize + secondSize + 1];
 			strncpy(stringResult, {0}, firstSize);
@@ -34,7 +36,7 @@ string_operations = {
 
 			%%popStrings%%
 
-			this->push(stringResult);""",
+			this->push(stringResult, instruction.pushType);""",
 	"MATH_SPC": """size_t firstSize = strlen({0}), secondSize = strlen({1});
 			char* stringResult = new char[firstSize + secondSize + 2];
 			strncpy(stringResult, {0}, firstSize);
@@ -44,7 +46,7 @@ string_operations = {
 
 			%%popStrings%%
 			
-			this->push(stringResult);""",
+			this->push(stringResult, instruction.pushType);""",
 	"MATH_TAB": """size_t firstSize = strlen({0}), secondSize = strlen({1});
 			char* stringResult = new char[firstSize + secondSize + 2];
 			strncpy(stringResult, {0}, firstSize);
@@ -54,7 +56,7 @@ string_operations = {
 
 			%%popStrings%%
 
-			this->push(stringResult);""",
+			this->push(stringResult, instruction.pushType);""",
 	"MATH_NL": """size_t firstSize = strlen({0}), secondSize = strlen({1});
 			char* stringResult = new char[firstSize + secondSize + 2];
 			strncpy(stringResult, {0}, firstSize);
@@ -64,7 +66,7 @@ string_operations = {
 
 			%%popStrings%%
 
-			this->push(stringResult);""",
+			this->push(stringResult, instruction.pushType);""",
 }
 
 string_pop = """if(popLValue) {{

@@ -8,8 +8,8 @@
 #include "stringLiteral.h"
 #include "../util/stringToChars.h"
 
-bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	Token token = tokenizer->peekToken();
+bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, ts::Engine* engine) {
+	Token token = engine->tokenizer->peekToken();
 	return (
 		token.type == PLUS_ASSIGN
 		|| token.type == MINUS_ASSIGN
@@ -31,26 +31,26 @@ bool AssignStatement::ShouldParse(AccessStatement* lvalue, Component* parent, To
 	);
 }
 
-AssignStatement* AssignStatement::Parse(AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	AssignStatement* output = new AssignStatement(parser);
+AssignStatement* AssignStatement::Parse(AccessStatement* lvalue, Component* parent, ts::Engine* engine) {
+	AssignStatement* output = new AssignStatement(engine);
 	output->parent = parent;
 	lvalue->setParent(output);
 	output->lvalue = lvalue;
-	output->assignmentToken = tokenizer->getToken();
+	output->assignmentToken = engine->tokenizer->getToken();
 
 	// parse access statement first since we need to absorb it before checking for math
-	if(Component::ShouldParse(output, tokenizer, parser)) {
-		output->rvalue = Component::Parse(output, tokenizer, parser);
+	if(Component::ShouldParse(output, engine)) {
+		output->rvalue = Component::Parse(output, engine);
 	}
 	else {
-		parser->error("could not find valid rvalue for assign");
+		engine->parser->error("could not find valid rvalue for assign");
 	}
 
 	return output;
 }
 
 string AssignStatement::print() {
-	string output = this->lvalue->print() + this->parser->space + this->assignmentToken.lexeme + this->parser->space + this->rvalue->print();
+	string output = this->lvalue->print() + this->engine->parser->space + this->assignmentToken.lexeme + this->engine->parser->space + this->rvalue->print();
 	if(this->parent->requiresSemicolon(this)) {
 		output += ";";
 	}
@@ -148,10 +148,10 @@ ts::instruction::InstructionType AssignStatement::TypeToObjectOperator(TokenType
 	}
 }
 
-ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn AssignStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 
-	AccessStatementCompiled c = this->lvalue->compileAccess(interpreter, context);
+	AccessStatementCompiled c = this->lvalue->compileAccess(engine, context);
 	ts::Instruction* instruction = c.lastAccess;
 
 	// handle object accesses
@@ -198,7 +198,7 @@ ts::InstructionReturn AssignStatement::compile(ts::Interpreter* interpreter, ts:
 		|| this->rvalue->getType() == PARENT_STATEMENT
 		|| this->rvalue->getType() == INLINE_CONDITIONAL
 	) {
-		output.add(this->rvalue->compile(interpreter, context));
+		output.add(this->rvalue->compile(engine, context));
 		instruction->localAssign.fromStack = true;
 	}
 

@@ -1,22 +1,36 @@
 #include "parser.h"
 
-Parser::Parser(Tokenizer* tokenizer, ParsedArguments args) {
-	this->newLine = "\n";
-	this->tab = "\t";
-	this->space = " ";
-	
-	this->tokenizer = tokenizer;
-	this->sourceFile = new SourceFile(this);
-	Component::ParseBody(this->sourceFile, this->tokenizer, this);
+#include "../components/sourceFile.h"
 
-	if(args.arguments["json"] != "") {
+Parser::Parser(ts::Engine* engine, ParsedArguments args) {
+	this->engine = engine;
+	this->args = args;
+}
+
+Parser::~Parser() {
+	for(Component* component: this->components) {
+		delete component;
+	}
+}
+
+void Parser::startParse() {
+	for(Component* component: this->components) {
+		delete component;
+	}
+
+	this->components.clear();
+	
+	this->sourceFile = new SourceFile(this->engine);
+	Component::ParseBody(this->sourceFile, this->engine);
+
+	if(this->args.arguments["json"] != "") {
 		cout << this->printJSON() << endl;
 	}
 }
 
 Token Parser::expectToken(TokenType type1, TokenType type2, TokenType type3, TokenType type4, TokenType type5) {
 	bool foundType = false;
-	Token token = this->tokenizer->getToken();
+	Token token = this->engine->tokenizer->getToken();
 	
 	if(token.type == type1) {
 		foundType = true;
@@ -35,7 +49,7 @@ Token Parser::expectToken(TokenType type1, TokenType type2, TokenType type3, Tok
 	}
 
 	if(!foundType) {
-		this->error("unexpected token '%s' found, wanted %s", token.lexeme.c_str(), this->tokenizer->typeToName(type1));
+		this->error("unexpected token '%s' found, wanted %s", token.lexeme.c_str(), this->engine->tokenizer->typeToName(type1));
 	}
 
 	return token;

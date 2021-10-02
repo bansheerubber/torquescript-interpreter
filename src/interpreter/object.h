@@ -11,7 +11,7 @@ using namespace ts;
 namespace ts {
 	class Object {
 		public:
-			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex);
+			Object(class ts::Interpreter* interpreter, string nameSpace, string inheritedName, class MethodTree* methodTree, class MethodTree* typeMethodTree);
 			~Object();
 
 			VariableContext properties;
@@ -23,12 +23,42 @@ namespace ts {
 			void setName(string &name);
 
 			string nameSpace;
-			size_t namespaceIndex;
+			class MethodTree* methodTree;
+			class MethodTree* typeMethodTree;
 		
 		private:
 			void inherit(Object* parent);
 			ObjectReference* list = nullptr;
 			ObjectReference* top = nullptr;
 			string name;
+			ObjectWrapper* wrapper;
 	};
+
+	struct ObjectWrapper {
+		Object* object;
+		void* data; // programmer-defined data for lib
+
+		friend class Object;
+
+		ObjectWrapper() {}
+		ObjectWrapper(Object* object, void* data = nullptr) {
+			this->object = object;
+			this->data = data;
+		}
+
+		~ObjectWrapper() {
+			delete this->object;
+			delete this->data;
+		}
+	};
+
+	#define TS_OBJECT_CONSTRUCTOR(name)		void (*name)(ObjectWrapper* wrapper)
+	ObjectWrapper* CreateObject(
+		class ts::Interpreter* interpreter,
+		string nameSpace,
+		string inheritedName,
+		class MethodTree* methodTree,
+		class MethodTree* typeMethodTree,
+		void* data = nullptr
+	);
 }

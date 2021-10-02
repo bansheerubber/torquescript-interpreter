@@ -12,13 +12,22 @@
 using namespace std;
 using namespace tsl;
 
+namespace ts {
+	class Engine;
+}
+
 class Tokenizer {
+	friend ts::Engine;
+	friend bool parseFileTest(string name, string filename, bool overwriteResults);
+	friend void parseDirectoryTest(string filename, bool overwriteResults, int* totalTests, int* passedTests);
+	
 	public:
-		Tokenizer(string fileName, ParsedArguments args);
-		Tokenizer(string piped, bool isPiped, ParsedArguments args);
-		Token& getToken();
-		Token& unGetToken();
-		Token& peekToken(int offset = 0);
+		Tokenizer(ts::Engine* engine, ParsedArguments args);
+		~Tokenizer();
+
+		Token& getToken(bool whitespace = false);
+		Token& unGetToken(bool whitespace = false);
+		Token& peekToken(int offset = 0, bool whitespace = false);
 		bool eof();
 		void printToken(Token token);
 		const char* typeToName(TokenType type);
@@ -30,8 +39,13 @@ class Tokenizer {
 		string fileName;
 	
 	private:
+		void reset();
+		
 		ParsedArguments args;
 		void handleArgs(ParsedArguments args);
+
+		void tokenizePiped(string piped);
+		void tokenizeFile(string fileName);
 		
 		void tokenize();
 		char getChar();
@@ -40,6 +54,8 @@ class Tokenizer {
 		void warning(const char* format, ...);
 		bool isWhitespace(char character);
 		bool isFileEOF();
+
+		ts::Engine* engine;
 
 		size_t lineNumber = 1;
 		size_t characterNumber = 1;

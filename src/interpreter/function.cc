@@ -2,7 +2,9 @@
 
 using namespace ts;
 
-Function::Function(Instruction* head, size_t argumentCount, size_t variableCount, string functionName, string namespaceName) : InstructionContainer(head) {
+Function::Function(Instruction* head, size_t argumentCount, size_t variableCount, string functionName, string namespaceName)
+	: InstructionContainer(head)
+{
 	this->functionName = functionName;
 	this->namespaceName = namespaceName;
 	this->argumentCount = argumentCount;
@@ -14,4 +16,10 @@ Function::Function(sl::Function* tsslFunction) {
 	this->function = tsslFunction;
 	this->functionName = tsslFunction->name;
 	this->namespaceName = "";
+}
+
+Function::~Function() {
+	if(this->function != nullptr) {
+		delete this->function;
+	}
 }

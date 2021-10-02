@@ -1,0 +1,9 @@
+const char* words = %%words%%;
+string first;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		break;
+	}
+	first += character;
+}

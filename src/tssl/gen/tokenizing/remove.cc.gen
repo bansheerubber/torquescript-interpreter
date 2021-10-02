@@ -1,0 +1,26 @@
+const char* words = %%words%%;
+int count = %%index%%;
+string output;
+string currentWord;
+
+int spaceCount = 0;
+for(; *words; words++) {
+	char character = *words;
+	if(%%comparison%%) {
+		spaceCount++;
+		currentWord = "";
+	}
+	else {
+		currentWord += character;
+	}
+
+	if(spaceCount != count) {
+		if( // edge case for count = 0
+			!(%%comparison%%)
+			|| count != 0
+			|| spaceCount != 1
+		) {
+			output += character;
+		}
+	}
+}

@@ -4,15 +4,15 @@
 #include "../interpreter/object.h"
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 
 	namespace sl {
 		class SimObject : public Object {
 
 		};
 
-		Entry* SimObject__test(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* SimObject__getId(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* SimObject__delete(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* SimObject__test(Engine* engine, unsigned int argc, Entry* args);
+		Entry* SimObject__getId(Engine* engine, unsigned int argc, Entry* args);
+		Entry* SimObject__delete(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

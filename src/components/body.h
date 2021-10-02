@@ -5,14 +5,10 @@
 #include <vector>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../compiler/scope.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class Body : public Component {
 	public:
@@ -30,7 +26,7 @@ class Body : public Component {
 			return false;
 		}
 
-		virtual ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context) = 0;
+		virtual ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context) = 0;
 
 		string print() {
 			return "";

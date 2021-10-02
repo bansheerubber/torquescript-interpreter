@@ -3,17 +3,13 @@
 #include <string>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/tokenizer.h"
 #include "../tokenizer/token.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class AssignStatement : public Component {
 	public:
@@ -31,12 +27,12 @@ class AssignStatement : public Component {
 			return true;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
-		static AssignStatement* Parse(class AccessStatement* lvalue, Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(class AccessStatement* lvalue, Component* parent, ts::Engine* engine);
+		static AssignStatement* Parse(class AccessStatement* lvalue, Component* parent, ts::Engine* engine);
 
 		class AccessStatement* getLValue() {
 			return this->lvalue;

@@ -37,7 +37,7 @@ Entry::Entry(ObjectReference* value) {
 
 Entry::~Entry() {
 	if(this->type == entry::STRING && this->stringData != nullptr) {
-		delete this->stringData;
+		delete[] this->stringData;
 		this->stringData = nullptr;
 	}
 
@@ -64,11 +64,21 @@ void Entry::setNumber(double value) {
 void Entry::setString(char* value) {
 	// TODO possible wild pointer free
 	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
-		delete this->stringData;
+		delete[] this->stringData;
 	}
 
 	this->type = entry::STRING;
 	this->stringData = value;
+}
+
+void Entry::setString(string value) {
+	// TODO possible wild pointer free
+	if(this->type != entry::NUMBER && this->stringData != nullptr) { // delete old string data
+		delete[] this->stringData;
+	}
+
+	this->type = entry::STRING;
+	this->stringData = stringToChars(value);
 }
 
 void Entry::setObject(ObjectReference* object) {
@@ -102,10 +112,10 @@ void Entry::print(int tabs) const {
 		printf("%s   data: %f,\n", space.c_str(), this->numberData);
 	}
 	else if(this->type == entry::OBJECT) {
-		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData->object);
-		if(this->objectData->object != nullptr) {
+		printf("%s   data: 0x%lX,\n", space.c_str(), (long)this->objectData->objectWrapper);
+		if(this->objectData->objectWrapper != nullptr) {
 			printf("%s   variables:\n", space.c_str());
-			this->objectData->object->properties.printWithTab(2 + tabs);
+			this->objectData->objectWrapper->object->properties.printWithTab(2 + tabs);
 		}
 	}
 	else {
@@ -118,7 +128,7 @@ void Entry::print(int tabs) const {
 void ts::copyEntry(const Entry &source, Entry &destination) {
 	// delete string data if we're going to copy an entry (prevents memory leak)
 	if(destination.type == entry::STRING && destination.stringData != nullptr) {
-		delete destination.stringData;
+		delete[] destination.stringData;
 		destination.stringData = nullptr;
 	}
 
@@ -144,7 +154,43 @@ void ts::copyEntry(const Entry &source, Entry &destination) {
 		}
 
 		case entry::OBJECT: {
-			destination.objectData = new ObjectReference(source.objectData->object);
+			destination.objectData = new ObjectReference(source.objectData);
+			break;
+		}
+	}
+}
+
+void ts::greedyCopyEntry(Entry &source, Entry &destination) {
+	// delete string data if we're going to copy an entry (prevents memory leak)
+	if(destination.type == entry::STRING && destination.stringData != nullptr) {
+		delete[] destination.stringData;
+		destination.stringData = nullptr;
+	}
+
+	if(destination.type == entry::OBJECT && destination.objectData != nullptr) {
+		delete destination.objectData;
+		destination.objectData = nullptr;
+	}
+	
+	destination.type = source.type;
+	switch(destination.type) {
+		case entry::INVALID: {
+			break;
+		}
+		
+		case entry::NUMBER: {
+			destination.numberData = source.numberData;
+			break;
+		}
+
+		case entry::STRING: {
+			destination.stringData = source.stringData;
+			source.stringData = nullptr;
+			break;
+		}
+
+		case entry::OBJECT: {
+			destination.objectData = new ObjectReference(source.objectData);
 			break;
 		}
 	}
@@ -162,9 +208,9 @@ void ts::convertToType(Interpreter* interpreter, Entry &source, entry::EntryType
 		}
 
 		case entry::OBJECT: {
-			Object* object = nullptr;
-			## type_conversion.py source object NUMBER_STRING OBJECT "" interpreter
-			source.objectData = new ObjectReference(object);
+			ObjectWrapper* objectWrapper = nullptr;
+			## type_conversion.py source objectWrapper NUMBER_STRING OBJECT "" interpreter
+			source.objectData = new ObjectReference(objectWrapper);
 			break;
 		}
 
