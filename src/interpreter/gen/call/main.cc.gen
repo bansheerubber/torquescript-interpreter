@@ -4,11 +4,11 @@ if(foundFunction->isTSSL) {
 	// copy the same logic from ARGUMENT_ASSIGN instruction for consistency
 	size_t head = this->stack.head;
 	size_t actualArgumentCount = (size_t)this->stack[head - 1].numberData; // get the amount of arguments used in the program
-	Entry* argv = new Entry[actualArgumentCount];
+	Entry argv[actualArgumentCount];
 	for(size_t i = 0; i < actualArgumentCount; i++) {
 		if(i < actualArgumentCount) {
 			relative_stack_location location = head - 1 - (actualArgumentCount - i);
-			copyEntry(this->stack[location], argv[i]);
+			greedyCopyEntry(this->stack[location], argv[i]);
 			if(i < function->argumentCount) {
 				convertToType(this, argv[i], function->argumentTypes[i]);
 			}
@@ -19,7 +19,7 @@ if(foundFunction->isTSSL) {
 	}
 
 	this->pushTSSLFunctionFrame(methodTreeEntry, methodTreeEntryIndex);
-	Entry* returnValue = function->function(this, actualArgumentCount, argv);
+	Entry* returnValue = function->function(this->engine, actualArgumentCount, argv);
 	this->popFunctionFrame();
 
 	// pop the data
@@ -31,7 +31,7 @@ if(foundFunction->isTSSL) {
 		this->push(getEmptyString(), instruction.pushType);
 	}
 	else {
-		this->push(*returnValue, instruction.pushType);
+		this->push(*returnValue, instruction.pushType, true);
 		delete returnValue;
 	}
 }

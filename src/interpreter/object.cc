@@ -1,19 +1,44 @@
 #include "object.h"
-#include "interpreter.h"
 
-Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, size_t namespaceIndex) {
+#include "interpreter.h"
+#include "methodTree.h"
+
+ObjectWrapper* ts::CreateObject(
+	class ts::Interpreter* interpreter,
+	string nameSpace,
+	string inheritedName,
+	MethodTree* methodTree,
+	MethodTree* typeMethodTree,
+	void* data
+) {
+	Object* object = new Object(interpreter, nameSpace, inheritedName, methodTree, typeMethodTree);
+	ObjectWrapper* wrapper = new ObjectWrapper(object, data);
+	interpreter->objects[object->id] = wrapper;
+
+	if(data == nullptr) {
+		if(typeMethodTree->tsslConstructor) {
+			(*typeMethodTree->tsslConstructor)(wrapper);
+		}
+	}
+	else {
+		wrapper->data = data;
+	}
+
+	return wrapper;
+}
+
+Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedName, MethodTree* methodTree, MethodTree* typeMethodTree) {
 	this->properties.interpreter = interpreter;
 
 	if(inheritedName.length() != 0) {
 		// TODO hash
 		auto objectIterator = interpreter->stringToObject.find(inheritedName);
 		if(objectIterator != interpreter->stringToObject.end()) {
-			this->inherit(objectIterator->second);
+			this->inherit(objectIterator->second->object);
 		}
 	}
 
 	this->id = interpreter->highestObjectId++;
-	interpreter->objects[this->id] = this;
 
 	string id = "id";
 	Entry entry;
@@ -21,13 +46,14 @@ Object::Object(ts::Interpreter* interpreter, string nameSpace, string inheritedN
 	this->properties.setVariableEntry(id, entry);
 
 	this->nameSpace = nameSpace;
-	this->namespaceIndex = namespaceIndex;
+	this->methodTree = methodTree;
+	this->typeMethodTree = typeMethodTree;
 }
 
 Object::~Object() {
 	ObjectReference* reference = this->list;
 	while(reference != nullptr) {
-		reference->object = nullptr;
+		reference->objectWrapper = nullptr;
 		reference = reference->next;
 	}
 	

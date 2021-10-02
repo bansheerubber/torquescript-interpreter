@@ -1,43 +1,41 @@
 #include "whileBody.h"
 #include "../interpreter/interpreter.h"
 
-bool WhileBody::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == WHILE;
+bool WhileBody::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == WHILE;
 }
 
-WhileBody* WhileBody::Parse(Body* body, Tokenizer* tokenizer, Parser* parser) {
-	WhileBody* output = new WhileBody(parser);
+WhileBody* WhileBody::Parse(Body* body, ts::Engine* engine) {
+	WhileBody* output = new WhileBody(engine);
 	output->parent = body;
 	
-	parser->expectToken(WHILE);
-	parser->expectToken(LEFT_PARENTHESIS);
+	engine->parser->expectToken(WHILE);
+	engine->parser->expectToken(LEFT_PARENTHESIS);
 
-	if(!Component::ShouldParse(output, tokenizer, parser)) {
-		parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'while' conditional");
+	if(!Component::ShouldParse(output, engine)) {
+		engine->parser->error("expected evaluateable expression, string literal, number literal, or boolean literal for 'while' conditional");
 	}
-	output->conditional = Component::Parse(output, tokenizer, parser);
+	output->conditional = Component::Parse(output, engine);
 	
-	parser->expectToken(RIGHT_PARENTHESIS);
+	engine->parser->expectToken(RIGHT_PARENTHESIS);
 
 	// handle one line while statements
-	if(
-		tokenizer->peekToken().type != LEFT_BRACKET
-	) {
-		Component::ParseBody(output, tokenizer, parser, true);
+	if(engine->tokenizer->peekToken().type != LEFT_BRACKET) {
+		Component::ParseBody(output, engine, true);
 	}
 	else {
-		tokenizer->getToken(); // absorb bracket
-		Component::ParseBody(output, tokenizer, parser); // parse the body of the while statement
-		parser->expectToken(RIGHT_BRACKET);
+		engine->tokenizer->getToken(); // absorb bracket
+		Component::ParseBody(output, engine); // parse the body of the while statement
+		engine->parser->expectToken(RIGHT_BRACKET);
 	}
 	
 	return output;
 }
 
 string WhileBody::print() {
-	string output = "while(" + this->conditional->print() + ")" + this->parser->space + "{" + this->parser->newLine;
+	string output = "while(" + this->conditional->print() + ")" + this->engine->parser->space + "{" + this->engine->parser->newLine;
 	output += this->printBody();
-	output += "}" + this->parser->newLine;
+	output += "}" + this->engine->parser->newLine;
 	return output;
 }
 
@@ -45,7 +43,7 @@ string WhileBody::printJSON() {
 	return "{\"type\":\"WHILE_STATEMENT\",\"conditional\":" + this->conditional->printJSON() + ",\"body\":" + this->printJSONBody() + "}";
 }
 
-ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn WhileBody::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	
 	// final NOOP statement in while statement
@@ -53,7 +51,7 @@ ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Compi
 	noop->type = ts::instruction::NOOP;
 
 	// add conditional
-	ts::InstructionReturn compiledConditional = this->conditional->compile(interpreter, context);
+	ts::InstructionReturn compiledConditional = this->conditional->compile(engine, context);
 	output.add(compiledConditional);
 
 	// add conditional jump
@@ -65,7 +63,7 @@ ts::InstructionReturn WhileBody::compile(ts::Interpreter* interpreter, ts::Compi
 
 	// add the body
 	for(Component* component: this->children) {
-		output.add(component->compile(interpreter, (ts::CompilationContext){
+		output.add(component->compile(engine, (ts::CompilationContext){
 			loop: this,
 			package: nullptr,
 			scope: context.scope,

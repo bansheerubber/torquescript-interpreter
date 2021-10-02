@@ -7,11 +7,11 @@
 using namespace std;
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 	
 	namespace sl {
-		Entry* echo(Interpreter* interpreter, size_t argc, Entry* args);
-		Entry* error(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* echo(Engine* engine, unsigned int argc, Entry* args);
+		Entry* error(Engine* engine, unsigned int argc, Entry* args);
 
 		extern string mockStdout;
 		extern bool useMockStdout;

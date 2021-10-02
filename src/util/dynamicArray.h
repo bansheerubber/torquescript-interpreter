@@ -10,6 +10,7 @@ template <typename T, typename S>
 class DynamicArray {
 	public:
 		size_t head;
+		size_t size;
 
 		DynamicArray() {
 			this->array = nullptr;
@@ -36,7 +37,7 @@ class DynamicArray {
 			this->array = array;
 
 			for(size_t i = 0; i < this->size; i++) {
-				(*this->init)(this->parent, &this->array[i]);
+				(*this->init)(this->parent, &(this->array[i]));
 			}
 		}
 
@@ -90,7 +91,6 @@ class DynamicArray {
 	private:
 		bool dontDelete = false;
 		T* array;
-		size_t size;
 		S* parent;
 		void (*init) (S* parent, T* location);
 		void (*onRealloc) (S* parent);

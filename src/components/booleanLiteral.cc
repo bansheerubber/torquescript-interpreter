@@ -1,14 +1,14 @@
 #include "booleanLiteral.h"
 #include "../interpreter/interpreter.h"
 
-bool BooleanLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == TRUE || tokenizer->peekToken().type == FALSE;
+bool BooleanLiteral::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == TRUE || engine->tokenizer->peekToken().type == FALSE;
 }
 
-BooleanLiteral* BooleanLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	BooleanLiteral* output = new BooleanLiteral(parser);
+BooleanLiteral* BooleanLiteral::Parse(Component* parent, ts::Engine* engine) {
+	BooleanLiteral* output = new BooleanLiteral(engine);
 	output->parent = parent;
-	output->value = tokenizer->getToken();
+	output->value = engine->tokenizer->getToken();
 	return output;
 }
 
@@ -30,7 +30,7 @@ string BooleanLiteral::printJSON() {
 	}
 }
 
-ts::InstructionReturn BooleanLiteral::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn BooleanLiteral::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::Instruction* instruction = new ts::Instruction();
 	instruction->type = ts::instruction::PUSH;
 	instruction->push.entry = ts::Entry();

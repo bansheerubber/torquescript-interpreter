@@ -15,6 +15,12 @@ vector<Argument> createArguments() {
 	});
 
 	output.push_back((Argument){
+		name: "interactive",
+		shortcut: "i",
+		help: "Enter shell once done executing file or piped code"
+	});
+
+	output.push_back((Argument){
 		name: "test",
 		hide: true
 	});
@@ -122,7 +128,6 @@ ParsedArguments parseArguments(vector<Argument> &arguments, int argc, char* argv
 		// if we have a random string that isn't associated with an argument, treat it as an input file
 		else if(foundArgument.name == "" || !foundArgument.needsInput) {
 			output.files.push_back(cliArgument);
-			foundArgument = (Argument){};
 		}
 		else {
 			output.arguments.insert(pair<string, string>(foundArgument.name, cliArgument));

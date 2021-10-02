@@ -1,4 +1,6 @@
-from gen.gen import get_generated_code
+import sys
+sys.path.insert(0, "../../tools")
+from gen import get_generated_code
 
 number_operations = {
 	"MATH_ADDITION": "this->push({0} + {1}, instruction.pushType);",

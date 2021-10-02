@@ -43,12 +43,14 @@ namespace ts {
 		~Entry();
 		void setNumber(double value);
 		void setString(char* value);
+		void setString(string value);
 		void setObject(ObjectReference* value);
 		void print(int tabs = 0) const;
 		const char* typeToString() const;
 	};
 
 	void copyEntry(const Entry &source, Entry &destination);
+	void greedyCopyEntry(Entry &source, Entry &destination);
 	void convertToType(class Interpreter* interpreter, Entry &source, entry::EntryType type);
 	void initEntry(class Interpreter* interpreter, Entry* location);
 }

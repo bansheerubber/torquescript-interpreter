@@ -2,4 +2,4 @@
 
 #include <cstring>
 
-char* cloneString(char* input);
+char* cloneString(const char* input);

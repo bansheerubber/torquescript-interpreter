@@ -4,6 +4,7 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 #include "../compiler/loops.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
@@ -11,11 +12,6 @@
 #include "../tokenizer/tokenizer.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class ForBody : public Body, public ts::LoopsContext {
 	public:
@@ -39,12 +35,12 @@ class ForBody : public Body, public ts::LoopsContext {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
-		static ForBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static ForBody* Parse(Body* body, ts::Engine* engine);
 	
 	private:
 		Component* initialization = nullptr;

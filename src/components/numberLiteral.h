@@ -3,15 +3,11 @@
 #include <string>
 
 #include "component.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class NumberLiteral : public Component {
 	public:
@@ -29,12 +25,12 @@ class NumberLiteral : public Component {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static NumberLiteral* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static NumberLiteral* Parse(Component* parent, ts::Engine* engine);
 
 		double getNumber();
 	

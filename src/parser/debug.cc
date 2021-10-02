@@ -2,6 +2,7 @@
 
 #include <mutex>
 
+#include "../engine/engine.h"
 #include "../io.h"
 #include "parser.h"
 
@@ -13,15 +14,15 @@ std::mutex& errorLock() {
 void Parser::error(const char* format, ...) {
 	lock_guard<mutex> lock(errorLock());
 	
-	Token token = this->tokenizer->peekToken();
-	printError("%s:%d:%d: ", this->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
+	Token token = this->engine->tokenizer->peekToken();
+	(*this->engine->errorFunction)("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
-	printError(format, argptr);
+	(*this->engine->vErrorFunction)(format, argptr);
 	va_end(argptr);
 
-	printError("\n");
+	(*this->engine->errorFunction)("\n");
 
 	exit(1);
 }
@@ -29,15 +30,15 @@ void Parser::error(const char* format, ...) {
 void Parser::warning(const char* format, ...) {
 	lock_guard<mutex> lock(errorLock());
 	
-	Token token = this->tokenizer->peekToken();
-	printWarning("%s:%d:%d: ", this->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
+	Token token = this->engine->tokenizer->peekToken();
+	(*this->engine->warningFunction)("%s:%d:%d: ", this->engine->tokenizer->fileName.c_str(), token.lineNumber, token.characterNumber);
 	
 	va_list argptr;
 	va_start(argptr, format);
-	printWarning(format, argptr);
+	(*this->engine->vWarningFunction)(format, argptr);
 	va_end(argptr);
 
-	printWarning("\n");
+	(*this->engine->warningFunction)("\n");
 }
 
 ## parser_debug.py

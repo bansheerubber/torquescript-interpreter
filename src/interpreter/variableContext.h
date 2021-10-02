@@ -13,13 +13,17 @@ namespace ts {
 	};
 	
 	class VariableContext {
+		friend class Interpreter;
+		friend class Object;
+		friend void initFunctionFrame(Interpreter* interpreter, class FunctionFrame* frame);
+		
 		public:
 			VariableContext();
 			VariableContext(class Interpreter* interpreter);
 			
 			Entry& getVariableEntry(class Instruction &instruction, string &variable, size_t hash);
 			Entry& getVariableEntry(string &name);
-			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry);
+			void setVariableEntry(class Instruction &instruction, string &name, size_t hash, Entry &entry, bool greedy);
 			void setVariableEntry(string &name, Entry &entry);
 			string computeVariableString(class Instruction &instruction, string &variable);
 			void linkVariable(string &name, size_t hash, int stackIndex);
@@ -30,8 +34,6 @@ namespace ts {
 		
 		private:
 			class Interpreter* interpreter;
-			friend class Interpreter;
-			friend class Object;
 			robin_map<string, VariableContextEntry> variableMap;
 	};
 

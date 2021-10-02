@@ -7,9 +7,9 @@
 using namespace std;
 
 namespace ts {
-	class Interpreter;
+	class Engine;
 	
 	namespace sl {
-		Entry* isObject(Interpreter* interpreter, size_t argc, Entry* args);
+		Entry* isObject(Engine* engine, unsigned int argc, Entry* args);
 	}
 }

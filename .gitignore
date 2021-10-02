@@ -10,3 +10,4 @@ tests/errors
 *.pyc
 __pycache__
 libtorquescript.map
+library todo

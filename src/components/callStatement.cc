@@ -1,35 +1,35 @@
 #include "callStatement.h"
 #include "../interpreter/interpreter.h"
 
-bool CallStatement::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == LEFT_PARENTHESIS;
+bool CallStatement::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == LEFT_PARENTHESIS;
 }
 
-CallStatement* CallStatement::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	CallStatement* output = new CallStatement(parser);
+CallStatement* CallStatement::Parse(Component* parent, ts::Engine* engine) {
+	CallStatement* output = new CallStatement(engine);
 	output->parent = parent;
 	
-	parser->expectToken(LEFT_PARENTHESIS);
+	engine->parser->expectToken(LEFT_PARENTHESIS);
 
 	bool expectingComma = false;
-	while(!tokenizer->eof()) {
+	while(!engine->tokenizer->eof()) {
 		if(!expectingComma) {
-			if(Component::ShouldParse(output, tokenizer, parser)) {
+			if(Component::ShouldParse(output, engine)) {
 				output->elements.push_back((CallElement){
-					component: Component::Parse(output, tokenizer, parser),
+					component: Component::Parse(output, engine),
 				});
 				expectingComma = true;
 			}
-			else if(tokenizer->peekToken().type == RIGHT_PARENTHESIS) { // there's no arguments
-				tokenizer->getToken(); // absorb right parenthesis
+			else if(engine->tokenizer->peekToken().type == RIGHT_PARENTHESIS) { // there's no arguments
+				engine->tokenizer->getToken(); // absorb right parenthesis
 				break;
 			}
 			else {
-				parser->error("could not parse component in argument list");
+				engine->parser->error("could not parse component in argument list");
 			}
 		}
 		else {
-			Token token = parser->expectToken(COMMA, RIGHT_PARENTHESIS);
+			Token token = engine->parser->expectToken(COMMA, RIGHT_PARENTHESIS);
 			if(token.type == COMMA) {
 				output->elements.push_back((CallElement){
 					isComma: true,
@@ -52,7 +52,7 @@ string CallStatement::print() {
 			output += element.component->print();
 		}
 		else if(element.isComma) {
-			output += "," + this->parser->space;
+			output += "," + this->engine->parser->space;
 		}
 	}
 	output += ")";
@@ -96,11 +96,11 @@ size_t CallStatement::getElementCount() {
 }
 
 // upon compilation, push values of the variables
-ts::InstructionReturn CallStatement::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+ts::InstructionReturn CallStatement::compile(ts::Engine* engine, ts::CompilationContext context) {
 	ts::InstructionReturn output;
 	for(CallElement &element: this->elements) {
 		if(!element.isComma) {
-			output.add(element.component->compile(interpreter, context));
+			output.add(element.component->compile(engine, context));
 		}
 	}
 	return output;

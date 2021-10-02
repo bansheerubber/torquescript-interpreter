@@ -4,13 +4,9 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class SourceFile : public Body, public ts::Scope {
 	public:
@@ -28,7 +24,7 @@ class SourceFile : public Body, public ts::Scope {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();

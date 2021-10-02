@@ -3,14 +3,14 @@
 
 using namespace ts;
 
-bool NumberLiteral::ShouldParse(Tokenizer* tokenizer, Parser* parser) {
-	return tokenizer->peekToken().type == NUMBER;
+bool NumberLiteral::ShouldParse(ts::Engine* engine) {
+	return engine->tokenizer->peekToken().type == NUMBER;
 }
 
-NumberLiteral* NumberLiteral::Parse(Component* parent, Tokenizer* tokenizer, Parser* parser) {
-	NumberLiteral* output = new NumberLiteral(parser);
+NumberLiteral* NumberLiteral::Parse(Component* parent, ts::Engine* engine) {
+	NumberLiteral* output = new NumberLiteral(engine);
 	output->parent = parent;
-	output->number = tokenizer->getToken().lexeme;
+	output->number = engine->tokenizer->getToken().lexeme;
 	return output;
 }
 
@@ -22,7 +22,7 @@ string NumberLiteral::printJSON() {
 	return "{\"type\":\"NUMBER_LITERAL\",\"value\":\"" + this->number + "\"}";
 }
 
-InstructionReturn NumberLiteral::compile(ts::Interpreter* interpreter, ts::CompilationContext context) {
+InstructionReturn NumberLiteral::compile(ts::Engine* engine, ts::CompilationContext context) {
 	Instruction* instruction = new Instruction();
 	instruction->type = instruction::PUSH;
 	instruction->push.entry = ts::Entry();

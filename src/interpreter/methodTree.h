@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../util/dynamicArray.h"
+#include "object.h"
 #include "../include/robin-map/include/tsl/robin_map.h"
 
 using namespace tsl;
@@ -60,10 +61,12 @@ namespace ts {
 			size_t index;
 
 			bool isTSSL = false;
+
+			TS_OBJECT_CONSTRUCTOR(tsslConstructor) = nullptr;
 		
 		private:
 			vector<class PackagedFunctionList*> buildMethodTreeEntryForParents(string methodName, size_t methodNameIndex, bool addInitial = true);
-			DynamicArray<MethodTree*, MethodTree> parents = DynamicArray<MethodTree*, MethodTree>(this, 17, initMethodTree, nullptr);
-			DynamicArray<MethodTree*, MethodTree> children = DynamicArray<MethodTree*, MethodTree>(this, 16, initMethodTree, nullptr);
+			DynamicArray<MethodTree*, MethodTree> parents = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
+			DynamicArray<MethodTree*, MethodTree> children = DynamicArray<MethodTree*, MethodTree>(this, 5, initMethodTree, nullptr);
 	};
 }

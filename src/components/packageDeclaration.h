@@ -4,6 +4,7 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
@@ -12,11 +13,6 @@
 #include "symbol.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class PackageDeclaration : public Body, public ts::Package {
 	public:
@@ -34,12 +30,12 @@ class PackageDeclaration : public Body, public ts::Package {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, Parser* parser);
-		static PackageDeclaration* Parse(Component* parent, Tokenizer* tokenizer, Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static PackageDeclaration* Parse(Component* parent, ts::Engine* engine);
 	
 	private:
 		Symbol* packageName = nullptr;

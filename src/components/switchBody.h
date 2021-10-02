@@ -4,17 +4,13 @@
 
 #include "component.h"
 #include "body.h"
+#include "../engine/engine.h"
 #include "../parser/parser.h"
 #include "../compiler/scope.h"
 #include "../tokenizer/token.h"
 #include "../tokenizer/tokenizer.h"
 
 using namespace std;
-
-// forward declare interpreter
-namespace ts {
-	class Interpreter;
-}
 
 class SwitchBody : public Body {
 	public:
@@ -37,12 +33,12 @@ class SwitchBody : public Body {
 			return false;
 		}
 
-		ts::InstructionReturn compile(ts::Interpreter* interpreter, ts::CompilationContext context);
+		ts::InstructionReturn compile(ts::Engine* engine, ts::CompilationContext context);
 
 		string print();
 		string printJSON();
-		static bool ShouldParse(Tokenizer* tokenizer, class Parser* parser);
-		static SwitchBody* Parse(Body* body, Tokenizer* tokenizer, class Parser* parser);
+		static bool ShouldParse(ts::Engine* engine);
+		static SwitchBody* Parse(Body* body, ts::Engine* engine);
 	
 	private:
 		Token switchType;

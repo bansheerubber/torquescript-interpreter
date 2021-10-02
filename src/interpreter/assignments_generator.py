@@ -1,7 +1,10 @@
 # handles various assignment instructions
 
 from assignment_instructions import get_suffixes, get_prefixes
-from gen.gen import get_generated_code
+
+import sys
+sys.path.insert(0, "../../tools")
+from gen import get_generated_code
 
 operations = {
 	"INCREMENT": "++{0}",
@@ -24,8 +27,12 @@ specific_operations = {
 					instruction,
 					instruction.localAssign.destination,
 					instruction.localAssign.hash,
-					*entry
+					*entry,
+					instruction.localAssign.fromStack
 				);
+			}}
+			else if(instruction.localAssign.fromStack) {{
+				greedyCopyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
 			}}
 			else {{
 				copyEntry(*entry, this->stack[instruction.localAssign.stackIndex + this->stackFramePointer]);
@@ -34,13 +41,15 @@ specific_operations = {
 				instruction,
 				instruction.localAssign.destination,
 				instruction.localAssign.hash,
-				*entry
+				*entry,
+				instruction.localAssign.fromStack
 			);""",
 	"GLOBAL_ASSIGN_EQUAL": """this->globalContext.setVariableEntry(
 				instruction,
 				instruction.globalAssign.destination,
 				instruction.globalAssign.hash,
-				*entry
+				*entry,
+				instruction.localAssign.fromStack
 			);""",
 }
 
