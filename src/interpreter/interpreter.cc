@@ -194,16 +194,7 @@ void Interpreter::push(ObjectReference* value, instruction::PushType type) {
 
 void Interpreter::pop() {
 	Entry &test = this->stack[this->stack.head - 1];
-	if(test.type == entry::STRING && test.stringData) {
-		delete[] test.stringData;
-		test.stringData = nullptr;
-	}
-
-	if(test.type == entry::OBJECT && test.objectData) {
-		delete test.objectData;
-		test.objectData = nullptr;
-	}
-	
+	test.erase();
 	this->stack.popped();
 }
 
